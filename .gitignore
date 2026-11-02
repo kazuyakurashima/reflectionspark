@@ -1,0 +1,12 @@
+# 秘密の値（API キーなど）は入れない
+.env*
+!.env.example
+
+# 依存とビルドの出力
+node_modules/
+.next/
+out/
+.vercel/
+
+# Mac
+.DS_Store
