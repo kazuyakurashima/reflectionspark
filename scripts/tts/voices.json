@@ -1,0 +1,12 @@
+{
+  "models": ["eleven_v4", "eleven_v3"],
+  "outputFormat": "mp3_44100_128",
+  "maxCharsPerRequest": 2000,
+  "speakers": {
+    "講師": { "voiceName": "Hajisan", "voiceId": "" },
+    "生徒": { "voiceName": "Sky", "voiceId": "" },
+    "保護者": { "voiceName": "", "voiceId": "" },
+    "コーチ": { "voiceName": "", "voiceId": "" },
+    "クライアント": { "voiceName": "", "voiceId": "" }
+  }
+}
