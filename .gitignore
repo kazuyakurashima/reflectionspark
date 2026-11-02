@@ -1,12 +1,20 @@
 # 秘密の値（API キーなど）は入れない
 .env*
 !.env.example
+*.pem
 
 # 依存とビルドの出力
 node_modules/
 .next/
 out/
+build/
+coverage/
 .vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# ログ
+npm-debug.log*
 
 # Mac
 .DS_Store
