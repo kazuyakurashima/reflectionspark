@@ -13,6 +13,11 @@ coverage/
 *.tsbuildinfo
 next-env.d.ts
 
+# 台本から作った音声（scripts/tts。作り直せるので入れない）
+*.mp3
+*.m4a
+*.parts/
+
 # ログ
 npm-debug.log*
 
