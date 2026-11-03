@@ -4,6 +4,7 @@
 // 〔案〕の結果は別の欄に出す。
 
 import { looseKey } from "../../engine/text.mts";
+import { quoteMatchesTranscript } from "../../engine/citations.mts";
 import { scanObject } from "../../engine/forbidden-words.mts";
 import type { ForbiddenHit } from "../../engine/forbidden-words.mts";
 import type {
@@ -87,7 +88,7 @@ export function judgementWordsIn(text: string): string[] {
 export function axis1(step1: Step1Result, t: Transcript): Axis1 {
   const scenes = step1.scenes;
   const displayed = scenes.reduce((s, sc) => s + sc.quotes.length, 0);
-  const displayedVerified = scenes.reduce((s, sc) => s + sc.quotes.filter((q) => q.verified && t.utterances[q.index]?.text === q.citedText).length, 0);
+  const displayedVerified = scenes.reduce((s, sc) => s + sc.quotes.filter((q) => quoteMatchesTranscript(q, t.utterances)).length, 0);
   let neighborsMissing = 0;
   for (const sc of scenes) {
     for (const q of sc.quotes) {

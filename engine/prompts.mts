@@ -329,7 +329,7 @@ export function step2User(utterances: Utterance[], scenes: Scene[]): string {
   const sceneText = scenes
     .map(
       (s) => `- ${s.type}（項目：${s.items.join("、") || "なし"}）：${s.context}
-  引用：${s.quotes.map((q) => `〔発話 ${q.index}〕${q.citedText}`).join(" ／ ") || "（なし）"}
+  引用：${s.quotes.map((q) => `〔発話 ${q.index}〕${q.text}`).join(" ／ ") || "（なし）"}
   読み：${s.reading}`,
     )
     .join("\n");
@@ -387,7 +387,7 @@ export const STEP3_SCHEMA = {
 };
 
 export function step3User(scene: Scene, answer: string, neighbors: { before: Utterance | null; after: Utterance | null }, memoryNotes: string[] = []): string {
-  const quotes = scene.quotes.map((q) => `〔発話 ${q.index}〕${q.citedText}`).join("\n");
+  const quotes = scene.quotes.map((q) => `〔発話 ${q.index}〕${q.text}`).join("\n");
   const around = [neighbors.before, neighbors.after]
     .filter((u): u is Utterance => u !== null)
     .map((u) => `〔発話 ${u.index}・${u.speaker}〕${u.text ?? ""}`)

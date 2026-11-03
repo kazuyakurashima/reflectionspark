@@ -108,12 +108,15 @@ export type CallMeta = {
 };
 
 export type Quote = {
-  /** citations の cited_text（検証前） */
+  /** citations の cited_text（そのまま。document のブロックは「話者：本文」の形なので、話者が付いている） */
   citedText: string;
+  /** 画面に出す引用の本文。cited_text から話者の前置きを外したもので、発話の本文（text）と完全一致したものだけ verified になる */
+  text: string;
   /** 発話番号（start_block_index） */
   index: number;
+  /** end_block_index（含まない） */
   endIndex: number;
-  /** 原文（整形後の発話）と完全一致したか */
+  /** 原文（整形後の発話）と完全一致したか。一致しない引用は画面に出さない（決まり 1） */
   verified: boolean;
 };
 

@@ -28,7 +28,7 @@ async function judge(label: string, user: string): Promise<Judgement & { meta: C
 }
 
 function sceneText(sc: Scene, t: Transcript): string {
-  const quotes = sc.quotes.map((q) => `〔発話 ${q.index}〕${q.citedText}`).join("\n");
+  const quotes = sc.quotes.map((q) => `〔発話 ${q.index}〕${q.text}`).join("\n");
   const around = sc.quotes
     .flatMap((q) => [q.index - 1, q.index + 1])
     .filter((i) => i >= 0 && i < t.utterances.length)
