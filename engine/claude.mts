@@ -18,6 +18,11 @@ export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 
 let client: Anthropic | null = null;
 
+/** テスト用：偽のクライアントを差す（API を呼ばずに配線を確かめる） */
+export function setClientForTests(fake: unknown): void {
+  client = fake as Anthropic;
+}
+
 export function getClient(): Anthropic {
   if (!client) {
     if (!process.env.ANTHROPIC_API_KEY) {

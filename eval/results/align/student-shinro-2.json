@@ -14,6 +14,20 @@
     65,
     86
   ],
+  "missingByAlignment": [
+    15,
+    16,
+    17,
+    18,
+    19,
+    39,
+    46,
+    56,
+    65,
+    86
+  ],
+  "missingByNote": [],
+  "noteReason": null,
   "lines": [
     {
       "line": 1,

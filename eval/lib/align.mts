@@ -212,6 +212,29 @@ export function speakerOfLine(script: ScriptLine[], line: number): string | unde
   return script.find((l) => l.line === line)?.speaker;
 }
 
+/**
+ * 作り手の注記（eval/cases/<case>/missing-lines.json）で「文字起こしに無い」と分かっている行を、対応付けの結果に足す。
+ * 対応付けだけでは断片が残って「ある」と出る行があるため。
+ */
+export function addKnownMissing(a: Alignment, lines: number[]): Alignment {
+  const set = new Set(lines);
+  for (let li = 0; li < a.lines.length; li++) {
+    const l = a.lines[li];
+    if (!set.has(l.line) || l.missing) continue;
+    l.missing = true;
+    l.memoSpan = null;
+    for (let k = 0; k < a.memoCharLine.length; k++) {
+      if (a.memoCharLine[k] === li) {
+        a.memoCharLine[k] = -1;
+        a.memoCharScript[k] = -1;
+        a.memoCharSame[k] = 0;
+      }
+    }
+  }
+  a.missingLines = a.lines.filter((l) => l.missing).map((l) => l.line);
+  return a;
+}
+
 /** 正解の範囲（行番号の並び）から、文字起こしに無い行を除く。 */
 export function dropMissingLines(lines: number[], a: Alignment): { kept: number[]; dropped: number[] } {
   const missing = new Set(a.missingLines);

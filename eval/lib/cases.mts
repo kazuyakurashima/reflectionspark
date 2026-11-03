@@ -4,9 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { MeetingKind } from "../../engine/types.mts";
-import { alignScriptToMemo, parseScript } from "./align.mts";
+import { addKnownMissing, alignScriptToMemo, parseScript } from "./align.mts";
 import type { Alignment, ScriptLine } from "./align.mts";
-import { loadTruth } from "./truth.mts";
+import { expandLines, loadTruth } from "./truth.mts";
 import type { Truth } from "./truth.mts";
 
 export const CASES_DIR = path.resolve("eval/cases");
@@ -34,6 +34,8 @@ export function loadCase(name: string): EvalCase {
   const raw = fs.readFileSync(path.join(dir, "voicememo.txt"), "utf8").replace(/^﻿/, "").trim();
   const script = parseScript(fs.readFileSync(path.join(dir, "script.txt"), "utf8"));
   const alignment = alignScriptToMemo(script, raw);
+  const known = knownMissingLines(dir);
+  if (known) addKnownMissing(alignment, known.lines);
   let truth: Truth | null = null;
   try {
     truth = loadTruth(name);
@@ -41,6 +43,14 @@ export function loadCase(name: string): EvalCase {
     truth = null;
   }
   return { name, kind: kindOfCase(name), raw, script, alignment, truth };
+}
+
+/** 作り手の注記で「文字起こしに無い」と分かっている行（eval/cases/<case>/missing-lines.json）。無ければ null */
+export function knownMissingLines(dir: string): { lines: number[]; reason: string } | null {
+  const f = path.join(dir, "missing-lines.json");
+  if (!fs.existsSync(f)) return null;
+  const j = JSON.parse(fs.readFileSync(f, "utf8")) as { lines: string | number | Array<string | number>; reason: string };
+  return { lines: expandLines(j.lines) ?? [], reason: j.reason };
 }
 
 export function runDir(caseName: string): string {

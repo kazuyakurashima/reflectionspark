@@ -3,6 +3,9 @@
   "threshold": 0.4,
   "scriptLines": 86,
   "missingLines": [],
+  "missingByAlignment": [],
+  "missingByNote": [],
+  "noteReason": null,
   "lines": [
     {
       "line": 1,

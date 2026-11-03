@@ -16,6 +16,22 @@
     172,
     176
   ],
+  "missingByAlignment": [
+    28,
+    30,
+    32,
+    38,
+    46,
+    56,
+    58,
+    160,
+    162,
+    170,
+    172,
+    176
+  ],
+  "missingByNote": [],
+  "noteReason": null,
   "lines": [
     {
       "line": 1,

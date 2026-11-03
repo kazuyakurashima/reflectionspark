@@ -5,6 +5,11 @@
   "missingLines": [
     72
   ],
+  "missingByAlignment": [
+    72
+  ],
+  "missingByNote": [],
+  "noteReason": null,
   "lines": [
     {
       "line": 1,
