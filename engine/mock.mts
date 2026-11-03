@@ -4,8 +4,9 @@
 
 import { blockText, verifyCitation } from "./citations.mts";
 import { applyCorrections } from "./step0.mts";
+import { parseStep3 } from "./step3.mts";
 import { computeTotal } from "./rubric.mts";
-import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Step1Result, Step2Result, Transcript, Utterance } from "./types.mts";
+import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Spark, Step1Result, Step2Result, Step3Result, Step4Result, Transcript, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
 
 export const MOCK_NOTE = "（仮の出力）";
@@ -155,6 +156,60 @@ export function mockStep2(t: Transcript, firstMeeting = true): Step2Result {
     total: computeTotal(items),
     insightOwner: "両方",
     ethics: { level: "問題なし", text: `${MOCK_NOTE}問題なし`, viewpoint: null, utterances: [] },
+    meta: mockMeta,
+  };
+}
+
+/** 仮の工程 3：候補 3 つ。形（もし〜なら、〜する／セリフの例／できたかの基準）は本物と同じ。本人の答えは先頭の候補の基準に写す。 */
+export function mockStep3(scene: Scene, answer: string): Step3Result {
+  const head = answer.trim() ? `本人の答え「${[...answer.trim()].slice(0, 20).join("")}…」を踏まえた候補。` : "本人の答えが空だったので、場面と読みから作った候補。";
+  const parsed = parseStep3({
+    candidates: [
+      {
+        condition: "相手の返事が「はい」だけになったら",
+        action: "説明を止めて「いまの話、どう思う？」と聞く",
+        lines: ["いまの話、どう思う？", "ここまでで、引っかかる所ある？", "自分の言葉だと、どうなる？"],
+        criterion: `${MOCK_NOTE}${head}次の面談で、相手の短い返事の直後に、本人の問いが文字起こしにある。`,
+      },
+      {
+        condition: "相手が望みを口にしたのに、それに向けた行動が出ていないとき",
+        action: "望みと今の行動の差をそのまま返して、どう思うかを聞く",
+        lines: ["行きたいんだよね。でも、いまは〇〇。この差、どう思う？", "やりたいことと、やってることが違うように聞こえた。どう？"],
+        criterion: `${MOCK_NOTE}次の面談で、相手の望みの直後に、本人が差を言葉にして問う発話がある。`,
+      },
+      {
+        condition: "自分の問いに相手が「えっと」と答え始めたら",
+        action: "解説を足さずに「うん、それで？」と返す",
+        lines: ["うん、それで？", "うん。続けて。"],
+        criterion: `${MOCK_NOTE}次の面談で、相手の「えっと」の直後の本人の発話が一文以内で、問いか相づちだけになっている。`,
+      },
+    ],
+  });
+  void scene;
+  return { ...parsed, meta: mockMeta };
+}
+
+/** 仮の工程 4：本人の発話を 1 つ引用し（照合も通す）、判定は「一部」、点は項目 5 を含めて仮の値。 */
+export function mockStep4(t: Transcript, spark: Spark): Step4Result {
+  const { self } = SPEAKER_LABELS[t.kind];
+  const u = pickSelf(t.utterances, self, /どう思う|どう|思う/, 0.6);
+  const items: ItemScore[] = ([1, 2, 3, 4, 5] as ItemNumber[]).map((n) => ({
+    item: n,
+    score: 3,
+    reason: n === 5 ? `${MOCK_NOTE}前回決めたこと（${[...spark.sentence].slice(0, 24).join("")}…）に触れたかを、本物の出力はここに書きます` : `${MOCK_NOTE}理由の一行を、本物の出力はここに書きます`,
+    utterances: [u.index],
+  }));
+  return {
+    verdict: "一部",
+    quotes: [quoteOf(u, t.utterances)],
+    discardedQuotes: [],
+    why: `${MOCK_NOTE}前回の行動がどう現れたかの一文を、本物の出力はここに書きます。`,
+    items,
+    total: computeTotal(items),
+    otherPersonLine: null,
+    quoteStats: { generated: 1, discarded: 0 },
+    firstCitationMs: null,
+    rawText: "",
     meta: mockMeta,
   };
 }

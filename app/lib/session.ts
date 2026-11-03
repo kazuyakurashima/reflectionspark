@@ -1,10 +1,37 @@
 // 画面の間で持ち回る面談のデータ（localStorage）。認証なしで Demo Mode を成り立たせる。
-// 本人の自己採点と一言はここに保存するだけで、AI の呼び出しには入れない（決まり 10）。
+// 本人の自己採点・自己評価・一言はここに保存するだけで、AI の呼び出しには入れない（決まり 10）。
 // localStorage を外部のストアとして useSyncExternalStore で読む（保存すると購読している画面が更新される）。
 
 import { useMemo, useSyncExternalStore } from "react";
 
-import type { MeetingKind, Step1Result, Step2Result, Transcript } from "@/engine/types.mts";
+import type { FollowUpVerdict, MeetingKind, Spark, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
+
+/** 画面 4 で本人が選んだ（または直した）一つ */
+export type SparkChoice = Spark & {
+  id: string;
+  lines: string[];
+  chosenAt: string;
+  /** 候補を直して使ったか */
+  edited: boolean;
+  /** この行動を次の面談で追った回数 */
+  timesFollowed: number;
+  /** 3 回目に「続ける」と答えたか */
+  keepAfterThird: boolean;
+};
+
+/** 画面 5（次の面談で）のデータ */
+export type FollowUpData = {
+  raw: string;
+  transcript: Transcript | null;
+  mock: boolean;
+  step0Ms: number | null;
+  /** 本人の自己評価。AI に渡さない */
+  selfVerdict: FollowUpVerdict | null;
+  selfScore: number | null;
+  result: { step4: Step4Result; mock: boolean } | null;
+  /** この結果で追った回数を数えた Spark の id（二重に数えない） */
+  countedSparkId: string | null;
+};
 
 export type SessionData = {
   id: string;
@@ -24,6 +51,14 @@ export type SessionData = {
   selfScore: number | null;
   selfNote: string;
   analysis: { step1: Step1Result; step2: Step2Result; mock: boolean } | null;
+  /** 画面 3：問いへの本人の答え */
+  answers: { question: string; answer: string }[];
+  /** 画面 4：候補と、選んだ一つ */
+  candidates: { step3: Step3Result; mock: boolean } | null;
+  spark: SparkChoice | null;
+  sparkSkipped: boolean;
+  /** 画面 5 */
+  followUp: FollowUpData | null;
 };
 
 const KEY = "reflectionspark:session";
@@ -42,7 +77,21 @@ export function newSession(kind: MeetingKind = "生徒", otherName = "", raw = "
     selfScore: null,
     selfNote: "",
     analysis: null,
+    answers: [],
+    candidates: null,
+    spark: null,
+    sparkSkipped: false,
+    followUp: null,
   };
+}
+
+export function newFollowUp(raw = ""): FollowUpData {
+  return { raw, transcript: null, mock: false, step0Ms: null, selfVerdict: null, selfScore: null, result: null, countedSparkId: null };
+}
+
+/** 古い保存に無い項目を埋める */
+function fill(s: Partial<SessionData>): SessionData {
+  return { ...newSession(), ...s, answers: s.answers ?? [], sparkSkipped: s.sparkSkipped ?? false } as SessionData;
 }
 
 function read(): string | null {
@@ -57,7 +106,7 @@ export function loadSession(): SessionData | null {
   const s = read();
   if (!s) return null;
   try {
-    return JSON.parse(s) as SessionData;
+    return fill(JSON.parse(s) as Partial<SessionData>);
   } catch {
     return null;
   }
@@ -107,9 +156,23 @@ export function useSession(): SessionData | null | undefined {
     if (raw === undefined) return undefined;
     if (raw === null) return null;
     try {
-      return JSON.parse(raw) as SessionData;
+      return fill(JSON.parse(raw) as Partial<SessionData>);
     } catch {
       return null;
     }
   }, [raw]);
+}
+
+/** 選んだ一つの id（候補の番号と時刻から） */
+export function makeSparkId(i: number): string {
+  return `${Date.now().toString(36)}-${i}`;
+}
+
+/** 画面 3 の問い（場面ごとの問いと、事情を尋ねる問い） */
+export function questionsOf(s: SessionData): string[] {
+  const a = s.analysis;
+  if (!a) return [];
+  const qs = a.step1.scenes.map((sc) => sc.question).filter((q) => q.trim() !== "");
+  if (a.step1.extraQuestion) qs.push(a.step1.extraQuestion);
+  return qs;
 }

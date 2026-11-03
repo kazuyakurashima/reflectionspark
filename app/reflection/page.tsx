@@ -8,9 +8,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import type { AnalyzeResponse } from "@/engine/server.mts";
-import type { ItemScore, Scene, Transcript } from "@/engine/types.mts";
-import { RUBRIC_ITEMS, SCALE } from "@/engine/rubric.mts";
+import type { Scene, Transcript } from "@/engine/types.mts";
+import { RUBRIC_ITEMS } from "@/engine/rubric.mts";
 import { Collapsible, ReadMore } from "@/app/components/Collapsible";
+import { ScoreTable } from "@/app/components/Scores";
 import { UtteranceContext } from "@/app/components/UtteranceView";
 import { updateSession, useSession } from "@/app/lib/session";
 import { countTranscript, ethicsMark, splitFirstSentence } from "@/app/lib/view";
@@ -105,13 +106,23 @@ export default function Screen2() {
       ) : !analysis ? (
         <p className="mt-4 text-sm text-stone-500">分析しています…</p>
       ) : (
-        <Feedback t={t} a={analysis} selfScore={session.selfScore} />
+        <Feedback t={t} a={analysis} selfScore={session.selfScore} sparkSentence={session.spark?.sentence ?? null} />
       )}
     </main>
   );
 }
 
-function Feedback({ t, a, selfScore }: { t: Transcript; a: { step1: AnalyzeResponse["step1"]; step2: AnalyzeResponse["step2"]; mock: boolean }; selfScore: number | null }) {
+function Feedback({
+  t,
+  a,
+  selfScore,
+  sparkSentence,
+}: {
+  t: Transcript;
+  a: { step1: AnalyzeResponse["step1"]; step2: AnalyzeResponse["step2"]; mock: boolean };
+  selfScore: number | null;
+  sparkSentence: string | null;
+}) {
   const { step1, step2 } = a;
   const good = step1.scenes.find((s) => s.type === "よく表れた所");
   const next = step1.scenes.find((s) => s.type === "次に試せる所");
@@ -143,6 +154,14 @@ function Feedback({ t, a, selfScore }: { t: Transcript; a: { step1: AnalyzeRespo
                 <a href="#next" className="text-sky-800 hover:underline">
                   次に試せる所：{next.context}
                 </a>
+              </li>
+            )}
+            {sparkSentence && (
+              <li className="font-semibold">
+                次に試すひとつ：
+                <Link href="/spark" className="text-sky-800 hover:underline">
+                  {sparkSentence}
+                </Link>
               </li>
             )}
           </ul>
@@ -190,26 +209,7 @@ function Feedback({ t, a, selfScore }: { t: Transcript; a: { step1: AnalyzeRespo
 
       <section>
         <h2 className="font-bold">7. 項目ごとの点と合計</h2>
-        <p className="mt-1 text-xs text-stone-500">点は面談の点で、人の点ではありません。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。</p>
-        <div className="mt-2 divide-y divide-stone-200 rounded border border-stone-200 bg-white">
-          {step2.items.map((it) => (
-            <ItemRow key={it.item} it={it} t={t} />
-          ))}
-        </div>
-        <p className="mt-2 text-sm">
-          合計：<span className="font-semibold">{step2.total.scaled === null ? "—" : `${step2.total.scaled}／10`}</span>
-          <span className="ml-1 text-xs text-stone-500">
-            （判定した {step2.total.judgedCount} 項目の {step2.total.sum}／{step2.total.max} を 10 点に換算。仮）
-          </span>
-          {selfScore !== null && (
-            <span className="ml-3">
-              自分の点：<span className="font-semibold">{selfScore}／10</span>
-            </span>
-          )}
-        </p>
-        {selfScore !== null && step2.total.scaled !== null && Math.abs(selfScore - step2.total.scaled) >= 2 && (
-          <p className="mt-1 text-xs text-stone-600">自分の点と AI の点に差があります。差は、どちらが正しいかではなく、確かめる点です。</p>
-        )}
+        <ScoreTable items={step2.items} total={step2.total} t={t} selfScore={selfScore} />
       </section>
 
       <section>
@@ -250,8 +250,11 @@ function Feedback({ t, a, selfScore }: { t: Transcript; a: { step1: AnalyzeRespo
         <p className="mt-1 text-xs text-stone-500">点にはせず、合計にも入れません。</p>
       </section>
 
-      <div className="rounded border border-dashed border-stone-300 p-3 text-sm text-stone-600">
-        次の画面（3. 自分の言葉で、4. 次に試すひとつ）は、この区切りの後に作ります。
+      <div className="flex items-center gap-3">
+        <Link href="/answers" className="rounded bg-sky-800 px-4 py-2 text-sm text-white">
+          次へ：3. 自分の言葉で →
+        </Link>
+        <span className="text-xs text-stone-500">問いに自分の答えを書きます。</span>
       </div>
     </div>
   );
@@ -307,43 +310,5 @@ function SceneCard({ id, n, scene, t }: { id: string; n: number; scene: Scene; t
         <span className="font-semibold">問い</span>　{scene.question}
       </p>
     </section>
-  );
-}
-
-function ItemRow({ it, t }: { it: ItemScore; t: Transcript }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const def = RUBRIC_ITEMS.find((r) => r.n === it.item);
-  return (
-    <div className="px-3 py-2">
-      <div className="flex items-center gap-3 text-sm">
-        <span className="w-44 shrink-0">
-          {it.item}. {def?.name}
-        </span>
-        {it.score === null ? (
-          <span className="text-stone-600">判定しない</span>
-        ) : (
-          <span className="flex items-center gap-1" aria-label={`${it.score} / ${SCALE.max}`}>
-            {Array.from({ length: SCALE.max }, (_, i) => (
-              <span key={i} className={`inline-block h-3 w-3 rounded-full ${i < (it.score ?? 0) ? "bg-stone-700" : "bg-stone-200"}`} />
-            ))}
-            <span className="ml-1">{it.score}</span>
-          </span>
-        )}
-      </div>
-      <Collapsible label="理由と根拠の発話を開く" className="mt-1">
-        <p className="text-sm">{it.reason}</p>
-        {it.utterances.length > 0 && (
-          <p className="mt-1 text-xs text-stone-500">
-            根拠の発話：
-            {it.utterances.map((i) => (
-              <button key={i} type="button" onClick={() => setOpenIndex(openIndex === i ? null : i)} className="mr-2 text-sky-800 hover:underline">
-                {i}
-              </button>
-            ))}
-          </p>
-        )}
-        {openIndex !== null && <UtteranceContext t={t} index={openIndex} />}
-      </Collapsible>
-    </div>
   );
 }

@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 const STEPS = [
   { href: "/", label: "1 入力" },
   { href: "/reflection", label: "2 フィードバック" },
-  { href: null, label: "3 自分の言葉で" },
-  { href: null, label: "4 次に試すひとつ" },
-  { href: null, label: "5 次の面談で" },
+  { href: "/answers", label: "3 自分の言葉で" },
+  { href: "/spark", label: "4 次に試すひとつ" },
+  { href: "/next", label: "5 次の面談で" },
 ];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
