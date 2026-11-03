@@ -3,8 +3,8 @@
   "outputFormat": "mp3_44100_128",
   "maxCharsPerRequest": 2000,
   "speakers": {
-    "講師": { "voiceName": "Hajisan", "voiceId": "" },
-    "生徒": { "voiceName": "Sky", "voiceId": "" },
+    "講師": { "voiceName": "Hajisan", "voiceId": "rvlzsVUc29dkS2F5paG8" },
+    "生徒": { "voiceName": "Sky", "voiceId": "etp1PCA4xqEUOa61C7BP" },
     "保護者": { "voiceName": "", "voiceId": "" },
     "コーチ": { "voiceName": "", "voiceId": "" },
     "クライアント": { "voiceName": "", "voiceId": "" }
