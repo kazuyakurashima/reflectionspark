@@ -9,7 +9,10 @@
     "lint": "eslint",
     "tts": "node scripts/tts/make-audio.mts",
     "test": "node --test \"engine/*.test.mts\" \"eval/lib/*.test.mts\" \"scripts/tts/*.test.mts\"",
-    "eval:align": "node eval/scripts/align-cases.mts"
+    "eval:align": "node eval/scripts/align-cases.mts",
+    "eval:run": "node eval/scripts/run-cases.mts",
+    "eval:report": "node eval/scripts/report.mts",
+    "eval:e2e": "node eval/scripts/e2e.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",

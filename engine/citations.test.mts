@@ -199,3 +199,13 @@ describe("工程 2・3・4 の読み取り", () => {
     assert.equal(r.otherPersonLine, null);
   });
 });
+
+describe("構造化出力のスキーマ", () => {
+  test("受け付けない制約（minimum など）を外す", async () => {
+    const { sanitizeSchema } = await import("./claude.mts");
+    const { STEP2_SCHEMA } = await import("./prompts.mts");
+    const s = JSON.stringify(sanitizeSchema(STEP2_SCHEMA));
+    assert.doesNotMatch(s, /minimum|maximum/);
+    assert.match(s, /additionalProperties/);
+  });
+});

@@ -52,6 +52,23 @@ export type StructuredParams = {
   label?: string;
 };
 
+/**
+ * 構造化出力が受け付けない制約（minimum、maximum、multipleOf、minLength、maxLength、minItems、maxItems）をスキーマから外す。
+ * 値の範囲は、受け取った側（parseStep2 など）で確かめる。
+ */
+export function sanitizeSchema(schema: unknown): unknown {
+  if (Array.isArray(schema)) return schema.map(sanitizeSchema);
+  if (schema && typeof schema === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(schema as Record<string, unknown>)) {
+      if (["minimum", "maximum", "multipleOf", "minLength", "maxLength", "minItems", "maxItems", "uniqueItems"].includes(k)) continue;
+      out[k] = sanitizeSchema(v);
+    }
+    return out;
+  }
+  return schema;
+}
+
 export type StructuredResult<T> = { data: T; rawText: string; meta: CallMeta; stopReason: string | null };
 
 /**
@@ -67,7 +84,7 @@ export async function callStructured<T>(p: StructuredParams): Promise<Structured
     system: [{ type: "text", text: p.system, cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: p.user }],
     thinking: { type: "adaptive" },
-    output_config: { effort: p.effort ?? "medium", format: { type: "json_schema", schema: p.schema } },
+    output_config: { effort: p.effort ?? "medium", format: { type: "json_schema", schema: sanitizeSchema(p.schema) as Record<string, unknown> } },
   });
   const msg = await stream.finalMessage();
   const ms = Date.now() - t0;

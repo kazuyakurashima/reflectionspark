@@ -1,0 +1,22 @@
+{
+  "case": "student-shinro-2",
+  "axis1": null,
+  "axis2": null,
+  "axis3": null,
+  "axis5": null,
+  "axis6": null,
+  "axis8": null,
+  "axis9": null,
+  "axis10": null,
+  "axis11": null,
+  "axis12": null,
+  "guessMeaning": null,
+  "variance": null,
+  "timing": {
+    "step0": null,
+    "step1Ms": null,
+    "firstCitationMs": null,
+    "step2Ms": null,
+    "step4Ms": null
+  }
+}
