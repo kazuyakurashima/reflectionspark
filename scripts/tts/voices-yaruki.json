@@ -1,0 +1,9 @@
+{
+  "models": ["eleven_v4", "eleven_v3"],
+  "outputFormat": "mp3_44100_128",
+  "maxCharsPerRequest": 2000,
+  "speakers": {
+    "講師": { "voiceName": "Hajisan", "voiceId": "rvlzsVUc29dkS2F5paG8" },
+    "生徒": { "voiceName": "Asahi", "voiceId": "GKDaBI8TKSBJVhsCLD6n" }
+  }
+}

@@ -3,10 +3,10 @@
   "outputFormat": "mp3_44100_128",
   "maxCharsPerRequest": 2000,
   "speakers": {
-    "講師": { "voiceName": "Hajisan", "voiceId": "" },
-    "生徒": { "voiceName": "Sky", "voiceId": "" },
-    "保護者": { "voiceName": "", "voiceId": "" },
-    "コーチ": { "voiceName": "", "voiceId": "" },
-    "クライアント": { "voiceName": "", "voiceId": "" }
+    "講師": { "voiceName": "Hajisan", "voiceId": "rvlzsVUc29dkS2F5paG8" },
+    "生徒": { "voiceName": "Sky", "voiceId": "etp1PCA4xqEUOa61C7BP" },
+    "保護者": { "voiceName": "Kaori", "voiceId": "G3EZ8O36A0x9lmeOtr0f" },
+    "コーチ": { "voiceName": "Koji", "voiceId": "YtLXDp1ffXOa1EhXx19q" },
+    "クライアント": { "voiceName": "Morioki", "voiceId": "8EkOjt4xTPGMclNlh1pk" }
   }
 }
