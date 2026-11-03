@@ -1,0 +1,223 @@
+// エンジンの型。工程 0〜4 が受け取るもの・返すものを、docs/設計書.md「画面ごとに AI が受け取るものと返すもの」に沿って書く。
+
+export type MeetingKind = "生徒" | "保護者" | "コーチング";
+
+/** 話者ラベル。self が本人（面談する側）、other が相手。 */
+export const SPEAKER_LABELS: Record<MeetingKind, { self: string; other: string }> = {
+  生徒: { self: "講師", other: "生徒" },
+  保護者: { self: "講師", other: "保護者" },
+  コーチング: { self: "コーチ", other: "クライアント" },
+};
+
+export type Confidence = "高" | "中" | "低";
+
+/** 工程 0 の後の発話。text は 0b の直しを当てた後、original は元の文字起こしの文。 */
+export type Utterance = {
+  /** 発話番号（0 始まり）。以後の工程で同じ番号を使う */
+  index: number;
+  speaker: string;
+  /** 直しを当てた後の本文。当て直せないときは null（本文を出さず番号だけ） */
+  text: string | null;
+  /** 元の文字起こしの文（手を加えない） */
+  original: string;
+  confidence: Confidence;
+  confidenceReason?: string;
+  /** 画面 1 で本人が確かめる印（確からしさが低い、0b で直した、相手が 2 人以上と推定、元の文に当て直せなかった） */
+  check: string[];
+  /** 元の文字起こし（1 本の文）での位置 [start, end)（コードポイント単位）。当て直せないときは null */
+  memoSpan: [number, number] | null;
+};
+
+export type CorrectionKind =
+  | "同音の取り違え"
+  | "近い音の聞き違え"
+  | "崩れた語"
+  | "数字や英字の表記"
+  | "語の区切り"
+  | "助詞や語尾の聞き違え"
+  | "欠けた音"
+  | "直前の発言の繰り返しの取り違え"
+  | string;
+
+export type Correction = {
+  index: number;
+  kind: CorrectionKind;
+  before: string;
+  after: string;
+};
+
+export type DiscardedCorrection = Correction & { reason: string };
+
+export type Step0aRaw = {
+  utterances: { speaker: string; text: string; confidence: Confidence; reason?: string }[];
+  /** 相手が 2 人以上と推定したか */
+  multipleOthers: boolean;
+  /** 相手が 2 人以上のとき、その理由 */
+  multipleOthersReason?: string;
+};
+
+export type Step0bResult = {
+  /** モデルが返した直しの一覧（そのまま） */
+  proposed: Correction[];
+  /** 当てた直し */
+  applied: Correction[];
+  /** 捨てた直しと理由 */
+  discarded: DiscardedCorrection[];
+  /** 返事が読めなかったとき、その理由（直さずに先へ進む） */
+  failed?: string;
+};
+
+export type Guess = {
+  index: number;
+  kind: "崩れ" | "話者の取り違え";
+  /** 元の文の中の、意味が通らない所 */
+  fragment: string;
+  /** 推測（意味を優先） */
+  guess: string;
+  /** 手がかり */
+  clue: string;
+};
+
+export type Step0cResult = {
+  /** 先に書いた会話全体の要旨（2〜3 文） */
+  summary: string;
+  guesses: Guess[];
+  failed?: string;
+};
+
+/** 工程 0 の結果。正本は「元の文と直しの一覧」。 */
+export type Transcript = {
+  kind: MeetingKind;
+  /** 貼った文字起こし（そのまま） */
+  raw: string;
+  utterances: Utterance[];
+  multipleOthers: boolean;
+  step0b: Step0bResult;
+  /** 0c は分析と同時に別に送るので、無いこともある */
+  step0c: Step0cResult | null;
+};
+
+/** 呼び出しの使用量と時間 */
+export type CallMeta = {
+  model: string;
+  ms: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+};
+
+export type Quote = {
+  /** citations の cited_text（検証前） */
+  citedText: string;
+  /** 発話番号（start_block_index） */
+  index: number;
+  endIndex: number;
+  /** 原文（整形後の発話）と完全一致したか */
+  verified: boolean;
+};
+
+export type SceneType = "よく表れた所" | "次に試せる所";
+
+export type Scene = {
+  type: SceneType;
+  /** 関わる採点表の項目（あれば） */
+  items: number[];
+  /** 文脈の一行（事実だけ） */
+  context: string;
+  /** 検証した引用だけ。空なら、引用を出せなかった場面 */
+  quotes: Quote[];
+  /** 検証で捨てた引用（記録用） */
+  discardedQuotes: Quote[];
+  /** モデルが本文に書いた引用文（検証していないので画面に出さない。記録用） */
+  quotedTextInBody: string;
+  observation: string;
+  reaction: string;
+  reading: string;
+  /** 次に試せる所だけ */
+  asChoice: string | null;
+  question: string;
+  /** 画面に出さない記録 */
+  record: { whyChosen: string; runnerUp: number[] };
+};
+
+export type Step1Result = {
+  scenes: Scene[];
+  /** 根拠のある場面が無いとき、その説明 */
+  noScene: string | null;
+  summary: string;
+  flow: string[];
+  extraQuestion: string | null;
+  /** 引用の数：生成した・原文と合わず捨てた・引用を出せなかった場面 */
+  quoteStats: { generated: number; discarded: number; scenesWithoutQuote: number };
+  /** 最初の引用（citations_delta）が届くまでの時間 */
+  firstCitationMs: number | null;
+  rawText: string;
+  meta: CallMeta;
+};
+
+export type ItemNumber = 1 | 2 | 3 | 4 | 5;
+
+export type ItemScore = {
+  item: ItemNumber;
+  /** 点。「この面談では判定しない」は null */
+  score: number | null;
+  reason: string;
+  utterances: number[];
+};
+
+export type EthicsLevel = "問題なし" | "判断できない" | "確かめてください" | "所属の手順";
+
+export type Step2Result = {
+  items: ItemScore[];
+  /** アプリが計算する合計（engine/rubric.mts） */
+  total: { sum: number; judgedCount: number; max: number; scaled: number | null };
+  insightOwner: "講師" | "相手" | "両方";
+  ethics: { level: EthicsLevel; text: string; viewpoint: string | null; utterances: number[] };
+  meta: CallMeta;
+};
+
+export type Candidate = {
+  /** もし（場面）なら */
+  condition: string;
+  /** （行動）する */
+  action: string;
+  /** 一文の形「もし〜なら、〜する」 */
+  sentence: string;
+  /** セリフの例 2〜3 */
+  lines: string[];
+  /** できたかの基準（次の面談で何が言葉に表れたら「できた」か） */
+  criterion: string;
+};
+
+export type Step3Result = {
+  candidates: Candidate[];
+  /** 言葉に表れない行動として落とした候補 */
+  dropped: { candidate: Candidate; reason: string }[];
+  meta: CallMeta;
+};
+
+export type FollowUpVerdict = "できた" | "一部" | "まだ" | "場面がなかった";
+
+export type Step4Result = {
+  verdict: FollowUpVerdict;
+  quotes: Quote[];
+  discardedQuotes: Quote[];
+  why: string;
+  items: ItemScore[];
+  total: Step2Result["total"];
+  /** （あれば）相手が前回決めたことが今回どう語られたかの 1 行 */
+  otherPersonLine: string | null;
+  quoteStats: { generated: number; discarded: number };
+  firstCitationMs: number | null;
+  rawText: string;
+  meta: CallMeta;
+};
+
+/** 前回の Spark（画面 4 で本人が選んだ一つ） */
+export type Spark = {
+  sentence: string;
+  criterion: string | null;
+  /** 前回の「次に試せる所」の場面（ふつうの文として渡す） */
+  previousScene: { context: string; quoteText: string | null; reading: string } | null;
+};

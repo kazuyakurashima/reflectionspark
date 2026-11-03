@@ -7,9 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "tts": "node scripts/tts/make-audio.mts"
+    "tts": "node scripts/tts/make-audio.mts",
+    "test": "node --test \"engine/*.test.mts\" \"eval/lib/*.test.mts\" \"scripts/tts/*.test.mts\"",
+    "eval:align": "node eval/scripts/align-cases.mts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
