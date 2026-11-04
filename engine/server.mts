@@ -1,6 +1,7 @@
 // Route Handler から呼ぶ入口。API キーがあれば本物のエンジン、無ければ仮の出力（engine/mock.mts）を返す。
 // 返す形はどちらも同じ（engine/types.mts）なので、画面は差し替えを意識しない。
 
+import { guardStep1, guardStep2, guardStep3, guardStep4 } from "./guard.mts";
 import { mockStep0, mockStep1, mockStep2, mockStep3, mockStep4 } from "./mock.mts";
 import { runStep0 } from "./step0.mts";
 import { runStep1 } from "./step1.mts";
@@ -32,8 +33,8 @@ export async function step0OrMock(raw: string, kind: MeetingKind): Promise<Step0
 export async function analyzeOrMock(transcript: Transcript, firstMeeting = true): Promise<AnalyzeResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {
-    const step1 = mockStep1(transcript);
-    return { step1, step2: mockStep2(transcript, firstMeeting), mock: true, ms: Date.now() - t0 };
+    const step1 = guardStep1(mockStep1(transcript), transcript.utterances);
+    return { step1, step2: guardStep2(mockStep2(transcript, firstMeeting), transcript.utterances), mock: true, ms: Date.now() - t0 };
   }
   const step1 = await runStep1(transcript);
   const step2 = await runStep2(transcript, step1.scenes);
@@ -44,7 +45,7 @@ export async function analyzeOrMock(transcript: Transcript, firstMeeting = true)
 export async function candidatesOrMock(transcript: Transcript, scene: Scene, answer: string): Promise<CandidatesResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {
-    return { step3: mockStep3(scene, answer), mock: true, ms: Date.now() - t0 };
+    return { step3: guardStep3(mockStep3(scene, answer), transcript.utterances), mock: true, ms: Date.now() - t0 };
   }
   const step3 = await runStep3(transcript, scene, answer);
   return { step3, mock: false, ms: Date.now() - t0 };
@@ -54,7 +55,7 @@ export async function candidatesOrMock(transcript: Transcript, scene: Scene, ans
 export async function followUpOrMock(transcript: Transcript, spark: Spark): Promise<FollowUpResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {
-    return { step4: mockStep4(transcript, spark), mock: true, ms: Date.now() - t0 };
+    return { step4: guardStep4(mockStep4(transcript, spark), transcript.utterances), mock: true, ms: Date.now() - t0 };
   }
   const step4 = await runStep4(transcript, spark);
   return { step4, mock: false, ms: Date.now() - t0 };

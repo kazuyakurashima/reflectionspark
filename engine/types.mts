@@ -83,6 +83,8 @@ export type Step0cResult = {
   summary: string;
   guesses: Guess[];
   failed?: string;
+  /** 性質の言葉が入っていて表示を控えた欄（engine/guard.mts） */
+  withheld?: { field: string; words: string[]; original: string }[];
 };
 
 /** 工程 0 の結果。正本は「元の文と直しの一覧」。 */
@@ -157,6 +159,9 @@ export type Step1Result = {
   firstCitationMs: number | null;
   rawText: string;
   meta: CallMeta;
+  /** 性質の言葉が入っていて表示を控えた欄と、原文に無くて「」を外した言葉（engine/guard.mts） */
+  withheld: { field: string; words: string[]; original: string }[];
+  unverifiedQuotes: { field: string; text: string }[];
 };
 
 export type ItemNumber = 1 | 2 | 3 | 4 | 5;
@@ -178,6 +183,8 @@ export type Step2Result = {
   insightOwner: "講師" | "相手" | "両方";
   ethics: { level: EthicsLevel; text: string; viewpoint: string | null; utterances: number[] };
   meta: CallMeta;
+  withheld: { field: string; words: string[]; original: string }[];
+  unverifiedQuotes: { field: string; text: string }[];
 };
 
 export type Candidate = {
@@ -198,6 +205,8 @@ export type Step3Result = {
   /** 言葉に表れない行動として落とした候補 */
   dropped: { candidate: Candidate; reason: string }[];
   meta: CallMeta;
+  withheld: { field: string; words: string[]; original: string }[];
+  unverifiedQuotes: { field: string; text: string }[];
 };
 
 export type FollowUpVerdict = "できた" | "一部" | "まだ" | "場面がなかった";
@@ -215,6 +224,8 @@ export type Step4Result = {
   firstCitationMs: number | null;
   rawText: string;
   meta: CallMeta;
+  withheld: { field: string; words: string[]; original: string }[];
+  unverifiedQuotes: { field: string; text: string }[];
 };
 
 /** 前回の Spark（画面 4 で本人が選んだ一つ） */

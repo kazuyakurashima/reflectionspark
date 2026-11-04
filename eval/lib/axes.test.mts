@@ -113,6 +113,8 @@ const step1: Step1Result = {
   firstCitationMs: 100,
   rawText: "",
   meta: { model: "m", ms: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+  withheld: [{ field: "scenes[1].observation", words: ["癖"], original: "説明を足す癖がある。" }],
+  unverifiedQuotes: [],
 };
 
 const step2: Step2Result = {
@@ -127,6 +129,8 @@ const step2: Step2Result = {
   insightOwner: "講師",
   ethics: { level: "問題なし", text: "", viewpoint: null, utterances: [] },
   meta: { model: "m", ms: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+  withheld: [],
+  unverifiedQuotes: [],
 };
 
 describe("軸の計算", () => {
@@ -162,10 +166,12 @@ describe("軸の計算", () => {
     assert.equal(r.items[1].bad?.matched, true);
   });
 
-  test("軸 5：性質の言葉を拾い、点が工程 1 に混ざっていないかを見る", () => {
+  test("軸 5：性質の言葉を拾い、本番の検査が表示を控えた欄も数え、点が工程 1 に混ざっていないかを見る", () => {
     const r = axis5(step1, step2, null, null);
     assert.equal(r.hits.length, 1);
     assert.equal(r.hits[0].word, "傾向");
+    assert.equal(r.withheld.length, 1);
+    assert.equal(r.withheld[0].step, "step1");
     assert.equal(r.scoresInStep1, false);
     assert.equal(r.scoresPerItem, true);
   });

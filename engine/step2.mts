@@ -3,6 +3,7 @@
 // 返す：5 項目ごとに点か「判定しない」、理由の一行、発話番号。気づきの持ち主。倫理チェックの 1 行。合計はアプリが計算する（決まり 8）。
 
 import { callStructured } from "./claude.mts";
+import { guardStep2 } from "./guard.mts";
 import { STEP2_SCHEMA, step2System, step2User } from "./prompts.mts";
 import { computeTotal } from "./rubric.mts";
 import type { EthicsLevel, ItemNumber, ItemScore, Scene, Step2Result, Transcript } from "./types.mts";
@@ -14,7 +15,7 @@ type Raw = {
 };
 
 /** 構造化出力を結果の形にする（テストで守る）。5 項目がそろわなければ、無い項目は「判定しない」で埋め、理由に書く。 */
-export function parseStep2(raw: Raw, utteranceCount: number): Omit<Step2Result, "meta"> {
+export function parseStep2(raw: Raw, utteranceCount: number): Omit<Step2Result, "meta" | "withheld" | "unverifiedQuotes"> {
   const items: ItemScore[] = ([1, 2, 3, 4, 5] as ItemNumber[]).map((n) => {
     const r = raw.items.find((i) => i.item === n);
     if (!r) return { item: n, score: null, reason: "（返事に項目が無かった）", utterances: [] };
@@ -49,5 +50,5 @@ export async function runStep2(t: Transcript, scenes: Scene[]): Promise<Step2Res
     effort: "high",
     label: "工程 2",
   });
-  return { ...parseStep2(r.data, t.utterances.length), meta: r.meta };
+  return { ...guardStep2(parseStep2(r.data, t.utterances.length), t.utterances), meta: r.meta };
 }

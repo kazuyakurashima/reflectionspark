@@ -140,6 +140,8 @@ export function mockStep1(t: Transcript): Step1Result {
     firstCitationMs: null,
     rawText: "",
     meta: mockMeta,
+    withheld: [],
+    unverifiedQuotes: [],
   };
 }
 
@@ -157,6 +159,8 @@ export function mockStep2(t: Transcript, firstMeeting = true): Step2Result {
     insightOwner: "両方",
     ethics: { level: "問題なし", text: `${MOCK_NOTE}問題なし`, viewpoint: null, utterances: [] },
     meta: mockMeta,
+    withheld: [],
+    unverifiedQuotes: [],
   };
 }
 
@@ -186,7 +190,7 @@ export function mockStep3(scene: Scene, answer: string): Step3Result {
     ],
   });
   void scene;
-  return { ...parsed, meta: mockMeta };
+  return { ...parsed, meta: mockMeta, withheld: [], unverifiedQuotes: [] };
 }
 
 /** 仮の工程 4：本人の発話を 1 つ引用し（照合も通す）、判定は「一部」、点は項目 5 を含めて仮の値。 */
@@ -211,5 +215,7 @@ export function mockStep4(t: Transcript, spark: Spark): Step4Result {
     firstCitationMs: null,
     rawText: "",
     meta: mockMeta,
+    withheld: [],
+    unverifiedQuotes: [],
   };
 }

@@ -188,7 +188,12 @@ export function axis2(step1: Step1Result, truth: Truth, t: Transcript, a: Alignm
 // ---------- 軸 5：性質の言葉の不在と点の置き場所 ----------
 
 export type Axis5 = {
+  /** 出力の文に残っていた性質の言葉（本番の検査をすり抜けたもの。0 のはず） */
   hits: ForbiddenHit[];
+  /** 本番の検査（engine/guard.mts）が表示を控えた欄。評価ではこれも「性質の言葉が出た数」に数える */
+  withheld: { step: string; field: string; words: string[]; original: string }[];
+  /** 原文に無くて「」を外した言葉の数 */
+  unverifiedQuotes: number;
   /** 工程 1 の本文に点が混ざっていないか（点は工程 2 で別に出す） */
   scoresInStep1: boolean;
   /** 工程 2 の点が 5 項目ごとに出ているか */
@@ -203,7 +208,14 @@ export function axis5(step1: Step1Result | null, step2: Step2Result | null, step
   if (step4) hits.push(...scanObject({ verdict: step4.verdict, why: step4.why, items: step4.items, otherPersonLine: step4.otherPersonLine }, undefined, "step4"));
   const scoresInStep1 = step1 ? /[0-9０-９]\s*点|採点|\b[0-9]\s*\/\s*[0-9]/.test(step1.rawText) : false;
   const scoresPerItem = step2 ? [1, 2, 3, 4, 5].every((n) => step2.items.some((i) => i.item === n)) : false;
-  return { hits, scoresInStep1, scoresPerItem };
+  const withheld: Axis5["withheld"] = [];
+  const uq = { n: 0 };
+  for (const [step, r] of [["step1", step1], ["step2", step2], ["step3", step3], ["step4", step4]] as const) {
+    if (!r) continue;
+    for (const w of r.withheld ?? []) withheld.push({ step, ...w });
+    uq.n += (r.unverifiedQuotes ?? []).length;
+  }
+  return { hits, withheld, unverifiedQuotes: uq.n, scoresInStep1, scoresPerItem };
 }
 
 // ---------- 軸 6：次回の追跡 ----------

@@ -6,6 +6,7 @@
 import { callCited, makeDocument } from "./claude.mts";
 import type { TextSegment } from "./claude.mts";
 import { blockTexts, dedupeQuotes, verifyCitation } from "./citations.mts";
+import { guardStep4 } from "./guard.mts";
 import { step4System, step4UserText } from "./prompts.mts";
 import { computeTotal } from "./rubric.mts";
 import { findTags, parseNumbers, tagText } from "./tagged.mts";
@@ -13,7 +14,7 @@ import type { FollowUpVerdict, ItemNumber, ItemScore, Quote, Spark, Step4Result,
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
 
-export function parseStep4(text: string, segments: TextSegment[], utterances: Utterance[]): Omit<Step4Result, "meta" | "firstCitationMs"> {
+export function parseStep4(text: string, segments: TextSegment[], utterances: Utterance[]): Omit<Step4Result, "meta" | "firstCitationMs" | "withheld" | "unverifiedQuotes"> {
   const all: Quote[] = [];
   for (const seg of segments) for (const c of seg.citations) all.push(verifyCitation(c, utterances));
   const quotes = dedupeQuotes(all.filter((q) => q.verified));
@@ -55,5 +56,5 @@ export async function runStep4(t: Transcript, spark: Spark, opts: { onText?: (d:
     label: "工程 4",
     onText: opts.onText,
   });
-  return { ...parseStep4(r.text, r.segments, t.utterances), firstCitationMs: r.firstCitationMs, meta: r.meta };
+  return { ...guardStep4(parseStep4(r.text, r.segments, t.utterances), t.utterances), firstCitationMs: r.firstCitationMs, meta: r.meta };
 }

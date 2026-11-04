@@ -3,6 +3,7 @@
 // 正本は「元の文と直しの一覧」。画面に出す文はそこから当て直して作る。
 
 import { callStructured } from "./claude.mts";
+import { guardStep0c } from "./guard.mts";
 import type { CallMeta } from "./types.mts";
 import { STEP0A_SCHEMA, STEP0B_SCHEMA, STEP0C_SCHEMA, step0aSystem, step0aUser, step0bSystem, step0bUser, step0cSystem, step0cUser } from "./prompts.mts";
 import { findLoose, normalizeLoose } from "./text.mts";
@@ -201,7 +202,7 @@ export async function step0c(utterances: Utterance[], kind: MeetingKind): Promis
       label: "工程 0c",
     });
     const guesses = (r.data.places ?? []).filter((g) => Number.isInteger(g.index) && g.index >= 0 && g.index < utterances.length && g.fragment);
-    return { result: { summary: r.data.summary, guesses }, meta: r.meta };
+    return { result: guardStep0c({ summary: r.data.summary, guesses }, utterances), meta: r.meta };
   } catch (e) {
     return { result: { summary: "", guesses: [], failed: (e as Error).message }, meta: null };
   }

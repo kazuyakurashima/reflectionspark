@@ -8,6 +8,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { callCited, makeDocument } from "./claude.mts";
 import type { TextSegment } from "./claude.mts";
 import { blockTexts, dedupeQuotes, verifyCitation } from "./citations.mts";
+import { guardStep1 } from "./guard.mts";
 import { step1System, step1UserText } from "./prompts.mts";
 import { findTags, parseNumbers, tagText } from "./tagged.mts";
 import type { Quote, Scene, SceneType, Step1Result, Transcript, Utterance } from "./types.mts";
@@ -19,7 +20,7 @@ export type Step1Options = {
 };
 
 /** 本文（タグの形）と citations の区切りから、工程 1 の結果を組み立てる。API を呼ばないので、テストで守れる。 */
-export function parseStep1(text: string, segments: TextSegment[], utterances: Utterance[]): Omit<Step1Result, "meta" | "firstCitationMs"> {
+export function parseStep1(text: string, segments: TextSegment[], utterances: Utterance[]): Omit<Step1Result, "meta" | "firstCitationMs" | "withheld" | "unverifiedQuotes"> {
   // すべての citation を照合する（生成した数・捨てた数のため）
   const all: { quote: Quote; start: number; end: number }[] = [];
   for (const seg of segments) {
@@ -80,6 +81,6 @@ export async function runStep1(t: Transcript, opts: Step1Options = {}): Promise<
     onText: opts.onText,
     onCitation: opts.onCitation,
   });
-  const parsed = parseStep1(r.text, r.segments, t.utterances);
+  const parsed = guardStep1(parseStep1(r.text, r.segments, t.utterances), t.utterances);
   return { ...parsed, firstCitationMs: r.firstCitationMs, meta: r.meta };
 }

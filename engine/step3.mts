@@ -4,6 +4,7 @@
 
 import { callStructured } from "./claude.mts";
 import { neighborsOf } from "./citations.mts";
+import { guardStep3 } from "./guard.mts";
 import { STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
 import type { Candidate, Scene, Step3Result, Transcript } from "./types.mts";
 
@@ -21,7 +22,7 @@ export function makeSentence(condition: string, action: string): string {
 }
 
 /** 構造化出力を候補の形にし、言葉に表れない行動を落とす（テストで守る） */
-export function parseStep3(raw: Raw): Omit<Step3Result, "meta"> {
+export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "unverifiedQuotes"> {
   const candidates: Candidate[] = [];
   const dropped: Step3Result["dropped"] = [];
   for (const c of raw.candidates ?? []) {
@@ -55,5 +56,5 @@ export async function runStep3(t: Transcript, scene: Scene, answer: string, memo
     effort: "high",
     label: "工程 3",
   });
-  return { ...parseStep3(r.data), meta: r.meta };
+  return { ...guardStep3(parseStep3(r.data), t.utterances), meta: r.meta };
 }

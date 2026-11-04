@@ -153,10 +153,14 @@ for (const r of rows) {
 }
 lines.push("", "軸 4（行動の具体性）は、本人の答えが要るので通し（eval/scripts/e2e.mts）の 1 回だけ。", "");
 
-lines.push("## 軸 5：性質の言葉の不在と点の置き場所", "", "| ケース | 性質の言葉 | 工程 1 に点が混ざった | 点が項目ごと |", "|---|---|---|---|");
+lines.push("## 軸 5：性質の言葉の不在と点の置き場所", "", "| ケース | 性質の言葉（表示を控えた） | すり抜け | 「」を外した | 工程 1 に点が混ざった | 点が項目ごと |", "|---|---|---|---|---|---|");
 for (const r of rows) {
   const a = r.axis5;
-  lines.push(a ? `| ${r.case} | ${a.hits.length}${a.hits.length ? `（${a.hits.map((h) => `${h.field}：${h.word}`).join("、")}）` : ""} | ${a.scoresInStep1 ? "あり" : "なし"} | ${yn(a.scoresPerItem)} |` : `| ${r.case} | — | — | — |`);
+  lines.push(
+    a
+      ? `| ${r.case} | ${a.withheld.length}${a.withheld.length ? `（${a.withheld.map((w) => `${w.step}.${w.field}：${w.words.join("・")}`).join("、")}）` : ""} | ${a.hits.length}${a.hits.length ? `（${a.hits.map((h) => `${h.field}：${h.word}`).join("、")}）` : ""} | ${a.unverifiedQuotes} | ${a.scoresInStep1 ? "あり" : "なし"} | ${yn(a.scoresPerItem)} |`
+      : `| ${r.case} | — | — | — | — | — |`,
+  );
 }
 lines.push("");
 
