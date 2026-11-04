@@ -3,7 +3,7 @@ import { describe, test } from "node:test";
 
 import type { Step1Result, Step2Result, Transcript } from "../../engine/types.mts";
 import { alignScriptToMemo, parseScript } from "./align.mts";
-import { axis1, axis11, axis12, axis2, axis5, axis8, axis9, judgementWordsIn, step0Variance, truthLines } from "./axes.mts";
+import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, judgementWordsIn, quoteIndices, step0Variance, truthLines } from "./axes.mts";
 import type { Truth } from "./truth.mts";
 
 const script = parseScript(
@@ -183,10 +183,37 @@ describe("軸の計算", () => {
   });
 
   test("軸 9：○ の項目の点が × の項目より高いか。○× と判定しないは数えず、〔案〕の項目は分ける", () => {
-    const r = axis9(step2.items, truth);
+    const r = axis9(step2.items, truth, a);
     assert.equal(r.pairs.length, 1); // 項目 1（○）× 項目 2（×）。項目 3 は〔案〕
     assert.equal(r.satisfied, 1);
     assert.equal(r.pairsIncludingDraft, 2);
+    assert.deepEqual(r.absentItems, []);
+  });
+
+  test("軸 9：正解の範囲がすべて文字起こしに無い項目は分母から外す", () => {
+    const t2: Truth = { ...truth, items: { ...truth.items, "2": { mark: "×", good: null, bad: { lines: [4], source: "作り手" } } } }; // 4 行目は文字起こしに無い
+    const r = axis9(step2.items, t2, a);
+    assert.deepEqual(r.absentItems, [2]);
+    assert.equal(r.pairs.length, 0);
+  });
+
+  test("軸 2・6：複数の発話にまたがる引用は、終わりの発話まで数える", () => {
+    assert.deepEqual(quoteIndices({ index: 2, endIndex: 4 }), [2, 3]);
+    assert.deepEqual(quoteIndices({ index: 2, endIndex: 3 }), [2]);
+    const spanning: Step1Result = {
+      ...step1,
+      scenes: [{ ...step1.scenes[0], quotes: [{ citedText: "x", text: "x", index: 1, endIndex: 3, verified: true }] }],
+    };
+    const r = axis2(spanning, truth, transcript, a);
+    assert.deepEqual(r.aiScenes[0].utterances, [1, 2]);
+    assert.ok(r.aiScenes[0].lines.includes(2) && r.aiScenes[0].lines.includes(3));
+    const r6 = axis6(
+      { verdict: "できた", quotes: [{ citedText: "x", text: "x", index: 1, endIndex: 3, verified: true }], discardedQuotes: [], why: "", items: [], total: { sum: 0, judgedCount: 0, max: 0, scaled: null }, otherPersonLine: null, quoteStats: { generated: 1, discarded: 0 }, firstCitationMs: null, rawText: "", meta: step1.meta, withheld: [], unverifiedQuotes: [] },
+      { ...truth, followUp: { previousAction: { text: "x", source: "案" }, criterion: null, verdict: "できた", evidenceLines: [3], source: "決め" } },
+      transcript,
+      a,
+    );
+    assert.equal(r6?.evidenceOverlaps, true);
   });
 
   test("軸 11：話者の正しさと、確からしさごとの誤り", () => {
@@ -197,12 +224,16 @@ describe("軸の計算", () => {
     assert.equal(r.byConfidence.find((b) => b.confidence === "低")?.wrong, 1);
   });
 
-  test("軸 12：拾えた直しと直しすぎを分け、推測が本当に崩れていた所に付いたかを見る", () => {
+  test("軸 12：直した言葉を対応する台本の位置そのものと比べ、拾えた直しと直しすぎを分ける。推測が本当に崩れていた所に付いたかを見る", () => {
     const r = axis12(transcript, a);
     const c1 = r.corrections.find((c) => c.before === "古文")!;
     assert.equal(c1.verdict, "拾えた");
+    assert.equal(c1.scriptWindow, "顧問");
     const c2 = r.corrections.find((c) => c.before === "だっけ")!;
     assert.equal(c2.verdict, "元が正しかった");
+    // 場所は合うが、台本の位置そのものとは違う言葉（「顧問」の位置に「顧問の」）
+    const t3: Transcript = { ...transcript, step0b: { proposed: [], applied: [{ index: 1, kind: "x", before: "古文", after: "顧問の" }], discarded: [] } };
+    assert.equal(axis12(t3, a).corrections[0].verdict, "言った言葉と違う");
     assert.equal(r.picked, 1);
     assert.equal(r.overfixedOriginalCorrect, 1);
     assert.equal(r.overfixedWrongWord, 0);

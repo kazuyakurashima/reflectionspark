@@ -9,6 +9,7 @@ import { scanObject } from "../../engine/forbidden-words.mts";
 import type { ForbiddenHit } from "../../engine/forbidden-words.mts";
 import type {
   ItemScore,
+  Quote,
   Scene,
   Step0bResult,
   Step0cResult,
@@ -30,6 +31,12 @@ import type { Range, Truth } from "./truth.mts";
 export function linesOfUtterance(u: Utterance, a: Alignment): { line: number; chars: number }[] {
   if (!u.memoSpan) return [];
   return linesForMemoSpan(a, u.memoSpan[0], u.memoSpan[1]);
+}
+
+/** 引用が指す発話番号の並び。複数の発話にまたがる引用は、終わりの発話まで数える */
+export function quoteIndices(q: Pick<Quote, "index" | "endIndex">): number[] {
+  const end = Number.isInteger(q.endIndex) && q.endIndex > q.index ? q.endIndex : q.index + 1;
+  return Array.from({ length: end - q.index }, (_, i) => q.index + i);
 }
 
 /** 発話番号の並び → 台本の行の集合 */
@@ -136,7 +143,7 @@ export type Axis2 = {
 };
 
 function sceneLines(sc: Scene, t: Transcript, a: Alignment): { utterances: number[]; lines: number[] } {
-  const utterances = sc.quotes.map((q) => q.index);
+  const utterances = sc.quotes.flatMap(quoteIndices);
   return { utterances, lines: linesOfUtterances(utterances, t, a) };
 }
 
@@ -233,11 +240,7 @@ export type Axis6 = {
 export function axis6(step4: Step4Result, truth: Truth, t: Transcript, a: Alignment): Axis6 | null {
   if (!truth.followUp) return null;
   const tl = truthLines({ lines: truth.followUp.evidenceLines, source: truth.followUp.source }, a);
-  const aiEvidenceLines = linesOfUtterances(
-    step4.quotes.map((q) => q.index),
-    t,
-    a,
-  );
+  const aiEvidenceLines = linesOfUtterances(step4.quotes.flatMap(quoteIndices), t, a);
   return {
     truthVerdict: truth.followUp.verdict,
     aiVerdict: step4.verdict,
@@ -277,27 +280,39 @@ export function axis8(step1: Step1Result | null, step2: Step2Result, truth: Trut
 // ---------- 軸 9：点の向き ----------
 
 export type Axis9 = {
-  /** 正解が ○ だけの項目と × だけの項目の組（作り手が確かめた所だけ） */
+  /** 正解が ○ だけの項目と × だけの項目の組（作り手が確かめた所だけ。範囲が文字起こしに無い項目は除く） */
   pairs: { good: number; bad: number; goodScore: number | null; badScore: number | null; ok: boolean | null }[];
   satisfied: number;
   countable: number;
   /** 〔案〕の範囲しか無い項目を含めた組（参考） */
   pairsIncludingDraft: number;
+  /** 正解の範囲がすべて文字起こしに無く、分母から外した項目（「文字起こしに無い行」） */
+  absentItems: number[];
 };
 
-export function axis9(items: ItemScore[], truth: Truth): Axis9 {
+export function axis9(items: ItemScore[], truth: Truth, a: Alignment | null = null): Axis9 {
   const score = (n: number) => items.find((i) => i.item === n)?.score ?? null;
   const goods: number[] = [];
   const bads: number[] = [];
   const goodsAll: number[] = [];
   const badsAll: number[] = [];
+  const absentItems: number[] = [];
+  const absent = (r: Range | null) => (r && a ? truthLines(r, a).absent : false);
   for (const n of [1, 2, 3, 4, 5]) {
     const it = truth.items[String(n) as "1"];
     if (it.mark === "○") {
+      if (absent(it.good)) {
+        absentItems.push(n);
+        continue;
+      }
       goodsAll.push(n);
       if (!it.good || isVerified(it.good.source)) goods.push(n);
     }
     if (it.mark === "×") {
+      if (absent(it.bad)) {
+        absentItems.push(n);
+        continue;
+      }
       badsAll.push(n);
       if (!it.bad || isVerified(it.bad.source)) bads.push(n);
     }
@@ -315,6 +330,7 @@ export function axis9(items: ItemScore[], truth: Truth): Axis9 {
     satisfied: pairs.filter((p) => p.ok === true).length,
     countable,
     pairsIncludingDraft: goodsAll.length * badsAll.length,
+    absentItems,
   };
 }
 
@@ -379,6 +395,7 @@ export type CorrectionJudgement = {
   after: string;
   /** 拾えた（台本と合った）／直しすぎ：元が正しかった／直しすぎ：場所は合うが言った言葉と違う／台本に対応なし */
   verdict: "拾えた" | "元が正しかった" | "言った言葉と違う" | "対応なし";
+  /** 直す前の言葉に対応する、台本の位置そのものの文字（正規化後） */
   scriptWindow: string | null;
 };
 
@@ -434,11 +451,12 @@ function spanOfFragment(u: Utterance, fragment: string): [number, number] | null
   return null;
 }
 
-function windowHas(window: string[] | null, text: string): boolean | null {
-  if (!window) return null;
+/** 直した言葉を、対応する台本の位置そのもの（前後に広げない）の文字と、正規化の後で完全一致で比べる */
+function sameAsScript(slice: string[] | null, text: string): boolean | null {
+  if (!slice) return null;
   const key = looseKey(text);
   if (key === "") return null;
-  return window.join("").includes(key);
+  return slice.join("") === key;
 }
 
 function spotsIn(spots: { start: number; end: number }[], start: number, end: number): number {
@@ -453,13 +471,13 @@ export function axis12(t: Transcript, a: Alignment): Axis12 {
   for (const c of t.step0b.applied) {
     const u = t.utterances[c.index];
     const span = u ? spanOfFragment(u, c.before) : null;
-    const win = span ? scriptWindowForMemoSpan(a, span[0], span[1]) : null;
+    const win = span ? scriptWindowForMemoSpan(a, span[0], span[1], 0) : null;
     let verdict: CorrectionJudgement["verdict"];
     if (!win) verdict = "対応なし";
-    else if (windowHas(win.chars, c.after)) {
+    else if (sameAsScript(win.chars, c.after)) {
       verdict = "拾えた";
       pickedByKind[c.kind] = (pickedByKind[c.kind] ?? 0) + 1;
-    } else if (windowHas(win.chars, c.before)) verdict = "元が正しかった";
+    } else if (sameAsScript(win.chars, c.before)) verdict = "元が正しかった";
     else verdict = "言った言葉と違う";
     if (span) spots.forEach((s, i) => s.start < span[1] && s.end > span[0] && touched.add(i));
     corrections.push({ index: c.index, kind: c.kind, before: c.before, after: c.after, verdict, scriptWindow: win ? win.chars.join("") : null });
@@ -469,10 +487,10 @@ export function axis12(t: Transcript, a: Alignment): Axis12 {
   for (const g of g0c?.guesses ?? []) {
     const u = t.utterances[g.index];
     const span = u ? spanOfFragment(u, g.fragment) : null;
-    const win = span ? scriptWindowForMemoSpan(a, span[0], span[1]) : null;
+    const win = span ? scriptWindowForMemoSpan(a, span[0], span[1], 0) : null;
     const reallyBroken = span ? spotsIn(spots, span[0], span[1]) > 0 : null;
-    const fragmentInScript = windowHas(win?.chars ?? null, g.fragment);
-    const guessMatchesScript = g.kind === "崩れ" ? windowHas(win?.chars ?? null, g.guess) : null;
+    const fragmentInScript = sameAsScript(win?.chars ?? null, g.fragment);
+    const guessMatchesScript = g.kind === "崩れ" ? sameAsScript(win?.chars ?? null, g.guess) : null;
     guesses.push({
       index: g.index,
       kind: g.kind,

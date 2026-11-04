@@ -7,11 +7,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { Step0Timing } from "../../engine/step0.mts";
-import type { Step1Result, Step2Result, Step4Result, Transcript } from "../../engine/types.mts";
+import type { Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "../../engine/types.mts";
 import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, step0Variance } from "../lib/axes.mts";
 import type { Axis1, Axis11, Axis12, Axis2, Axis5, Axis6, Axis8, Axis9, Step0Variance } from "../lib/axes.mts";
 import { loadCase, loadJson, RUNS_DIR, saveJson } from "../lib/cases.mts";
-import { judgeGuessMeaning, judgeQuestion, judgeQuoteSupport } from "../lib/judge.mts";
+import { judgeAction, judgeGuessMeaning, judgeQuestion, judgeQuoteSupport } from "../lib/judge.mts";
 import { listTruthCases } from "../lib/truth.mts";
 import { EVAL_SCRIPT_VERSION, TRUTH_VERSION } from "../lib/version.mts";
 
@@ -56,7 +56,7 @@ for (const name of listTruthCases()) {
     axis5: s1 || s2 || s4 ? axis5(s1, s2, null, s4) : null,
     axis6: s4 && t && c.truth ? axis6(s4, c.truth, t, c.alignment) : null,
     axis8: s2 && c.truth ? axis8(s1, s2, c.truth) : null,
-    axis9: s2 && c.truth ? axis9(s2.items, c.truth) : null,
+    axis9: s2 && c.truth ? axis9(s2.items, c.truth, c.alignment) : null,
     axis10: null,
     axis11: t ? axis11(t, c.alignment, c.script) : null,
     axis12: t ? axis12(t, c.alignment) : null,
@@ -151,7 +151,32 @@ for (const r of rows) {
   const g = (xs: { scene: string; score: number }[] | null, scene: string) => xs?.find((x) => x.scene === scene)?.score ?? "—";
   lines.push(`| ${r.case} | ${g(r.axis3, "よく表れた所")} | ${g(r.axis3, "次に試せる所")} | ${g(r.axis10, "よく表れた所")} | ${g(r.axis10, "次に試せる所")} |`);
 }
-lines.push("", "軸 4（行動の具体性）は、本人の答えが要るので通し（eval/scripts/e2e.mts）の 1 回だけ。", "");
+lines.push("", "軸 4（行動の具体性）は、本人の答えが要るので通し（eval/scripts/e2e.mts）の 1 回だけ。下の表。", "");
+
+// 軸 4：通し（eval/results/e2e）の最新の出力から、候補ごとに判定する
+type E2eFile = { id: string; answer: string; step1?: Step1Result; step3?: Step3Result };
+const e2eDir = path.resolve("eval/results/e2e");
+const e2eFiles = fs.existsSync(e2eDir) ? fs.readdirSync(e2eDir).filter((f) => f.endsWith(".json")).sort() : [];
+const e2e = e2eFiles.length ? loadJson<E2eFile>(path.join(e2eDir, e2eFiles[e2eFiles.length - 1])) : null;
+lines.push("## 軸 4：行動の具体性（通しの候補。LLM 判定、1〜5）", "");
+if (!e2e || !e2e.step3 || !e2e.step1) {
+  lines.push("通しの出力（eval/results/e2e/*.json に step3）がありません。`node eval/scripts/e2e.mts` で通してから作ります。", "");
+} else {
+  const nextScene = e2e.step1.scenes.find((sc) => sc.type === "次に試せる所");
+  lines.push(`通し：${e2e.id}。本人の答え：${e2e.answer}`, "", "| 候補 | 一文 | 軸 4 | 理由 |", "|---|---|---|---|");
+  const axis4: { sentence: string; score: number | null; reason: string }[] = [];
+  for (const c of e2e.step3.candidates) {
+    if (withJudge && nextScene) {
+      const j = await judgeAction(c, e2e.answer, nextScene);
+      axis4.push({ sentence: c.sentence, score: j.score, reason: j.reason });
+    } else axis4.push({ sentence: c.sentence, score: null, reason: withJudge ? "次に試せる所が無い" : "（--judge で判定）" });
+  }
+  axis4.forEach((x, i) => lines.push(`| ${i + 1} | ${x.sentence} | ${x.score ?? "—"} | ${x.reason} |`));
+  const scored = axis4.filter((x) => x.score !== null);
+  if (scored.length) lines.push(`| **平均** | | ${(scored.reduce((s, x) => s + (x.score ?? 0), 0) / scored.length).toFixed(1)} | |`);
+  saveJson(path.join(e2eDir, `${e2e.id}.axis4.json`), axis4);
+  lines.push("");
+}
 
 lines.push("## 軸 5：性質の言葉の不在と点の置き場所", "", "| ケース | 性質の言葉（表示を控えた） | すり抜け | 「」を外した | 工程 1 に点が混ざった | 点が項目ごと |", "|---|---|---|---|---|---|");
 for (const r of rows) {
@@ -171,13 +196,13 @@ for (const r of rows) {
 }
 lines.push("");
 
-lines.push("## 軸 8・9：保留の正しさ、点の向き", "", "| ケース | 初回で項目 5 を保留 | 正解の「判定しない」と一致 | 点の向き（満たした／数えた組） | AI の点（1〜5、— は判定しない） |", "|---|---|---|---|---|");
+lines.push("## 軸 8・9：保留の正しさ、点の向き", "", "| ケース | 初回で項目 5 を保留 | 正解の「判定しない」と一致 | 点の向き（満たした／数えた組） | 範囲が文字起こしに無く外した項目 | AI の点（1〜5、— は判定しない） |", "|---|---|---|---|---|---|");
 for (const r of rows) {
   const a8 = r.axis8;
   const a9 = r.axis9;
   const scores = loadJson<Step2Result>(path.join(RUNS_DIR, r.case, "step2.json"))?.items.map((i) => i.score ?? "—").join(" ") ?? "—";
   const agree = a8 ? a8.withheldAsTruth.filter((w) => w.truth).map((w) => `${w.item}:${yn(w.ai)}`).join(" ") || "（無い）" : "—";
-  lines.push(`| ${r.case} | ${a8 ? yn(a8.item5Withheld) : "—"} | ${agree} | ${a9 ? `${a9.satisfied}／${a9.countable}` : "—"} | ${scores} |`);
+  lines.push(`| ${r.case} | ${a8 ? yn(a8.item5Withheld) : "—"} | ${agree} | ${a9 ? `${a9.satisfied}／${a9.countable}` : "—"} | ${a9 ? a9.absentItems.join("、") || "—" : "—"} | ${scores} |`);
 }
 lines.push("");
 
