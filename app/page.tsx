@@ -25,6 +25,18 @@ function needsCheck(u: Utterance): boolean {
   return u.check.some((c) => !c.startsWith("話者の確からしさが中"));
 }
 
+/** 整形の結果が変わったときに消す、後の工程のデータ */
+const cleared: Pick<SessionData, "analysis" | "selfScore" | "selfNote" | "answers" | "candidates" | "spark" | "sparkSkipped" | "followUp"> = {
+  analysis: null,
+  selfScore: null,
+  selfNote: "",
+  answers: [],
+  candidates: null,
+  spark: null,
+  sparkSkipped: false,
+  followUp: null,
+};
+
 export default function Screen1() {
   const router = useRouter();
   const session = useSession();
@@ -40,8 +52,9 @@ export default function Screen1() {
   const mock = session?.mock ?? false;
   const ms = session?.step0Ms ?? null;
 
+  /** 入力（文字起こし・場面の種類）を変えたら、整形の結果と、その後の答え・候補・Spark・追跡をすべて消す。呼び名は札なので消さない */
   const setInput = (patch: Partial<Pick<SessionData, "kind" | "otherName" | "raw">>) =>
-    updateSession((s) => ({ ...s, ...patch, transcript: null, analysis: null, selfScore: null, selfNote: "" }));
+    updateSession((s) => (patch.raw !== undefined || patch.kind !== undefined ? { ...s, ...patch, ...cleared, transcript: null, mock: false, step0Ms: null } : { ...s, ...patch }));
 
   const loadDemo = async () => {
     setError(null);
@@ -57,7 +70,7 @@ export default function Screen1() {
       const r = await fetch("/api/step0", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ raw, kind }) });
       const d = (await r.json()) as Step0Response & { error?: string };
       if (!r.ok || d.error) throw new Error(d.error ?? `整形に失敗しました（${r.status}）`);
-      updateSession((s) => ({ ...s, kind, otherName, raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, analysis: null, selfScore: null, selfNote: "" }));
+      updateSession((s) => ({ ...s, kind, otherName, raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, ...cleared }));
       // 0c は別に回し、届いたら付ける（分析を待たせない）
       void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.transcript ? { ...s, transcript: fn(s.transcript) } : s)));
     } catch (e) {
@@ -67,17 +80,19 @@ export default function Screen1() {
     }
   };
 
+  /** 発話を直したら、分析と後の工程のデータを消す（引用が本文と合わなくなるため）。自分の点と一言は面談への自分の見方なので残す */
   const update = (next: Utterance) => {
-    updateSession((s) => (s.transcript ? { ...s, transcript: { ...s.transcript, utterances: s.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } : s));
+    updateSession((s) =>
+      s.transcript ? { ...s, ...cleared, selfScore: s.selfScore, selfNote: s.selfNote, transcript: { ...s.transcript, utterances: s.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } : s,
+    );
   };
 
   const split = (u: Utterance, pos: number) => {
-    updateSession((s) => (s.transcript ? { ...s, transcript: splitUtterance(s.transcript, u.index, pos) } : s));
+    updateSession((s) => (s.transcript ? { ...s, ...cleared, selfScore: s.selfScore, selfNote: s.selfNote, transcript: splitUtterance(s.transcript, u.index, pos) } : s));
   };
 
   const goNext = () => {
     if (!transcript) return;
-    updateSession((s) => ({ ...s, analysis: null, selfScore: null, selfNote: "" }));
     router.push("/reflection");
   };
 

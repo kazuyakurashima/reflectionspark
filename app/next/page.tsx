@@ -107,12 +107,19 @@ export default function Screen5() {
       setBusy(false);
     }
   };
-  const update = (next: Utterance) =>
+  /** AI が読んだ後に本文を直したら、その判定を消して読み直す（自分の評価は残す。追った回数は二重に数えない） */
+  const update = (next: Utterance) => {
+    started.current = false;
     updateSession((s) =>
-      s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: { ...s.followUp.transcript, utterances: s.followUp.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } } : s,
+      s.followUp?.transcript
+        ? { ...s, followUp: { ...s.followUp, result: null, transcript: { ...s.followUp.transcript, utterances: s.followUp.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } }
+        : s,
     );
-  const split = (u: Utterance, pos: number) =>
-    updateSession((s) => (s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: splitUtterance(s.followUp.transcript, u.index, pos) } } : s));
+  };
+  const split = (u: Utterance, pos: number) => {
+    started.current = false;
+    updateSession((s) => (s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, result: null, transcript: splitUtterance(s.followUp.transcript, u.index, pos) } } : s));
+  };
   const submitSelf = () => {
     const n = Number(score);
     if (!verdict || !Number.isInteger(n) || n < 1 || n > 10) return;
