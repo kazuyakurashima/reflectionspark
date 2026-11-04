@@ -242,8 +242,8 @@ const isConfidence = (c: unknown): c is Confidence => c === "高" || c === "中"
 /**
  * 0a（label）の返事を、アプリが切った文に当てて発話の並びにする。
  * 本文はいつも元の文字起こしの切り出しで、言葉を変えない。同じ話者が続く文は 1 つの発話にまとめる。
- * 確からしさが「低」の文、モデルの返事に無かった文、モデルの区切り（at）が文に無かった文は、まとめずに 1 つの発話にし、
- * 本人が画面 1 で確かめて分けられるようにする（無かった文と当たらなかった区切りは「区切りが分からない所」の印）。
+ * 確からしさが「低」の文、話者ラベルが読めなかった文、モデルの返事に無かった文、モデルの区切り（at）が文に無かった文は、
+ * まとめずに 1 つの発話にし、本人が画面 1 で確かめて分けられるようにする（無かった文と当たらなかった区切りは「区切りが分からない所」の印）。
  */
 export function labelUtterances(raw: string, sentences: Sentence[], parsed: Step0aLabelRaw, kind: MeetingKind): { utterances: Utterance[]; unanchored: number } {
   const { self, other } = SPEAKER_LABELS[kind];
@@ -268,6 +268,8 @@ export function labelUtterances(raw: string, sentences: Sentence[], parsed: Step
   }
 
   type Piece = { start: number; end: number; speaker: string; confidence: Confidence; reason?: string; check: string[]; solo: boolean };
+  /** まとめない文：確からしさが低い、印が付いている（話者ラベルが読めない、など） */
+  const isSolo = (p: { confidence: Confidence; check: string[] }) => p.confidence === "低" || p.check.length > 0;
   const pieces: Piece[] = [];
   let unanchored = 0;
   let prevSpeaker: string | null = null;
@@ -306,13 +308,13 @@ export function labelUtterances(raw: string, sentences: Sentence[], parsed: Step
     let cursor = sen.start;
     for (const { pos, sp } of found) {
       const at = sen.start + pos;
-      if (at > cursor) pieces.push({ start: cursor, end: at, ...cur, solo: cur.confidence === "低" });
+      if (at > cursor) pieces.push({ start: cursor, end: at, ...cur, solo: isSolo(cur) });
       const c2: string[] = [];
       const s2 = labelOf(sp.speaker, c2);
       cur = { speaker: s2, confidence: isConfidence(sp.confidence) ? sp.confidence : "低", reason: sp.reason || undefined, check: c2 };
       cursor = Math.max(cursor, at);
     }
-    pieces.push({ start: cursor, end: sen.end, ...cur, solo: cur.confidence === "低" });
+    pieces.push({ start: cursor, end: sen.end, ...cur, solo: isSolo(cur) });
     prevSpeaker = cur.speaker;
   }
 
