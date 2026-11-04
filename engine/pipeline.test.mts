@@ -4,7 +4,7 @@ import { describe, test } from "node:test";
 
 import { setClientForTests } from "./claude.mts";
 import { blockText } from "./citations.mts";
-import { runStep0 } from "./step0.mts";
+import { attachStep0c, runStep0, runStep0c } from "./step0.mts";
 import { runStep1 } from "./step1.mts";
 import { runStep2 } from "./step2.mts";
 
@@ -71,19 +71,24 @@ describe("工程 0 → 1 → 2 の配線（偽のクライアント）", () => {
     setClientForTests(
       fakeClient([
         () => [{ type: "text", text: text0a }],
-        () => [{ type: "text", text: text0b }], // runStep0 は 0b を先に、0c を次に送る
+        () => [{ type: "text", text: text0b }], // runStep0 は 0a → 0b。0c は runStep0c で別に送る
         () => [{ type: "text", text: text0c }],
         () => step1Content,
         () => [{ type: "text", text: step2Text }],
       ]),
     );
     calls.length = 0;
-    const r0 = await runStep0(raw, "生徒", { with0c: true });
-    const t = r0.transcript;
+    const r0 = await runStep0(raw, "生徒");
+    let t = r0.transcript;
     assert.equal(t.utterances.length, 4);
     assert.equal(t.utterances[1].original, "今日は早めに終わりました。古文の先生が出張で。");
     assert.equal(t.step0b.applied.length, 1);
     assert.equal(t.utterances[1].text, "今日は早めに終わりました。顧問の先生が出張で。");
+    // 0c は工程 0 の中では回さない（分析を待たせない）。別に回して付ける
+    assert.equal(t.step0c, null);
+    assert.equal(calls.length, 2);
+    const c = await runStep0c(t);
+    t = attachStep0c(t, c.result, t.utterances.length);
     assert.equal(t.step0c?.guesses.length, 1);
     assert.equal(calls.length, 3);
 

@@ -15,7 +15,7 @@ import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
 import { ScoreTable } from "@/app/components/Scores";
 import { UtteranceContext } from "@/app/components/UtteranceView";
-import { newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
+import { fetchStep0c, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
 
@@ -100,6 +100,7 @@ export default function Screen5() {
       if (!r.ok || d.error) throw new Error(d.error ?? `整形に失敗しました（${r.status}）`);
       started.current = false;
       updateSession((s) => ({ ...s, followUp: { ...(s.followUp ?? newFollowUp()), raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, result: null, selfVerdict: null, selfScore: null } }));
+      void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: fn(s.followUp.transcript) } } : s)));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -124,7 +125,7 @@ export default function Screen5() {
   const change = () => {
     // 今回の面談を新しい面談として画面 2 から始め、別の行動を選び直す
     if (!transcript) return;
-    updateSession((s) => ({ ...newSession(s.kind, s.otherName, raw), transcript, mock: fu?.mock ?? false, step0Ms: fu?.step0Ms ?? null }));
+    updateSession((s) => ({ ...newSession(s.kind, s.otherName, raw), firstMeeting: false, transcript, mock: fu?.mock ?? false, step0Ms: fu?.step0Ms ?? null }));
     router.push("/reflection");
   };
 

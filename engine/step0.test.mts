@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { anchorUtterances, applyCorrections, CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_UNANCHORED } from "./step0.mts";
+import { anchorUtterances, applyCorrections, attachStep0c, CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_UNANCHORED, waitShort } from "./step0.mts";
 import type { Step0aRaw, Utterance } from "./types.mts";
 
 const raw = "じゃあ始めようか。今日部活は。今日は早めに終わりました。顧問の先生が出張で。そっか、吹奏楽来月が最後のコンクールだっけ。はいあ、ごめん会場はどこ市民会館です。";
@@ -136,5 +136,22 @@ describe("工程 0b：直しの当て方（設計書の決まり）", () => {
     assert.equal(r.applied.length, 2);
     assert.equal(r.discarded[0].reason, "直す前の文字列がその発話に無い");
     assert.equal(u[0].text, "4月の面談シートに第一志望は南高と書いてくれてたよね。");
+  });
+});
+
+describe("工程 0c は別に回す（失敗の扱い）", () => {
+  test("短く待ち、間に合わなければ null（待ち続けない）。失敗も null", async () => {
+    assert.equal(await waitShort(new Promise((r) => setTimeout(() => r("ok"), 5)), 100), "ok");
+    assert.equal(await waitShort(new Promise((r) => setTimeout(() => r("late"), 200)), 20), null);
+    assert.equal(await waitShort(Promise.reject(new Error("x")), 100), null);
+  });
+
+  test("0c の結果は、発話の並びが同じときだけ付ける。変わっていたら推測なしで理由を残す", () => {
+    const t = { kind: "生徒" as const, raw: "a", utterances: [{ index: 0, speaker: "講師", text: "a", original: "a", confidence: "高" as const, check: [], memoSpan: null }], multipleOthers: false, step0b: { proposed: [], applied: [], discarded: [] }, step0c: null };
+    const r = { summary: "s", guesses: [{ index: 0, kind: "崩れ" as const, fragment: "a", guess: "b", clue: "" }] };
+    assert.equal(attachStep0c(t, r, 1).step0c?.guesses.length, 1);
+    const changed = attachStep0c(t, r, 2);
+    assert.equal(changed.step0c?.guesses.length, 0);
+    assert.match(changed.step0c?.failed ?? "", /並びが変わった/);
   });
 });

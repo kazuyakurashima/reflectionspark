@@ -326,7 +326,7 @@ export const STEP2_SCHEMA = {
   },
 };
 
-export function step2User(utterances: Utterance[], scenes: Scene[]): string {
+export function step2User(utterances: Utterance[], scenes: Scene[], firstMeeting = true): string {
   const sceneText = scenes
     .map(
       (s) => `- ${s.type}（項目：${s.items.join("、") || "なし"}）：${s.context}
@@ -340,6 +340,8 @@ ${numberedTranscript(utterances)}
 
 先に選ばれた場面：
 ${sceneText || "（根拠のある場面は無いとされた）"}
+
+この面談は${firstMeeting ? "初回の面談です（前回の面談は無い）。" : "続きの面談です（前回の面談がある）。"}
 
 5 項目ごとに点か「判定しない」を出し、気づきの持ち主と倫理チェックの 1 行を書いてください。`;
 }

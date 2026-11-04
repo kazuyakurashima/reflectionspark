@@ -6,7 +6,7 @@ import { blockText, verifyCitation } from "./citations.mts";
 import { applyCorrections } from "./step0.mts";
 import { parseStep3 } from "./step3.mts";
 import { computeTotal } from "./rubric.mts";
-import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Spark, Step1Result, Step2Result, Step3Result, Step4Result, Transcript, Utterance } from "./types.mts";
+import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
 
 export const MOCK_NOTE = "（仮の出力）";
@@ -79,20 +79,18 @@ export function mockStep0(raw: string, kind: MeetingKind): Transcript {
     }
   }
   const step0b = applyCorrections(utterances, proposed);
+  return { kind, raw: text, utterances, multipleOthers: false, step0b, step0c: null };
+}
+
+/** 仮の工程 0c：本文にある語にだけ推測を付ける。工程 0 とは別に回す。 */
+export function mockStep0c(t: Transcript): Step0cResult {
   const guesses: Guess[] = [];
-  for (const u of utterances) {
+  for (const u of t.utterances) {
     for (const [fragment, guess, clue] of MOCK_GUESSES) {
       if (u.original.includes(fragment)) guesses.push({ index: u.index, kind: "崩れ", fragment, guess, clue: `${MOCK_NOTE}${clue}` });
     }
   }
-  return {
-    kind,
-    raw: text,
-    utterances,
-    multipleOthers: false,
-    step0b,
-    step0c: { summary: `${MOCK_NOTE}会話全体の要旨は、本物の工程 0c がここに書きます。`, guesses },
-  };
+  return { summary: `${MOCK_NOTE}会話全体の要旨は、本物の工程 0c がここに書きます。`, guesses };
 }
 
 function quoteOf(u: Utterance, utterances: Utterance[]): Quote {

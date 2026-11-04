@@ -11,7 +11,7 @@ import type { MeetingKind, Utterance } from "@/engine/types.mts";
 import type { Step0Response } from "@/engine/server.mts";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
-import { newSession, updateSession, useSession } from "@/app/lib/session";
+import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
 
 const KINDS: { value: MeetingKind; label: string }[] = [
@@ -58,6 +58,8 @@ export default function Screen1() {
       const d = (await r.json()) as Step0Response & { error?: string };
       if (!r.ok || d.error) throw new Error(d.error ?? `整形に失敗しました（${r.status}）`);
       updateSession((s) => ({ ...s, kind, otherName, raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, analysis: null, selfScore: null, selfNote: "" }));
+      // 0c は別に回し、届いたら付ける（分析を待たせない）
+      void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.transcript ? { ...s, transcript: fn(s.transcript) } : s)));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -141,6 +143,7 @@ export default function Screen1() {
             話者の確からしさが低い発話、聞き違いを直した所、区切りが分からない所、相手が 2 人以上と推定した所を先に出します。話者は押して入れ替え、本文は「本文を直す」で直せます。区切りが分からない所は「本文を直す」を開き、カーソルの位置で分けられます。元の文はいつも残します。
           </p>
           {toCheck.length === 0 && <p className="mt-2 text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
+          {transcript.step0c === null && <p className="mt-1 text-xs text-stone-500">意味が通らない所の推測は別に読んでいます。届いたら発話に添えます（分析には使いません）。</p>}
           <div className="mt-3 space-y-2">
             {toCheck.map((u) => (
               <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />

@@ -4,7 +4,8 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
-import type { FollowUpVerdict, MeetingKind, Spark, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
+import { attachStep0c } from "@/engine/step0.mts";
+import type { FollowUpVerdict, MeetingKind, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
 
 /** 画面 4 で本人が選んだ（または直した）一つ */
 export type SparkChoice = Spark & {
@@ -39,6 +40,8 @@ export type SessionData = {
   kind: MeetingKind;
   /** 相手の呼び名（記録を相手ごとにつなぐ札） */
   otherName: string;
+  /** 初回の面談か（続きの面談なら false。工程 2 に渡す） */
+  firstMeeting: boolean;
   /** 貼った文字起こし（そのまま） */
   raw: string;
   /** 整形の結果（本人が画面 1 で直した後） */
@@ -70,6 +73,7 @@ export function newSession(kind: MeetingKind = "生徒", otherName = "", raw = "
     createdAt: new Date().toISOString(),
     kind,
     otherName,
+    firstMeeting: true,
     raw,
     transcript: null,
     mock: false,
@@ -91,7 +95,7 @@ export function newFollowUp(raw = ""): FollowUpData {
 
 /** 古い保存に無い項目を埋める */
 function fill(s: Partial<SessionData>): SessionData {
-  return { ...newSession(), ...s, answers: s.answers ?? [], sparkSkipped: s.sparkSkipped ?? false } as SessionData;
+  return { ...newSession(), ...s, answers: s.answers ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true } as SessionData;
 }
 
 function read(): string | null {
@@ -161,6 +165,19 @@ export function useSession(): SessionData | null | undefined {
       return null;
     }
   }, [raw]);
+}
+
+/** 0c（意味が通らない箇所）を別に呼び、届いたら同じ発話の並びにだけ付ける。失敗や遅れで画面を止めない */
+export async function fetchStep0c(transcript: Transcript, apply: (fn: (t: Transcript) => Transcript) => void): Promise<void> {
+  try {
+    const r = await fetch("/api/step0c", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ transcript }) });
+    const d = (await r.json()) as { step0c?: Step0cResult; utteranceCount?: number; error?: string };
+    if (!r.ok || !d.step0c) return;
+    const count = d.utteranceCount ?? transcript.utterances.length;
+    apply((t) => (t.raw === transcript.raw ? attachStep0c(t, d.step0c as Step0cResult, count) : t));
+  } catch {
+    // 推測なしのまま
+  }
 }
 
 /** 選んだ一つの id（候補の番号と時刻から） */

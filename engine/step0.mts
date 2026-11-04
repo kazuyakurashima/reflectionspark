@@ -189,8 +189,6 @@ export function applyCorrections(utterances: Utterance[], proposed: Correction[]
 }
 
 export type Step0Options = {
-  /** 0c を回すか（分析と同時に別に送るので、評価では回し、画面では非同期に回す） */
-  with0c?: boolean;
   /** 0b を回すか */
   with0b?: boolean;
   log?: (line: string) => void;
@@ -258,23 +256,13 @@ export async function runStep0(raw: string, kind: MeetingKind, opts: Step0Option
   log(`当て直し：${utterances.length} 発話、当て直せなかった ${anchored.unanchored}`);
   let step0bResult: Step0bResult = { proposed: [], applied: [], discarded: [] };
   let bMeta: CallMeta | null = null;
-  let cMeta: CallMeta | null = null;
-  let step0cResult: Step0cResult | null = null;
-  const bPromise = opts.with0b === false ? null : step0b(utterances, kind);
-  // 0c は元の文（0b を当てる前）で回し、分析と同時に別に送る
-  const cPromise = opts.with0c ? step0c(utterances.map((u) => ({ ...u, text: u.original })), kind) : null;
-  if (bPromise) {
-    const b = await bPromise;
+  if (opts.with0b !== false) {
+    const b = await step0b(utterances, kind);
     step0bResult = b.result;
     bMeta = b.meta;
     log(`0b ${bMeta?.ms ?? "-"} ms、提案 ${b.result.proposed.length}、当てた ${b.result.applied.length}、捨てた ${b.result.discarded.length}${b.result.failed ? `、失敗：${b.result.failed}` : ""}`);
   }
-  if (cPromise) {
-    const c = await cPromise;
-    step0cResult = c.result;
-    cMeta = c.meta;
-    log(`0c ${cMeta?.ms ?? "-"} ms、推測 ${c.result.guesses.length}${c.result.failed ? `、失敗：${c.result.failed}` : ""}`);
-  }
+  // 0c（意味が通らない箇所）はここでは回さない。runStep0c で別に回し、分析と同時に送る（設計書「失敗の扱い」）
   return {
     transcript: {
       kind,
@@ -282,11 +270,49 @@ export async function runStep0(raw: string, kind: MeetingKind, opts: Step0Option
       utterances,
       multipleOthers: a.parsed.multipleOthers,
       step0b: step0bResult,
-      step0c: step0cResult,
+      step0c: null,
     },
-    timing: { step0a: a.meta, step0b: bMeta, step0c: cMeta },
+    timing: { step0a: a.meta, step0b: bMeta, step0c: null },
     unanchored: anchored.unanchored,
   };
+}
+
+/**
+ * 0c：意味が通らない箇所。工程 0 とは別に回し、分析と同時に送る。元の文（0b を当てる前）で回す。
+ * 失敗したり遅れたりしても分析は止めない（結果は推測なしで出す）。
+ */
+export async function runStep0c(t: Transcript): Promise<{ result: Step0cResult; meta: CallMeta | null }> {
+  return step0c(
+    t.utterances.map((u) => ({ ...u, text: u.original })),
+    t.kind,
+  );
+}
+
+/**
+ * 0c の結果を文字起こしに付ける。発話の並びが変わっていたら（本人が分けた、など）番号がずれるので付けず、理由を残す。
+ */
+export function attachStep0c(t: Transcript, result: Step0cResult, utteranceCountAtRequest: number): Transcript {
+  if (t.utterances.length !== utteranceCountAtRequest) {
+    return { ...t, step0c: { summary: result.summary, guesses: [], failed: `発話の並びが変わった（${utteranceCountAtRequest} → ${t.utterances.length}）ので推測を当てなかった` } };
+  }
+  return { ...t, step0c: result };
+}
+
+/** 短く待つ。間に合えば結果、間に合わなければ null（待ち続けない） */
+export function waitShort<T>(p: Promise<T>, ms: number): Promise<T | null> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(null), ms);
+    p.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(null);
+      },
+    );
+  });
 }
 
 /** 画面 1 の「確かめる所」：印の付いた発話を先に出す。 */

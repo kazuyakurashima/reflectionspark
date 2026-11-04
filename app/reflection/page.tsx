@@ -24,6 +24,7 @@ export default function Screen2() {
   const started = useRef(false);
   const transcript = session?.transcript ?? null;
   const analysis = session?.analysis ?? null;
+  const firstMeeting = session?.firstMeeting ?? true;
 
   useEffect(() => {
     // 分析は自己採点と並行して始める。自己採点はこの呼び出しに入れない（決まり 10）
@@ -34,7 +35,7 @@ export default function Screen2() {
         const r = await fetch("/api/analyze", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ transcript, firstMeeting: true }),
+          body: JSON.stringify({ transcript, firstMeeting }),
         });
         const d = (await r.json()) as AnalyzeResponse & { error?: string };
         if (!r.ok || d.error) throw new Error(d.error ?? `分析に失敗しました（${r.status}）`);
@@ -44,7 +45,7 @@ export default function Screen2() {
         started.current = false;
       }
     })();
-  }, [transcript, analysis]);
+  }, [transcript, analysis, firstMeeting]);
 
   if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
   if (!session || !transcript) {
@@ -71,7 +72,7 @@ export default function Screen2() {
       <h1 className="text-xl font-bold">2. フィードバックを読む</h1>
       <p className="mt-1 text-sm text-stone-600">
         {session.otherName ? `${session.otherName}との` : ""}
-        {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}。{t.utterances.length} 発話。
+        {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}。{t.utterances.length} 発話。{firstMeeting ? "初回の面談として読みます。" : "続きの面談として読みます（前回決めたことに触れたかも見ます）。"}
       </p>
 
       <section className="mt-5 rounded border border-stone-200 bg-white p-4">

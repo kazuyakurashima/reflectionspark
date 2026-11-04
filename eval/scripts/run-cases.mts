@@ -13,7 +13,7 @@
 
 import path from "node:path";
 
-import { runStep0 } from "../../engine/step0.mts";
+import { attachStep0c, runStep0, runStep0c } from "../../engine/step0.mts";
 import { runStep1 } from "../../engine/step1.mts";
 import { runStep2 } from "../../engine/step2.mts";
 import { runStep4 } from "../../engine/step4.mts";
@@ -34,6 +34,16 @@ const cases = caseArg ? [caseArg] : stabilityCase ? [stabilityCase] : listTruthC
 
 type Step0File = { transcript: Transcript; timing: Step0Timing; unanchored: number };
 
+/** 評価では 0c も回して待つ（軸 12 で使う）。画面では別に回して分析を待たせない。時間は 0a・0b と分けて残す */
+async function step0With0c(raw: string, kind: Transcript["kind"]): Promise<Step0File> {
+  const r = await runStep0(raw, kind, { log });
+  const t0 = Date.now();
+  const c = await runStep0c(r.transcript);
+  const cMeta = c.meta ? { ...c.meta, ms: Date.now() - t0 } : null;
+  log(`0c ${cMeta?.ms ?? "-"} ms、推測 ${c.result.guesses.length}${c.result.failed ? `、失敗：${c.result.failed}` : ""}`);
+  return { transcript: attachStep0c(r.transcript, c.result, r.transcript.utterances.length), timing: { ...r.timing, step0c: cMeta }, unanchored: r.unanchored };
+}
+
 for (const name of cases) {
   const c = loadCase(name);
   const dir = runDir(name);
@@ -51,7 +61,7 @@ for (const name of cases) {
       for (let i = 0; i < stabilityRuns; i++) {
         const existing = [2, 3, 4, 5, 6].map((n) => path.join(dir, `step0-run${n}.json`)).find((f) => !loadJson(f));
         if (!existing) break;
-        const r = await runStep0(c.raw, c.kind, { with0c: true, log });
+        const r = await step0With0c(c.raw, c.kind);
         saveJson(existing, r satisfies Step0File);
         log(`整形の揺れ：${path.basename(existing)} に保存`);
       }
@@ -62,7 +72,7 @@ for (const name of cases) {
     let s0 = fresh ? null : loadJson<Step0File>(step0File);
     if (s0) log(`工程 0：保存した結果を使う（${s0.transcript.utterances.length} 発話）`);
     else {
-      s0 = await runStep0(c.raw, c.kind, { with0c: true, log });
+      s0 = await step0With0c(c.raw, c.kind);
       saveJson(step0File, s0);
       log(`工程 0：${s0.transcript.utterances.length} 発話、0a ${s0.timing.step0a.ms} ms、0b ${s0.timing.step0b?.ms ?? "-"} ms、0c ${s0.timing.step0c?.ms ?? "-"} ms`);
     }
@@ -72,7 +82,7 @@ for (const name of cases) {
     saveJson(path.join(dir, "step1.json"), s1);
     log(`工程 1：${s1.meta.ms} ms、最初の引用まで ${s1.firstCitationMs ?? "-"} ms、場面 ${s1.scenes.length}、引用 生成 ${s1.quoteStats.generated}・捨てた ${s1.quoteStats.discarded}・出せなかった場面 ${s1.quoteStats.scenesWithoutQuote}`);
 
-    const s2 = await runStep2(t, s1.scenes);
+    const s2 = await runStep2(t, s1.scenes, { firstMeeting: c.truth.firstMeeting });
     saveJson(path.join(dir, "step2.json"), s2);
     log(`工程 2：${s2.meta.ms} ms、${s2.items.map((i) => `${i.item}:${i.score ?? "判定しない"}`).join(" ")}、倫理 ${s2.ethics.level}`);
 

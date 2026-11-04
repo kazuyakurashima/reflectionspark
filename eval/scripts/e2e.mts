@@ -14,7 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { neighborsOf } from "../../engine/citations.mts";
-import { runStep0 } from "../../engine/step0.mts";
+import { attachStep0c, runStep0, runStep0c, waitShort } from "../../engine/step0.mts";
 import { runStep1 } from "../../engine/step1.mts";
 import { runStep2 } from "../../engine/step2.mts";
 import { runStep3 } from "../../engine/step3.mts";
@@ -54,14 +54,21 @@ const flush = () => saveJson(path.join(outDir, `${id}.json`), { ...result, timin
 try {
   const total0 = Date.now();
   // 1 回目の面談
-  const s0 = await time("工程 0（student-shinro）", () => runStep0(first.raw, first.kind, { with0c: true, log }), (r) => `発話 ${r.transcript.utterances.length}、直し ${r.transcript.step0b.applied.length}、推測 ${r.transcript.step0c?.guesses.length ?? 0}`);
+  const s0 = await time("工程 0（student-shinro。0a・0b）", () => runStep0(first.raw, first.kind, { log }), (r) => `発話 ${r.transcript.utterances.length}、直し ${r.transcript.step0b.applied.length}`);
   result.step0 = { timing: s0.timing, utterances: s0.transcript.utterances.length };
   flush();
+  // 0c は別に回し、分析と同時に送る。分析が終わってから短く待ち、間に合わなければ推測なしで出す
+  const c0Started = Date.now();
+  const c0 = runStep0c(s0.transcript).then((r) => ({ ...r, ms: Date.now() - c0Started }));
   const s1 = await time("工程 1（student-shinro）", () => runStep1(s0.transcript), (r) => `最初の引用まで ${r.firstCitationMs ?? "-"} ms、場面 ${r.scenes.length}、引用 生成 ${r.quoteStats.generated}・捨てた ${r.quoteStats.discarded}`);
   result.step1 = s1;
   flush();
-  const s2 = await time("工程 2（student-shinro）", () => runStep2(s0.transcript, s1.scenes), (r) => r.items.map((i) => `${i.item}:${i.score ?? "判定しない"}`).join(" "));
+  const s2 = await time("工程 2（student-shinro）", () => runStep2(s0.transcript, s1.scenes, { firstMeeting: true }), (r) => r.items.map((i) => `${i.item}:${i.score ?? "判定しない"}`).join(" "));
   result.step2 = s2;
+  flush();
+  const c0r = await time("工程 0c の短い待ち（student-shinro。分析の後、3 秒まで）", () => waitShort(c0, 3000), (r) => (r ? `間に合った（0c 全体 ${r.ms} ms、推測 ${r.result.guesses.length}）` : "間に合わなかった（推測なしで出す）"));
+  if (c0r) s0.transcript = attachStep0c(s0.transcript, c0r.result, s0.transcript.utterances.length);
+  result.step0c = c0r ? { ms: c0r.ms, guesses: c0r.result.guesses.length, inTime: true } : { inTime: false };
   flush();
   const nextScene = s1.scenes.find((s) => s.type === "次に試せる所");
   if (!nextScene) throw new Error("次に試せる所が無いので工程 3 に進めません");
@@ -85,16 +92,27 @@ try {
     },
   };
   const total1 = Date.now();
-  const t0 = await time("工程 0（student-shinro-2）", () => runStep0(second.raw, second.kind, { with0c: true, log }), (r) => `発話 ${r.transcript.utterances.length}`);
+  const t0 = await time("工程 0（student-shinro-2。0a・0b）", () => runStep0(second.raw, second.kind, { log }), (r) => `発話 ${r.transcript.utterances.length}`);
   result.step0_2 = { timing: t0.timing, utterances: t0.transcript.utterances.length };
   flush();
+  const c2Started = Date.now();
+  const c2 = runStep0c(t0.transcript).then((r) => ({ ...r, ms: Date.now() - c2Started }));
   const s4 = await time("工程 4（student-shinro-2）", () => runStep4(t0.transcript, spark), (r) => `判定 ${r.verdict}、最初の引用まで ${r.firstCitationMs ?? "-"} ms、引用 ${r.quotes.length}`);
   result.step4 = s4;
   result.spark = spark;
+  const c2r = await time("工程 0c の短い待ち（student-shinro-2）", () => waitShort(c2, 3000), (r) => (r ? `間に合った（0c 全体 ${r.ms} ms、推測 ${r.result.guesses.length}）` : "間に合わなかった（推測なしで出す）"));
+  if (c2r) t0.transcript = attachStep0c(t0.transcript, c2r.result, t0.transcript.utterances.length);
+  result.step0c_2 = c2r ? { ms: c2r.ms, guesses: c2r.result.guesses.length, inTime: true } : { inTime: false };
   const secondMs = Date.now() - total1;
   log(`2 回目の面談の流れ全体：${secondMs} ms`);
   result.flowMs = { first: firstMs, second: secondMs };
   result.transcripts = { first: s0.transcript, second: t0.transcript };
+  flush();
+  // 間に合わなかった 0c は、流れの時間には入れずに、記録のためだけに待って保存する
+  const late1 = c0r ? null : await c0;
+  const late2 = c2r ? null : await c2;
+  if (late1) result.step0c = { ms: late1.ms, guesses: late1.result.guesses.length, inTime: false };
+  if (late2) result.step0c_2 = { ms: late2.ms, guesses: late2.result.guesses.length, inTime: false };
   flush();
 
   const md = `# 山場の 2 本の通し（${id}）
