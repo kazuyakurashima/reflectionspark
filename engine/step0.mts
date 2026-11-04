@@ -25,73 +25,113 @@ export const CHECK_LOW_CONFIDENCE = "話者の確からしさが低い";
 export const CHECK_MID_CONFIDENCE = "話者の確からしさが中";
 export const CHECK_CORRECTED = "聞き違いを直した所がある";
 export const CHECK_MULTIPLE_OTHERS = "相手が 2 人以上と推定した";
-export const CHECK_UNANCHORED = "区切りを元の文に当て直せなかった発話を含む";
+export const CHECK_UNANCHORED = "区切りが分からない所（モデルの区切りを元の文に当て直せなかった。本人が分けてください）";
 export const CHECK_SPEAKER_LABEL = "話者ラベルが読めなかった";
+
+/** これより短い残り（正規化後の文字数）は、区切りのずれとみなして前の発話に含める */
+const GAP_MIN_CHARS = 6;
 
 /**
  * 0a の出力（モデルが写した本文）を、元の文字起こしに当て直す。
  * モデルが一字でも変えていても、画面と照合に使う本文は元の文字起こしの切り出しにする（言葉を変えない）。
- * 当て直せた発話の始まりで元の文を切り、全文を発話で覆う。当て直せなかった発話は前の発話に含め、印を付ける。
+ * 当て直せた発話は、その範囲（始まりから終わり）で元の文を切る。当て直せなかった発話や、どの発話にも当たらなかった元の文は、
+ * 前の発話にくっつけず（相手の言葉が本人の発話に入り、引用に使われるのを防ぐ）、「区切りが分からない所」として別の発話に残し、
+ * 画面 1 で本人が分けられるようにする。数文字の残りだけは区切りのずれとみなして前の発話に含める。
  */
 export function anchorUtterances(raw: string, parsed: Step0aRaw, kind: MeetingKind): { utterances: Utterance[]; unanchored: number } {
   const { self, other } = SPEAKER_LABELS[kind];
   const rawCp = [...raw];
   const norm = normalizeLoose(raw);
-  type Found = { start: number; speaker: string; confidence: Confidence; reason?: string; check: string[]; modelText: string };
+  type Found = { start: number; end: number; speaker: string; confidence: Confidence; reason?: string; check: string[]; pending: { text: string; speaker: string }[] };
   const found: Found[] = [];
   let cursor = 0;
   let unanchored = 0;
-  const pendingNotes: string[] = [];
+  let pending: { text: string; speaker: string }[] = [];
+  const labelOf = (raw: string, check: string[]) => {
+    const sp = raw.trim();
+    if (sp === self || sp === other) return sp;
+    check.push(CHECK_SPEAKER_LABEL);
+    return sp.includes(self) ? self : other;
+  };
   for (const u of parsed.utterances) {
     const text = u.text.trim();
     if (text === "") continue;
-    const hit = findLoose(norm, text, cursor, 0.7);
     const check: string[] = [];
-    let speaker = u.speaker.trim();
-    if (speaker !== self && speaker !== other) {
-      speaker = speaker.includes(self) ? self : speaker.includes(other) ? other : other;
-      check.push(CHECK_SPEAKER_LABEL);
-    }
+    const speaker = labelOf(u.speaker, check);
+    const hit = findLoose(norm, text, cursor, 0.7);
     if (!hit) {
       unanchored++;
-      pendingNotes.push(text);
+      pending.push({ text, speaker });
       continue;
-    }
-    if (pendingNotes.length) {
-      // 当て直せなかった発話は前の発話に含め、無ければこの発話に印を付ける
-      const target = found.length ? found[found.length - 1] : null;
-      if (target) target.check.push(`${CHECK_UNANCHORED}（${pendingNotes.join("／")}）`);
-      else check.push(`${CHECK_UNANCHORED}（${pendingNotes.join("／")}）`);
-      pendingNotes.length = 0;
     }
     if (u.confidence === "低") check.push(CHECK_LOW_CONFIDENCE);
     else if (u.confidence === "中") check.push(CHECK_MID_CONFIDENCE);
     if (parsed.multipleOthers) check.push(CHECK_MULTIPLE_OTHERS);
-    found.push({ start: hit.start, speaker, confidence: u.confidence, reason: u.reason || undefined, check, modelText: text });
+    found.push({ start: hit.start, end: hit.end, speaker, confidence: u.confidence, reason: u.reason || undefined, check, pending });
+    pending = [];
     cursor = hit.end;
   }
-  if (pendingNotes.length && found.length) found[found.length - 1].check.push(`${CHECK_UNANCHORED}（${pendingNotes.join("／")}）`);
   if (found.length === 0) throw new Error("0a：発話を元の文字起こしに当て直せませんでした（発話の並びが無いと先へ進めません）");
-  found[0].start = 0;
-  const utterances: Utterance[] = found.map((f, i) => {
-    const end = i + 1 < found.length ? found[i + 1].start : rawCp.length;
-    // 前後の空白を除いた範囲にする
-    let s = f.start;
-    let e = end;
+
+  // 区切りの並び：当て直せた発話と、その間の残り（区切りが分からない所）
+  type Piece = { start: number; end: number; speaker: string; confidence: Confidence; reason?: string; check: string[] };
+  const pieces: Piece[] = [];
+  const trimSpan = (s: number, e: number): [number, number] => {
     while (s < e && /\s/.test(rawCp[s])) s++;
     while (e > s && /\s/.test(rawCp[e - 1])) e--;
-    const original = rawCp.slice(s, e).join("");
-    return {
-      index: i,
-      speaker: f.speaker,
-      text: original,
-      original,
-      confidence: f.confidence,
-      confidenceReason: f.reason,
-      check: f.check,
-      memoSpan: [s, e],
-    };
-  });
+    return [s, e];
+  };
+  const normLen = (s: number, e: number) => normalizeLoose(rawCp.slice(s, e).join("")).chars.length;
+  const pushGap = (s0: number, e: number, pend: { text: string; speaker: string }[], prev: Piece | null) => {
+    // 残りの先頭の句読点（正規化で消える文字）は、前の発話の終わりに含める（当て直しは句読点を数えないため）
+    let s = s0;
+    while (s < e && !/\s/.test(rawCp[s]) && normalizeLoose(rawCp[s]).chars.length === 0) s++;
+    if (prev && s > s0) prev.end = s;
+    const [ts, te] = trimSpan(s, e);
+    if (ts >= te) return;
+    const len = normLen(ts, te);
+    if (pend.length === 0 && len < GAP_MIN_CHARS) {
+      // 数文字の残りは区切りのずれ：前の発話に含める（前が無ければ次の発話の始まりに含める）
+      if (prev) prev.end = te;
+      else pieces.push({ start: ts, end: te, speaker: found[0].speaker, confidence: "低", reason: undefined, check: [CHECK_UNANCHORED] });
+      return;
+    }
+    const note = pend.length ? `（モデルの区切り：${pend.map((p) => `${p.speaker}「${p.text}」`).join("／")}）` : "（モデルの出力に無かった所）";
+    pieces.push({
+      start: ts,
+      end: te,
+      speaker: pend[0]?.speaker ?? prev?.speaker ?? other,
+      confidence: "低",
+      reason: `区切りを当て直せなかった${note}`,
+      check: [CHECK_UNANCHORED + note],
+    });
+  };
+  // 先頭の残り
+  pushGap(0, found[0].start, found[0].pending, null);
+  for (let i = 0; i < found.length; i++) {
+    const f = found[i];
+    const [s, e] = trimSpan(f.start, f.end);
+    const piece: Piece = { start: s, end: e, speaker: f.speaker, confidence: f.confidence, reason: f.reason, check: f.check };
+    pieces.push(piece);
+    const nextStart = i + 1 < found.length ? found[i + 1].start : rawCp.length;
+    const nextPending = i + 1 < found.length ? found[i + 1].pending : pending;
+    pushGap(f.end, nextStart, nextPending, piece);
+  }
+  // 当て直せなかった発話が末尾にあり、残りの文も無いとき（モデルが足した文など）は、最後の発話に印だけ付ける
+  if (pending.length && pieces.length && !pieces[pieces.length - 1].check.some((c) => c.startsWith(CHECK_UNANCHORED))) {
+    const lastGap = trimSpan(found[found.length - 1].end, rawCp.length);
+    if (lastGap[0] >= lastGap[1]) pieces[pieces.length - 1].check.push(`${CHECK_UNANCHORED}（モデルの区切り：${pending.map((p) => p.text).join("／")}。元の文には残りが無い）`);
+  }
+  const utterances: Utterance[] = pieces
+    .map((p) => {
+      const [s, e] = trimSpan(p.start, p.end);
+      return { ...p, start: s, end: e };
+    })
+    .filter((p) => p.end > p.start)
+    .map((p, i) => {
+      const original = rawCp.slice(p.start, p.end).join("");
+      return { index: i, speaker: p.speaker, text: original, original, confidence: p.confidence, confidenceReason: p.reason, check: p.check, memoSpan: [p.start, p.end] as [number, number] };
+    });
   return { utterances, unanchored };
 }
 

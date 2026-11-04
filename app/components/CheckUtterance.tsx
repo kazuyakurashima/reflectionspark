@@ -1,8 +1,8 @@
 "use client";
 
-// 画面 1：発話を確かめて直す。話者を入れ替える、本文を直す。元の文はいつも残す。
+// 画面 1：発話を確かめて直す。話者を入れ替える、本文を直す、カーソルの位置で分ける。元の文はいつも残す。
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
@@ -13,14 +13,26 @@ export function CheckUtterance({
   t,
   u,
   onChange,
+  onSplit,
 }: {
   t: Transcript;
   u: Utterance;
   onChange: (next: Utterance) => void;
+  /** カーソルの位置（コードポイント）で 2 つに分ける */
+  onSplit?: (u: Utterance, pos: number) => void;
 }) {
   const { self, other } = SPEAKER_LABELS[t.kind];
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(u.text ?? "");
+  const areaRef = useRef<HTMLTextAreaElement>(null);
+  const splitHere = () => {
+    const el = areaRef.current;
+    if (!el || !onSplit) return;
+    if (draft !== (u.text ?? "")) return; // 本文を直している途中は、先に「この文にする」
+    const pos = [...draft.slice(0, el.selectionStart)].length;
+    setEditing(false);
+    onSplit(u, pos);
+  };
   const guesses = guessesOf(t, u.index);
   const corrections = correctionsOf(t, u.index);
   const corrected = corrections.length > 0 && u.text !== u.original;
@@ -62,16 +74,22 @@ export function CheckUtterance({
       {editing ? (
         <div className="mt-2">
           <textarea
+            ref={areaRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
             className="w-full rounded border border-stone-300 p-2 text-sm"
             aria-label={`発話 ${u.index} の本文`}
           />
-          <div className="mt-1 flex gap-2 text-sm">
+          <div className="mt-1 flex flex-wrap gap-2 text-sm">
             <button type="button" onClick={commitText} className="rounded bg-stone-800 px-3 py-1 text-white">
               この文にする
             </button>
+            {onSplit && (
+              <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className="rounded border border-stone-300 px-3 py-1 disabled:opacity-40" title="本文の中でカーソルを置いた所で、2 つの発話に分けます">
+                カーソルの位置で分ける
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {

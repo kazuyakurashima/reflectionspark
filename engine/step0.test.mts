@@ -38,7 +38,7 @@ describe("工程 0a：区切りと話者を元の文に当て直す（言葉を�
     assert.deepEqual(utterances[0].memoSpan, [0, [..."じゃあ始めようか。今日部活は。"].length]);
   });
 
-  test("当て直せない発話は前の発話に含め、印を付ける", () => {
+  test("当て直せない発話は前の発話にくっつけず、「区切りが分からない所」として別の発話に残す", () => {
     const { utterances, unanchored } = anchorUtterances(
       raw,
       parsed([
@@ -49,9 +49,35 @@ describe("工程 0a：区切りと話者を元の文に当て直す（言葉を�
       "生徒",
     );
     assert.equal(unanchored, 1);
+    assert.equal(utterances.length, 4);
+    // 前の発話は自分の範囲だけ
+    assert.equal(utterances[0].original, "じゃあ始めようか。今日部活は。");
+    assert.deepEqual(utterances[0].check, []);
+    // 当たらなかった元の文は別の発話。モデルの区切りの話者を仮に付け、確からしさは低、印を付ける
+    assert.equal(utterances[1].original, "今日は早めに終わりました。顧問の先生が出張で。");
+    assert.equal(utterances[1].speaker, "生徒");
+    assert.equal(utterances[1].confidence, "低");
+    assert.ok(utterances[1].check.some((c) => c.startsWith(CHECK_UNANCHORED)));
+    assert.equal(utterances[2].original, "そっか、吹奏楽来月が最後のコンクールだっけ。");
+    // 末尾の、モデルの出力に無かった所も別の発話
+    assert.equal(utterances[3].original, "はいあ、ごめん会場はどこ市民会館です。");
+    assert.ok(utterances[3].check.some((c) => c.startsWith(CHECK_UNANCHORED)));
+    // 全文を発話で覆う
+    assert.equal(utterances.map((u) => u.original).join(""), raw.replace(/\s/g, ""));
+  });
+
+  test("数文字の残りは区切りのずれとみなし、前の発話に含める", () => {
+    const { utterances } = anchorUtterances(
+      "じゃあ始めようか。今日部活は。ね。今日は早めに終わりました。",
+      parsed([
+        { speaker: "講師", text: "じゃあ始めようか。今日部活は。", confidence: "高", reason: "" },
+        { speaker: "生徒", text: "今日は早めに終わりました。", confidence: "高", reason: "" },
+      ]),
+      "生徒",
+    );
     assert.equal(utterances.length, 2);
-    assert.ok(utterances[0].check.some((c) => c.startsWith(CHECK_UNANCHORED)));
-    assert.equal(utterances[0].original, "じゃあ始めようか。今日部活は。今日は早めに終わりました。顧問の先生が出張で。");
+    assert.equal(utterances[0].original, "じゃあ始めようか。今日部活は。ね。");
+    assert.equal(utterances[1].original, "今日は早めに終わりました。");
   });
 
   test("話者ラベルが 2 つのどちらでもなければ、相手に寄せて印を付ける", () => {

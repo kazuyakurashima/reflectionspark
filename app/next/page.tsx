@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import type { FollowUpResponse, Step0Response } from "@/engine/server.mts";
+import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { FollowUpVerdict, Utterance } from "@/engine/types.mts";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
@@ -109,6 +110,8 @@ export default function Screen5() {
     updateSession((s) =>
       s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: { ...s.followUp.transcript, utterances: s.followUp.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } } : s,
     );
+  const split = (u: Utterance, pos: number) =>
+    updateSession((s) => (s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: splitUtterance(s.followUp.transcript, u.index, pos) } } : s));
   const submitSelf = () => {
     const n = Number(score);
     if (!verdict || !Number.isInteger(n) || n < 1 || n > 10) return;
@@ -160,7 +163,7 @@ export default function Screen5() {
             <Collapsible label={`確かめる所（${toCheck.length} 件）を開く`} openLabel="確かめる所を閉じる">
               <div className="space-y-2">
                 {toCheck.map((u) => (
-                  <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} />
+                  <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
                 ))}
                 {toCheck.length === 0 && <p className="text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>}
               </div>
@@ -168,7 +171,7 @@ export default function Screen5() {
             <Collapsible label={`全文（${transcript.utterances.length} 発話）を開く`} openLabel="全文を閉じる" className="mt-2">
               <div className="space-y-2">
                 {transcript.utterances.map((u) => (
-                  <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} />
+                  <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
                 ))}
               </div>
             </Collapsible>

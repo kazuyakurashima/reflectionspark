@@ -6,6 +6,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { MeetingKind, Utterance } from "@/engine/types.mts";
 import type { Step0Response } from "@/engine/server.mts";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
@@ -66,6 +67,10 @@ export default function Screen1() {
 
   const update = (next: Utterance) => {
     updateSession((s) => (s.transcript ? { ...s, transcript: { ...s.transcript, utterances: s.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } : s));
+  };
+
+  const split = (u: Utterance, pos: number) => {
+    updateSession((s) => (s.transcript ? { ...s, transcript: splitUtterance(s.transcript, u.index, pos) } : s));
   };
 
   const goNext = () => {
@@ -133,18 +138,18 @@ export default function Screen1() {
             確かめる所（{toCheck.length} 件）{ms !== null && <span className="ml-2 text-xs font-normal text-stone-500">整形 {Math.round(ms / 100) / 10} 秒</span>}
           </h2>
           <p className="mt-1 text-sm text-stone-600">
-            話者の確からしさが低い発話、聞き違いを直した所、相手が 2 人以上と推定した所を先に出します。話者は押して入れ替え、本文は「本文を直す」で直せます。元の文はいつも残します。
+            話者の確からしさが低い発話、聞き違いを直した所、区切りが分からない所、相手が 2 人以上と推定した所を先に出します。話者は押して入れ替え、本文は「本文を直す」で直せます。区切りが分からない所は「本文を直す」を開き、カーソルの位置で分けられます。元の文はいつも残します。
           </p>
           {toCheck.length === 0 && <p className="mt-2 text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
           <div className="mt-3 space-y-2">
             {toCheck.map((u) => (
-              <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} />
+              <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
             ))}
           </div>
           <Collapsible label={`全文（${transcript.utterances.length} 発話）を開く`} openLabel="全文を閉じる" className="mt-4">
             <div className="space-y-2">
               {transcript.utterances.map((u) => (
-                <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} />
+                <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
               ))}
             </div>
           </Collapsible>
