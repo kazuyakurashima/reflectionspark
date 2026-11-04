@@ -15,6 +15,19 @@ export const ANALYSIS_MODEL = process.env.REFLECTIONSPARK_MODEL ?? "claude-opus-
 export const JUDGE_MODEL = process.env.REFLECTIONSPARK_JUDGE_MODEL ?? "claude-opus-5-5";
 
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
+export const EFFORTS: Effort[] = ["low", "medium", "high", "xhigh", "max"];
+
+/** 考える量の文字列を読む。空なら null、読めなければ投げる（環境変数の打ち間違いで既定に戻って気づかないのを防ぐ）。 */
+export function parseEffort(value: string | undefined, name = "考える量"): Effort | null {
+  const v = (value ?? "").trim();
+  if (v === "") return null;
+  if ((EFFORTS as string[]).includes(v)) return v as Effort;
+  throw new Error(`${name}の値が読めません：${v}（${EFFORTS.join("、")} のどれか）`);
+}
+
+/** 工程 0a（区切りと話者）のモデルと考える量。既定は分析と同じモデルと medium。環境変数で変えられる（0b・0c は変えない）。 */
+export const STEP0_MODEL = process.env.REFLECTIONSPARK_STEP0_MODEL ?? ANALYSIS_MODEL;
+export const STEP0_EFFORT: Effort = parseEffort(process.env.REFLECTIONSPARK_STEP0_EFFORT, "REFLECTIONSPARK_STEP0_EFFORT") ?? "medium";
 
 let client: Anthropic | null = null;
 
