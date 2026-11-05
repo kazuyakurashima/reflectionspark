@@ -4,7 +4,7 @@
 // 確かめる所（確からしさが低い発話、0b で直した所、相手が 2 人以上と推定した所）を先に出し、全文は畳んで後ろに置く。
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { MeetingKind, Utterance } from "@/engine/types.mts";
@@ -42,6 +42,15 @@ export default function Screen1() {
   const session = useSession();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** 整形を始めた時刻と、待つ間の経過の秒（進み具合を出す。0a は 1 分前後かかることがある） */
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (startedAt === null) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [startedAt]);
+  const elapsed = startedAt === null ? 0 : Math.max(0, Math.floor((now - startedAt) / 1000));
 
   if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
 
@@ -66,6 +75,9 @@ export default function Screen1() {
   const format = async () => {
     setBusy(true);
     setError(null);
+    const t0 = Date.now();
+    setStartedAt(t0);
+    setNow(t0);
     try {
       const r = await fetch("/api/step0", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ raw, kind }) });
       const d = (await r.json()) as Step0Response & { error?: string };
@@ -77,6 +89,7 @@ export default function Screen1() {
       setError((e as Error).message);
     } finally {
       setBusy(false);
+      setStartedAt(null);
     }
   };
 
@@ -140,6 +153,11 @@ export default function Screen1() {
             {busy ? "整形しています…" : "整形する（発話に区切って話者を付ける）"}
           </button>
           <span className="text-xs text-stone-500">{[...raw].length} 字</span>
+          {busy && (
+            <span className="text-xs text-stone-600" aria-live="polite">
+              {elapsed < 5 ? "読んでいます" : "発話に区切って話者を付けています"}（{elapsed} 秒）
+            </span>
+          )}
         </div>
         {error && <p className="text-sm text-red-700">{error}</p>}
       </section>

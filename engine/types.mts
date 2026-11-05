@@ -48,11 +48,24 @@ export type Correction = {
 
 export type DiscardedCorrection = Correction & { reason: string };
 
+/** 0a の作り方。copy：モデルに本文を写させ、元の文に当て直す（今の作り方）。label：アプリが文に切って番号を付け、モデルは番号ごとの話者だけを返す（速い作り方） */
+export type Step0aMode = "copy" | "label";
+
 export type Step0aRaw = {
   utterances: { speaker: string; text: string; confidence: Confidence; reason?: string }[];
   /** 相手が 2 人以上と推定したか */
   multipleOthers: boolean;
   /** 相手が 2 人以上のとき、その理由 */
+  multipleOthersReason?: string;
+};
+
+/** 0a（label）のモデルの返事。本文は無く、番号ごとの話者と確からしさ、低いときの理由、一文の中で話者が替わる所。 */
+export type Step0aLabelRaw = {
+  sentences: { n: number; speaker: string; confidence: Confidence }[];
+  reasons: { n: number; reason: string }[];
+  /** 一文の中で話者が替わる所。at は後の話者の言葉の始まり（その文にある文字列そのまま） */
+  splits: { n: number; at: string; speaker: string; confidence: Confidence; reason: string }[];
+  multipleOthers: boolean;
   multipleOthersReason?: string;
 };
 
@@ -97,6 +110,8 @@ export type Transcript = {
   step0b: Step0bResult;
   /** 0c は分析と同時に別に送るので、無いこともある */
   step0c: Step0cResult | null;
+  /** 0a の作り方（記録用。古い結果には無い） */
+  step0aMode?: Step0aMode;
 };
 
 /** 呼び出しの使用量と時間 */

@@ -180,6 +180,16 @@ describe("軸の計算", () => {
     const r = axis8(step1, step2, truth);
     assert.equal(r.item5Withheld, true);
     assert.equal(r.withheldAsTruth[4].ai, true);
+    assert.equal(r.truthNoScene, false);
+    assert.equal(r.saidNoScene, false);
+  });
+
+  test("軸 8：場面が無いのが正解のとき、AI が「無い」と言ったかを見る（決まり 4）", () => {
+    const t2: Truth = { ...truth, noScene: { source: "決め" }, scenes: { strengthBest: null, strengthNext: null, issueBest: null, issueNext: null } };
+    const r = axis8({ ...step1, noScene: "根拠のある場面が見つかりませんでした" } as Step1Result, step2, t2);
+    assert.equal(r.truthNoScene, true);
+    assert.equal(r.saidNoScene, true);
+    assert.deepEqual(axis2({ ...step1, noScene: "x" } as Step1Result, t2, transcript, a).scenes, []);
   });
 
   test("軸 9：○ の項目の点が × の項目より高いか。○× と判定しないは数えず、〔案〕の項目は分ける", () => {

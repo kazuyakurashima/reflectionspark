@@ -1,0 +1,30 @@
+{
+  "case": "student-seiseki-2",
+  "version": "v1",
+  "kind": "生徒",
+  "title": "student-seiseki の続き（約 1 か月後）",
+  "firstMeeting": false,
+  "followUpOf": "student-seiseki",
+  "followUp": {
+    "previousAction": { "text": "もし生徒が『上げたい』『頑張る』と短く答えたら、『どの単元の、どの問題を、いつ』と一つ聞き返す。", "source": "案" },
+    "criterion": null,
+    "verdict": "一部",
+    "evidenceLines": ["60-66", "72-78"],
+    "source": "案",
+    "note": "前回の一手と判定・根拠は台本の仕込み（作り手はまだ確かめていない）。数学ではできた（60〜66）、英語ではできなかった（72〜78）。作り手の強み（61）と課題（72・73）と同じ向き。"
+  },
+  "scenes": {
+    "strengthBest": { "lines": [61, 135, 137], "items": [], "source": "作り手", "note": "戦術というか、学習の具体化が時期と何をやるのかが明確。" },
+    "strengthNext": { "lines": [17, 53, 129], "items": [], "source": "作り手", "note": "前回の話を踏まえて、PDCAを回そうとしている。17、53、129。（ほかに：リカバーできている 39。最後のまとめもできている 165。）" },
+    "issueBest": { "lines": [72, 73, 75, 76], "items": [], "source": "作り手", "note": "英語の学習について、解像度が荒い。前回、特に指示がなかったし、考えさせてもなかった。今回も、がんばろう、がんばりますに。72、73。しかも、不規則動詞が半分だった。75、76。教科書の単語も、小テストでは良くてもまとめてが苦手といっているが、それだけ。日付とやることを最後にまとめたが、来週はどうなるのでしょうか。" },
+    "issueNext": null,
+    "confidence": ""
+  },
+  "items": {
+    "1": { "mark": "○", "good": { "lines": null, "source": "作り手" }, "bad": null, "note": "印だけ（範囲なし）" },
+    "2": { "mark": "○", "good": { "lines": null, "source": "作り手" }, "bad": null, "note": "印だけ（範囲なし）" },
+    "3": { "mark": "○", "good": { "lines": "130-134", "source": "作り手" }, "bad": null, "note": "印に番号だけ（130〜134）" },
+    "4": { "mark": "○", "good": { "lines": null, "source": "作り手" }, "bad": null, "note": "印だけ（範囲なし）" },
+    "5": { "mark": "○", "good": { "lines": [17, 53, 129], "source": "作り手" }, "bad": null, "note": "前回の話を踏まえて、PDCAを回そうとしている（強みの次点と同じ行。項目 5 への当てはめは写すときに Claude がした）" }
+  }
+}
