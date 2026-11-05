@@ -39,45 +39,64 @@ export function toUtteranceIndices(nos: unknown[], count: number): number[] {
 }
 
 const NUMBER = "[0-9０-９]+";
+const SIGN = "[-−–－]";
+// 長音の「ー」も区切りに入れる。数字の前の「ー」は範囲の書き方で、外すと「発話 12ー15」の 15 を見落とす
 const JOINER = "[〜～~\\-–—−ー・、,，とや→]";
-// 「発話 12」「発話12」「発話 12〜15」「発話 12・14」「発話 12、発話 14」のまとまり
-const REF = new RegExp(`発話\\s*(${NUMBER}(?:\\s*${JOINER}\\s*(?:発話\\s*)?${NUMBER})*)`, "gu");
+// 数のあとに助数詞が続くものは、発話番号ではない（「発話 3 と 5 つの候補」の 5）。
+// 数字も先読みに入れて、「15 つ」を「1」だけ読み取り直さないようにする
+const COUNTER = "つ|個|件|回|人|割|分|秒|日|週|年|歳|字|点|か月|ヶ月|時間|%|％";
+const NOT_COUNT = `(?![0-9０-９]|\\s*(?:${COUNTER}))`;
+// 「発話 12」「発話12」「発話 12〜15」「発話 12・14」「発話 12、発話 14」のまとまり。「発話 -1」も番号の誤りとして読む
+const ONE_REF = `発話\\s*${SIGN}?\\s*${NUMBER}${NOT_COUNT}`;
+const REF = new RegExp(`${ONE_REF}(?:\\s*${JOINER}\\s*(?:${ONE_REF}|${NUMBER}${NOT_COUNT}))*`, "gu");
+const NUMBER_IN_REF = new RegExp(`(?:発話\\s*(${SIGN})\\s*)?(${NUMBER})`, "gu");
+
+// 前回の面談の番号の印。AI が「前回の発話 n」と書いた文も、前回の番号として扱う
+const PREVIOUS = "前回の面談の";
+const PREVIOUS_MARK = "前回(?:の面談)?の";
+const ONE_REF_NOT_MARKED = new RegExp(`(?<!${PREVIOUS_MARK})${ONE_REF}`, "gu");
+const REF_NOT_MARKED = new RegExp(`(?<!${PREVIOUS_MARK})${REF.source}`, "gu");
 
 function toNumber(s: string): number {
   return Number(s.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)));
 }
 
-/** 文の中の「発話 n」の番号をすべて取る（範囲は両端の番号）。出てきた順 */
-export function findUtteranceRefs(text: string): number[] {
+function readRefs(text: string, pattern: RegExp): number[] {
   const out: number[] = [];
-  for (const m of (text ?? "").matchAll(REF)) {
-    for (const n of m[1].matchAll(new RegExp(NUMBER, "gu"))) out.push(toNumber(n[0]));
+  for (const m of (text ?? "").matchAll(pattern)) {
+    for (const n of m[0].matchAll(NUMBER_IN_REF)) out.push(n[1] ? -toNumber(n[2]) : toNumber(n[2]));
   }
   return out;
 }
 
-const PREVIOUS = "前回の面談の";
-const REF_NOT_MARKED = new RegExp(`(?<!${PREVIOUS})${REF.source}`, "gu");
+/** 文の中の「発話 n」の番号をすべて取る（範囲は両端の番号）。出てきた順 */
+export function findUtteranceRefs(text: string): number[] {
+  return readRefs(text, REF);
+}
 
 /**
  * 前回の面談について書いた文の中の「発話 n」を、「前回の面談の発話 n」に書き換える。
  * 前回の場面の文を、今回の面談の文書（札つき）と一緒に AI に渡すときに使う。
  * 発話番号は面談ごとに 0 から振るので、印が無いと、前回の番号が今回の札の番号と紛れる。
+ * 「発話」が書いてある所ごとに付けるので、並べた番号も一度で印が付き、何度かけても同じ文になる。
  */
 export function markPreviousUtteranceRefs(text: string): string {
-  return (text ?? "").replace(REF_NOT_MARKED, (m) => `${PREVIOUS}${m}`);
+  return (text ?? "").replace(ONE_REF_NOT_MARKED, (m) => `${PREVIOUS}${m}`);
 }
 
 export type UtteranceRefCheck = {
-  /** 文の中に出てきた番号の数 */
+  /** 文の中に出てきた、今回の面談の番号の数 */
   total: number;
   /** 発話の並びの範囲に無い番号（番号のずれや、無い発話を指した印） */
   outOfRange: number[];
 };
 
-/** AI が書いた文の中の番号が、発話の並びの範囲にあるかを確かめる（記録と評価のため。画面には出さない） */
+/**
+ * AI が書いた文の中の番号が、発話の並びの範囲にあるかを確かめる（記録と評価のため。画面には出さない）。
+ * 前回の面談の番号は今回の並びと比べられないので、数えない。
+ */
 export function checkUtteranceRefs(texts: (string | null | undefined)[], count: number): UtteranceRefCheck {
-  const refs = texts.flatMap((t) => findUtteranceRefs(t ?? ""));
+  const refs = texts.flatMap((t) => readRefs(t ?? "", REF_NOT_MARKED));
   return { total: refs.length, outOfRange: [...new Set(refs.filter((n) => n < 0 || n >= count))].sort((a, b) => a - b) };
 }
 

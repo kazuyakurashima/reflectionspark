@@ -76,12 +76,32 @@ describe("発話番号の決まり（番号は一つ。0 始まり）", () => {
     assert.deepEqual(findUtteranceRefs("発話 45・47 の説明のあと、発話 51、52 で"), [45, 47, 51, 52]);
     assert.deepEqual(findUtteranceRefs("発話 ４０ と発話 41"), [40, 41]);
     assert.deepEqual(findUtteranceRefs("番号の無い文。3 分の小テスト。"), []);
+    assert.deepEqual(findUtteranceRefs("発話 12ー15 と発話 20-22"), [12, 15, 20, 22]);
+  });
+
+  test("数のあとに助数詞が続くものは、発話番号として読まない", () => {
+    assert.deepEqual(findUtteranceRefs("発話 3 と 5 つの候補"), [3]);
+    assert.deepEqual(findUtteranceRefs("発話 3 と 15 つの候補"), [3]);
+    assert.deepEqual(findUtteranceRefs("発話 3 つ分の説明"), []);
+    assert.deepEqual(findUtteranceRefs("発話 3 と 5 で"), [3, 5]);
   });
 
   test("文の中の番号が範囲の外にあれば分かる（番号のずれの見張り）", () => {
     assert.deepEqual(checkUtteranceRefs(["発話 0 から発話 5 まで", null, "発話 3"], 6), { total: 3, outOfRange: [] });
     // 1 から数えた文は、最後の発話が範囲の外に出る
     assert.deepEqual(checkUtteranceRefs(["発話 1〜6：全体"], 6), { total: 2, outOfRange: [6] });
+  });
+
+  test("負の番号は、番号の誤りとして範囲の外に記録する（「発話 3-5」の範囲とは分ける）", () => {
+    assert.deepEqual(findUtteranceRefs("発話 -1"), [-1]);
+    assert.deepEqual(checkUtteranceRefs(["発話 -1", "発話 3、発話 -2"], 6), { total: 3, outOfRange: [-2, -1] });
+    assert.deepEqual(checkUtteranceRefs(["発話 3-5"], 6), { total: 2, outOfRange: [] });
+  });
+
+  test("前回の面談の番号は、今回の範囲検査に数えない。今回の番号だけを確かめる", () => {
+    assert.deepEqual(checkUtteranceRefs(["前回の面談の発話 94 と比べて、今回の発話 2 では問いが出た。"], 3), { total: 1, outOfRange: [] });
+    assert.deepEqual(checkUtteranceRefs(["前回の発話 94 と 95 のあと、発話 7 で"], 3), { total: 1, outOfRange: [7] });
+    assert.deepEqual(checkUtteranceRefs(["前回の面談の発話 94、発話 7"], 3), { total: 1, outOfRange: [7] });
   });
 
   test("引用した発話と、直前・直後を並びから取る（端では無い側を出さない。広げると前後が増える）", () => {
@@ -99,6 +119,14 @@ describe("前回の面談の番号は、今回の面談の番号と分ける", (
     assert.equal(markPreviousUtteranceRefs("発話 38・40 で話した"), "前回の面談の発話 38・40 で話した");
     assert.equal(markPreviousUtteranceRefs("前回の面談の発話 75 で"), "前回の面談の発話 75 で");
     assert.equal(markPreviousUtteranceRefs("番号の無い文。"), "番号の無い文。");
+  });
+
+  test("並べた番号も一度で印が付き、何度かけても同じ文になる", () => {
+    const once = markPreviousUtteranceRefs("発話 3、発話 5、発話 7");
+    assert.equal(once, "前回の面談の発話 3、前回の面談の発話 5、前回の面談の発話 7");
+    assert.equal(markPreviousUtteranceRefs(once), once);
+    assert.equal(markPreviousUtteranceRefs("前回の発話 3 と発話 5"), "前回の発話 3 と前回の面談の発話 5");
+    assert.equal(markPreviousUtteranceRefs("発話 3 つ分の説明"), "発話 3 つ分の説明");
   });
 
   test("工程 4 に渡す前回の場面の文には、印の無い「発話 n」が残らない。前回の引用の言葉は変えない", () => {
