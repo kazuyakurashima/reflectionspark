@@ -27,7 +27,7 @@ export function parseEffort(value: string | undefined, name = "考える量"): E
 
 /** 工程 0a（区切りと話者）のモデルと考える量。既定は分析と同じモデルと medium。環境変数で変えられる（0b・0c は変えない）。 */
 export const STEP0_MODEL = process.env.REFLECTIONSPARK_STEP0_MODEL ?? ANALYSIS_MODEL;
-export const STEP0_EFFORT: Effort = parseEffort(process.env.REFLECTIONSPARK_STEP0_EFFORT, "REFLECTIONSPARK_STEP0_EFFORT") ?? "medium";
+export const STEP0_EFFORT: Effort = parseEffort(process.env.REFLECTIONSPARK_STEP0_EFFORT, "REFLECTIONSPARK_STEP0_EFFORT") ?? "low"; // 11/5 の比べで決めた（docs/整形の速い作り方.md「決めたこと」）
 
 let client: Anthropic | null = null;
 
