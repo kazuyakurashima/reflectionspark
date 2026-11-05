@@ -75,6 +75,84 @@ ${raw}
 </transcript>`;
 }
 
+// ---------- 工程 0a（速い作り方：番号に印を付ける） ----------
+// 本文を写させず、アプリが文の区切りで切って番号を付けた文に、文ごとの話者と確からしさだけを返させる。
+// 出力のトークンが入力と同じくらいになるのを避ける。本文はアプリが元の文字起こしから切り出すので、言葉は一字も変わらない。
+
+export function step0aLabelSystem(kind: MeetingKind): string {
+  const { self, other } = labels(kind);
+  return `${COMMON}
+
+あなたの仕事は、話者の無い文字起こし（iPhone や Mac のボイスメモなど）を、発話に区切り、話者を付けることです。
+面談の種類は「${kind}」で、話者は「${self}」と「${other}」の 2 人です。
+文字起こしは、アプリが文の区切り（。？！など）で切り、[番号] を付けて渡します。本文は写さず、番号ごとに話者を返してください。本文はアプリが元の文字起こしから切り出すので、言葉は一字も変わりません。
+
+守ること：
+- sentences には、すべての文を番号順に 1 つずつ入れる。飛ばさない、まとめない。文ごとに、話者（「${self}」か「${other}」）と、話者の確からしさ（「高」「中」「低」）を付ける。迷った所を「高」にしない。
+- 確からしさが「低」の文は、reasons に番号と理由を一言で入れる。
+- 一つの文の中で話者が替わる所（例：相手の返事の直後に本人の言葉が続いて 1 文に見える所）は、splits に入れる。n はその文の番号、at は後の話者の言葉の始まりを、その文にある文字列そのまま（3〜8 字）で書く。speaker は後の話者。文の前半の話者は sentences の方に書く。文の中で話者が替わらなければ splits は空でよい。
+- 相手が 2 人以上いると読める（例：保護者面談に生徒が同席している）ときは multiple_others を true にし、理由を書く。その場合も話者は「${self}」と「${other}」の 2 つで付ける。
+- 同じ話者が続く文は、アプリが 1 つの発話にまとめる。区切りは話し手が変わる所だけを考えればよい。
+
+出力は JSON だけ。`;
+}
+
+export const STEP0A_LABEL_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["sentences", "reasons", "splits", "multiple_others", "multiple_others_reason"],
+  properties: {
+    sentences: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["n", "speaker", "confidence"],
+        properties: {
+          n: { type: "integer" },
+          speaker: { type: "string" },
+          confidence: { type: "string", enum: ["高", "中", "低"] },
+        },
+      },
+    },
+    reasons: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["n", "reason"],
+        properties: { n: { type: "integer" }, reason: { type: "string" } },
+      },
+    },
+    splits: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["n", "at", "speaker", "confidence", "reason"],
+        properties: {
+          n: { type: "integer" },
+          at: { type: "string" },
+          speaker: { type: "string" },
+          confidence: { type: "string", enum: ["高", "中", "低"] },
+          reason: { type: "string" },
+        },
+      },
+    },
+    multiple_others: { type: "boolean" },
+    multiple_others_reason: { type: "string" },
+  },
+};
+
+/** 文の並びを「[番号] 本文」の形で渡す。 */
+export function step0aLabelUser(sentences: { n: number; text: string }[]): string {
+  return `次の文字起こしは、アプリが文ごとに切って [番号] を付けたものです。文ごとに話者を付けてください。
+
+<sentences>
+${sentences.map((s) => `[${s.n}] ${s.text}`).join("\n")}
+</sentences>`;
+}
+
 // ---------- 工程 0b：直す箇所の一覧 ----------
 
 export function step0bSystem(kind: MeetingKind): string {

@@ -114,6 +114,7 @@ node eval/scripts/report.mts --judge
 - 正解：`eval/正解.md`（v1）と `eval/truth/*.json`。
 - 対応付け（ボイスメモと台本の行）：`node eval/scripts/align-cases.mts`。
 - 結果：`eval/results/runs/report.md`（1 行 1 ケースの表）。
+- 整形（工程 0a）の速さの比べ：`node eval/scripts/step0-speed.mts student-shinro student-shinro-2`（作り方 copy／label × モデル × 考える量。`docs/整形の速い作り方.md`）。
 
 ## どう作ったか
 

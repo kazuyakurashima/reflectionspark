@@ -12,7 +12,8 @@
     "eval:align": "node eval/scripts/align-cases.mts",
     "eval:run": "node eval/scripts/run-cases.mts",
     "eval:report": "node eval/scripts/report.mts",
-    "eval:e2e": "node eval/scripts/e2e.mts"
+    "eval:e2e": "node eval/scripts/e2e.mts",
+    "eval:step0-speed": "node eval/scripts/step0-speed.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
