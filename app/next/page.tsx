@@ -13,7 +13,7 @@ import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { FollowUpVerdict, Utterance } from "@/engine/types.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
-import { countChecks, groupChecks } from "@/app/lib/check-groups.mts";
+import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { ScoreTable } from "@/app/components/Scores";
 import { UtteranceContext } from "@/app/components/UtteranceView";
@@ -130,6 +130,8 @@ export default function Screen5() {
   const selfDone = fu?.selfVerdict !== null && fu?.selfVerdict !== undefined;
   const groups = transcript ? groupChecks(transcript) : null;
   const checkCount = groups ? countChecks(groups) : 0;
+  const toCheckCount = groups ? countToCheck(groups) : 0;
+  const correctedCount = groups?.corrected.length ?? 0;
   const third = spark.timesFollowed >= 3 && !spark.keepAfterThird;
   const keep = () => updateSession((s) => ({ ...s, spark: s.spark ? { ...s.spark, keepAfterThird: true } : s.spark }));
   const change = () => {
@@ -171,7 +173,7 @@ export default function Screen5() {
         <>
           <section className="mt-5">
             {fu?.mock && <p className="mb-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">API キーが無いので、整形は仮の出力です。</p>}
-            <Collapsible label={`確かめる所（${checkCount} 件）を開く`} openLabel="確かめる所を閉じる">
+            <Collapsible label={`確かめる所（${toCheckCount} 件）と Claude が直した所（${correctedCount} 件）を開く`} openLabel="確かめる所を閉じる">
               {groups && <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} />}
               {checkCount === 0 && <p className="text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>}
             </Collapsible>

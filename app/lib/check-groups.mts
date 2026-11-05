@@ -62,6 +62,12 @@ export function groupChecks(t: Transcript): CheckGroups {
   return g;
 }
 
+/** 本人が一つずつ見る所（区切り・話者・相手の数・そのほか）。Claude の直しと本人の直しは数えない（直しは一覧で目を通す） */
+export function countToCheck(g: CheckGroups): number {
+  return g.unanchored.length + g.speaker.length + g.multiple.length + g.other.length;
+}
+
+/** 印の付いた発話のすべて（0 件のときだけ「0 件は聞き違いが無いことの証明ではない」を出す） */
 export function countChecks(g: CheckGroups): number {
   return g.unanchored.length + g.speaker.length + g.multiple.length + g.corrected.length + g.edited.length + g.other.length;
 }

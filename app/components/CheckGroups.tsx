@@ -16,10 +16,13 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
       <Group title="話者を確かめる所" hint="講師と相手のどちらが言ったか、Claude が迷った所です。ここで見るのは話者です。聞き違いの直しが一緒に付いている発話もあります。" items={groups.speaker} t={t} onChange={onChange} onSplit={onSplit} ask="speaker" />
       <Group title="相手が 2 人以上かもしれない所" hint="相手が 2 人以上いると Claude が推定した所です。" items={groups.multiple} t={t} onChange={onChange} onSplit={onSplit} />
       <Group title="そのほか" hint="" items={groups.other} t={t} onChange={onChange} onSplit={onSplit} />
+      {groups.unanchored.length + groups.speaker.length + groups.multiple.length + groups.other.length === 0 && groups.corrected.length > 0 && (
+        <p className="text-sm text-stone-700">話者と区切りで確かめる所は 0 件です。</p>
+      )}
       {groups.corrected.length > 0 && (
-        <div>
-          <h3 className="text-sm font-bold">聞き違いを直した所（{groups.corrected.length} 件）</h3>
-          <p className="mt-0.5 text-xs text-stone-600">同じ直しは 1 行にまとめました。合っていれば何もしなくてかまいません。違う直しがあれば、「一つずつ見る」で開いて「本文を直す」で直してください。</p>
+        <div className="border-t border-stone-200 pt-4">
+          <h3 className="text-base font-bold">Claude が直した所（{groups.corrected.length} 件）</h3>
+          <p className="mt-0.5 text-xs text-stone-600">聞き違いを直した所です。同じ直しは 1 行にまとめました。一覧に目を通し、合っていれば何もしなくてかまいません。違う直しがあれば「一つずつ見る」で開いて直してください。</p>
           <ul className="mt-2 space-y-1 rounded border border-stone-200 bg-white px-3 py-2 text-sm">
             {groups.correctionGroups.map((c) => (
               <li key={`${c.before}→${c.after}`}>

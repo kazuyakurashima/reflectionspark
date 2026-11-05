@@ -13,6 +13,7 @@ import {
   MARK_SPEAKER_MID,
   MARK_UNANCHORED,
   countChecks,
+  countToCheck,
   groupChecks,
 } from "./lib/check-groups.mts";
 
@@ -66,6 +67,7 @@ describe("画面 1：確かめる所を種類ごとに分ける", () => {
     assert.deepEqual(g.corrected.map((x) => x.index), [4, 5, 6]);
     assert.deepEqual(g.edited.map((x) => x.index), [8]);
     assert.equal(countChecks(g), 7);
+    assert.equal(countToCheck(g), 3); // 直しは一つずつ見る所に数えない
     // 話者の所に入った 2 の直しは、まとめに数えない（その発話は一つずつ見るので）
     assert.deepEqual(
       g.correctionGroups.map((c) => [c.before, c.after, c.indices]),

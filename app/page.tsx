@@ -12,7 +12,7 @@ import type { Step0Response } from "@/engine/server.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
-import { countChecks, groupChecks } from "@/app/lib/check-groups.mts";
+import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
 
@@ -108,6 +108,7 @@ export default function Screen1() {
 
   const groups = transcript ? groupChecks(transcript) : null;
   const checkCount = groups ? countChecks(groups) : 0;
+  const toCheckCount = groups ? countToCheck(groups) : 0;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
@@ -168,10 +169,10 @@ export default function Screen1() {
             </p>
           )}
           <h2 className="text-lg font-bold">
-            確かめる所（{checkCount} 件）{ms !== null && <span className="ml-2 text-xs font-normal text-stone-500">整形 {Math.round(ms / 100) / 10} 秒</span>}
+            確かめる所（{toCheckCount} 件）{ms !== null && <span className="ml-2 text-xs font-normal text-stone-500">整形 {Math.round(ms / 100) / 10} 秒</span>}
           </h2>
           <p className="mt-1 text-sm text-stone-600">
-            種類ごとにまとめました。上から順に見てください。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残します。
+            話者と区切りで Claude が迷った所を、一つずつ出します。その下に、Claude が聞き違いを直した所の一覧があります。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残します。
           </p>
           {checkCount === 0 && <p className="mt-2 text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
           {transcript.step0c === null && <p className="mt-1 text-xs text-stone-500">意味が通らない所の推測は別に読んでいます。届いたら発話に添えます（分析には使いません）。</p>}
