@@ -9,8 +9,10 @@ import { useEffect, useState } from "react";
 import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { MeetingKind, Utterance } from "@/engine/types.mts";
 import type { Step0Response } from "@/engine/server.mts";
+import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
+import { countChecks, groupChecks } from "@/app/lib/check-groups.mts";
 import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
 
@@ -19,11 +21,6 @@ const KINDS: { value: MeetingKind; label: string }[] = [
   { value: "保護者", label: "保護者面談" },
   { value: "コーチング", label: "コーチング（1on1）" },
 ];
-
-/** 確かめる所：確からしさが低い、直した、相手が 2 人以上、当て直せなかった、本人が直した */
-function needsCheck(u: Utterance): boolean {
-  return u.check.some((c) => !c.startsWith("話者の確からしさが中"));
-}
 
 /** 整形の結果が変わったときに消す、後の工程のデータ */
 const cleared: Pick<SessionData, "analysis" | "selfScore" | "selfNote" | "answers" | "candidates" | "spark" | "sparkSkipped" | "followUp"> = {
@@ -109,7 +106,8 @@ export default function Screen1() {
     router.push("/reflection");
   };
 
-  const toCheck = transcript ? transcript.utterances.filter(needsCheck) : [];
+  const groups = transcript ? groupChecks(transcript) : null;
+  const checkCount = groups ? countChecks(groups) : 0;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
@@ -170,18 +168,14 @@ export default function Screen1() {
             </p>
           )}
           <h2 className="text-lg font-bold">
-            確かめる所（{toCheck.length} 件）{ms !== null && <span className="ml-2 text-xs font-normal text-stone-500">整形 {Math.round(ms / 100) / 10} 秒</span>}
+            確かめる所（{checkCount} 件）{ms !== null && <span className="ml-2 text-xs font-normal text-stone-500">整形 {Math.round(ms / 100) / 10} 秒</span>}
           </h2>
           <p className="mt-1 text-sm text-stone-600">
-            話者の確からしさが低い発話、聞き違いを直した所、区切りが分からない所、相手が 2 人以上と推定した所を先に出します。話者は押して入れ替え、本文は「本文を直す」で直せます。区切りが分からない所は「本文を直す」を開き、カーソルの位置で分けられます。元の文はいつも残します。
+            種類ごとにまとめました。上から順に見てください。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残します。
           </p>
-          {toCheck.length === 0 && <p className="mt-2 text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
+          {checkCount === 0 && <p className="mt-2 text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
           {transcript.step0c === null && <p className="mt-1 text-xs text-stone-500">意味が通らない所の推測は別に読んでいます。届いたら発話に添えます（分析には使いません）。</p>}
-          <div className="mt-3 space-y-2">
-            {toCheck.map((u) => (
-              <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
-            ))}
-          </div>
+          {groups && <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} className="mt-3" />}
           <Collapsible label={`全文（${transcript.utterances.length} 発話）を開く`} openLabel="全文を閉じる" className="mt-4">
             <div className="space-y-2">
               {transcript.utterances.map((u) => (
@@ -200,3 +194,4 @@ export default function Screen1() {
     </main>
   );
 }
+
