@@ -17,6 +17,7 @@ export function CheckUtterance({
   onChange,
   onSplit,
   showContext = false,
+  ask,
 }: {
   t: Transcript;
   u: Utterance;
@@ -25,6 +26,8 @@ export function CheckUtterance({
   onSplit?: (u: Utterance, pos: number) => void;
   /** 前後の発話を並べる（確かめる所で使う。全文では並びがそのまま見えるので要らない） */
   showContext?: boolean;
+  /** この発話で本人に確かめてほしいこと（話者、区切り）。カードの先頭に一行で出す */
+  ask?: "speaker" | "split";
 }) {
   const { self, other } = SPEAKER_LABELS[t.kind];
   const [editing, setEditing] = useState(false);
@@ -59,6 +62,8 @@ export function CheckUtterance({
     if (draft === (u.text ?? "")) return;
     onChange({ ...u, text: draft, check: [...u.check.filter((c) => c !== CHECK_EDITED_BY_USER), CHECK_EDITED_BY_USER] });
   };
+  /** 前後の発話にも Claude の直しがあれば、同じ色を付ける（直す前と直した後で見比べられるように） */
+  const nb = (n: Utterance) => (n.text !== n.original ? correctionsOf(t, n.index) : []);
   const beforeMarks = [...(corrected ? corrections.map((c) => c.before) : []), ...guesses.map((g) => g.fragment)];
   const actions = (
     <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs">
@@ -139,37 +144,46 @@ export function CheckUtterance({
           </span>
         ))}
       </div>
+      {ask && (
+        <p className="mt-2 rounded bg-sky-50 px-2 py-1 text-sm text-sky-900">
+          <span className="font-bold">確かめること：</span>
+          {ask === "speaker"
+            ? `発話 ${u.index} を言ったのは「${u.speaker}」で合っていますか。違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
+            : `発話 ${u.index} に二人の言葉が混ざっていないか。混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。`}
+          {ask === "speaker" && corrected && "（この発話には聞き違いの直しもあります。下の 2 つの会話で見比べられます）"}
+        </p>
+      )}
       {showContext ? (
         <div className="mt-2 space-y-3">
           {corrected ? (
             <>
-              <Block title="直す前（元の文字起こし）" hint="色の付いた所が、聞き違いと思われる所です。">
+              <Block title="直す前（元の文字起こし）" hint="色の付いた所が、聞き違いと思われる所です（前後の発話も）。">
                 {before.map((n) => (
-                  <Line key={n.index} n={n} text={n.original} />
+                  <Line key={n.index} n={n} text={n.original} marks={nb(n).map((c) => c.before)} markClass={MARK_BEFORE} />
                 ))}
                 <Line n={u} text={u.original} target marks={beforeMarks} markClass={MARK_BEFORE} />
                 {after.map((n) => (
-                  <Line key={n.index} n={n} text={n.original} />
+                  <Line key={n.index} n={n} text={n.original} marks={nb(n).map((c) => c.before)} markClass={MARK_BEFORE} />
                 ))}
               </Block>
-              <Block title="直した後（Claude の直し）" hint={`色の付いた所が、Claude が直した所です（${[...new Set(corrections.map((c) => c.kind))].join("、")}）。違っていたら「元の文に戻す」か「本文を直す」。`}>
+              <Block title="直した後（Claude の直し）" hint={`色の付いた所が、Claude が直した所です（前後の発話も。発話 ${u.index} は${[...new Set(corrections.map((c) => c.kind))].join("、")}）。違っていたら「元の文に戻す」か「本文を直す」。`}>
                 {before.map((n) => (
-                  <Line key={n.index} n={n} text={n.text ?? n.original} />
+                  <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
                 ))}
                 {editing ? editor : <Line n={u} text={text} target marks={corrections.map((c) => c.after)} markClass={MARK_AFTER} actions={actions} />}
                 {after.map((n) => (
-                  <Line key={n.index} n={n} text={n.text ?? n.original} />
+                  <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
                 ))}
               </Block>
             </>
           ) : (
             <Block title="会話" hint={guesses.length > 0 ? "色の付いた所が、意味が通らないと Claude が見た所です。" : ""}>
               {before.map((n) => (
-                <Line key={n.index} n={n} text={n.text ?? n.original} />
+                <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
               ))}
               {editing ? editor : <Line n={u} text={text} target marks={guesses.map((g) => g.fragment)} markClass={MARK_BEFORE} actions={actions} />}
               {after.map((n) => (
-                <Line key={n.index} n={n} text={n.text ?? n.original} />
+                <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
               ))}
             </Block>
           )}

@@ -12,8 +12,8 @@ type Handlers = { onChange: (next: Utterance) => void; onSplit: (u: Utterance, p
 export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { t: Transcript; groups: Groups; className?: string } & Handlers) {
   return (
     <div className={`space-y-5 ${className}`}>
-      <Group title="区切りが分からない所" hint="二人の言葉が一つにまとまっているかもしれません。「本文を直す」を開き、カーソルの位置で分けてください。" items={groups.unanchored} t={t} onChange={onChange} onSplit={onSplit} />
-      <Group title="話者を確かめる所" hint="講師と相手のどちらが言ったか、Claude が迷った所です。違っていたら、話者のボタンを押して入れ替えてください。" items={groups.speaker} t={t} onChange={onChange} onSplit={onSplit} />
+      <Group title="区切りが分からない所" hint="二人の言葉が一つにまとまっているかもしれません。「本文を直す」を開き、カーソルの位置で分けてください。" items={groups.unanchored} t={t} onChange={onChange} onSplit={onSplit} ask="split" />
+      <Group title="話者を確かめる所" hint="講師と相手のどちらが言ったか、Claude が迷った所です。ここで見るのは話者です。聞き違いの直しが一緒に付いている発話もあります。" items={groups.speaker} t={t} onChange={onChange} onSplit={onSplit} ask="speaker" />
       <Group title="相手が 2 人以上かもしれない所" hint="相手が 2 人以上いると Claude が推定した所です。" items={groups.multiple} t={t} onChange={onChange} onSplit={onSplit} />
       <Group title="そのほか" hint="" items={groups.other} t={t} onChange={onChange} onSplit={onSplit} />
       {groups.corrected.length > 0 && (
@@ -53,7 +53,7 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
 }
 
 /** 確かめる所の一つの種類。0 件なら出さない */
-function Group({ title, hint, items, t, onChange, onSplit }: { title: string; hint: string; items: Utterance[]; t: Transcript } & Handlers) {
+function Group({ title, hint, items, t, onChange, onSplit, ask }: { title: string; hint: string; items: Utterance[]; t: Transcript; ask?: "speaker" | "split" } & Handlers) {
   if (items.length === 0) return null;
   return (
     <div>
@@ -63,7 +63,7 @@ function Group({ title, hint, items, t, onChange, onSplit }: { title: string; hi
       {hint && <p className="mt-0.5 text-xs text-stone-600">{hint}</p>}
       <div className="mt-2 space-y-2">
         {items.map((u) => (
-          <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} showContext />
+          <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} showContext ask={ask} />
         ))}
       </div>
     </div>
