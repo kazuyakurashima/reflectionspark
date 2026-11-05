@@ -5,6 +5,7 @@ import { describe, test } from "node:test";
 import { CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_MID_CONFIDENCE, CHECK_MULTIPLE_OTHERS, CHECK_SPEAKER_LABEL, CHECK_UNANCHORED } from "../engine/step0.mts";
 import type { Transcript, Utterance } from "../engine/types.mts";
 import {
+  GAP_NOTICE,
   MARK_CORRECTED,
   MARK_EDITED,
   MARK_MULTIPLE,
@@ -16,6 +17,7 @@ import {
   countToCheck,
   groupChecks,
   guessViews,
+  isGap,
 } from "./lib/check-groups.mts";
 
 function u(index: number, check: string[], text = "x"): Utterance {
@@ -116,5 +118,34 @@ describe("画面 1：推測（0c）を本文に当てる", () => {
     assert.deepEqual(g.guessed.map((x) => x.index), [0, 2]);
     assert.deepEqual(g.corrected.map((x) => x.index), [1]);
     assert.equal(countToCheck(g), 2);
+  });
+
+  test("「抜け」（設計書 工程 0c）は推測の文を持たず、置き換えた本文を作らない（「この推測で直す」を出さない）。確かめる所には入る", () => {
+    const u0: Utterance = { ...u(0, [CHECK_LOW_CONFIDENCE]), text: "会場はどこ市民会館です。", original: "会場はどこ市民会館です。" };
+    const u1: Utterance = { ...u(1, []), text: "らいげつの予定は。", original: "らいげつの予定は。" };
+    const t = base(
+      [u0, u1],
+      [],
+      [
+        { index: 0, kind: "抜け", fragment: "会場はどこ市民会館", guess: "", clue: "問いの直後に返事が無く、相手の言葉が続いている" },
+        { index: 1, kind: "崩れ", fragment: "らいげつ", guess: "来月", clue: "音が近い" },
+      ],
+    );
+    const views = guessViews(t, u0);
+    assert.equal(views.length, 1); // 推測の文が空でも「本文に既に入っている」とは見ない
+    assert.ok(isGap(views[0]));
+    assert.equal(views[0].target, "会場はどこ市民会館"); // 色を付ける所
+    assert.equal(views[0].applied, null); // 置き換えた本文は作らない
+    assert.deepEqual(guessViews(t, u1).map((g) => [isGap(g), g.applied]), [[false, "来月の予定は。"]]);
+    const g = groupChecks(t);
+    // 話者の確からしさが低い発話は話者の所へ、抜けだけの発話は「意味が通らない所」へ（最初に当たった種類にだけ入れる）
+    assert.deepEqual(g.speaker.map((x) => x.index), [0]);
+    assert.deepEqual(g.guessed.map((x) => x.index), [1]);
+    assert.deepEqual(groupChecks({ ...t, utterances: [{ ...u0, check: [] }, u1] }).guessed.map((x) => x.index), [0, 1]);
+    // 画面の文：推測できないと言い、本人が直す道（本文を直す・カーソルの位置で分ける）と、そのままでよいことを書く
+    assert.match(GAP_NOTICE, /言葉が抜けていて推測できません/);
+    assert.match(GAP_NOTICE, /「本文を直す」/);
+    assert.match(GAP_NOTICE, /「カーソルの位置で分ける」/);
+    assert.match(GAP_NOTICE, /そのままでかまいません/);
   });
 });

@@ -7,6 +7,7 @@
 //   node eval/scripts/run-cases.mts                  正解のある 4 本（工程 0・1・2、shinro-2 は 4）
 //   node eval/scripts/run-cases.mts --case parent    1 本だけ
 //   node eval/scripts/run-cases.mts --stability student-shinro 2   工程 0 をさらに 2 回（計 3 回）
+//   node eval/scripts/run-cases.mts --case student-shinro --only-0c   保存した工程 0 の結果に、0c だけを回し直して付ける（0a・0b と分析はそのまま。0c のプロンプトを変えたとき、軸 12 の 0c の数字を前と後で比べる用）
 //   node eval/scripts/run-cases.mts --dry-run        API を呼ばず、入力と保存先を確かめる
 // 出力：eval/results/runs/<case>/step0.json、step1.json、step2.json、step4.json、step0-run2.json …
 // 軸の計算とまとめは eval/scripts/report.mts。
@@ -18,13 +19,14 @@ import { runStep1 } from "../../engine/step1.mts";
 import { runStep2 } from "../../engine/step2.mts";
 import { runStep4 } from "../../engine/step4.mts";
 import type { Step0Timing } from "../../engine/step0.mts";
-import type { Spark, Transcript } from "../../engine/types.mts";
+import type { CallMeta, Spark, Step0cResult, Transcript } from "../../engine/types.mts";
 import { loadCase, loadJson, runDir, saveJson } from "../lib/cases.mts";
 import { listTruthCases } from "../lib/truth.mts";
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const fresh = args.includes("--fresh");
+const only0c = args.includes("--only-0c");
 const caseArg = args.includes("--case") ? args[args.indexOf("--case") + 1] : null;
 const stabilityCase = args.includes("--stability") ? args[args.indexOf("--stability") + 1] : null;
 const stabilityRuns = stabilityCase ? Number(args[args.indexOf("--stability") + 2] ?? "2") : 0;
@@ -34,14 +36,21 @@ const cases = caseArg ? [caseArg] : stabilityCase ? [stabilityCase] : listTruthC
 
 type Step0File = { transcript: Transcript; timing: Step0Timing; unanchored: number };
 
+/** 0c を回し、時間を 0c だけで残す。推測（崩れ・話者の取り違え）と「抜け」（言葉が抜けていて推測できない所）を分けて数える */
+async function run0c(t: Transcript): Promise<{ result: Step0cResult; meta: CallMeta | null }> {
+  const t0 = Date.now();
+  const c = await runStep0c(t);
+  const meta = c.meta ? { ...c.meta, ms: Date.now() - t0 } : null;
+  const gaps = c.result.guesses.filter((g) => g.kind === "抜け").length;
+  log(`0c ${meta?.ms ?? "-"} ms、推測 ${c.result.guesses.length - gaps}、抜け ${gaps}${c.result.failed ? `、失敗：${c.result.failed}` : ""}`);
+  return { result: c.result, meta };
+}
+
 /** 評価では 0c も回して待つ（軸 12 で使う）。画面では別に回して分析を待たせない。時間は 0a・0b と分けて残す */
 async function step0With0c(raw: string, kind: Transcript["kind"]): Promise<Step0File> {
   const r = await runStep0(raw, kind, { log });
-  const t0 = Date.now();
-  const c = await runStep0c(r.transcript);
-  const cMeta = c.meta ? { ...c.meta, ms: Date.now() - t0 } : null;
-  log(`0c ${cMeta?.ms ?? "-"} ms、推測 ${c.result.guesses.length}${c.result.failed ? `、失敗：${c.result.failed}` : ""}`);
-  return { transcript: attachStep0c(r.transcript, c.result, r.transcript.utterances.length), timing: { ...r.timing, step0c: cMeta }, unanchored: r.unanchored };
+  const c = await run0c(r.transcript);
+  return { transcript: attachStep0c(r.transcript, c.result, r.transcript.utterances.length), timing: { ...r.timing, step0c: c.meta }, unanchored: r.unanchored };
 }
 
 for (const name of cases) {
@@ -57,6 +66,20 @@ for (const name of cases) {
     continue;
   }
   try {
+    const step0File = path.join(dir, "step0.json");
+    if (only0c) {
+      // 保存した工程 0 の結果に、0c だけを回し直して付ける。0a・0b と分析の出力は変えないので、0c のプロンプトの前と後を軸 12 で比べられる
+      const s0 = loadJson<Step0File>(step0File);
+      if (!s0) {
+        log("保存した工程 0 の結果が無い。先に --only-0c なしで回す");
+        continue;
+      }
+      const base: Transcript = { ...s0.transcript, step0c: null };
+      const c = await run0c(base);
+      saveJson(step0File, { ...s0, transcript: attachStep0c(base, c.result, base.utterances.length), timing: { ...s0.timing, step0c: c.meta } } satisfies Step0File);
+      log(`0c だけを回し直して ${path.basename(step0File)} に保存した（0a・0b はそのまま）。軸 12 は node eval/scripts/report.mts`);
+      continue;
+    }
     if (stabilityCase) {
       for (let i = 0; i < stabilityRuns; i++) {
         const existing = [2, 3, 4, 5, 6].map((n) => path.join(dir, `step0-run${n}.json`)).find((f) => !loadJson(f));
@@ -68,7 +91,6 @@ for (const name of cases) {
       continue;
     }
 
-    const step0File = path.join(dir, "step0.json");
     let s0 = fresh ? null : loadJson<Step0File>(step0File);
     if (s0) log(`工程 0：保存した結果を使う（${s0.transcript.utterances.length} 発話）`);
     else {
