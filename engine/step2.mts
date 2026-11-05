@@ -7,6 +7,7 @@ import { guardStep2 } from "./guard.mts";
 import { STEP2_SCHEMA, step2System, step2User } from "./prompts.mts";
 import { computeTotal } from "./rubric.mts";
 import type { EthicsLevel, ItemNumber, ItemScore, Scene, Step2Result, Transcript } from "./types.mts";
+import { toUtteranceIndices } from "./utterance-no.mts";
 
 type Raw = {
   items: { item: number; judged: boolean; score: number; reason: string; utterances: number[] }[];
@@ -24,7 +25,7 @@ export function parseStep2(raw: Raw, utteranceCount: number): Omit<Step2Result, 
       item: n,
       score,
       reason: r.reason,
-      utterances: (r.utterances ?? []).filter((u) => Number.isInteger(u) && u >= 0 && u < utteranceCount),
+      utterances: toUtteranceIndices(r.utterances ?? [], utteranceCount),
     };
   });
   const level: EthicsLevel = (["問題なし", "判断できない", "確かめてください", "所属の手順"] as EthicsLevel[]).includes(raw.ethics.level) ? raw.ethics.level : "判断できない";
@@ -37,7 +38,7 @@ export function parseStep2(raw: Raw, utteranceCount: number): Omit<Step2Result, 
       level,
       text: ethicsText,
       viewpoint: raw.ethics.viewpoint || null,
-      utterances: (raw.ethics.utterances ?? []).filter((u) => Number.isInteger(u) && u >= 0 && u < utteranceCount),
+      utterances: toUtteranceIndices(raw.ethics.utterances ?? [], utteranceCount),
     },
   };
 }

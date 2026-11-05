@@ -8,6 +8,7 @@ import { parseStep3 } from "./step3.mts";
 import { computeTotal } from "./rubric.mts";
 import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
+import { utteranceLabel } from "./utterance-no.mts";
 
 export const MOCK_NOTE = "（仮の出力）";
 
@@ -116,7 +117,7 @@ export function mockStep1(t: Transcript): Step1Result {
   const scene = (type: Scene["type"], u: Utterance, items: number[]): Scene => ({
     type,
     items,
-    context: `${MOCK_NOTE}発話 ${u.index} の前後で話されていたことを、本物の出力はここに一行で書きます。`,
+    context: `${MOCK_NOTE}${utteranceLabel(u.index)} の前後で話されていたことを、本物の出力はここに一行で書きます。`,
     quotes: [quoteOf(u, t.utterances)],
     discardedQuotes: [],
     quotedTextInBody: u.text ?? "",

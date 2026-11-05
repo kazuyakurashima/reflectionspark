@@ -201,8 +201,8 @@ export async function callCited(p: CitedParams): Promise<CitedResult> {
 /**
  * 文字起こしを 1 発話 1 ブロックの document にする。
  * ブロックの順番がそのまま発話番号（start_block_index）になる。
- * ブロックの text は engine/citations.mts の blockText で作る（「話者：本文」）。cited_text はブロックの全文で返るので、
- * 照合では話者の前置きを外してから本文と完全一致で比べる。
+ * ブロックの text は engine/citations.mts の blockText で作る（「〔発話 n〕話者：本文」）。cited_text はブロックの全文で返るので、
+ * 照合では札と話者の前置きを外してから本文と完全一致で比べる。
  */
 export function makeDocument(texts: string[], title: string): Anthropic.DocumentBlockParam {
   return {

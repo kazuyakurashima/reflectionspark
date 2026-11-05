@@ -5,6 +5,7 @@
 import { rubricBackground, rubricFull } from "./rubric.mts";
 import type { MeetingKind, Scene, Spark, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
+import { blockLabel, utteranceLabel } from "./utterance-no.mts";
 
 /** すべての工程に共通の前置き。 */
 const COMMON = `あなたは、面談する側（講師・コーチ。以下「本人」）が自分の面談を振り返るための材料を出す AI パートナーです。
@@ -267,8 +268,8 @@ export function step1System(kind: MeetingKind): string {
 あなたの仕事は、面談の文字起こしを読み、本人が振り返るための場面を 2 つ選び、場面ごとに「引用・何が起きたか・問い」を書くことです。
 面談の種類は「${kind}」。本人は「${self}」、相手は「${other}」。
 
-文字起こしは、1 発話 1 ブロックの文書として渡します。引用は、この文書の発話をそのまま引用（citation）で示してください。本文に引用文を書き写しても根拠にはなりません。引用は必ず citation として付けます。
-文脈の一行・観察・反応・読み・問いなど、あなたが書く文の中に、発話の言葉を「」で書き写さないでください。発話を指すときは発話番号で指します（例：発話 12 で）。「」で書いた言葉は検証されないので、原文に無ければアプリが「」を外します。
+文字起こしは、1 発話 1 ブロックの文書として渡します。各ブロックの先頭に〔発話 n〕の札があり、n がその発話の番号です（最初の発話が〔発話 0〕）。引用は、この文書の発話をそのまま引用（citation）で示してください。本文に引用文を書き写しても根拠にはなりません。引用は必ず citation として付けます。
+文脈の一行・観察・反応・読み・問いなど、あなたが書く文の中に、発話の言葉を「」で書き写さないでください。発話を指すときは、そのブロックの札の番号を「発話 12」の形で書きます（例：発話 12 で）。番号は札から読み、自分で数え直しません。「」で書いた言葉は検証されないので、原文に無ければアプリが「」を外します。
 
 場面の選び方：
 - よく表れた所を 1 つ、次に試せる所を 1 つ。順番はこの順。
@@ -290,7 +291,7 @@ ${rubricBackground()}
 - 読み：あなたの読み。「〜と読める」と書く。原因とは書かない。
 - 意図した選択として見ると（次に試せる所だけ）：本人にその選び方の理由があった可能性（時間、相手の様子など）。決めつけず、問いにつなぐ。文字起こしの範囲で確かめられない関わりを選んだときは「この文字起こしの範囲では確認できません」と書き、「しなかった」とは書かない。
 - 問い：開かれた問いを 1 つ。場面の解釈を先に言わない。答えを誘導しない。2 つの場面の問いのうち 1 つは、「次に同じ場面が来たら何を試すか」のように行動につながる問いにする。もう 1 つは別の形にし、2 つとも「その時どう感じたか」の形にしない。
-- 選んだ理由（1 行）と、次点の場面（発話番号）。これは画面に出さず、記録に残すだけ。
+- 選んだ理由（1 行）と、次点の場面（札の発話番号）。これは画面に出さず、記録に残すだけ。
 
 場面の後に書くこと：
 - サマリー：2 文まで。よく表れた所を先に、次に試せる所を後に。
@@ -310,7 +311,7 @@ ${rubricBackground()}
 <reading>読み</reading>
 <question>問い</question>
 <why_chosen>選んだ理由（1 行）</why_chosen>
-<runner_up>次点の場面の発話番号（カンマ区切り）</runner_up>
+<runner_up>次点の場面の発話番号（札の番号。カンマ区切り）</runner_up>
 </scene>
 <scene type="次に試せる所">
 <items></items>
@@ -337,7 +338,7 @@ ${rubricBackground()}
 
 export function step1UserText(kind: MeetingKind): string {
   const { self, other } = labels(kind);
-  return `上の文書は面談の文字起こしです。発話の順に並び、各ブロックの先頭に話者（${self}／${other}）が書いてあります。場面を 2 つ選び、決められた形で書いてください。引用は citation で付けてください。`;
+  return `上の文書は面談の文字起こしです。発話の順に並び、各ブロックの先頭に発話番号の札（〔発話 n〕）と話者（${self}／${other}）が書いてあります。場面を 2 つ選び、決められた形で書いてください。引用は citation で付けてください。`;
 }
 
 // ---------- 工程 2：点 ----------
@@ -408,7 +409,7 @@ export function step2User(utterances: Utterance[], scenes: Scene[], firstMeeting
   const sceneText = scenes
     .map(
       (s) => `- ${s.type}（項目：${s.items.join("、") || "なし"}）：${s.context}
-  引用：${s.quotes.map((q) => `〔発話 ${q.index}〕${q.text}`).join(" ／ ") || "（なし）"}
+  引用：${s.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join(" ／ ") || "（なし）"}
   読み：${s.reading}`,
     )
     .join("\n");
@@ -468,10 +469,10 @@ export const STEP3_SCHEMA = {
 };
 
 export function step3User(scene: Scene, answer: string, neighbors: { before: Utterance | null; after: Utterance | null }, memoryNotes: string[] = []): string {
-  const quotes = scene.quotes.map((q) => `〔発話 ${q.index}〕${q.text}`).join("\n");
+  const quotes = scene.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join("\n");
   const around = [neighbors.before, neighbors.after]
     .filter((u): u is Utterance => u !== null)
-    .map((u) => `〔発話 ${u.index}・${u.speaker}〕${u.text ?? ""}`)
+    .map((u) => `〔${utteranceLabel(u.index)}・${u.speaker}〕${u.text ?? ""}`)
     .join("\n");
   const memory = memoryNotes.length ? `\n記録から（似た場面でうまくいった本人の発言）：\n${memoryNotes.map((m) => `- ${m}`).join("\n")}\n` : "";
   return `次に試せる所：
@@ -500,7 +501,7 @@ export function step4System(kind: MeetingKind): string {
 
 あなたの仕事は、続きの面談の文字起こしを読み、本人が前回決めた「次に試すひとつ」（Spark）が、今回の面談でどう現れたかを確かめることです。
 面談の種類は「${kind}」。本人は「${self}」、相手は「${other}」。
-今回の文字起こしは 1 発話 1 ブロックの文書で渡します。根拠は citation で示します。本文に書き写した引用は根拠になりません。
+今回の文字起こしは 1 発話 1 ブロックの文書で渡します。各ブロックの先頭に〔発話 n〕の札があり、n がその発話の番号です（最初の発話が〔発話 0〕）。根拠は citation で示します。本文に書き写した引用は根拠になりません。
 
 判定は 4 つのどれか：
 - できた：前回の行動が、言葉を変えていても、今回の本人の発話に現れた。
@@ -511,8 +512,8 @@ export function step4System(kind: MeetingKind): string {
 守ること：
 - 本人の自己評価は渡されていません。文字起こしだけで判定します。
 - 根拠の引用は、本人の発話を citation で示す。「場面がなかった」のときは、場面が無いと読める理由を書き、引用は無くてよい。
-- なぜの一文：判定の理由を一文で。発話の言葉を「」で書き写さず、発話番号で指す（根拠は citation で示す）。
-- 採点表の 5 項目ごとに、点か「判定しない」と、理由の一行、根拠の発話番号。項目 5（前回決めたことに触れた）が中心。
+- なぜの一文：判定の理由を一文で。発話の言葉を「」で書き写さず、そのブロックの札の番号を「発話 12」の形で書いて指す（根拠は citation で示す）。番号は札から読み、自分で数え直さない。
+- 採点表の 5 項目ごとに、点か「判定しない」と、理由の一行、根拠の発話番号（札の番号）。理由の中で発話を指すときも「発話 12」の形で書く。項目 5（前回決めたことに触れた）が中心。
 - 話の長さを理由に点を下げない。見るのは、相手の発話がどう続いたか。
 - （あれば）相手が前回決めたことが今回どう語られたかを 1 行で。相手を採点しない。無ければ空。
 
@@ -525,7 +526,7 @@ ${rubricFull()}
 <quote>根拠の発話（citation 付き）。無ければ空</quote>
 <why>なぜの一文</why>
 <items>
-<item n="1" score="点か「判定しない」" utterances="発話番号（カンマ区切り）">理由の一行</item>
+<item n="1" score="点か「判定しない」" utterances="札の発話番号（カンマ区切り）">理由の一行</item>
 <item n="2" score="" utterances=""></item>
 <item n="3" score="" utterances=""></item>
 <item n="4" score="" utterances=""></item>
@@ -542,7 +543,7 @@ export function step4UserText(kind: MeetingKind, spark: Spark): string {
 - 前回の引用：${spark.previousScene.quoteText ?? "（なし）"}
 - 読み：${spark.previousScene.reading}`
     : "前回の場面：（渡されていない）";
-  return `上の文書は今回の面談の文字起こしです。各ブロックの先頭に話者（${self}／${other}）が書いてあります。
+  return `上の文書は今回の面談の文字起こしです。各ブロックの先頭に発話番号の札（〔発話 n〕）と話者（${self}／${other}）が書いてあります。
 
 前回、本人が決めた「次に試すひとつ」：
 ${spark.sentence}

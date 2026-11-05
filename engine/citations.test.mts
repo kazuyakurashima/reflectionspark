@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { blockText, blockTexts, quoteMatchesTranscript, verifyCitation } from "./citations.mts";
+import { blockText, blockTexts, legacyBlockText, quoteMatchesTranscript, verifyCitation } from "./citations.mts";
 import { parseStep1 } from "./step1.mts";
 import { makeSentence, parseStep3 } from "./step3.mts";
 import { parseStep4 } from "./step4.mts";
@@ -26,30 +26,46 @@ const cite = (start: number, end: number, cited: string) => ({
 });
 
 describe("決まり 1：引用の照合", () => {
-  test("document のブロックは「話者：本文」", () => {
-    assert.equal(blockText(utterances[0]), "講師：じゃあ、始めようか。今日、部活は？");
-    assert.equal(blockTexts(utterances).length, 4);
+  test("document のブロックは「〔発話 n〕話者：本文」。札の番号は発話の並びの位置", () => {
+    assert.equal(blockText(utterances[0]), "〔発話 0〕講師：じゃあ、始めようか。今日、部活は？");
+    assert.deepEqual(
+      blockTexts(utterances).map((b) => b.slice(0, 6)),
+      ["〔発話 0〕", "〔発話 1〕", "〔発話 2〕", "〔発話 3〕"],
+    );
   });
 
-  test("cited_text がブロックの全文と完全一致したときだけ verified になり、画面に出す本文は発話の本文と一致する", () => {
-    const q = verifyCitation(cite(1, 2, "生徒：今日は早めに終わりました。顧問の先生が出張で。"), utterances);
+  test("cited_text がブロックの全文と完全一致したときだけ verified になり、画面に出す本文は発話の本文と一致する（札と話者は本文に入らない）", () => {
+    const q = verifyCitation(cite(1, 2, "〔発話 1〕生徒：今日は早めに終わりました。顧問の先生が出張で。"), utterances);
     assert.equal(q.verified, true);
     assert.equal(q.text, utterances[1].text);
+    assert.equal(q.index, 1);
     assert.ok(quoteMatchesTranscript(q, utterances));
   });
 
-  test("一字でも違えば捨てる（言い換え、省略、話者の違い）", () => {
-    assert.equal(verifyCitation(cite(1, 2, "生徒：今日は早めに終わりました。"), utterances).verified, false);
-    assert.equal(verifyCitation(cite(1, 2, "生徒：今日は早めに終わりました。顧問の先生が出張で"), utterances).verified, false);
-    assert.equal(verifyCitation(cite(1, 2, "講師：今日は早めに終わりました。顧問の先生が出張で。"), utterances).verified, false);
+  test("一字でも違えば捨てる（言い換え、省略、話者の違い、札の番号の違い、札が無い）", () => {
+    assert.equal(verifyCitation(cite(1, 2, "〔発話 1〕生徒：今日は早めに終わりました。"), utterances).verified, false);
+    assert.equal(verifyCitation(cite(1, 2, "〔発話 1〕生徒：今日は早めに終わりました。顧問の先生が出張で"), utterances).verified, false);
+    assert.equal(verifyCitation(cite(1, 2, "〔発話 1〕講師：今日は早めに終わりました。顧問の先生が出張で。"), utterances).verified, false);
+    assert.equal(verifyCitation(cite(1, 2, "〔発話 2〕生徒：今日は早めに終わりました。顧問の先生が出張で。"), utterances).verified, false);
+    assert.equal(verifyCitation(cite(1, 2, "生徒：今日は早めに終わりました。顧問の先生が出張で。"), utterances).verified, false);
     assert.equal(verifyCitation(cite(9, 10, "x"), utterances).verified, false);
     assert.equal(verifyCitation(cite(1, 1, "x"), utterances).verified, false);
   });
 
   test("複数ブロックの引用は、つないだ全文で照合し、本文は改行でつなぐ", () => {
-    const q = verifyCitation(cite(2, 4, "講師：そっか。吹奏楽、来月が最後のコンクールだっけ。生徒：はい。それで引退です。"), utterances);
+    const q = verifyCitation(cite(2, 4, "〔発話 2〕講師：そっか。吹奏楽、来月が最後のコンクールだっけ。〔発話 3〕生徒：はい。それで引退です。"), utterances);
     assert.equal(q.verified, true);
     assert.equal(q.text, "そっか。吹奏楽、来月が最後のコンクールだっけ。\nはい。それで引退です。");
+    assert.ok(quoteMatchesTranscript(q, utterances));
+  });
+
+  test("札を入れる前に保存した引用（「話者：本文」）は、本文が一字一句同じなら確かめ直せる。本文が違えば通らない", () => {
+    const old = { citedText: legacyBlockText(utterances[1]), text: utterances[1].text as string, index: 1, endIndex: 2, verified: true };
+    assert.equal(old.citedText, "生徒：今日は早めに終わりました。顧問の先生が出張で。");
+    assert.ok(quoteMatchesTranscript(old, utterances));
+    assert.equal(quoteMatchesTranscript({ ...old, text: "今日は早めに終わりました。" }, utterances), false);
+    assert.equal(quoteMatchesTranscript({ ...old, citedText: "生徒：今日は早めに終わりました。" }, utterances), false);
+    assert.equal(quoteMatchesTranscript({ ...old, index: 3, endIndex: 4 }, utterances), false);
   });
 
   test("本文を出せない発話（当て直せなかった）は引用できない", () => {
@@ -94,10 +110,10 @@ describe("工程 1 の本文の読み取りと、引用の場面への当て方"
   const q2Start = text.indexOf("今日は早めに終わりました。</quote>");
   const segments = [
     { text: text.slice(0, qStart), start: 0, end: qStart, citations: [] },
-    { text: "そっか。吹奏楽、来月が最後のコンクールだっけ。", start: qStart, end: qStart + 23, citations: [cite(2, 3, "講師：そっか。吹奏楽、来月が最後のコンクールだっけ。")] },
+    { text: "そっか。吹奏楽、来月が最後のコンクールだっけ。", start: qStart, end: qStart + 23, citations: [cite(2, 3, "〔発話 2〕講師：そっか。吹奏楽、来月が最後のコンクールだっけ。")] },
     { text: text.slice(qStart + 23, q2Start), start: qStart + 23, end: q2Start, citations: [] },
     // 言い換えた引用（捨てる）
-    { text: "今日は早めに終わりました。", start: q2Start, end: q2Start + 13, citations: [cite(1, 2, "生徒：今日は早めに終わりました。")] },
+    { text: "今日は早めに終わりました。", start: q2Start, end: q2Start + 13, citations: [cite(1, 2, "〔発話 1〕生徒：今日は早めに終わりました。")] },
     { text: text.slice(q2Start + 13), start: q2Start + 13, end: text.length, citations: [] },
   ];
 
@@ -185,7 +201,7 @@ describe("工程 2・3・4 の読み取り", () => {
     const qs = text.indexOf("そっか。");
     const segments = [
       { text: text.slice(0, qs), start: 0, end: qs, citations: [] },
-      { text: "そっか。吹奏楽、来月が最後のコンクールだっけ。", start: qs, end: qs + 23, citations: [cite(2, 3, "講師：そっか。吹奏楽、来月が最後のコンクールだっけ。")] },
+      { text: "そっか。吹奏楽、来月が最後のコンクールだっけ。", start: qs, end: qs + 23, citations: [cite(2, 3, "〔発話 2〕講師：そっか。吹奏楽、来月が最後のコンクールだっけ。")] },
       { text: text.slice(qs + 23), start: qs + 23, end: text.length, citations: [] },
     ];
     const r = parseStep4(text, segments, utterances);

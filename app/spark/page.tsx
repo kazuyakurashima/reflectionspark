@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { CandidatesResponse } from "@/engine/server.mts";
 import type { Candidate } from "@/engine/types.mts";
+import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
 import type { SparkChoice } from "@/app/lib/session";
@@ -96,7 +97,7 @@ export default function Screen4() {
         <section className="mt-4 rounded border border-stone-200 bg-white p-4 text-sm">
           <p className="text-xs text-stone-500">次に試せる所</p>
           <p>{nextScene.context}</p>
-          {nextScene.quotes[0] && <p className="mt-1 text-stone-700">「{nextScene.quotes[0].text}」（発話 {nextScene.quotes[0].index}）</p>}
+          {nextScene.quotes[0] && <p className="mt-1 text-stone-700">「{nextScene.quotes[0].text}」（{utteranceLabel(nextScene.quotes[0].index)}）</p>}
         </section>
       )}
 

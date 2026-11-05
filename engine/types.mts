@@ -13,7 +13,7 @@ export type Confidence = "高" | "中" | "低";
 
 /** 工程 0 の後の発話。text は 0b の直しを当てた後、original は元の文字起こしの文。 */
 export type Utterance = {
-  /** 発話番号（0 始まり）。以後の工程で同じ番号を使う */
+  /** 発話番号（0 始まり。並びの位置と同じ）。以後の工程・AI に渡す札・画面で同じ番号を使う（engine/utterance-no.mts） */
   index: number;
   speaker: string;
   /** 直しを当てた後の本文。当て直せないときは null（本文を出さず番号だけ） */
@@ -177,6 +177,8 @@ export type Step1Result = {
   /** 性質の言葉が入っていて表示を控えた欄と、原文に無くて「」を外した言葉（engine/guard.mts） */
   withheld: { field: string; words: string[]; original: string }[];
   unverifiedQuotes: { field: string; text: string }[];
+  /** 文の中の「発話 n」の数と、発話の並びの範囲に無い番号（engine/utterance-no.mts。記録と評価のため。古い結果には無い） */
+  utteranceRefs?: { total: number; outOfRange: number[] };
 };
 
 export type ItemNumber = 1 | 2 | 3 | 4 | 5;
@@ -241,6 +243,8 @@ export type Step4Result = {
   meta: CallMeta;
   withheld: { field: string; words: string[]; original: string }[];
   unverifiedQuotes: { field: string; text: string }[];
+  /** 文の中の「発話 n」の数と、発話の並びの範囲に無い番号（古い結果には無い） */
+  utteranceRefs?: { total: number; outOfRange: number[] };
 };
 
 /** 前回の Spark（画面 4 で本人が選んだ一つ） */
