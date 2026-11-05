@@ -43,10 +43,14 @@ export type Truth = {
     source: Source;
     note?: string;
   };
+  /** 根拠のある場面が無いのが正解（ひっかけ。決まり 4）。このときは scenes の 4 つとも null */
+  noScene?: { source: Source; note?: string };
   scenes: {
-    strengthBest: Range;
+    /** noScene のときだけ null */
+    strengthBest: Range | null;
     strengthNext: Range | null;
-    issueBest: Range;
+    /** noScene のときだけ null */
+    issueBest: Range | null;
     issueNext: Range | null;
     confidence?: string;
   };

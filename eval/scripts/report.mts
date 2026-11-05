@@ -196,13 +196,14 @@ for (const r of rows) {
 }
 lines.push("");
 
-lines.push("## 軸 8・9：保留の正しさ、点の向き", "", "| ケース | 初回で項目 5 を保留 | 正解の「判定しない」と一致 | 点の向き（満たした／数えた組） | 範囲が文字起こしに無く外した項目 | AI の点（1〜5、— は判定しない） |", "|---|---|---|---|---|---|");
+lines.push("## 軸 8・9：保留の正しさ、点の向き", "", "| ケース | 初回で項目 5 を保留 | 正解の「判定しない」と一致 | 場面が無いのが正解のとき、AI も無いと言ったか | 点の向き（満たした／数えた組） | 範囲が文字起こしに無く外した項目 | AI の点（1〜5、— は判定しない） |", "|---|---|---|---|---|---|---|");
 for (const r of rows) {
   const a8 = r.axis8;
   const a9 = r.axis9;
   const scores = loadJson<Step2Result>(path.join(RUNS_DIR, r.case, "step2.json"))?.items.map((i) => i.score ?? "—").join(" ") ?? "—";
   const agree = a8 ? a8.withheldAsTruth.filter((w) => w.truth).map((w) => `${w.item}:${yn(w.ai)}`).join(" ") || "（無い）" : "—";
-  lines.push(`| ${r.case} | ${a8 ? yn(a8.item5Withheld) : "—"} | ${agree} | ${a9 ? `${a9.satisfied}／${a9.countable}` : "—"} | ${a9 ? a9.absentItems.join("、") || "—" : "—"} | ${scores} |`);
+  const noScene = a8 && a8.truthNoScene ? yn(a8.saidNoScene) : "—";
+  lines.push(`| ${r.case} | ${a8 ? yn(a8.item5Withheld) : "—"} | ${agree} | ${noScene} | ${a9 ? `${a9.satisfied}／${a9.countable}` : "—"} | ${a9 ? a9.absentItems.join("、") || "—" : "—"} | ${scores} |`);
 }
 lines.push("");
 
