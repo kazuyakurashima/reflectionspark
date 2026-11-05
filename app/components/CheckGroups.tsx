@@ -33,7 +33,7 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
           <Collapsible label={`一つずつ見る（${groups.corrected.length} 件）`} openLabel="一つずつ見るのを閉じる" className="mt-2">
             <div className="space-y-2">
               {groups.corrected.map((u) => (
-                <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} />
+                <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} showContext />
               ))}
             </div>
           </Collapsible>
@@ -43,7 +43,7 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
         <Collapsible label={`あなたが直した所（${groups.edited.length} 件）を開く`} openLabel="あなたが直した所を閉じる">
           <div className="space-y-2">
             {groups.edited.map((u) => (
-              <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} />
+              <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} showContext />
             ))}
           </div>
         </Collapsible>
@@ -63,7 +63,7 @@ function Group({ title, hint, items, t, onChange, onSplit }: { title: string; hi
       {hint && <p className="mt-0.5 text-xs text-stone-600">{hint}</p>}
       <div className="mt-2 space-y-2">
         {items.map((u) => (
-          <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} />
+          <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} showContext />
         ))}
       </div>
     </div>
