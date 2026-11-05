@@ -56,6 +56,18 @@ export function findUtteranceRefs(text: string): number[] {
   return out;
 }
 
+const PREVIOUS = "前回の面談の";
+const REF_NOT_MARKED = new RegExp(`(?<!${PREVIOUS})${REF.source}`, "gu");
+
+/**
+ * 前回の面談について書いた文の中の「発話 n」を、「前回の面談の発話 n」に書き換える。
+ * 前回の場面の文を、今回の面談の文書（札つき）と一緒に AI に渡すときに使う。
+ * 発話番号は面談ごとに 0 から振るので、印が無いと、前回の番号が今回の札の番号と紛れる。
+ */
+export function markPreviousUtteranceRefs(text: string): string {
+  return (text ?? "").replace(REF_NOT_MARKED, (m) => `${PREVIOUS}${m}`);
+}
+
 export type UtteranceRefCheck = {
   /** 文の中に出てきた番号の数 */
   total: number;

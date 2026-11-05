@@ -5,7 +5,7 @@
 import { rubricBackground, rubricFull } from "./rubric.mts";
 import type { MeetingKind, Scene, Spark, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
-import { blockLabel, utteranceLabel } from "./utterance-no.mts";
+import { blockLabel, markPreviousUtteranceRefs, utteranceLabel } from "./utterance-no.mts";
 
 /** すべての工程に共通の前置き。 */
 const COMMON = `あなたは、面談する側（講師・コーチ。以下「本人」）が自分の面談を振り返るための材料を出す AI パートナーです。
@@ -538,10 +538,10 @@ ${rubricFull()}
 export function step4UserText(kind: MeetingKind, spark: Spark): string {
   const { self, other } = labels(kind);
   const prev = spark.previousScene
-    ? `前回の「次に試せる所」の場面（ふつうの文。今回の文書ではない）：
-- 文脈：${spark.previousScene.context}
+    ? `前回の「次に試せる所」の場面（ふつうの文。今回の文書ではない。この中の発話番号は前回の面談の番号で、今回の文書の札の番号ではない）：
+- 文脈：${markPreviousUtteranceRefs(spark.previousScene.context)}
 - 前回の引用：${spark.previousScene.quoteText ?? "（なし）"}
-- 読み：${spark.previousScene.reading}`
+- 読み：${markPreviousUtteranceRefs(spark.previousScene.reading)}`
     : "前回の場面：（渡されていない）";
   return `上の文書は今回の面談の文字起こしです。各ブロックの先頭に発話番号の札（〔発話 n〕）と話者（${self}／${other}）が書いてあります。
 

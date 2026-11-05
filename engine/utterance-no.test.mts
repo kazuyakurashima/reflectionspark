@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { blockText, blockTexts, verifyCitation } from "./citations.mts";
-import { step1System, step4System } from "./prompts.mts";
+import { step1System, step4System, step4UserText } from "./prompts.mts";
 import { parseStep1 } from "./step1.mts";
 import { parseStep4 } from "./step4.mts";
 import { splitUtterance } from "./transcript-edit.mts";
@@ -13,6 +13,7 @@ import {
   blockLabel,
   checkUtteranceRefs,
   findUtteranceRefs,
+  markPreviousUtteranceRefs,
   toUtteranceIndex,
   toUtteranceIndices,
   utteranceLabel,
@@ -89,6 +90,29 @@ describe("発話番号の決まり（番号は一つ。0 始まり）", () => {
     assert.deepEqual(utterancesAround(utterances, 5, 6).map((u) => u.index), [4, 5]);
     assert.deepEqual(utterancesAround(utterances, 2, 4).map((u) => u.index), [1, 2, 3, 4]);
     assert.deepEqual(utterancesAround(utterances, 2, 3, 3).map((u) => u.index), [0, 1, 2, 3, 4, 5]);
+  });
+});
+
+describe("前回の面談の番号は、今回の面談の番号と分ける", () => {
+  test("前回の面談について書いた文の「発話 n」に、前回の面談の番号だと分かる印を付ける（二重には付けない）", () => {
+    assert.equal(markPreviousUtteranceRefs("発話 75 の数学の目標と、発話 94 から発話 104 の説明"), "前回の面談の発話 75 の数学の目標と、前回の面談の発話 94 から前回の面談の発話 104 の説明");
+    assert.equal(markPreviousUtteranceRefs("発話 38・40 で話した"), "前回の面談の発話 38・40 で話した");
+    assert.equal(markPreviousUtteranceRefs("前回の面談の発話 75 で"), "前回の面談の発話 75 で");
+    assert.equal(markPreviousUtteranceRefs("番号の無い文。"), "番号の無い文。");
+  });
+
+  test("工程 4 に渡す前回の場面の文には、印の無い「発話 n」が残らない。前回の引用の言葉は変えない", () => {
+    const text = step4UserText("生徒", {
+      sentence: "もし相手が心配を口にしたなら、何が心配かを尋ねる。",
+      criterion: "相手の心配の直後に、本人の問いがある。",
+      previousScene: { context: "家での時間を尋ねた後の場面（発話 88〜93）。", quoteText: "大丈夫。これからだよ。", reading: "発話 75 の目標と結ばないまま、発話 94 から説明に移ったと読める。" },
+    });
+    assert.match(text, /前回の面談の発話 88〜93/);
+    assert.match(text, /前回の面談の発話 75 の目標/);
+    assert.match(text, /前回の面談の発話 94 から/);
+    assert.match(text, /前回の引用：大丈夫。これからだよ。/);
+    assert.equal(text.match(/(?<!前回の面談の)発話\s*[0-9]+/g), null);
+    assert.match(text, /この中の発話番号は前回の面談の番号で、今回の文書の札の番号ではない/);
   });
 });
 
