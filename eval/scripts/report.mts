@@ -8,7 +8,7 @@ import path from "node:path";
 
 import type { Step0Timing } from "../../engine/step0.mts";
 import type { Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "../../engine/types.mts";
-import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, step0Variance } from "../lib/axes.mts";
+import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, needsMeaningJudge, step0Variance } from "../lib/axes.mts";
 import type { Axis1, Axis11, Axis12, Axis2, Axis5, Axis6, Axis8, Axis9, Step0Variance } from "../lib/axes.mts";
 import { loadCase, loadJson, RUNS_DIR, saveJson } from "../lib/cases.mts";
 import { judgeAction, judgeGuessMeaning, judgeQuestion, judgeQuoteSupport } from "../lib/judge.mts";
@@ -79,8 +79,9 @@ for (const name of listTruthCases()) {
   if (withJudge && ax.axis12) {
     ax.guessMeaning = [];
     for (const g of ax.axis12.guesses) {
-      if (g.kind !== "崩れ" || !g.scriptWindow) continue;
-      const j = await judgeGuessMeaning(g.fragment, g.guess, g.scriptWindow);
+      // 「崩れ」の推測だけ。「抜け」（推測の文が無い）と「話者の取り違え」は意味の判定に回さない
+      if (!needsMeaningJudge(g)) continue;
+      const j = await judgeGuessMeaning(g.fragment, g.guess, g.scriptWindow as string);
       ax.guessMeaning.push({ fragment: g.fragment, guess: g.guess, score: j.score, reason: j.reason });
     }
   }
@@ -222,15 +223,26 @@ for (const r of rows) {
 }
 lines.push("");
 
-lines.push("## 軸 12：工程 0b・0c の直しと推測", "", "| ケース | 当てた | 捨てた | 拾えた | 直しすぎ：元が正しかった | 直しすぎ：言った言葉と違う | 対応なし | 聞き違いの箇所 | うち触れた | 推測 | 本当に崩れていた | 推測が台本と合う | 正しい発話に推測 |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+lines.push(
+  "## 軸 12：工程 0b・0c の直しと推測",
+  "",
+  "| ケース | 当てた | 捨てた | 拾えた | 直しすぎ：元が正しかった | 直しすぎ：言った言葉と違う | 対応なし | 聞き違いの箇所 | うち触れた | 推測 | 本当に崩れていた | 推測が台本と合う | 正しい発話に推測 | 抜けと答えた数 | うち台本で言葉が落ちていた |",
+  "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+);
 for (const r of rows) {
   const a = r.axis12;
   if (!a) {
-    lines.push(`| ${r.case} | — | — | — | — | — | — | — | — | — | — | — | — |`);
+    lines.push(`| ${r.case} | — | — | — | — | — | — | — | — | — | — | — | — | — | — |`);
     continue;
   }
-  lines.push(`| ${r.case} | ${a.applied} | ${a.discarded} | ${a.picked} | ${a.overfixedOriginalCorrect} | ${a.overfixedWrongWord} | ${a.unaligned} | ${a.mismatchSpots} | ${a.mismatchTouched} | ${a.guessStats.total} | ${a.guessStats.reallyBroken} | ${a.guessStats.guessMatchesScript} | ${a.guessStats.changedCorrect} |`);
+  lines.push(
+    `| ${r.case} | ${a.applied} | ${a.discarded} | ${a.picked} | ${a.overfixedOriginalCorrect} | ${a.overfixedWrongWord} | ${a.unaligned} | ${a.mismatchSpots} | ${a.mismatchTouched} | ${a.guessStats.total} | ${a.guessStats.reallyBroken} | ${a.guessStats.guessMatchesScript} | ${a.guessStats.changedCorrect} | ${a.gapStats.total} | ${a.gapStats.reallyMissing}${a.gapStats.unaligned ? `（対応なし ${a.gapStats.unaligned}）` : ""} |`,
+  );
 }
+lines.push(
+  "",
+  "「推測」は崩れと話者の取り違えの数。「抜けと答えた数」（言葉が抜けていて推測できないと答えた所）は推測とは別に数え、推測の意味の LLM 判定には回さない。「うち台本で言葉が落ちていた」は、抜けと見た所の前後で、台本の文字が文字起こしに 2 字以上続けて無い数（文字起こしに無い行も含む）。",
+);
 lines.push("", "拾えた直しの種類：", "");
 for (const r of rows) {
   if (r.axis12) lines.push(`- ${r.case}：${Object.entries(r.axis12.pickedByKind).map(([k, v]) => `${k} ${v}`).join("、") || "（なし）"}`);

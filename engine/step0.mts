@@ -517,7 +517,10 @@ export async function step0c(utterances: Utterance[], kind: MeetingKind): Promis
       effort: "medium",
       label: "工程 0c",
     });
-    const guesses = (r.data.places ?? []).filter((g) => Number.isInteger(g.index) && g.index >= 0 && g.index < utterances.length && g.fragment);
+    const guesses = (r.data.places ?? [])
+      .filter((g) => Number.isInteger(g.index) && g.index >= 0 && g.index < utterances.length && g.fragment)
+      // 「抜け」は推測の文を持たない（文字起こしに無い言葉を足して文を作らない。設計書「0c 意味が通らない箇所」）
+      .map((g) => (g.kind === "抜け" ? { ...g, guess: "" } : g));
     return { result: guardStep0c({ summary: r.data.summary, guesses }, utterances), meta: r.meta };
   } catch (e) {
     return { result: { summary: "", guesses: [], failed: (e as Error).message }, meta: null };

@@ -80,14 +80,22 @@ export type Step0bResult = {
   failed?: string;
 };
 
+/**
+ * 0c が挙げる所の種類（docs/設計書.md「0c 意味が通らない箇所」）。
+ * 崩れ：聞き違いで直しきれない所。話者の取り違え：もう一方の話者の言葉と読める所。
+ * 抜け：言葉が抜けていて推測できない所（言葉そのものが落ちた、二人の発話が一つにつながった）。文字起こしに無い言葉を足して文を作らない。
+ */
+export const GUESS_KINDS = ["崩れ", "話者の取り違え", "抜け"] as const;
+export type GuessKind = (typeof GUESS_KINDS)[number];
+
 export type Guess = {
   index: number;
-  kind: "崩れ" | "話者の取り違え";
-  /** 元の文の中の、意味が通らない所 */
+  kind: GuessKind;
+  /** 元の文の中の、意味が通らない所（「抜け」では、言葉が抜けていると見た所） */
   fragment: string;
-  /** 推測（意味を優先） */
+  /** 推測（意味を優先）。「抜け」では空 */
   guess: string;
-  /** 手がかり */
+  /** 手がかり。「抜け」では、なぜ抜けと見たかの一行 */
   clue: string;
 };
 

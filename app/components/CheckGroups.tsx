@@ -15,7 +15,7 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
       <Group title="区切りが分からない所" hint="二人の言葉が一つにまとまっているかもしれません。「本文を直す」を開き、カーソルの位置で分けてください。" items={groups.unanchored} t={t} onChange={onChange} onSplit={onSplit} ask="split" />
       <Group title="話者を確かめる所" hint="講師と相手のどちらが言ったか、Claude が迷った所です。ここで見るのは話者です。聞き違いの直しが一緒に付いている発話もあります。" items={groups.speaker} t={t} onChange={onChange} onSplit={onSplit} ask="speaker" />
       <Group title="相手が 2 人以上かもしれない所" hint="相手が 2 人以上いると Claude が推定した所です。" items={groups.multiple} t={t} onChange={onChange} onSplit={onSplit} />
-      <Group title="意味が通らない所" hint="Claude が意味が通らないと見て、推測を付けた所です。推測が合っていれば「この推測で直す」を押してください。押さなければ今の本文のまま読みます。" items={groups.guessed} t={t} onChange={onChange} onSplit={onSplit} />
+      <Group title="意味が通らない所" hint="Claude が意味が通らないと見た所です。推測が合っていれば「この推測で直す」を押してください。押さなければ今の本文のまま読みます。言葉が抜けていて推測できない所は、推測を付けずに「抜け」と出します。" items={groups.guessed} t={t} onChange={onChange} onSplit={onSplit} />
       <Group title="そのほか" hint="" items={groups.other} t={t} onChange={onChange} onSplit={onSplit} />
       {groups.unanchored.length + groups.speaker.length + groups.multiple.length + groups.guessed.length + groups.other.length === 0 && groups.corrected.length > 0 && (
         <p className="text-sm text-stone-700">話者・区切り・推測で確かめる所は 0 件です。</p>
