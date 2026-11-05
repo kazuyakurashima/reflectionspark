@@ -1,0 +1,1468 @@
+{
+  "case": "trap-noevidence",
+  "threshold": 0.4,
+  "scriptLines": 104,
+  "missingLines": [
+    72
+  ],
+  "missingByAlignment": [
+    72
+  ],
+  "missingByNote": [],
+  "noteReason": null,
+  "lines": [
+    {
+      "line": 1,
+      "speaker": "講師",
+      "chars": 22,
+      "matched": 22,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        0,
+        23
+      ],
+      "memoText": "こんにちは。お忙しいところありがとうございます",
+      "text": "こんにちは。お忙しいところ、ありがとうございます。"
+    },
+    {
+      "line": 2,
+      "speaker": "保護者",
+      "chars": 13,
+      "matched": 13,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        24,
+        37
+      ],
+      "memoText": "こんにちはお世話になります",
+      "text": "こんにちは。お世話になります。"
+    },
+    {
+      "line": 3,
+      "speaker": "講師",
+      "chars": 46,
+      "matched": 41,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        38,
+        87
+      ],
+      "memoText": "登記講習の教材が届きましたので、お渡しと日程のご確認をさせていただきます。 15分。どいただければ",
+      "text": "冬期講習の教材が届きましたので、お渡しと、日程のご確認をさせていただきます。十五分ほどいただければ。"
+    },
+    {
+      "line": 4,
+      "speaker": "保護者",
+      "chars": 8,
+      "matched": 8,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        88,
+        97
+      ],
+      "memoText": "はい、お願いします",
+      "text": "はい、お願いします。"
+    },
+    {
+      "line": 5,
+      "speaker": "講師",
+      "chars": 80,
+      "matched": 70,
+      "matchRatio": 0.88,
+      "missing": false,
+      "memoSpan": [
+        98,
+        189
+      ],
+      "memoText": "まず日程ですが、こちらの紙をご覧ください。登記講習は 12月二十5日の木曜から始まります。中一は午前の部と午後の部がありまして、午前が 10時から 12時、午後が 2時から 4時です",
+      "text": "まず日程ですが、こちらの紙をご覧ください。冬期講習は十二月二十五日の木曜から始まります。中一は、午前の部と午後の部がありまして、午前が十時から十二時、午後が二時から四時です。"
+    },
+    {
+      "line": 6,
+      "speaker": "保護者",
+      "chars": 16,
+      "matched": 14,
+      "matchRatio": 0.88,
+      "missing": false,
+      "memoSpan": [
+        190,
+        207
+      ],
+      "memoText": "申し込みの時に午前にしたと思います",
+      "text": "申込のときに、午前にしたと思います。"
+    },
+    {
+      "line": 7,
+      "speaker": "講師",
+      "chars": 53,
+      "matched": 49,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        208,
+        267
+      ],
+      "memoText": "はい、午前の部でお申し込みいただいています。 10時から 12時で国語数学英語の 3教科を日によって組み合わせています",
+      "text": "はい、午前の部でお申し込みいただいています。十時から十二時で、国語・数学・英語の三教科を、日によって組み合わせています。"
+    },
+    {
+      "line": 8,
+      "speaker": "保護者",
+      "chars": 8,
+      "matched": 7,
+      "matchRatio": 0.88,
+      "missing": false,
+      "memoSpan": [
+        268,
+        277
+      ],
+      "memoText": "毎日 3教科ですか",
+      "text": "毎日、三教科ですか。"
+    },
+    {
+      "line": 9,
+      "speaker": "講師",
+      "chars": 54,
+      "matched": 46,
+      "matchRatio": 0.85,
+      "missing": false,
+      "memoSpan": [
+        280,
+        344
+      ],
+      "memoText": "1日 2教科です。 50分の授業が 2コマで間に 10分の休みが入ります。数学と英語が毎日あって、国語が 3日に 1回入る形です",
+      "text": "一日二教科です。五十分の授業が二コマで、間に十分の休みが入ります。数学と英語が毎日あって、国語が三日に一回入る形です。"
+    },
+    {
+      "line": 10,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        345,
+        351
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 11,
+      "speaker": "講師",
+      "chars": 56,
+      "matched": 45,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        352,
+        417
+      ],
+      "memoText": "お休みは 12月 31日から 1月 3日までです。 1月 4日の日曜から再開して 6日の火曜が最終日です。全部で 9日間になります",
+      "text": "お休みは、十二月三十一日から一月三日までです。一月四日の日曜から再開して、六日の火曜が最終日です。全部で九日間になります。"
+    },
+    {
+      "line": 12,
+      "speaker": "保護者",
+      "chars": 14,
+      "matched": 12,
+      "matchRatio": 0.86,
+      "missing": false,
+      "memoSpan": [
+        418,
+        433
+      ],
+      "memoText": "年末は 30日まであるんですね",
+      "text": "年末は、三十日まであるんですね。"
+    },
+    {
+      "line": 13,
+      "speaker": "講師",
+      "chars": 14,
+      "matched": 12,
+      "matchRatio": 0.86,
+      "missing": false,
+      "memoSpan": [
+        434,
+        450
+      ],
+      "memoText": "はい、 30日の火曜まであります",
+      "text": "はい、三十日の火曜まであります。"
+    },
+    {
+      "line": 14,
+      "speaker": "保護者",
+      "chars": 24,
+      "matched": 19,
+      "matchRatio": 0.79,
+      "missing": false,
+      "memoSpan": [
+        452,
+        476
+      ],
+      "memoText": "30日は私の実家に行く予定で、多分朝に出るんです",
+      "text": "三十日は、私の実家に行く予定で、たぶん朝に出るんです。"
+    },
+    {
+      "line": 15,
+      "speaker": "講師",
+      "chars": 19,
+      "matched": 17,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        477,
+        497
+      ],
+      "memoText": "そうしますと 30日はお休みになりますね",
+      "text": "そうしますと、三十日はお休みになりますね。"
+    },
+    {
+      "line": 16,
+      "speaker": "保護者",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        498,
+        511
+      ],
+      "memoText": "はい、それは振替できますか",
+      "text": "はい。それは、振替できますか。"
+    },
+    {
+      "line": 17,
+      "speaker": "講師",
+      "chars": 64,
+      "matched": 61,
+      "matchRatio": 0.95,
+      "missing": false,
+      "memoSpan": [
+        511,
+        578
+      ],
+      "memoText": "講習中の振替は同じ日の午後の部に出ていただくか、講習の後に個別の補修の時間を取るかどちらかです。 30日の午後はもう出発されてますよね",
+      "text": "講習中の振替は、同じ日の午後の部に出ていただくか、講習の後に、個別の補習の時間を取るか、どちらかです。三十日の午後は、もう出発されてますよね。"
+    },
+    {
+      "line": 18,
+      "speaker": "保護者",
+      "chars": 16,
+      "matched": 16,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        579,
+        596
+      ],
+      "memoText": "はい、昼には向こうに着いているので",
+      "text": "はい、昼には向こうに着いているので。"
+    },
+    {
+      "line": 19,
+      "speaker": "講師",
+      "chars": 65,
+      "matched": 56,
+      "matchRatio": 0.86,
+      "missing": false,
+      "memoSpan": [
+        597,
+        668
+      ],
+      "memoText": "では、補修の方で講習が終わった 1月の 7日以降で、平日の夕方に 40分ほど 30日の分の内容をやります。日にちは年明けにご相談させてください",
+      "text": "では、補習のほうで。講習が終わった一月の七日以降で、平日の夕方に四十分ほど、三十日の分の内容をやります。日にちは、年明けにご相談させてください。"
+    },
+    {
+      "line": 20,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        669,
+        675
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 21,
+      "speaker": "講師",
+      "chars": 59,
+      "matched": 58,
+      "matchRatio": 0.98,
+      "missing": false,
+      "memoSpan": [
+        676,
+        737
+      ],
+      "memoText": "お休みのご連絡は前日までにお電話かアプリのメッセージでお願いします。当日の朝でもわかった時点でご連絡いただければ大丈夫です",
+      "text": "お休みのご連絡は、前日までにお電話か、アプリのメッセージでお願いします。当日の朝でも、分かった時点でご連絡いただければ大丈夫です。"
+    },
+    {
+      "line": 22,
+      "speaker": "保護者",
+      "chars": 10,
+      "matched": 10,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        738,
+        748
+      ],
+      "memoText": "アプリでいいんですね",
+      "text": "アプリでいいんですね。"
+    },
+    {
+      "line": 23,
+      "speaker": "講師",
+      "chars": 25,
+      "matched": 23,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        749,
+        774
+      ],
+      "memoText": "はい、アプリの方がこちらも記録が残るので助かります",
+      "text": "はい。アプリのほうが、こちらも記録が残るので助かります。"
+    },
+    {
+      "line": 24,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        775,
+        781
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 25,
+      "speaker": "講師",
+      "chars": 50,
+      "matched": 47,
+      "matchRatio": 0.94,
+      "missing": false,
+      "memoSpan": [
+        782,
+        834
+      ],
+      "memoText": "それから教材です。こちらの 2冊が講習のテキストで数学と英語です。国語は授業の時にプリントでお配りします",
+      "text": "それから、教材です。こちらの二冊が講習のテキストで、数学と英語です。国語は、授業のときにプリントでお配りします。"
+    },
+    {
+      "line": 26,
+      "speaker": "保護者",
+      "chars": 5,
+      "matched": 4,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        836,
+        841
+      ],
+      "memoText": "2冊ですね",
+      "text": "二冊ですね。"
+    },
+    {
+      "line": 27,
+      "speaker": "講師",
+      "chars": 65,
+      "matched": 60,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        842,
+        911
+      ],
+      "memoText": "数学は政府の数から方程式までの復習が前半で、後半が比例と反比例です。英語は 1学期と 2学期の文法のまとめと単語のページが後についています",
+      "text": "数学は、正負の数から方程式までの復習が前半で、後半が比例と反比例です。英語は、一学期と二学期の文法のまとめと、単語のページが後ろについています。"
+    },
+    {
+      "line": 28,
+      "speaker": "保護者",
+      "chars": 11,
+      "matched": 11,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        912,
+        923
+      ],
+      "memoText": "学校の範囲と同じですか",
+      "text": "学校の範囲と、同じですか。"
+    },
+    {
+      "line": 29,
+      "speaker": "講師",
+      "chars": 35,
+      "matched": 32,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        925,
+        965
+      ],
+      "memoText": "はい、 2学期までに学校で習った範囲です。 3学期の先取りは最後の 2日だけです",
+      "text": "はい、二学期までに学校で習った範囲です。三学期の先取りは、最後の二日だけです。"
+    },
+    {
+      "line": 30,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        966,
+        968
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 31,
+      "speaker": "講師",
+      "chars": 66,
+      "matched": 66,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        969,
+        1038
+      ],
+      "memoText": "テキストの答えは別冊で後ろについています。授業では答えは見ないで進めますので、最初の授業でこちらで預かります。講習の最後の日にお返しします",
+      "text": "テキストの答えは、別冊で後ろについています。授業では、答えは見ないで進めますので、最初の授業で、こちらで預かります。講習の最後の日にお返しします。"
+    },
+    {
+      "line": 32,
+      "speaker": "保護者",
+      "chars": 7,
+      "matched": 7,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1039,
+        1046
+      ],
+      "memoText": "預かるんですね",
+      "text": "預かるんですね。"
+    },
+    {
+      "line": 33,
+      "speaker": "講師",
+      "chars": 11,
+      "matched": 11,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1047,
+        1059
+      ],
+      "memoText": "はい、毎年そうしています",
+      "text": "はい。毎年、そうしています。"
+    },
+    {
+      "line": 34,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1060,
+        1066
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 35,
+      "speaker": "講師",
+      "chars": 40,
+      "matched": 37,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        1067,
+        1108
+      ],
+      "memoText": "それとテキストは講習の後もお持ち帰りいただいて構いません。 3学期の復習に使えます",
+      "text": "それと、テキストは講習のあともお持ち帰りいただいて構いません。三学期の復習に使えます。"
+    },
+    {
+      "line": 36,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1109,
+        1115
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 37,
+      "speaker": "講師",
+      "chars": 45,
+      "matched": 45,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1116,
+        1163
+      ],
+      "memoText": "表紙に名前を書く欄がありますので、ご本人に書いてもらってください。初日に持ってきていただきます",
+      "text": "表紙に名前を書く欄がありますので、ご本人に書いてもらってください。初日に持ってきていただきます。"
+    },
+    {
+      "line": 38,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1164,
+        1166
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 39,
+      "speaker": "講師",
+      "chars": 49,
+      "matched": 45,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        1166,
+        1216
+      ],
+      "memoText": "持ち物はテキストと筆記用具とノートです。ノートは学校のものと分けていただいた方が後で見返しやすいです",
+      "text": "持ち物は、テキストと、筆記用具と、ノートです。ノートは、学校のものと分けていただいたほうが、あとで見返しやすいです。"
+    },
+    {
+      "line": 40,
+      "speaker": "保護者",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1217,
+        1229
+      ],
+      "memoText": "新しいのを買っておきます",
+      "text": "新しいのを買っておきます。"
+    },
+    {
+      "line": 41,
+      "speaker": "講師",
+      "chars": 67,
+      "matched": 65,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        1230,
+        1303
+      ],
+      "memoText": "あと、午前の部は 122時に終わるので、お昼は各自で休憩室はありますが、講習中はすぐ午後の部の準備になるので、できれば帰ってから食べていただけると",
+      "text": "あと、午前の部は十二時に終わるので、お昼は各自で。休憩室はありますが、講習中はすぐ午後の部の準備になるので、できれば帰ってから食べていただけると。"
+    },
+    {
+      "line": 42,
+      "speaker": "保護者",
+      "chars": 9,
+      "matched": 9,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1304,
+        1314
+      ],
+      "memoText": "はい、帰って食べます",
+      "text": "はい、帰って食べます。"
+    },
+    {
+      "line": 43,
+      "speaker": "講師",
+      "chars": 50,
+      "matched": 48,
+      "matchRatio": 0.96,
+      "missing": false,
+      "memoSpan": [
+        1315,
+        1365
+      ],
+      "memoText": "学校の冬休みの宿題は自習室に持ち込んでやっていただいて構いません。講習の後そのまま残る子も毎年います",
+      "text": "学校の冬休みの宿題は、自習室に持ち込んでやっていただいて構いません。講習のあと、そのまま残る子も毎年います。"
+    },
+    {
+      "line": 44,
+      "speaker": "保護者",
+      "chars": 14,
+      "matched": 13,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        1366,
+        1380
+      ],
+      "memoText": "自習室は何時まで空いてますか",
+      "text": "自習室は、何時まで開いてますか。"
+    },
+    {
+      "line": 45,
+      "speaker": "講師",
+      "chars": 37,
+      "matched": 35,
+      "matchRatio": 0.95,
+      "missing": false,
+      "memoSpan": [
+        1382,
+        1422
+      ],
+      "memoText": "講習の期間中は午後の 1時から 6時までです。年末年始のお休みの間は閉めています",
+      "text": "講習の期間中は、午後の一時から六時までです。年末年始のお休みの間は閉めています。"
+    },
+    {
+      "line": 46,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1423,
+        1429
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 47,
+      "speaker": "講師",
+      "chars": 45,
+      "matched": 44,
+      "matchRatio": 0.98,
+      "missing": false,
+      "memoSpan": [
+        1430,
+        1476
+      ],
+      "memoText": "自習室を使う場合も入退室の記録はアプリに届きます。講習の出血も同じアプリでご確認いただけます",
+      "text": "自習室を使う場合も、入退室の記録はアプリに届きます。講習の出欠も、同じアプリでご確認いただけます。"
+    },
+    {
+      "line": 48,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1477,
+        1479
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 49,
+      "speaker": "講師",
+      "chars": 50,
+      "matched": 48,
+      "matchRatio": 0.96,
+      "missing": false,
+      "memoSpan": [
+        1480,
+        1530
+      ],
+      "memoText": "講習の初日にアプリの通知が届いているか一度ご確認ください。届いていなければ事務の方で設定を見ますので",
+      "text": "講習の初日に、アプリの通知が届いているか、一度ご確認ください。届いていなければ、事務のほうで設定を見ますので。"
+    },
+    {
+      "line": 50,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1531,
+        1537
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 51,
+      "speaker": "講師",
+      "chars": 71,
+      "matched": 70,
+      "matchRatio": 0.99,
+      "missing": false,
+      "memoSpan": [
+        1538,
+        1615
+      ],
+      "memoText": "送迎なんですが、建物の前の道が狭くて止めていただくと後ろが詰まってしまうんです。送迎の際は、裏の通りのコインパーキングか駅の方のロータリーをお使いください",
+      "text": "送迎なんですが、建物の前の道が狭くて、停めていただくと、後ろが詰まってしまうんです。送迎の際は、裏の通りのコインパーキングか、駅の方のロータリーをお使いください。"
+    },
+    {
+      "line": 52,
+      "speaker": "保護者",
+      "chars": 32,
+      "matched": 29,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        1616,
+        1649
+      ],
+      "memoText": "自転車で来るので多分大丈夫です。雨の日だだけ車になるかもしれません",
+      "text": "自転車で来るので、たぶん大丈夫です。雨の日だけ、車になるかもしれません。"
+    },
+    {
+      "line": 53,
+      "speaker": "講師",
+      "chars": 29,
+      "matched": 27,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        1650,
+        1682
+      ],
+      "memoText": "雨の日は裏のコインパーキングが近いです。最初の 20分は無料です",
+      "text": "雨の日は、裏のコインパーキングが近いです。最初の二十分は無料です。"
+    },
+    {
+      "line": 54,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1683,
+        1689
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 55,
+      "speaker": "講師",
+      "chars": 41,
+      "matched": 36,
+      "matchRatio": 0.88,
+      "missing": false,
+      "memoSpan": [
+        1690,
+        1733
+      ],
+      "memoText": "お迎えの時は、建物の中の待合の椅子をお使いください。授業が終わる 5分ほど前に開けます",
+      "text": "お迎えのときは、建物の中の待合のいすをお使いください。授業が終わる五分ほど前に開けます。"
+    },
+    {
+      "line": 56,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1734,
+        1740
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 57,
+      "speaker": "講師",
+      "chars": 27,
+      "matched": 27,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1741,
+        1769
+      ],
+      "memoText": "自転車でしたら、建物の横の駐輪場に鍵は必ずかけてください",
+      "text": "自転車でしたら、建物の横の駐輪場に。鍵は必ずかけてください。"
+    },
+    {
+      "line": 58,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1770,
+        1772
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 59,
+      "speaker": "講師",
+      "chars": 64,
+      "matched": 62,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        1773,
+        1839
+      ],
+      "memoText": "雪の日の対応ですが、朝 7時の時点で警報が出ていれば午前のは休みにしてアプリで一斉にご連絡します。その場合は後日に振替の日を作ります",
+      "text": "雪の日の対応ですが、朝七時の時点で警報が出ていれば、午前の部は休みにして、アプリで一斉にご連絡します。その場合は、後日に振替の日を作ります。"
+    },
+    {
+      "line": 60,
+      "speaker": "保護者",
+      "chars": 11,
+      "matched": 10,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        1840,
+        1852
+      ],
+      "memoText": "去年 1回ありましたよね",
+      "text": "去年、一回ありましたよね。"
+    },
+    {
+      "line": 61,
+      "speaker": "講師",
+      "chars": 16,
+      "matched": 14,
+      "matchRatio": 0.88,
+      "missing": false,
+      "memoSpan": [
+        1853,
+        1869
+      ],
+      "memoText": "ありました。あの時と同じ流れです",
+      "text": "ありました。あのときと同じ流れです。"
+    },
+    {
+      "line": 62,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        1870,
+        1876
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 63,
+      "speaker": "講師",
+      "chars": 97,
+      "matched": 87,
+      "matchRatio": 0.9,
+      "missing": false,
+      "memoSpan": [
+        1877,
+        1986
+      ],
+      "memoText": "それから 1月の模試のご案内です。 1月 18日の日曜にここの教室で実施します。中一は国語数学英語の 3教科で 9時半から 12時半です。申込書を同封していますので、受けられる場合は 1月 6日までに提出をお願いします",
+      "text": "それから、一月の模試のご案内です。一月十八日の日曜に、ここの教室で実施します。中一は、国語・数学・英語の三教科で、九時半から十二時半です。申込書を同封していますので、受けられる場合は、一月六日までに提出をお願いします。"
+    },
+    {
+      "line": 64,
+      "speaker": "保護者",
+      "chars": 4,
+      "matched": 4,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1987,
+        1991
+      ],
+      "memoText": "受験料は",
+      "text": "受験料は。"
+    },
+    {
+      "line": 65,
+      "speaker": "講師",
+      "chars": 25,
+      "matched": 20,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        1992,
+        2018
+      ],
+      "memoText": "3500円で 2月の月謝と一緒に引き落としになります",
+      "text": "三千五百円で、二月の月謝と一緒に引き落としになります。"
+    },
+    {
+      "line": 66,
+      "speaker": "保護者",
+      "chars": 16,
+      "matched": 15,
+      "matchRatio": 0.94,
+      "missing": false,
+      "memoSpan": [
+        2019,
+        2036
+      ],
+      "memoText": "わかりました。本人に聞いて出します",
+      "text": "分かりました。本人に聞いて、出します。"
+    },
+    {
+      "line": 67,
+      "speaker": "講師",
+      "chars": 29,
+      "matched": 28,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        2037,
+        2071
+      ],
+      "memoText": "はい、締め切りは 6日ですので、講習の最終日に持ってきていただければ",
+      "text": "はい。締切は六日ですので、講習の最終日に持ってきていただければ。"
+    },
+    {
+      "line": 68,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2071,
+        2073
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 69,
+      "speaker": "講師",
+      "chars": 65,
+      "matched": 59,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        2073,
+        2141
+      ],
+      "memoText": "も試の日は筆記用具と受験票を持ってきてください。受験票は申し込みの翌週に授業の時にお渡しします。お昼を挟みませんので、お弁当はいりません",
+      "text": "模試の日は、筆記用具と、受験票を持ってきてください。受験票は、申込の翌週に、授業のときにお渡しします。お昼をはさみませんので、お弁当は要りません。"
+    },
+    {
+      "line": 70,
+      "speaker": "保護者",
+      "chars": 18,
+      "matched": 18,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2142,
+        2160
+      ],
+      "memoText": "受験票は本人に渡してもらえるんですね",
+      "text": "受験票は、本人に渡してもらえるんですね。"
+    },
+    {
+      "line": 71,
+      "speaker": "講師",
+      "chars": 8,
+      "matched": 6,
+      "matchRatio": 0.75,
+      "missing": false,
+      "memoSpan": [
+        2161,
+        2169
+      ],
+      "memoText": "はい、授業の時に",
+      "text": "はい、授業のときに。"
+    },
+    {
+      "line": 72,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 1,
+      "matchRatio": 0.5,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 73,
+      "speaker": "講師",
+      "chars": 63,
+      "matched": 58,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2170,
+        2235
+      ],
+      "memoText": "も試の結果は 2月の初めに帰ってきます。結果の返却は授業の時にご本人にお渡しして、保護者の方にはアプリに成績表の写しをお送りします",
+      "text": "模試の結果は、二月の初めに返ってきます。結果の返却は、授業のときにご本人にお渡しして、保護者の方には、アプリに成績表の写しをお送りします。"
+    },
+    {
+      "line": 74,
+      "speaker": "保護者",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2236,
+        2248
+      ],
+      "memoText": "アプリで見られるんですね",
+      "text": "アプリで見られるんですね。"
+    },
+    {
+      "line": 75,
+      "speaker": "講師",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2249,
+        2251
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 76,
+      "speaker": "保護者",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        2252,
+        2258
+      ],
+      "memoText": "わかりました",
+      "text": "分かりました。"
+    },
+    {
+      "line": 77,
+      "speaker": "講師",
+      "chars": 56,
+      "matched": 50,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        2259,
+        2320
+      ],
+      "memoText": "それとジムからの連絡で月謝の引き落とし日が 2月から変わります。今まで二十 7日でしたが、 2月分からは二十5日になります",
+      "text": "それと、事務からの連絡で、月謝の引き落とし日が、二月から変わります。今まで二十七日でしたが、二月分からは、二十五日になります。"
+    },
+    {
+      "line": 78,
+      "speaker": "保護者",
+      "chars": 7,
+      "matched": 4,
+      "matchRatio": 0.57,
+      "missing": false,
+      "memoSpan": [
+        2322,
+        2328
+      ],
+      "memoText": "25日ですね",
+      "text": "二十五日ですね。"
+    },
+    {
+      "line": 79,
+      "speaker": "講師",
+      "chars": 35,
+      "matched": 35,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2329,
+        2365
+      ],
+      "memoText": "土日にあたる月は翌営業日です。お知らせのプリントをこちらに入れておきます",
+      "text": "土日にあたる月は、翌営業日です。お知らせのプリントを、こちらに入れておきます。"
+    },
+    {
+      "line": 80,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2366,
+        2368
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 81,
+      "speaker": "講師",
+      "chars": 60,
+      "matched": 55,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2368,
+        2434
+      ],
+      "memoText": "講習の費用は申し込みの時にご案内した金額で、 1月分の月謝と一緒に 1月の二十 7日に引き落としです。こちらは今までの日付のままです",
+      "text": "講習の費用は、申込のときにご案内した金額で、一月分の月謝と一緒に、一月の二十七日に引き落としです。こちらは、今までの日付のままです。"
+    },
+    {
+      "line": 82,
+      "speaker": "保護者",
+      "chars": 16,
+      "matched": 12,
+      "matchRatio": 0.75,
+      "missing": false,
+      "memoSpan": [
+        2436,
+        2454
+      ],
+      "memoText": "1月は二十 7日で 2月から二十5日",
+      "text": "一月は二十七日で、二月から二十五日。"
+    },
+    {
+      "line": 83,
+      "speaker": "講師",
+      "chars": 4,
+      "matched": 4,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2454,
+        2458
+      ],
+      "memoText": "そうです",
+      "text": "そうです。"
+    },
+    {
+      "line": 84,
+      "speaker": "保護者",
+      "chars": 10,
+      "matched": 10,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2459,
+        2469
+      ],
+      "memoText": "ありがとうございます",
+      "text": "ありがとうございます。"
+    },
+    {
+      "line": 85,
+      "speaker": "講師",
+      "chars": 61,
+      "matched": 54,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        2470,
+        2537
+      ],
+      "memoText": "あと 3学期の時間割です。 1月 8日の木曜から通常の授業に戻ります。中一は今まで通り月曜と木曜の 7時から 8時半で変更はありません",
+      "text": "あと、三学期の時間割です。一月八日の木曜から通常の授業に戻ります。中一は、今までどおり月曜と木曜の七時から八時半で、変更はありません。"
+    },
+    {
+      "line": 86,
+      "speaker": "保護者",
+      "chars": 9,
+      "matched": 9,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2538,
+        2547
+      ],
+      "memoText": "変わらないんですね",
+      "text": "変わらないんですね。"
+    },
+    {
+      "line": 87,
+      "speaker": "講師",
+      "chars": 59,
+      "matched": 54,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2548,
+        2613
+      ],
+      "memoText": "はい、春からの中二の時間割は 2月の保護者会でお知らせします。保護者会は 2月の 15日の日曜でご案内は 1月の中旬にお出しします",
+      "text": "はい。春からの中二の時間割は、二月の保護者会でお知らせします。保護者会は二月の十五日の日曜で、ご案内は一月の中旬にお出しします。"
+    },
+    {
+      "line": 88,
+      "speaker": "保護者",
+      "chars": 13,
+      "matched": 10,
+      "matchRatio": 0.77,
+      "missing": false,
+      "memoSpan": [
+        2615,
+        2629
+      ],
+      "memoText": "2月 15日メモしておきます",
+      "text": "二月十五日。メモしておきます。"
+    },
+    {
+      "line": 89,
+      "speaker": "講師",
+      "chars": 55,
+      "matched": 53,
+      "matchRatio": 0.96,
+      "missing": false,
+      "memoSpan": [
+        2630,
+        2688
+      ],
+      "memoText": "保護者会では中二の授業の進め方と年間の予定をお話しします。 40分ほどです。ご都合がつかない場合は資料をお渡しします",
+      "text": "保護者会では、中二の授業の進め方と、年間の予定をお話しします。四十分ほどです。ご都合がつかない場合は、資料をお渡しします。"
+    },
+    {
+      "line": 90,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2689,
+        2691
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 91,
+      "speaker": "講師",
+      "chars": 35,
+      "matched": 34,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        2692,
+        2733
+      ],
+      "memoText": "英検のお申し込みも 1月中旬が締め切りです。受ける予定があれば申込書をお渡しします",
+      "text": "英検のお申込も、一月中旬が締切です。受ける予定があれば、申込書をお渡しします。"
+    },
+    {
+      "line": 92,
+      "speaker": "保護者",
+      "chars": 24,
+      "matched": 19,
+      "matchRatio": 0.79,
+      "missing": false,
+      "memoSpan": [
+        2734,
+        2758
+      ],
+      "memoText": "今回はまだいいです。産休は多分中二になってからで",
+      "text": "今回は、まだいいです。三級は、たぶん中二になってからで。"
+    },
+    {
+      "line": 93,
+      "speaker": "講師",
+      "chars": 22,
+      "matched": 21,
+      "matchRatio": 0.95,
+      "missing": false,
+      "memoSpan": [
+        2759,
+        2782
+      ],
+      "memoText": "わかりました。では時期が来たらまたご案内します",
+      "text": "分かりました。では、時期が来たらまたご案内します。"
+    },
+    {
+      "line": 94,
+      "speaker": "保護者",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2783,
+        2785
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 95,
+      "speaker": "講師",
+      "chars": 18,
+      "matched": 18,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2786,
+        2804
+      ],
+      "memoText": "ここまでで何かご不明な点はありますか",
+      "text": "ここまでで、何かご不明な点はありますか。"
+    },
+    {
+      "line": 96,
+      "speaker": "保護者",
+      "chars": 23,
+      "matched": 20,
+      "matchRatio": 0.87,
+      "missing": false,
+      "memoSpan": [
+        2806,
+        2829
+      ],
+      "memoText": "30日の補修の日は年明けに連絡が来るんですよね",
+      "text": "三十日の補習の日は、年明けに連絡が来るんですよね。"
+    },
+    {
+      "line": 97,
+      "speaker": "講師",
+      "chars": 25,
+      "matched": 23,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2830,
+        2858
+      ],
+      "memoText": "はい、 1月の 4日以降にこちらからアプリでご連絡します",
+      "text": "はい、一月の四日以降に、こちらからアプリでご連絡します。"
+    },
+    {
+      "line": 98,
+      "speaker": "保護者",
+      "chars": 22,
+      "matched": 21,
+      "matchRatio": 0.95,
+      "missing": false,
+      "memoSpan": [
+        2859,
+        2882
+      ],
+      "memoText": "わかりました。あと初日は何時に来ればいいですか",
+      "text": "分かりました。あと、初日は何時に来ればいいですか。"
+    },
+    {
+      "line": 99,
+      "speaker": "講師",
+      "chars": 47,
+      "matched": 43,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        2886,
+        2938
+      ],
+      "memoText": "0時開始ですので、 9時 50分くらいに来ていただければ、初日は教室の場所の案内をしますので、少し早めで",
+      "text": "十時開始ですので、九時五十分くらいに来ていただければ。初日は教室の場所の案内をしますので、少し早めで。"
+    },
+    {
+      "line": 100,
+      "speaker": "保護者",
+      "chars": 11,
+      "matched": 7,
+      "matchRatio": 0.64,
+      "missing": false,
+      "memoSpan": [
+        2940,
+        2953
+      ],
+      "memoText": "9時 50分。わかりました",
+      "text": "九時五十分。分かりました。"
+    },
+    {
+      "line": 101,
+      "speaker": "講師",
+      "chars": 41,
+      "matched": 40,
+      "matchRatio": 0.98,
+      "missing": false,
+      "memoSpan": [
+        2954,
+        2998
+      ],
+      "memoText": "では、教材と日程表と模試の申込書と引き落とし日のお知らせ、この 4点をお持ち帰りください",
+      "text": "では、教材と、日程表と、模試の申込書と、引き落とし日のお知らせ、この四点をお持ち帰りください。"
+    },
+    {
+      "line": 102,
+      "speaker": "保護者",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2999,
+        3012
+      ],
+      "memoText": "はい、ありがとうございます",
+      "text": "はい。ありがとうございます。"
+    },
+    {
+      "line": 103,
+      "speaker": "講師",
+      "chars": 13,
+      "matched": 13,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        3013,
+        3026
+      ],
+      "memoText": "お気をつけてお帰りください",
+      "text": "お気をつけてお帰りください。"
+    },
+    {
+      "line": 104,
+      "speaker": "保護者",
+      "chars": 5,
+      "matched": 5,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        3027,
+        3032
+      ],
+      "memoText": "失礼します",
+      "text": "失礼します。"
+    }
+  ]
+}

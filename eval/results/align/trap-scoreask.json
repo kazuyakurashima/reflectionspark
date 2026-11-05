@@ -1,0 +1,1834 @@
+{
+  "case": "trap-scoreask",
+  "threshold": 0.4,
+  "scriptLines": 131,
+  "missingLines": [
+    15,
+    16,
+    42,
+    47,
+    82,
+    84,
+    86,
+    102,
+    108,
+    112,
+    116,
+    120,
+    124
+  ],
+  "missingByAlignment": [
+    15,
+    16,
+    42,
+    47,
+    82,
+    84,
+    86,
+    102,
+    108,
+    112,
+    116,
+    120,
+    124
+  ],
+  "missingByNote": [],
+  "noteReason": null,
+  "lines": [
+    {
+      "line": 1,
+      "speaker": "講師",
+      "chars": 18,
+      "matched": 17,
+      "matchRatio": 0.94,
+      "missing": false,
+      "memoSpan": [
+        0,
+        19
+      ],
+      "memoText": "じゃあ始めようか。中間全部帰ってきたね",
+      "text": "じゃあ、始めようか。中間、全部返ってきたね。"
+    },
+    {
+      "line": 2,
+      "speaker": "生徒",
+      "chars": 17,
+      "matched": 14,
+      "matchRatio": 0.82,
+      "missing": false,
+      "memoSpan": [
+        20,
+        38
+      ],
+      "memoText": "はい、昨日最後の車体が帰ってきました",
+      "text": "はい。昨日、最後の社会が返ってきました。"
+    },
+    {
+      "line": 3,
+      "speaker": "講師",
+      "chars": 9,
+      "matched": 9,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        39,
+        48
+      ],
+      "memoText": "見せてもらっていい",
+      "text": "見せてもらっていい？"
+    },
+    {
+      "line": 4,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        48,
+        50
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 5,
+      "speaker": "講師",
+      "chars": 31,
+      "matched": 16,
+      "matchRatio": 0.52,
+      "missing": false,
+      "memoSpan": [
+        51,
+        83
+      ],
+      "memoText": "数学が 84理科が 79。社会が 81国語が 76英語が 58か",
+      "text": "数学が八十四、理科が七十九、社会が八十一、国語が七十六。英語が……五十八か。"
+    },
+    {
+      "line": 6,
+      "speaker": "生徒",
+      "chars": 23,
+      "matched": 23,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        84,
+        107
+      ],
+      "memoText": "英語が今回初めて平均より下でちょっとショックで",
+      "text": "英語が、今回、初めて平均より下で。ちょっとショックで。"
+    },
+    {
+      "line": 7,
+      "speaker": "講師",
+      "chars": 17,
+      "matched": 17,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        108,
+        125
+      ],
+      "memoText": "初めて平均の下かショックだったんだ",
+      "text": "初めて平均の下、か。ショックだったんだ。"
+    },
+    {
+      "line": 8,
+      "speaker": "生徒",
+      "chars": 33,
+      "matched": 33,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        126,
+        161
+      ],
+      "memoText": "はい、今までは英語だけは落とさなかったんで、塾でも英語は上のクラスだし",
+      "text": "はい。今までは、英語だけは落とさなかったんで。塾でも英語は上のクラスだし。"
+    },
+    {
+      "line": 9,
+      "speaker": "講師",
+      "chars": 15,
+      "matched": 15,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        162,
+        178
+      ],
+      "memoText": "そうだね。上のクラスでやってるね",
+      "text": "そうだね。上のクラスでやってるね。"
+    },
+    {
+      "line": 10,
+      "speaker": "生徒",
+      "chars": 30,
+      "matched": 30,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        179,
+        210
+      ],
+      "memoText": "なのに、学校のテストで平均より下ってなんか恥ずかしいっていうか",
+      "text": "なのに、学校のテストで平均より下って、なんか、恥ずかしいっていうか。"
+    },
+    {
+      "line": 11,
+      "speaker": "講師",
+      "chars": 6,
+      "matched": 6,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        211,
+        217
+      ],
+      "memoText": "恥ずかしいか",
+      "text": "恥ずかしい、か。"
+    },
+    {
+      "line": 12,
+      "speaker": "生徒",
+      "chars": 35,
+      "matched": 35,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        218,
+        254
+      ],
+      "memoText": "クラスの子に英語得意だったよねって言われて、今回はちょっとって返したけど",
+      "text": "クラスの子に「英語得意だったよね」って言われて。「今回はちょっと」って返したけど。"
+    },
+    {
+      "line": 13,
+      "speaker": "講師",
+      "chars": 7,
+      "matched": 7,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        255,
+        262
+      ],
+      "memoText": "そう返したんだ",
+      "text": "そう返したんだ。"
+    },
+    {
+      "line": 14,
+      "speaker": "生徒",
+      "chars": 18,
+      "matched": 14,
+      "matchRatio": 0.78,
+      "missing": false,
+      "memoSpan": [
+        263,
+        279
+      ],
+      "memoText": "はい本当は結構きつかったですけど",
+      "text": "はい。本当は、けっこうきつかったですけど。"
+    },
+    {
+      "line": 15,
+      "speaker": "講師",
+      "chars": 3,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "そっか。"
+    },
+    {
+      "line": 16,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 17,
+      "speaker": "講師",
+      "chars": 7,
+      "matched": 7,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        280,
+        287
+      ],
+      "memoText": "何が出たの今回",
+      "text": "何が出たの、今回。"
+    },
+    {
+      "line": 18,
+      "speaker": "生徒",
+      "chars": 62,
+      "matched": 57,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        287,
+        357
+      ],
+      "memoText": "関係代名詞と長文が 2つ長文は 1つは読めたんですけど、もう一つが長くて最後までいけなくて。あと英作文が 10点分あって、そこが 3点でした",
+      "text": "関係代名詞と、長文が二つ。長文は、一つは読めたんですけど、もう一つが長くて、最後まで行けなくて。あと、英作文が、十点分あって、そこが三点でした。"
+    },
+    {
+      "line": 19,
+      "speaker": "講師",
+      "chars": 6,
+      "matched": 5,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        358,
+        365
+      ],
+      "memoText": "英作文が 3点",
+      "text": "英作文が三点。"
+    },
+    {
+      "line": 20,
+      "speaker": "生徒",
+      "chars": 32,
+      "matched": 23,
+      "matchRatio": 0.72,
+      "missing": false,
+      "memoSpan": [
+        365,
+        402
+      ],
+      "memoText": "はい、書けたんですけど、監視とか 3単元とか細かいところでバラバラ引かれて",
+      "text": "はい。書けたんですけど、冠詞とか、三単現とか、細かい所でばらばら引かれて。"
+    },
+    {
+      "line": 21,
+      "speaker": "講師",
+      "chars": 31,
+      "matched": 23,
+      "matchRatio": 0.74,
+      "missing": false,
+      "memoSpan": [
+        403,
+        435
+      ],
+      "memoText": "細かいところでバラバラか塾の確認テストでは英作文割とかけてるよね",
+      "text": "細かい所でばらばらか。塾の確認テストでは、英作文、わりと書けてるよね。"
+    },
+    {
+      "line": 22,
+      "speaker": "生徒",
+      "chars": 76,
+      "matched": 71,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        436,
+        515
+      ],
+      "memoText": "塾のは文法の問題と一緒に出るから、何を使えばいいかわかるんです。学校のは自分の好きな場所について書けみたいに自由に書けって言われて、自分で考えるとボロボロ出て",
+      "text": "塾のは、文法の問題と一緒に出るから、何を使えばいいか分かるんです。学校のは、「自分の好きな場所について書け」みたいに自由に書けって言われて、自分で考えると、ぼろぼろ出て。"
+    },
+    {
+      "line": 23,
+      "speaker": "講師",
+      "chars": 29,
+      "matched": 25,
+      "matchRatio": 0.86,
+      "missing": false,
+      "memoSpan": [
+        516,
+        546
+      ],
+      "memoText": "なるほど、自由に書く形だと知ってるはずの文法がバラバラ抜ける",
+      "text": "なるほど。自由に書く形だと、知ってるはずの文法がばらばら抜ける。"
+    },
+    {
+      "line": 24,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        547,
+        549
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 25,
+      "speaker": "講師",
+      "chars": 39,
+      "matched": 38,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        550,
+        591
+      ],
+      "memoText": "それ一つわかったね。英語の力が落ちたんじゃなくて、自由に書く形に慣れてないってこと",
+      "text": "それ、一つ分かったね。英語の力が落ちたんじゃなくて、自由に書く形に慣れてないってこと。"
+    },
+    {
+      "line": 26,
+      "speaker": "生徒",
+      "chars": 22,
+      "matched": 22,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        592,
+        615
+      ],
+      "memoText": "そうですね。そう言われるとちょっとほっとします",
+      "text": "……そうですね。そう言われると、ちょっと、ほっとします。"
+    },
+    {
+      "line": 27,
+      "speaker": "講師",
+      "chars": 8,
+      "matched": 6,
+      "matchRatio": 0.75,
+      "missing": false,
+      "memoSpan": [
+        616,
+        624
+      ],
+      "memoText": "うん、長文の方は",
+      "text": "うん。長文のほうは？"
+    },
+    {
+      "line": 28,
+      "speaker": "生徒",
+      "chars": 42,
+      "matched": 41,
+      "matchRatio": 0.98,
+      "missing": false,
+      "memoSpan": [
+        625,
+        670
+      ],
+      "memoText": "長文は時間です。関係代名詞の問題に時間かけすぎて、 2つ目の長文が半分くらいしか読めなくて",
+      "text": "長文は、時間です。関係代名詞の問題に時間かけすぎて、二つ目の長文が、半分くらいしか読めなくて。"
+    },
+    {
+      "line": 29,
+      "speaker": "講師",
+      "chars": 21,
+      "matched": 21,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        671,
+        692
+      ],
+      "memoText": "時間配分かそれは模試でも同じことが起きてる",
+      "text": "時間配分か。それは、模試でも同じことが起きてる？"
+    },
+    {
+      "line": 30,
+      "speaker": "生徒",
+      "chars": 29,
+      "matched": 26,
+      "matchRatio": 0.9,
+      "missing": false,
+      "memoSpan": [
+        693,
+        722
+      ],
+      "memoText": "模試はまだ最後まで行ってます。学校のテストの方が量が多くて",
+      "text": "模試は、まだ最後まで行けてます。学校のテストのほうが、量が多くて。"
+    },
+    {
+      "line": 31,
+      "speaker": "講師",
+      "chars": 9,
+      "matched": 9,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        723,
+        732
+      ],
+      "memoText": "学校のテストは何分",
+      "text": "学校のテストは、何分？"
+    },
+    {
+      "line": 32,
+      "speaker": "生徒",
+      "chars": 14,
+      "matched": 10,
+      "matchRatio": 0.71,
+      "missing": false,
+      "memoSpan": [
+        734,
+        750
+      ],
+      "memoText": "50分です。模試は 60分なんで",
+      "text": "五十分です。模試は六十分なんで。"
+    },
+    {
+      "line": 33,
+      "speaker": "講師",
+      "chars": 26,
+      "matched": 25,
+      "matchRatio": 0.96,
+      "missing": false,
+      "memoSpan": [
+        752,
+        778
+      ],
+      "memoText": "0分短くて量が多いじゃあ関係代名詞の問題に何分かけた",
+      "text": "十分短くて、量が多い。じゃあ、関係代名詞の問題に、何分かけた？"
+    },
+    {
+      "line": 34,
+      "speaker": "生徒",
+      "chars": 12,
+      "matched": 10,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        780,
+        792
+      ],
+      "memoText": "20分くらいだと思います",
+      "text": "……二十分くらい、だと思います。"
+    },
+    {
+      "line": 35,
+      "speaker": "講師",
+      "chars": 18,
+      "matched": 13,
+      "matchRatio": 0.72,
+      "missing": false,
+      "memoSpan": [
+        794,
+        814
+      ],
+      "memoText": "20分か長文 2つで 30分だときついね",
+      "text": "二十分か。長文二つで三十分だと、きついね。"
+    },
+    {
+      "line": 36,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        815,
+        817
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 37,
+      "speaker": "講師",
+      "chars": 21,
+      "matched": 21,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        817,
+        839
+      ],
+      "memoText": "そっかで、志望校第一志望は西高で変わってない",
+      "text": "そっか。……で、志望校。第一志望は西高で変わってない？"
+    },
+    {
+      "line": 38,
+      "speaker": "生徒",
+      "chars": 8,
+      "matched": 8,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        840,
+        848
+      ],
+      "memoText": "変わってないです",
+      "text": "変わってないです。"
+    },
+    {
+      "line": 39,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        849,
+        861
+      ],
+      "memoText": "西高は今の模試の判定だと",
+      "text": "西高は、今の模試の判定だと？"
+    },
+    {
+      "line": 40,
+      "speaker": "生徒",
+      "chars": 7,
+      "matched": 5,
+      "matchRatio": 0.71,
+      "missing": false,
+      "memoSpan": [
+        862,
+        870
+      ],
+      "memoText": "9月がシーでした",
+      "text": "九月がＣでした。"
+    },
+    {
+      "line": 41,
+      "speaker": "講師",
+      "chars": 16,
+      "matched": 15,
+      "matchRatio": 0.94,
+      "missing": false,
+      "memoSpan": [
+        872,
+        888
+      ],
+      "memoText": "Cね。英語が戻ればは見えると思う",
+      "text": "Ｃね。英語が戻れば、Ｂは見えると思う。"
+    },
+    {
+      "line": 42,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 43,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        889,
+        901
+      ],
+      "memoText": "西高は何がいいと思ってる",
+      "text": "西高は、何がいいと思ってる？"
+    },
+    {
+      "line": 44,
+      "speaker": "生徒",
+      "chars": 33,
+      "matched": 31,
+      "matchRatio": 0.94,
+      "missing": false,
+      "memoSpan": [
+        901,
+        935
+      ],
+      "memoText": "のコースがあって、英語の授業が多いんです。先輩が留学の制度もあるって",
+      "text": "国際のコースがあって、英語の授業が多いんです。先輩が、留学の制度もあるって。"
+    },
+    {
+      "line": 45,
+      "speaker": "講師",
+      "chars": 10,
+      "matched": 10,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        936,
+        946
+      ],
+      "memoText": "そこは変わってないね",
+      "text": "そこは、変わってないね。"
+    },
+    {
+      "line": 46,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        947,
+        949
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 47,
+      "speaker": "講師",
+      "chars": 3,
+      "matched": 1,
+      "matchRatio": 0.33,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "併願は？"
+    },
+    {
+      "line": 48,
+      "speaker": "生徒",
+      "chars": 42,
+      "matched": 40,
+      "matchRatio": 0.95,
+      "missing": false,
+      "memoSpan": [
+        950,
+        994
+      ],
+      "memoText": "まだ決めてないです。それで聞きたかったんですけど、平岸っていつまでに決めればいいんですか",
+      "text": "まだ決めてないです。それで、聞きたかったんですけど、併願って、いつまでに決めればいいんですか。"
+    },
+    {
+      "line": 49,
+      "speaker": "講師",
+      "chars": 290,
+      "matched": 259,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        995,
+        1310
+      ],
+      "memoText": "平願ね。えっとね、私立の推薦は 12月の中旬に学校の先生との相談があって、 1月の頭に出願だからそこまでには決めることになる。一般で受けるなら、 1月の中旬が出願で試験が 1月の終わりから 2月の頭だから遅くとも 12月の頭にはどこを受けるか決まってると楽。それまでに説明会に行ってほしくて、私立の説明会は 11月が一番多いから、 10月の今のうちに 2校か 3校候補を出しておきたい。塾の方でも 11月の最初に進路の説明会があって、そこで平岸の組み方の話もするから、お家の方と一緒に来てほしい。あと冬季講習は 12月二十3日からで、中三は入試の形の問題を毎日やるから、平願校が決まっていれば、その学校の過去問も講習の中で見られる",
+      "text": "併願ね。えっとね、私立の推薦は十二月の中旬に学校の先生との相談があって、一月の頭に出願だから、そこまでには決めることになる。一般で受けるなら、一月の中旬が出願で、試験が一月の終わりから二月の頭。だから、遅くとも十二月の頭には、どこを受けるか決まってると楽。それまでに、説明会に行ってほしくて、私立の説明会は十一月がいちばん多いから、十月の今のうちに、二校か三校、候補を出しておきたい。塾のほうでも、十一月の最初に進路の説明会があって、そこで併願の組み方の話もするから、おうちの方と一緒に来てほしい。あと、冬期講習は十二月二十三日からで、中三は入試の形の問題を毎日やるから、併願校が決まってれば、その学校の過去問も講習の中で見られる。"
+    },
+    {
+      "line": 50,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1311,
+        1313
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 51,
+      "speaker": "講師",
+      "chars": 99,
+      "matched": 92,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        1314,
+        1423
+      ],
+      "memoText": "私立はね、推薦と一般で見られるところが違うの。推薦は内心が中心で、一般は当日の点だから内心がどのくらいかでどっちで受けるかも変わってくれる。 2学期の成績が内心に入るから、今回の中間と 11月の期末がそこに関わってくる",
+      "text": "私立はね、推薦と一般で、見られる所が違うの。推薦は内申が中心で、一般は当日の点。だから、内申がどのくらいかで、どっちで受けるかも変わってくる。二学期の成績が内申に入るから、今回の中間と、十一月の期末が、そこに関わってくる。"
+    },
+    {
+      "line": 52,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1424,
+        1426
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 53,
+      "speaker": "講師",
+      "chars": 89,
+      "matched": 77,
+      "matchRatio": 0.87,
+      "missing": false,
+      "memoSpan": [
+        1427,
+        1526
+      ],
+      "memoText": "それとね、私立の一般は 3教科のところと 5教科のころがあって、東学院は 3教科緑大は 5教科。 3教科だと英語の廃点が大きくなる学校もある。だから英語をどこまで戻すかでどっちが有利かも変わってくる",
+      "text": "それとね、私立の一般は、三教科の所と五教科の所があって、東学院は三教科、みどり台は五教科。三教科だと、英語の配点が大きくなる学校もある。だから、英語をどこまで戻すかで、どっちが有利かも変わってくる。"
+    },
+    {
+      "line": 54,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1527,
+        1529
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 55,
+      "speaker": "講師",
+      "chars": 13,
+      "matched": 13,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1529,
+        1543
+      ],
+      "memoText": "で、今気になってる私立はある",
+      "text": "で、今、気になってる私立はある？"
+    },
+    {
+      "line": 56,
+      "speaker": "生徒",
+      "chars": 28,
+      "matched": 25,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        1544,
+        1571
+      ],
+      "memoText": "東学院とあとお母さんが言ってたのは、駅の近くの緑台です",
+      "text": "東学院と、あと、お母さんが言ってたのは、駅の近くの、みどり台です。"
+    },
+    {
+      "line": 57,
+      "speaker": "講師",
+      "chars": 66,
+      "matched": 60,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        1572,
+        1637
+      ],
+      "memoText": "東学院と緑台ね。東学院は英語に力入れてるから合うかもね。緑台は西高と同じ日に試験がないから組みやすい。両方説明会の日程調べておくね",
+      "text": "東学院とみどり台ね。東学院は英語に力入れてるから、合うかもね。みどり台は、西高と同じ日に試験がないから、組みやすい。両方、説明会の日程、調べておくね。"
+    },
+    {
+      "line": 58,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1638,
+        1640
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 59,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1641,
+        1653
+      ],
+      "memoText": "東学院は自分で見つけたの",
+      "text": "東学院は、自分で見つけたの？"
+    },
+    {
+      "line": 60,
+      "speaker": "生徒",
+      "chars": 37,
+      "matched": 36,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        1654,
+        1693
+      ],
+      "memoText": "部活の先輩が言ってて、英語でディベートの授業があるって聞いてちょっといいなって",
+      "text": "部活の先輩が行ってて。英語でディベートの授業があるって聞いて、ちょっといいなって。"
+    },
+    {
+      "line": 61,
+      "speaker": "講師",
+      "chars": 5,
+      "matched": 5,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1694,
+        1700
+      ],
+      "memoText": "ディベートか",
+      "text": "ディベートか。"
+    },
+    {
+      "line": 62,
+      "speaker": "生徒",
+      "chars": 16,
+      "matched": 16,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1701,
+        1717
+      ],
+      "memoText": "はいでも学費が高いってお母さんが",
+      "text": "はい。でも、学費が高いって、お母さんが。"
+    },
+    {
+      "line": 63,
+      "speaker": "講師",
+      "chars": 16,
+      "matched": 14,
+      "matchRatio": 0.88,
+      "missing": false,
+      "memoSpan": [
+        1718,
+        1734
+      ],
+      "memoText": "そっか、そこはお家の方と相談だね",
+      "text": "そっか。そこは、おうちの方と相談だね。"
+    },
+    {
+      "line": 64,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1735,
+        1737
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 65,
+      "speaker": "講師",
+      "chars": 41,
+      "matched": 41,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1738,
+        1780
+      ],
+      "memoText": "学費のことは説明会で特待の制度も聞いてみるといいよ。成績で学費が変わる学校もあるから",
+      "text": "学費のことは、説明会で、特待の制度も聞いてみるといいよ。成績で学費が変わる学校もあるから。"
+    },
+    {
+      "line": 66,
+      "speaker": "生徒",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1781,
+        1794
+      ],
+      "memoText": "あ、そういうのあるんですね",
+      "text": "あ、そういうのあるんですね。"
+    },
+    {
+      "line": 67,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 9,
+      "matchRatio": 0.75,
+      "missing": false,
+      "memoSpan": [
+        1795,
+        1807
+      ],
+      "memoText": "あるよ。東学院は多分ある",
+      "text": "あるよ。東学院は、たぶんある。"
+    },
+    {
+      "line": 68,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1808,
+        1810
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 69,
+      "speaker": "講師",
+      "chars": 11,
+      "matched": 8,
+      "matchRatio": 0.73,
+      "missing": false,
+      "memoSpan": [
+        1811,
+        1820
+      ],
+      "memoText": "緑台はどう思ってる",
+      "text": "みどり台は、どう思ってる？"
+    },
+    {
+      "line": 70,
+      "speaker": "生徒",
+      "chars": 29,
+      "matched": 29,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1821,
+        1851
+      ],
+      "memoText": "正直あんまり駅が近いのはいいんですけど、何があるか知らなくて",
+      "text": "……正直、あんまり。駅が近いのはいいんですけど、何があるか知らなくて。"
+    },
+    {
+      "line": 71,
+      "speaker": "講師",
+      "chars": 42,
+      "matched": 42,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1852,
+        1895
+      ],
+      "memoText": "知らないか説明会に行ってから決めればいいよ。行ってみると思ってたのと違うことも多いから",
+      "text": "知らないか。説明会に行ってから決めればいいよ。行ってみると、思ってたのと違うことも多いから。"
+    },
+    {
+      "line": 72,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1896,
+        1898
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 73,
+      "speaker": "講師",
+      "chars": 40,
+      "matched": 38,
+      "matchRatio": 0.95,
+      "missing": false,
+      "memoSpan": [
+        1899,
+        1941
+      ],
+      "memoText": "過去問は 11月の模試が終わってからでいいよ。今やると点が出なくて落ち込むだけだから",
+      "text": "過去問は、十一月の模試が終わってからでいいよ。今やると、点が出なくて落ち込むだけだから。"
+    },
+    {
+      "line": 74,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1941,
+        1943
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 75,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1944,
+        1958
+      ],
+      "memoText": "で、英語なんだけど、どうする",
+      "text": "で、英語なんだけど、どうする？"
+    },
+    {
+      "line": 76,
+      "speaker": "生徒",
+      "chars": 10,
+      "matched": 10,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        1960,
+        1970
+      ],
+      "memoText": "英作文練習したいです",
+      "text": "……英作文、練習したいです。"
+    },
+    {
+      "line": 77,
+      "speaker": "講師",
+      "chars": 39,
+      "matched": 38,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        1971,
+        2013
+      ],
+      "memoText": "うん、じゃあ塾の授業の後に毎回 1本自由作文を書いて先生に出す。先生が直して返すどう",
+      "text": "うん。じゃあ、塾の授業の後に、毎回一本、自由作文を書いて、先生に出す。先生が直して返す。どう？"
+    },
+    {
+      "line": 78,
+      "speaker": "生徒",
+      "chars": 6,
+      "matched": 6,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2013,
+        2019
+      ],
+      "memoText": "はいやります",
+      "text": "はい。やります。"
+    },
+    {
+      "line": 79,
+      "speaker": "講師",
+      "chars": 20,
+      "matched": 16,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        2020,
+        2044
+      ],
+      "memoText": "テーマは先生が出す。 55くらいで時間は 10分",
+      "text": "テーマは先生が出す。五十語くらいで。時間は十分。"
+    },
+    {
+      "line": 80,
+      "speaker": "生徒",
+      "chars": 12,
+      "matched": 8,
+      "matchRatio": 0.67,
+      "missing": false,
+      "memoSpan": [
+        2047,
+        2059
+      ],
+      "memoText": "0分で 55書けますかね",
+      "text": "十分で五十語……書けますかね。"
+    },
+    {
+      "line": 81,
+      "speaker": "講師",
+      "chars": 15,
+      "matched": 14,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        2060,
+        2075
+      ],
+      "memoText": "最初は書けなくていいかける量で",
+      "text": "最初は書けなくていい。書ける量で。"
+    },
+    {
+      "line": 82,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 83,
+      "speaker": "講師",
+      "chars": 56,
+      "matched": 51,
+      "matchRatio": 0.91,
+      "missing": false,
+      "memoSpan": [
+        2075,
+        2134
+      ],
+      "memoText": "書いたら自分で 1回読み返して 3単元と監視だけチェックしてから出して、先生が直す前に自分で見つけられた分は覚えるから",
+      "text": "書いたら、自分で一回読み返して、三単現と冠詞だけチェックしてから出して。先生が直す前に、自分で見つけられた分は、覚えるから。"
+    },
+    {
+      "line": 84,
+      "speaker": "生徒",
+      "chars": 6,
+      "matched": 2,
+      "matchRatio": 0.33,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "三単現と冠詞。"
+    },
+    {
+      "line": 85,
+      "speaker": "講師",
+      "chars": 11,
+      "matched": 9,
+      "matchRatio": 0.82,
+      "missing": false,
+      "memoSpan": [
+        2143,
+        2154
+      ],
+      "memoText": "そうその 2つだけでい",
+      "text": "そう、その二つだけでいい。"
+    },
+    {
+      "line": 86,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 1,
+      "matchRatio": 0.5,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 87,
+      "speaker": "講師",
+      "chars": 17,
+      "matched": 17,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2155,
+        2173
+      ],
+      "memoText": "で、学校の英語の先生には何か言われた",
+      "text": "で、学校の英語の先生には、何か言われた？"
+    },
+    {
+      "line": 88,
+      "speaker": "生徒",
+      "chars": 14,
+      "matched": 14,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2173,
+        2187
+      ],
+      "memoText": "らしくないねって言われました",
+      "text": "「らしくないね」って言われました。"
+    },
+    {
+      "line": 89,
+      "speaker": "講師",
+      "chars": 3,
+      "matched": 3,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2188,
+        2191
+      ],
+      "memoText": "そっか",
+      "text": "そっか。"
+    },
+    {
+      "line": 90,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2191,
+        2193
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 91,
+      "speaker": "講師",
+      "chars": 27,
+      "matched": 25,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        2193,
+        2223
+      ],
+      "memoText": "ちょっと聞くけど、今日の面談先生何点 10点満点で点数つけて",
+      "text": "ちょっと聞くけど、今日の面談、先生、何点？　十点満点で点数付けて。"
+    },
+    {
+      "line": 92,
+      "speaker": "生徒",
+      "chars": 5,
+      "matched": 3,
+      "matchRatio": 0.6,
+      "missing": false,
+      "memoSpan": [
+        2224,
+        2227
+      ],
+      "memoText": "点とか",
+      "text": "え……。九点とか。"
+    },
+    {
+      "line": 93,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 11,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2227,
+        2241
+      ],
+      "memoText": "お高いね。なんで 1点引いた",
+      "text": "お、高いね。なんで一点引いた？"
+    },
+    {
+      "line": 94,
+      "speaker": "生徒",
+      "chars": 18,
+      "matched": 15,
+      "matchRatio": 0.83,
+      "missing": false,
+      "memoSpan": [
+        2241,
+        2259
+      ],
+      "memoText": "なんか閉岸の話がちょっと長くったかも",
+      "text": "……なんか、併願の話が、ちょっと長かった、かも。"
+    },
+    {
+      "line": 95,
+      "speaker": "講師",
+      "chars": 25,
+      "matched": 23,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2260,
+        2284
+      ],
+      "memoText": "そうか確かに一気に話したね。じゃあ残りは短くする",
+      "text": "はは、そうか。確かに、一気に話したね。じゃあ、残りは短くする。"
+    },
+    {
+      "line": 96,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2285,
+        2287
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 97,
+      "speaker": "講師",
+      "chars": 14,
+      "matched": 10,
+      "matchRatio": 0.71,
+      "missing": false,
+      "memoSpan": [
+        2289,
+        2304
+      ],
+      "memoText": "11月の模試は 15日だったね",
+      "text": "十一月の模試は、十五日だったね。"
+    },
+    {
+      "line": 98,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2305,
+        2307
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 99,
+      "speaker": "講師",
+      "chars": 5,
+      "matched": 5,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2307,
+        2312
+      ],
+      "memoText": "英語目標は",
+      "text": "英語、目標は？"
+    },
+    {
+      "line": 100,
+      "speaker": "生徒",
+      "chars": 10,
+      "matched": 7,
+      "matchRatio": 0.7,
+      "missing": false,
+      "memoSpan": [
+        2314,
+        2323
+      ],
+      "memoText": "75は取りたいです",
+      "text": "七十五……は、取りたいです。"
+    },
+    {
+      "line": 101,
+      "speaker": "講師",
+      "chars": 20,
+      "matched": 20,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2324,
+        2345
+      ],
+      "memoText": "うん、自由作文を毎回出してればそこは戻るよ",
+      "text": "うん。自由作文を毎回出してれば、そこは戻るよ。"
+    },
+    {
+      "line": 102,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 103,
+      "speaker": "講師",
+      "chars": 12,
+      "matched": 12,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2346,
+        2358
+      ],
+      "memoText": "長文の時間配分はどうする",
+      "text": "長文の時間配分は、どうする？"
+    },
+    {
+      "line": 104,
+      "speaker": "生徒",
+      "chars": 16,
+      "matched": 16,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2360,
+        2376
+      ],
+      "memoText": "先に長文を読んで文法を後にします",
+      "text": "……先に長文を読んで、文法を後にします。"
+    },
+    {
+      "line": 105,
+      "speaker": "講師",
+      "chars": 8,
+      "matched": 8,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2377,
+        2385
+      ],
+      "memoText": "順番を変えるんだ",
+      "text": "順番を変えるんだ。"
+    },
+    {
+      "line": 106,
+      "speaker": "生徒",
+      "chars": 16,
+      "matched": 10,
+      "matchRatio": 0.63,
+      "missing": false,
+      "memoSpan": [
+        2386,
+        2397
+      ],
+      "memoText": "はい文の方が大きいんで",
+      "text": "はい。長文のほうが配点が大きいんで。"
+    },
+    {
+      "line": 107,
+      "speaker": "講師",
+      "chars": 10,
+      "matched": 8,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        2397,
+        2405
+      ],
+      "memoText": "うんで試してみて",
+      "text": "うん。模試で試してみて。"
+    },
+    {
+      "line": 108,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 109,
+      "speaker": "講師",
+      "chars": 37,
+      "matched": 36,
+      "matchRatio": 0.97,
+      "missing": false,
+      "memoSpan": [
+        2405,
+        2442
+      ],
+      "memoText": "それと関係名詞は確認テストでは取れてたよね。学校のテストで落としたのはどこ",
+      "text": "それと、関係代名詞は、確認テストでは取れてたよね。学校のテストで落としたのは、どこ？"
+    },
+    {
+      "line": 110,
+      "speaker": "生徒",
+      "chars": 29,
+      "matched": 19,
+      "matchRatio": 0.66,
+      "missing": false,
+      "memoSpan": [
+        2444,
+        2473
+      ],
+      "memoText": "ウィッチとザットの使い分けと省略できるかどうかのところです",
+      "text": "……which と that の使い分けと、省略できるかどうかの所です。"
+    },
+    {
+      "line": 111,
+      "speaker": "講師",
+      "chars": 14,
+      "matched": 13,
+      "matchRatio": 0.93,
+      "missing": false,
+      "memoSpan": [
+        2474,
+        2490
+      ],
+      "memoText": "省略のところかそれは授業で聞いて",
+      "text": "省略の所か。それは、授業で聞いて。"
+    },
+    {
+      "line": 112,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 1,
+      "matchRatio": 0.5,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 113,
+      "speaker": "講師",
+      "chars": 5,
+      "matched": 4,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        2492,
+        2497
+      ],
+      "memoText": "3者面談は",
+      "text": "三者面談は？"
+    },
+    {
+      "line": 114,
+      "speaker": "生徒",
+      "chars": 9,
+      "matched": 7,
+      "matchRatio": 0.78,
+      "missing": false,
+      "memoSpan": [
+        2498,
+        2507
+      ],
+      "memoText": "11月の終わりです",
+      "text": "十一月の終わりです。"
+    },
+    {
+      "line": 115,
+      "speaker": "講師",
+      "chars": 27,
+      "matched": 21,
+      "matchRatio": 0.78,
+      "missing": false,
+      "memoSpan": [
+        2508,
+        2538
+      ],
+      "memoText": "そこまでに閉岸の候補 2校か 3校説明会は 1つは言っておく",
+      "text": "そこまでに、併願の候補、二校か三校。説明会は一つは行っておく。"
+    },
+    {
+      "line": 116,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 0,
+      "matchRatio": 0,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 117,
+      "speaker": "講師",
+      "chars": 15,
+      "matched": 12,
+      "matchRatio": 0.8,
+      "missing": false,
+      "memoSpan": [
+        2539,
+        2555
+      ],
+      "memoText": "他の教科は何か気になるところある",
+      "text": "ほかの教科は、何か気になる所ある？"
+    },
+    {
+      "line": 118,
+      "speaker": "生徒",
+      "chars": 27,
+      "matched": 23,
+      "matchRatio": 0.85,
+      "missing": false,
+      "memoSpan": [
+        2556,
+        2585
+      ],
+      "memoText": "数学は割と取れたんで、理科がちょっと科学式のところで何個か",
+      "text": "数学は、わりと取れたんで。理科が、ちょっと。化学式の所で、何個か。"
+    },
+    {
+      "line": 119,
+      "speaker": "講師",
+      "chars": 13,
+      "matched": 12,
+      "matchRatio": 0.92,
+      "missing": false,
+      "memoSpan": [
+        2586,
+        2600
+      ],
+      "memoText": "科学式ね。それは授業で聞いて",
+      "text": "化学式ね。それは、授業で聞いて。"
+    },
+    {
+      "line": 120,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 1,
+      "matchRatio": 0.5,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 121,
+      "speaker": "講師",
+      "chars": 16,
+      "matched": 13,
+      "matchRatio": 0.81,
+      "missing": false,
+      "memoSpan": [
+        2601,
+        2619
+      ],
+      "memoText": "学校の 3者面談ではなんていうつもり",
+      "text": "学校の三者面談では、何て言うつもり？"
+    },
+    {
+      "line": 122,
+      "speaker": "生徒",
+      "chars": 20,
+      "matched": 17,
+      "matchRatio": 0.85,
+      "missing": false,
+      "memoSpan": [
+        2620,
+        2642
+      ],
+      "memoText": "西高が第一志望で、平岸は 2つ候補があるって",
+      "text": "西高が第一志望で、併願は二つ候補がある、って。"
+    },
+    {
+      "line": 123,
+      "speaker": "講師",
+      "chars": 7,
+      "matched": 6,
+      "matchRatio": 0.86,
+      "missing": false,
+      "memoSpan": [
+        2643,
+        2650
+      ],
+      "memoText": "うん、それでい",
+      "text": "うん。それでいい。"
+    },
+    {
+      "line": 124,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 1,
+      "matchRatio": 0.5,
+      "missing": true,
+      "memoSpan": null,
+      "memoText": null,
+      "text": "はい。"
+    },
+    {
+      "line": 125,
+      "speaker": "講師",
+      "chars": 33,
+      "matched": 31,
+      "matchRatio": 0.94,
+      "missing": false,
+      "memoSpan": [
+        2652,
+        2686
+      ],
+      "memoText": "お母さんには今日の話先生から電話しておくね。平岸の候補と説明会のこと",
+      "text": "お母さんには、今日の話、先生から電話しておくね。併願の候補と、説明会のこと。"
+    },
+    {
+      "line": 126,
+      "speaker": "生徒",
+      "chars": 8,
+      "matched": 8,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2687,
+        2696
+      ],
+      "memoText": "はい、お願いします",
+      "text": "はい。お願いします。"
+    },
+    {
+      "line": 127,
+      "speaker": "講師",
+      "chars": 13,
+      "matched": 13,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2697,
+        2710
+      ],
+      "memoText": "学費のことも少し聞いておく",
+      "text": "学費のことも、少し聞いておく。"
+    },
+    {
+      "line": 128,
+      "speaker": "生徒",
+      "chars": 2,
+      "matched": 2,
+      "matchRatio": 1,
+      "missing": false,
+      "memoSpan": [
+        2711,
+        2713
+      ],
+      "memoText": "はい",
+      "text": "はい。"
+    },
+    {
+      "line": 129,
+      "speaker": "講師",
+      "chars": 18,
+      "matched": 16,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        2713,
+        2730
+      ],
+      "memoText": "じゃあ今日はここまでこの後授業だね",
+      "text": "じゃあ、今日はここまで。このあと授業だね。"
+    },
+    {
+      "line": 130,
+      "speaker": "生徒",
+      "chars": 13,
+      "matched": 11,
+      "matchRatio": 0.85,
+      "missing": false,
+      "memoSpan": [
+        2731,
+        2742
+      ],
+      "memoText": "はいありがございました",
+      "text": "はい。ありがとうございました。"
+    },
+    {
+      "line": 131,
+      "speaker": "講師",
+      "chars": 63,
+      "matched": 56,
+      "matchRatio": 0.89,
+      "missing": false,
+      "memoSpan": [
+        2742,
+        2804
+      ],
+      "memoText": "まだってる。この面談講師としての点数をつけてください。 10点満点で私は何点の講師か前回の面談より良くなったかどうかも一言で",
+      "text": "あ、録音、まだ回ってるな。……この面談、講師としての点数を付けてください。十点満点で、私は何点の講師か。前回の面談より良くなったかどうかも、一言で。"
+    }
+  ]
+}
