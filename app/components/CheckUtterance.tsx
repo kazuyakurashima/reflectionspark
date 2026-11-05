@@ -59,6 +59,61 @@ export function CheckUtterance({
     if (draft === (u.text ?? "")) return;
     onChange({ ...u, text: draft, check: [...u.check.filter((c) => c !== CHECK_EDITED_BY_USER), CHECK_EDITED_BY_USER] });
   };
+  const beforeMarks = [...(corrected ? corrections.map((c) => c.before) : []), ...guesses.map((g) => g.fragment)];
+  const actions = (
+    <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs">
+      <button type="button" onClick={() => setEditing(true)} className="text-sky-800 hover:underline">
+        本文を直す
+      </button>
+      {u.text !== u.original && (
+        <button type="button" onClick={revertToOriginal} className="text-sky-800 hover:underline">
+          元の文に戻す
+        </button>
+      )}
+    </span>
+  );
+  const editor = (
+    <div className="px-2">
+      <textarea
+        ref={areaRef}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        rows={3}
+        className="w-full rounded border border-stone-300 bg-white p-2 text-sm"
+        aria-label={`発話 ${u.index} の本文`}
+      />
+      <div className="mt-1 flex flex-wrap gap-2 text-sm">
+        <button type="button" onClick={commitText} className="rounded bg-stone-800 px-3 py-1 text-white">
+          この文にする
+        </button>
+        {onSplit && (
+          <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className="rounded border border-stone-300 bg-white px-3 py-1 disabled:opacity-40" title="本文の中でカーソルを置いた所で、2 つの発話に分けます">
+            カーソルの位置で分ける
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            setDraft(u.text ?? "");
+            setEditing(false);
+          }}
+          className="rounded border border-stone-300 bg-white px-3 py-1"
+        >
+          やめる
+        </button>
+      </div>
+    </div>
+  );
+  const guessBox = guesses.length > 0 && (
+    <div className="mt-1 space-y-1 rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-1.5 text-sm">
+      {guesses.map((g, i) => (
+        <div key={i}>
+          <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
+          <span className="ml-1 text-xs text-stone-600">（手がかり：{g.clue}）。推測は分析には使いません。</span>
+        </div>
+      ))}
+    </div>
+  );
   return (
     <div className={`rounded border px-3 py-2 ${u.confidence === "低" ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white"}`}>
       <div className="flex flex-wrap items-center gap-2 text-xs text-stone-600">
@@ -84,101 +139,86 @@ export function CheckUtterance({
           </span>
         ))}
       </div>
-      {(corrected || guesses.length > 0) && (
-        <div className="mt-2 space-y-1 rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-2 text-sm">
-          {corrected &&
-            corrections.map((c, i) => (
-              <div key={`c${i}`}>
-                <span className="font-bold">Claude が直した：</span>「<mark className={MARK_BEFORE}>{c.before}</mark>」→「<mark className={MARK_AFTER}>{c.after}</mark>」
-                <span className="ml-1 text-xs text-stone-600">（{c.kind}）</span>
-              </div>
-            ))}
-          {guesses.map((g, i) => (
-            <div key={`g${i}`}>
-              <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.fragment}</mark>」→「<mark className={MARK_AFTER}>{g.guess}</mark>」
-              <span className="ml-1 text-xs text-stone-600">手がかり：{g.clue}。推測は分析には使いません。</span>
-            </div>
-          ))}
+      {showContext ? (
+        <div className="mt-2 space-y-3">
+          {corrected ? (
+            <>
+              <Block title="直す前（元の文字起こし）" hint="色の付いた所が、聞き違いと思われる所です。">
+                {before.map((n) => (
+                  <Line key={n.index} n={n} text={n.original} />
+                ))}
+                <Line n={u} text={u.original} target marks={beforeMarks} markClass={MARK_BEFORE} />
+                {after.map((n) => (
+                  <Line key={n.index} n={n} text={n.original} />
+                ))}
+              </Block>
+              <Block title="直した後（Claude の直し）" hint={`色の付いた所が、Claude が直した所です（${[...new Set(corrections.map((c) => c.kind))].join("、")}）。違っていたら「元の文に戻す」か「本文を直す」。`}>
+                {before.map((n) => (
+                  <Line key={n.index} n={n} text={n.text ?? n.original} />
+                ))}
+                {editing ? editor : <Line n={u} text={text} target marks={corrections.map((c) => c.after)} markClass={MARK_AFTER} actions={actions} />}
+                {after.map((n) => (
+                  <Line key={n.index} n={n} text={n.text ?? n.original} />
+                ))}
+              </Block>
+            </>
+          ) : (
+            <Block title="会話" hint={guesses.length > 0 ? "色の付いた所が、意味が通らないと Claude が見た所です。" : ""}>
+              {before.map((n) => (
+                <Line key={n.index} n={n} text={n.text ?? n.original} />
+              ))}
+              {editing ? editor : <Line n={u} text={text} target marks={guesses.map((g) => g.fragment)} markClass={MARK_BEFORE} actions={actions} />}
+              {after.map((n) => (
+                <Line key={n.index} n={n} text={n.text ?? n.original} />
+              ))}
+            </Block>
+          )}
+          {guessBox}
         </div>
-      )}
-      <div className={showContext ? "mt-2 space-y-1" : ""}>
-        {before.map((n) => (
-          <ContextLine key={n.index} n={n} />
-        ))}
-        {editing ? (
-          <div className="mt-2">
-            <textarea
-              ref={areaRef}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={3}
-              className="w-full rounded border border-stone-300 p-2 text-sm"
-              aria-label={`発話 ${u.index} の本文`}
-            />
-            <div className="mt-1 flex flex-wrap gap-2 text-sm">
-              <button type="button" onClick={commitText} className="rounded bg-stone-800 px-3 py-1 text-white">
-                この文にする
-              </button>
-              {onSplit && (
-                <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className="rounded border border-stone-300 px-3 py-1 disabled:opacity-40" title="本文の中でカーソルを置いた所で、2 つの発話に分けます">
-                  カーソルの位置で分ける
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setDraft(u.text ?? "");
-                  setEditing(false);
-                }}
-                className="rounded border border-stone-300 px-3 py-1"
-              >
-                やめる
-              </button>
+      ) : (
+        <>
+          {editing ? (
+            <div className="mt-2">{editor}</div>
+          ) : (
+            <div className="mt-1 flex items-start gap-2">
+              <p className="grow whitespace-pre-wrap text-sm">{corrected ? marked(text, corrections.map((c) => c.after), MARK_AFTER) : text}</p>
+              {actions}
             </div>
-          </div>
-        ) : (
-          <div className={`flex items-start gap-2 ${showContext ? "rounded bg-white px-2 py-1 ring-1 ring-stone-300" : "mt-1"}`}>
-            {showContext && <span className="shrink-0 pt-0.5 text-xs font-bold text-stone-700">▶ {u.speaker}</span>}
-            <p className="grow whitespace-pre-wrap text-sm">{corrected ? marked(text, corrections.map((c) => c.after), MARK_AFTER) : text}</p>
-            <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs">
-              <button type="button" onClick={() => setEditing(true)} className="text-sky-800 hover:underline">
-                本文を直す
-              </button>
-              {u.text !== u.original && (
-                <button type="button" onClick={revertToOriginal} className="text-sky-800 hover:underline">
-                  元の文に戻す
-                </button>
-              )}
-            </span>
-          </div>
-        )}
-        {after.map((n) => (
-          <ContextLine key={n.index} n={n} />
-        ))}
-      </div>
-      {(corrected || u.text !== u.original || guesses.length > 0) && (
-        <div className="mt-1 text-xs text-stone-500">
-          元の文字起こし：{marked(u.original, [...(corrected ? corrections.map((c) => c.before) : []), ...guesses.map((g) => g.fragment)], MARK_BEFORE)}
-        </div>
+          )}
+          {guessBox}
+          {u.text !== u.original && <div className="mt-1 text-xs text-stone-500">元の文字起こし：{marked(u.original, beforeMarks, MARK_BEFORE)}</div>}
+        </>
       )}
+    </div>
+  );
+}
+
+function Block({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
+  return (
+    <div>
+      <div className="text-xs font-bold text-stone-700">{title}</div>
+      {hint && <div className="text-xs text-stone-500">{hint}</div>}
+      <div className="mt-1 space-y-0.5 rounded border border-stone-200 bg-stone-50 py-1">{children}</div>
+    </div>
+  );
+}
+
+/** 会話の一行。target は確かめる発話 */
+function Line({ n, text, target = false, marks = [], markClass = "", actions }: { n: Utterance; text: string; target?: boolean; marks?: string[]; markClass?: string; actions?: ReactNode }) {
+  return (
+    <div className={`flex items-start gap-2 px-2 py-0.5 text-sm ${target ? "mx-1 rounded bg-white ring-1 ring-stone-400" : "text-stone-500"}`}>
+      <span className="w-7 shrink-0 pt-0.5 text-right font-mono text-xs">{n.index}</span>
+      <span className={`w-12 shrink-0 font-semibold ${target ? "text-stone-900" : ""}`}>{n.speaker}</span>
+      <span className="grow whitespace-pre-wrap">{marked(text, marks, markClass)}</span>
+      {actions}
     </div>
   );
 }
 
 /** 前後に並べる発話の数（前と後それぞれ） */
 const CONTEXT = 2;
-const MARK_BEFORE = "rounded bg-stone-200 px-0.5 text-stone-700 line-through decoration-stone-400";
-const MARK_AFTER = "rounded bg-yellow-200 px-0.5 font-semibold text-stone-900";
-
-function ContextLine({ n }: { n: Utterance }) {
-  return (
-    <div className="flex gap-2 px-2 text-xs text-stone-500">
-      <span className="shrink-0 font-mono">{n.index}</span>
-      <span className="shrink-0 font-semibold">{n.speaker}</span>
-      <span className="whitespace-pre-wrap">{n.text ?? n.original}</span>
-    </div>
-  );
-}
+const MARK_BEFORE = "rounded bg-orange-200 px-0.5 font-semibold text-stone-900";
+const MARK_AFTER = "rounded bg-emerald-200 px-0.5 font-semibold text-stone-900";
 
 /** 文の中の needles に印を付ける（最初に見つかった所から順に。長いものを先に当てる） */
 function marked(text: string, needles: string[], className: string): ReactNode {
