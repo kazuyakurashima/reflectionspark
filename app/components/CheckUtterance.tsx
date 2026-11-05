@@ -148,9 +148,11 @@ export function CheckUtterance({
         <p className="mt-2 rounded bg-sky-50 px-2 py-1 text-sm text-sky-900">
           <span className="font-bold">確かめること：</span>
           {ask === "speaker"
-            ? `発話 ${u.index} を言ったのは「${u.speaker}」で合っていますか。違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
+            ? corrected
+              ? `「${u.speaker}が『${corrections.map((c) => c.after).join("…")}』と言った」で合っていますか。話者が違えば上の［${self}｜${other}］で入れ替え、言葉が違えば「元の文に戻す」か「本文を直す」。合っていれば何もしなくてかまいません。`
+              : `発話 ${u.index} を言ったのは「${u.speaker}」で合っていますか。違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
             : `発話 ${u.index} に二人の言葉が混ざっていないか。混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。`}
-          {ask === "speaker" && corrected && "（この発話には聞き違いの直しもあります。下の 2 つの会話で見比べられます）"}
+          {ask === "speaker" && u.confidenceReason && <span className="text-xs text-sky-800">（Claude が迷った理由：{u.confidenceReason}）</span>}
         </p>
       )}
       {showContext ? (
