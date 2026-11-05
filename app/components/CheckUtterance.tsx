@@ -9,7 +9,8 @@ import type { ReactNode } from "react";
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import { CHECK_EDITED_BY_USER } from "@/app/lib/view";
-import { correctionsOf, guessesOf } from "./UtteranceView";
+import { guessViews } from "@/app/lib/check-groups.mts";
+import { correctionsOf } from "./UtteranceView";
 
 export function CheckUtterance({
   t,
@@ -41,7 +42,8 @@ export function CheckUtterance({
     setEditing(false);
     onSplit(u, pos);
   };
-  const guesses = guessesOf(t, u.index);
+  /** まだ本文に入っていない推測だけ（0b の直しで同じ言葉になったものは出さない） */
+  const guesses = guessViews(t, u);
   const corrections = correctionsOf(t, u.index);
   const corrected = corrections.length > 0 && u.text !== u.original;
   const flags = u.check.filter((c) => !c.startsWith("話者の確からしさが中"));
@@ -65,6 +67,7 @@ export function CheckUtterance({
   /** 前後の発話にも Claude の直しがあれば、同じ色を付ける（直す前と直した後で見比べられるように） */
   const nb = (n: Utterance) => (n.text !== n.original ? correctionsOf(t, n.index) : []);
   const beforeMarks = [...(corrected ? corrections.map((c) => c.before) : []), ...guesses.map((g) => g.fragment)];
+  const guessTargets = guesses.flatMap((g) => (g.target ? [g.target] : []));
   const actions = (
     <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs">
       <button type="button" onClick={() => setEditing(true)} className="text-sky-800 hover:underline">
@@ -109,14 +112,33 @@ export function CheckUtterance({
       </div>
     </div>
   );
+  const applyGuess = (applied: string) => {
+    setEditing(false);
+    setDraft(applied);
+    onChange({ ...u, text: applied, check: [...u.check.filter((c) => c !== CHECK_EDITED_BY_USER), CHECK_EDITED_BY_USER] });
+  };
   const guessBox = guesses.length > 0 && (
-    <div className="mt-1 space-y-1 rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-1.5 text-sm">
+    <div className="mt-1 space-y-2 rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-2 text-sm">
       {guesses.map((g, i) => (
         <div key={i}>
-          <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
-          <span className="ml-1 text-xs text-stone-600">（手がかり：{g.clue}）。推測は分析には使いません。</span>
+          <div>
+            <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.target ?? g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
+            <span className="ml-1 text-xs text-stone-600">（手がかり：{g.clue}）</span>
+          </div>
+          {g.applied !== null ? (
+            <div className="mt-1 flex items-start gap-2">
+              <span className="shrink-0 text-xs text-stone-600">推測で直すと：</span>
+              <span className="grow">{marked(g.applied, [g.guess], MARK_AFTER)}</span>
+              <button type="button" onClick={() => applyGuess(g.applied as string)} className="shrink-0 rounded bg-amber-700 px-2 py-0.5 text-xs text-white hover:bg-amber-800">
+                この推測で直す
+              </button>
+            </div>
+          ) : (
+            <div className="mt-1 text-xs text-stone-600">本文の中で置き換える場所が見つかりません。直すときは「本文を直す」で。</div>
+          )}
         </div>
       ))}
+      <div className="text-xs text-stone-600">推測は、「この推測で直す」を押したときだけ本文に入り、分析に使います。押さなければ今の本文のままです。</div>
     </div>
   );
   return (
@@ -183,7 +205,7 @@ export function CheckUtterance({
               {before.map((n) => (
                 <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
               ))}
-              {editing ? editor : <Line n={u} text={text} target marks={guesses.map((g) => g.fragment)} markClass={MARK_BEFORE} actions={actions} />}
+              {editing ? editor : <Line n={u} text={text} target marks={guessTargets} markClass={MARK_BEFORE} actions={actions} />}
               {after.map((n) => (
                 <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
               ))}

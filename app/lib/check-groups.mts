@@ -2,7 +2,7 @@
 // 見る必要が高い所（話者・区切り・相手の数）を先に一つずつ出し、聞き違いの直しは同じ直しを 1 行にまとめる。
 // 印の文字列は engine/step0.mts の CHECK_* と同じ（画面からサーバーの部品を読み込まないため、ここに写し、テストで一致を守る）。
 
-import type { Correction, Transcript, Utterance } from "../../engine/types.mts";
+import type { Correction, Guess, Transcript, Utterance } from "../../engine/types.mts";
 
 export const MARK_SPEAKER_LOW = "話者の確からしさが低い";
 export const MARK_SPEAKER_MID = "話者の確からしさが中";
@@ -26,6 +26,8 @@ export type CheckGroups = {
   speaker: Utterance[];
   /** 相手が 2 人以上と推定した所 */
   multiple: Utterance[];
+  /** 意味が通らず、まだ本文に入っていない推測（0c）がある所 */
+  guessed: Utterance[];
   /** 聞き違いを直しただけの所 */
   corrected: Utterance[];
   /** 聞き違いの直しを「前 → 後」ごとにまとめたもの（多い順） */
@@ -38,13 +40,49 @@ export type CheckGroups = {
 
 const has = (u: Utterance, mark: string) => u.check.some((c) => c.startsWith(mark));
 
-/** 一つの発話は、上の順で最初に当たった種類にだけ入れる（同じ発話を二度出さない） */
+/** 推測を今の本文に当てた形。target は本文の中で置き換える所（見つからなければ null）、applied は置き換えた後の本文 */
+export type GuessView = Guess & { target: string | null; applied: string | null };
+
+const bare = (s: string) => s.replace(/[\s、。,.・]/g, "");
+
+/**
+ * 発話に付いた推測（0c）のうち、まだ本文に入っていないもの。
+ * 0c は元の文で読むので、0b の直しで既に同じ言葉になっていれば出さない（句読点と空白は見ない）。
+ * 置き換える所は、推測の元の言葉そのもの、なければ 0b の直しを当てた形で本文から探す。
+ */
+export function guessViews(t: Transcript, u: Utterance): GuessView[] {
+  const text = u.text ?? "";
+  const cs = t.step0b.applied.filter((c) => c.index === u.index);
+  const out: GuessView[] = [];
+  for (const g of t.step0c?.guesses ?? []) {
+    if (g.index !== u.index) continue;
+    if (bare(text).includes(bare(g.guess))) continue;
+    let target: string | null = null;
+    if (g.fragment !== "" && text.includes(g.fragment)) target = g.fragment;
+    else {
+      const fixed = cs.reduce((s, c) => s.split(c.before).join(c.after), g.fragment);
+      if (fixed !== "" && text.includes(fixed)) target = fixed;
+    }
+    out.push({ ...g, target, applied: target === null ? null : replaceFirst(text, target, g.guess) });
+  }
+  return out;
+}
+
+function replaceFirst(text: string, target: string, by: string): string {
+  const i = text.indexOf(target);
+  return i < 0 ? text : text.slice(0, i) + by + text.slice(i + target.length);
+}
+
+/** 一つの発話は、区切り → 話者 → 相手の数 → 推測 → 聞き違いの直し → 本人の直し → そのほか の順で、最初に当たった種類にだけ入れる（同じ発話を二度出さない） */
 export function groupChecks(t: Transcript): CheckGroups {
-  const g: CheckGroups = { unanchored: [], speaker: [], multiple: [], corrected: [], correctionGroups: [], edited: [], other: [] };
-  for (const u of t.utterances.filter(needsCheck)) {
+  const g: CheckGroups = { unanchored: [], speaker: [], multiple: [], guessed: [], corrected: [], correctionGroups: [], edited: [], other: [] };
+  for (const u of t.utterances) {
+    const guessed = guessViews(t, u).length > 0;
+    if (!needsCheck(u) && !guessed) continue;
     if (has(u, MARK_UNANCHORED)) g.unanchored.push(u);
     else if (has(u, MARK_SPEAKER_LOW) || has(u, MARK_SPEAKER_LABEL)) g.speaker.push(u);
     else if (has(u, MARK_MULTIPLE)) g.multiple.push(u);
+    else if (guessed) g.guessed.push(u);
     else if (has(u, MARK_CORRECTED)) g.corrected.push(u);
     else if (has(u, MARK_EDITED)) g.edited.push(u);
     else g.other.push(u);
@@ -62,12 +100,12 @@ export function groupChecks(t: Transcript): CheckGroups {
   return g;
 }
 
-/** 本人が一つずつ見る所（区切り・話者・相手の数・そのほか）。Claude の直しと本人の直しは数えない（直しは一覧で目を通す） */
+/** 本人が一つずつ見る所（区切り・話者・相手の数・推測・そのほか）。Claude の直しと本人の直しは数えない（直しは一覧で目を通す） */
 export function countToCheck(g: CheckGroups): number {
-  return g.unanchored.length + g.speaker.length + g.multiple.length + g.other.length;
+  return g.unanchored.length + g.speaker.length + g.multiple.length + g.guessed.length + g.other.length;
 }
 
 /** 印の付いた発話のすべて（0 件のときだけ「0 件は聞き違いが無いことの証明ではない」を出す） */
 export function countChecks(g: CheckGroups): number {
-  return g.unanchored.length + g.speaker.length + g.multiple.length + g.corrected.length + g.edited.length + g.other.length;
+  return g.unanchored.length + g.speaker.length + g.multiple.length + g.guessed.length + g.corrected.length + g.edited.length + g.other.length;
 }

@@ -172,7 +172,7 @@ export default function Screen1() {
             確かめる所（{toCheckCount} 件）{ms !== null && <span className="ml-2 text-xs font-normal text-stone-500">整形 {Math.round(ms / 100) / 10} 秒</span>}
           </h2>
           <p className="mt-1 text-sm text-stone-600">
-            話者と区切りで Claude が迷った所を、一つずつ出します。その下に、Claude が聞き違いを直した所の一覧があります。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残します。
+            話者と区切りで Claude が迷った所と、意味が通らず推測を付けた所を、一つずつ出します。その下に、Claude が聞き違いを直した所の一覧があります。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残します。
           </p>
           {checkCount === 0 && <p className="mt-2 text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
           {transcript.step0c === null && <p className="mt-1 text-xs text-stone-500">意味が通らない所の推測は別に読んでいます。届いたら発話に添えます（分析には使いません）。</p>}
