@@ -259,6 +259,8 @@ export type Axis8 = {
   item5Withheld: boolean | null;
   /** 正解で「判定しない」の項目を AI も判定しなかったか */
   withheldAsTruth: { item: number; truth: boolean; ai: boolean }[];
+  /** 根拠のある場面が無いのが正解か（ひっかけ用） */
+  truthNoScene: boolean;
   /** 根拠のある場面が無いと AI が言ったか（ひっかけ用） */
   saidNoScene: boolean;
 };
@@ -273,6 +275,7 @@ export function axis8(step1: Step1Result | null, step2: Step2Result, truth: Trut
     firstMeeting: truth.firstMeeting,
     item5Withheld: truth.firstMeeting ? step2.items.find((i) => i.item === 5)?.score === null : null,
     withheldAsTruth,
+    truthNoScene: truth.noScene !== undefined,
     saidNoScene: step1 ? step1.noScene !== null : false,
   };
 }

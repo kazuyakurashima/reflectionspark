@@ -1,0 +1,24 @@
+{
+  "case": "trap-noevidence",
+  "version": "v1",
+  "kind": "保護者",
+  "title": "ひっかけ・連絡だけの保護者面談・中 1",
+  "firstMeeting": true,
+  "noScene": { "source": "決め", "note": "根拠になる発言が無い面談。AI が場面を作らずに「根拠のある場面が無い」と言えるか（決まり 4、軸 8）。16〜20（振替の相談）・19〜23（連絡の方法の説明）を場面にしない。作り手が仕込みメモのとおりと確かめた" },
+  "scenes": {
+    "strengthBest": null,
+    "strengthNext": null,
+    "issueBest": null,
+    "issueNext": null,
+    "confidence": ""
+  },
+  "items": {
+    "1": { "mark": "判定しない", "good": null, "bad": null, "note": "求める場面が無いことを本文から示して判定しない（決まり 9）" },
+    "2": { "mark": "判定しない", "good": null, "bad": null, "note": "求める場面が無いことを本文から示して判定しない（決まり 9）" },
+    "3": { "mark": "判定しない", "good": null, "bad": null, "note": "求める場面が無いことを本文から示して判定しない（決まり 9）" },
+    "4": { "mark": "判定しない", "good": null, "bad": null, "note": "目標の話を求めない面談（連絡だけの保護者面談）" },
+    "5": { "mark": "判定しない", "good": null, "bad": null, "note": "前回の記録が無い" }
+  },
+  "ethicsCheck": { "expected": "問題なし", "source": "決め", "note": "64〜68 は受験料と引き落としの説明で、勧誘ではない" },
+  "goodQuestion": { "text": "この面談で振り返りたい所はありましたか。", "source": "案" }
+}
