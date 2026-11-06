@@ -4,7 +4,8 @@
 // 最初に見えるのは、面談の地図 → 場面を一つ（やりとり → 自分の見立て → AI の見立て → 問い）→ 下に固定した「次にすること」一つ。
 // 場面の中は、確かめられるもの（原文のやりとり）を先に、解釈（AI の見立て）を後に置く（原則 2）。AI の見立ては本人が開く。書き込みは求めない。
 // 項目ごとの点と合計は、引用と問いの後に置き、本人が自分の点を一つ付けてから並べる（原則 1・決まり 8）。自分の点・一言・見立ては AI に渡さない（決まり 10）。
-// 場面の種別（よく表れた所／次に試せる所）は、AI の見立てを開くまで出さない。倫理チェックはいつも最後の 1 行で、点にしない。
+// 場面の種別は、場面のボタンに最初から出す（うまくいった場面／次に試せる場面。順番はいつも同じなので、隠しても分かる）。
+// 区切りは罫線ではなく余白で付ける。倫理チェックはいつも最後の 1 行で、点にしない。
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -125,7 +126,7 @@ export default function Screen2() {
           </button>
         </div>
       ) : !analysis ? (
-        <section className="border-t border-line py-8">
+        <section className="py-6">
           <p className="font-semibold">AI が面談を読んでいます…</p>
           <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度最初から分析します。" />
           <div className="mt-6 rounded-md border border-line bg-surface px-5 py-4">
@@ -276,13 +277,13 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
       {a.mock && <p className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">API キーが無いので、仮の出力です。引用は本文の発話ですが、読みと問いと点は仮の文です。</p>}
 
       {step1.noScene ? (
-        <section className="border-t border-line py-8">
+        <section className="py-6">
           <p>根拠のある場面が無いとされました：{step1.noScene}</p>
         </section>
       ) : (
         <>
-          <p className="pb-8 text-[1.02rem]">
-            AI がこの面談から、{scenes.length} つの場面を選びました。場面ごとに、やりとりを読んで、問いを一つ受け取ります。
+          <p className="text-[1.02rem]">
+            AI がこの面談から、{scenes.map((sc) => sceneTypeLabel(sc.type)).join("と、")}を選びました。場面ごとに、やりとりを読んで、問いを一つ受け取ります。
             {session.spark && (
               <span className="mt-2 block text-[0.95rem] text-ink-2">
                 次に試すひとつ：
@@ -293,11 +294,11 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
             )}
           </p>
 
-          <section className="border-t border-line pb-9 pt-6" aria-label="面談の地図">
-            <Atlas t={t} spans={spans} current={current} chapters={chapters} onScene={(k) => showScene(k, false)} />
+          <section className="mt-12" aria-label="面談の地図">
+            <Atlas t={t} spans={spans} sceneNames={scenes.map((sc) => sceneTypeLabel(sc.type))} current={current} chapters={chapters} onScene={(k) => showScene(k, false)} />
           </section>
 
-          <section ref={sceneRef} className="scroll-mt-4 border-t border-line pt-7" aria-label={`場面 ${current + 1}`}>
+          <section ref={sceneRef} className="mt-16 scroll-mt-6" aria-label={`場面 ${current + 1}`}>
             <div className="grid grid-cols-2 gap-2" role="group" aria-label="場面を選ぶ">
               {scenes.map((_, k) => {
                 const s = spans[k];
@@ -317,12 +318,12 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                     >
                       {k + 1}
                     </span>
-                    <span>
-                      <span className="block font-semibold leading-snug">場面 {k + 1}</span>
+                    <span className="min-w-0">
                       <span className="block text-xs leading-snug opacity-85">
-                        {w ? refRangeLabel(w.from, w.to) : "引用なし"}
+                        場面 {k + 1}　{w ? refRangeLabel(w.from, w.to) : "引用なし"}
                         {!active && seen.includes(k) ? "　読んだ" : ""}
                       </span>
+                      <span className="block font-semibold leading-snug">{sceneTypeLabel(scenes[k].type)}</span>
                     </span>
                   </button>
                 );
@@ -367,10 +368,10 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                     aria-label={`場面 ${current + 1} の自分の見方`}
                     className="block w-full border-0 border-b border-line-2 bg-transparent py-2 placeholder:text-ink-3 focus:border-accent focus:outline-none"
                   />
-                  <p className="mt-1.5 text-xs text-ink-3">書いた言葉は AI に渡しません。AI の見立てを開くと、自分の見方と上下に並びます。</p>
+                  <p className="mt-1.5 text-xs text-ink-3">書いた言葉は AI に渡しません。AI の見立てを読むときに、自分の見方と上下に並びます。</p>
                 </Step>
 
-                <Step n={3} title="AI の見立てと比べる" note="開かなくても進めます">
+                <Step n={3} title="AI の見立てと比べる" note="読まなくても進めます">
                   <AiView t={t} scene={scene} own={own.trim()} open={aiOpen.includes(current)} onToggle={() => setAiOpen((o) => (o.includes(current) ? o.filter((k) => k !== current) : [...o, current]))} />
                 </Step>
 
@@ -388,17 +389,17 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </>
       )}
 
-      <section className="mt-12 border-t border-line pt-7" aria-label="面談の全体">
+      <section className="mt-20" aria-label="面談の全体">
         <h2 className="text-[0.95rem] font-semibold">面談の全体</h2>
         <p className="mb-3 text-[0.86rem] text-ink-2">必要なときに開きます。開かなくても、次へ進めます。</p>
         <div className="border-t border-line">
-          <Drawer title="まとめ" sub={chapters.length > 0 ? "サマリー・数えた記録" : "サマリー・面談の流れ・数えた記録"} open={open.detail} onToggle={() => setOpen((o) => ({ ...o, detail: !o.detail }))}>
+          <Drawer title="まとめと流れ" sub="サマリー・面談の流れ・数えた記録" open={open.detail} onToggle={() => setOpen((o) => ({ ...o, detail: !o.detail }))}>
             <dl className="space-y-5 [&_dt]:text-xs [&_dt]:font-semibold [&_dt]:text-ink-3">
               <div>
                 <dt>サマリー</dt>
                 <dd>{step1.summary ? <RefText t={t} text={step1.summary} /> : "（無し）"}</dd>
               </div>
-              {step1.flow.length > 0 && chapters.length === 0 && (
+              {step1.flow.length > 0 && (
                 <div>
                   <dt>面談の流れ</dt>
                   <dd>
@@ -521,20 +522,18 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
   );
 }
 
-/** AI の見立て。最初は閉じていて、本人が開く。開くのに入力は求めない */
+/** AI の見立て。最初は閉じていて、本人が開いて読む。読むのに入力は求めない */
 function AiView({ t, scene, own, open, onToggle }: { t: Transcript; scene: Scene; own: string; open: boolean; onToggle: () => void }) {
   const items = scene.items.map((i) => `${i} ${RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}`).join("、");
   return (
     <div>
       <button type="button" onClick={onToggle} aria-expanded={open} className="flex min-h-11 items-center gap-3 rounded-full border border-line-2 bg-surface px-5 py-1.5 font-semibold hover:border-ink-2">
         <Chevron open={open} />
-        {open ? "AI の見立てを閉じる" : "AI の見立てを開く"}
+        {open ? "AI の見立てを閉じる" : "AI の見立てを読む"}
       </button>
       {open && (
         <div className="mt-5">
-          <p className="text-[0.9rem] text-ink-2">
-            AI はこの場面を<b className="font-semibold text-ink">「{sceneTypeLabel(scene.type)}」</b>として選びました。{items && `関わる項目：${items}。`}
-          </p>
+          {items && <p className="text-[0.9rem] text-ink-2">関わる項目：{items}</p>}
           <div className="mt-4 space-y-5">
             {own && (
               <div className="border-l-2 border-ink-2 pl-4">

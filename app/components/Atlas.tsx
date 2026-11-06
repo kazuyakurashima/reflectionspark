@@ -2,24 +2,33 @@
 
 // 面談の地図。発言を順に 1 本ずつの棒にして、本人は上、相手は下に、長さで並べる。AI を呼ばない。
 // 番号の丸は AI が選んだ場面の位置。今読んでいる場面の範囲に、薄い帯を敷く。
-// 棒にマウスを載せる（指で押す）と、その発言がその場に出る。画面は動かさない。
-// 地図の下に「話題の流れ」（工程 1 の面談の流れ）を並べ、棒の下の番号と同じ番号を付ける。
-// 強み・課題の色分けはしない（場面の種別は、本人が AI の見立てを開くまで出さない）。
+// 文字は最小限にする。棒にマウスを載せる（指で押す）とその発言が、下の「話題」の番号に載せるとその話題が、その場に出る。画面は動かさない。
+// 見方の説明は、初めて開いたときだけ出す（「わかった」で閉じ、このブラウザに覚える）。あとからは「見方」で開ける。
 
 import { useState } from "react";
 
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import type { Transcript } from "@/engine/types.mts";
-import { chapterIndexOf } from "@/app/lib/scene-view.mts";
 import type { Chapter, SceneSpan } from "@/app/lib/scene-view.mts";
 import { refLabel, refRangeLabel } from "@/app/lib/words.mts";
 
 const MID = 50;
+const GUIDE_KEY = "reflectionspark:map-guide-seen";
 const barHeight = (text: string) => Math.min(40, 3 + Math.sqrt([...text].length) * 3);
+const TIP = "pointer-events-none absolute z-20 w-80 max-w-full rounded-lg border border-line-2 bg-surface px-3.5 py-2.5 text-[0.86rem] leading-[1.7] shadow-[0_10px_30px_-12px_rgba(29,27,24,0.45)]";
+
+function guideSeen(): boolean {
+  try {
+    return window.localStorage.getItem(GUIDE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
 
 export function Atlas({
   t,
   spans,
+  sceneNames,
   current,
   chapters,
   onScene,
@@ -27,6 +36,8 @@ export function Atlas({
   t: Transcript;
   /** 場面ごとの範囲。引用が無い場面は null */
   spans: (SceneSpan | null)[];
+  /** 場面ごとの呼び名（「うまくいった場面」など） */
+  sceneNames: string[];
   current: number;
   chapters: Chapter[];
   onScene: (k: number) => void;
@@ -34,27 +45,67 @@ export function Atlas({
   const n = t.utterances.length;
   const { self, other } = SPEAKER_LABELS[t.kind];
   const [hover, setHover] = useState<number | null>(null);
+  const [topic, setTopic] = useState<number | null>(null);
+  const [guide, setGuide] = useState(() => !guideSeen());
   const hovered = hover !== null ? t.utterances[hover] : undefined;
   const indexAt = (e: React.MouseEvent<SVGSVGElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     return Math.max(0, Math.min(n - 1, Math.floor(((e.clientX - r.left) / r.width) * n)));
   };
+  const closeGuide = () => {
+    setGuide(false);
+    try {
+      window.localStorage.setItem(GUIDE_KEY, "1");
+    } catch {
+      // 覚えられなくても閉じる
+    }
+  };
+  /** 左右どちらに寄せて出すか（地図の外にはみ出さないように） */
+  const side = (from: number, to: number) => (from < n / 2 ? { left: `${(from / n) * 100}%` } : { right: `${(1 - (to + 1) / n) * 100}%` });
   return (
     <div>
-      <h2 className="text-[0.95rem] font-semibold">面談の地図</h2>
-      <p className="text-[0.82rem] text-ink-2">棒 1 本が 1 つの発言で、長さは話した長さです。棒にマウスを載せる（スマホでは押す）と、その発言が出ます。</p>
+      <div className="flex items-baseline gap-3">
+        <h2 className="text-[0.95rem] font-semibold">面談の地図</h2>
+        {!guide && (
+          <button type="button" onClick={() => setGuide(true)} className="text-[0.82rem] text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink">
+            見方
+          </button>
+        )}
+      </div>
 
-      <div className="mt-3 flex gap-2.5">
-        {/* 縦の見出し：上が本人、下が相手（棒の向きと同じ） */}
-        <div className="flex h-24 shrink-0 flex-col justify-between self-end py-3 text-xs leading-none text-ink-2" style={{ marginBottom: chapters.length > 0 ? "1.75rem" : 0 }} aria-hidden="true">
-          <span className="flex items-center gap-1.5">
-            <i className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-self" />
-            {self}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <i className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-other" />
-            {other}
-          </span>
+      {guide && (
+        <div className="mt-3 rounded-lg bg-accent-soft px-5 py-4 text-[0.92rem] leading-[1.75]">
+          <ul className="space-y-1">
+            <li>
+              <b className="font-semibold">棒 1 本が、1 つの発言。</b>上が{self}、下が{other}で、長いほど長く話しています。
+            </li>
+            <li>
+              <b className="font-semibold">丸の数字が、AI の選んだ場面。</b>押すと、その場面が下に出ます。
+            </li>
+            <li>
+              <b className="font-semibold">マウスを載せると、中身が出ます。</b>棒ならその発言、「話題」の数字ならその話題です（スマホでは押します）。
+            </li>
+          </ul>
+          <button type="button" onClick={closeGuide} className="mt-3 min-h-9 rounded-full border border-accent px-5 text-[0.86rem] font-semibold text-accent hover:bg-white/60">
+            わかった
+          </button>
+        </div>
+      )}
+
+      <div className="mt-4 flex gap-3">
+        {/* 縦の見出し：上が本人、下が相手（棒の向きと同じ）。その下に「話題」 */}
+        <div className="shrink-0 pt-8 text-xs leading-none text-ink-2" aria-hidden="true">
+          <div className="flex h-24 flex-col justify-between py-3">
+            <span className="flex items-center gap-1.5">
+              <i className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-self" />
+              {self}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <i className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-other" />
+              {other}
+            </span>
+          </div>
+          {chapters.length > 0 && <div className="flex h-8 items-center pl-4">話題</div>}
         </div>
 
         <div className="relative min-w-0 grow pt-8">
@@ -65,7 +116,8 @@ export function Atlas({
                 type="button"
                 onClick={() => onScene(k)}
                 aria-pressed={k === current}
-                aria-label={`場面 ${k + 1}（${refRangeLabel(s.from, s.to)}）を下に出す`}
+                aria-label={`場面 ${k + 1}：${sceneNames[k] ?? ""}（${refRangeLabel(s.from, s.to)}）を下に出す`}
+                title={sceneNames[k]}
                 style={{ left: `${((s.focal + 0.5) / n) * 100}%` }}
                 className={`absolute top-0 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border-[1.5px] border-accent text-xs font-semibold tabular-nums transition-colors ${
                   k === current ? "bg-accent text-white" : "bg-paper text-accent hover:bg-accent-soft"
@@ -85,6 +137,7 @@ export function Atlas({
             onMouseLeave={() => setHover(null)}
             onClick={(e) => setHover(indexAt(e))}
           >
+            {topic !== null && chapters[topic] && <rect x={chapters[topic].from} y={0} width={chapters[topic].to - chapters[topic].from + 1} height={100} className="fill-line" opacity={0.55} />}
             {spans.map((s, k) =>
               s ? (
                 <rect key={k} x={Math.max(0, s.from - 1)} y={0} width={Math.min(n, s.to + 2) - Math.max(0, s.from - 1)} height={100} className={k === current ? "fill-accent-mid" : "fill-line"} opacity={k === current ? 0.9 : 0.7} />
@@ -102,60 +155,43 @@ export function Atlas({
             })}
           </svg>
           {chapters.length > 0 && (
-            <ol className="flex h-7 border-t border-line text-xs text-ink-3" aria-hidden="true">
+            <div className="flex h-8 gap-px" role="group" aria-label="話題の区切り">
               {chapters.map((c, k) => (
-                <li key={c.from} style={{ flex: `${c.to - c.from + 1} 1 0` }} className={`min-w-0 py-1 tabular-nums ${k > 0 ? "border-l border-line pl-1.5" : ""}`}>
+                <button
+                  key={c.from}
+                  type="button"
+                  style={{ flex: `${c.to - c.from + 1} 1 0` }}
+                  onMouseEnter={() => setTopic(k)}
+                  onMouseLeave={() => setTopic(null)}
+                  onFocus={() => setTopic(k)}
+                  onBlur={() => setTopic(null)}
+                  onClick={() => setTopic(k)}
+                  aria-label={`話題 ${k + 1}：${c.text}（${refRangeLabel(c.from, c.to)}）`}
+                  className={`min-w-0 rounded-[3px] text-xs tabular-nums transition-colors ${topic === k ? "bg-line-2 font-semibold text-ink" : "bg-line/70 text-ink-2 hover:bg-line-2"}`}
+                >
                   {k + 1}
-                </li>
+                </button>
               ))}
-            </ol>
+            </div>
           )}
           {hovered && hover !== null && (
-            <div
-              role="tooltip"
-              style={hover < n / 2 ? { left: `${(hover / n) * 100}%` } : { right: `${(1 - (hover + 1) / n) * 100}%` }}
-              className="pointer-events-none absolute top-[8.25rem] z-20 w-80 max-w-full rounded-lg border border-line-2 bg-surface px-3.5 py-2.5 text-[0.86rem] leading-[1.7] shadow-[0_10px_30px_-12px_rgba(29,27,24,0.45)]"
-            >
+            <div role="tooltip" style={side(hover, hover)} className={`${TIP} top-[8.25rem]`}>
               <p className="mb-0.5 text-xs text-ink-3">
                 <span className="font-semibold text-ink-2">{hovered.speaker}</span>　{refLabel(hovered.index)}
               </p>
               <p className="whitespace-pre-wrap">{hovered.text ?? hovered.original}</p>
             </div>
           )}
+          {topic !== null && chapters[topic] && hover === null && (
+            <div role="tooltip" style={side(chapters[topic].from, chapters[topic].to)} className={`${TIP} top-[10.4rem]`}>
+              <p className="mb-0.5 text-xs text-ink-3">
+                <span className="font-semibold text-ink-2">話題 {topic + 1}</span>　{refRangeLabel(chapters[topic].from, chapters[topic].to)}
+              </p>
+              <p>{chapters[topic].text}</p>
+            </div>
+          )}
         </div>
       </div>
-
-      {chapters.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-xs font-semibold text-ink-3">話題の流れ（番号は、地図の下の番号と同じです）</h3>
-          <ol className="mt-1.5 space-y-1 text-[0.86rem] leading-[1.6]">
-            {chapters.map((c, k) => {
-              const here = spans.map((s, i) => (s && chapterIndexOf(chapters, s.focal) === k ? i : -1)).filter((i) => i >= 0);
-              const now = here.includes(current);
-              return (
-                <li key={c.from} className={`flex items-baseline gap-2.5 ${now ? "text-ink" : "text-ink-2"}`}>
-                  <span className={`w-3 shrink-0 text-right tabular-nums ${now ? "font-semibold" : ""}`}>{k + 1}</span>
-                  <span className="min-w-0">
-                    <span className={now ? "font-semibold" : ""}>{c.text}</span>
-                    <span className="ml-1.5 whitespace-nowrap text-xs text-ink-3">{refRangeLabel(c.from, c.to)}</span>
-                    {here.map((i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => onScene(i)}
-                        aria-pressed={i === current}
-                        className={`ml-2 whitespace-nowrap rounded-full border border-accent px-2 py-px text-xs font-semibold ${i === current ? "bg-accent text-white" : "text-accent hover:bg-accent-soft"}`}
-                      >
-                        場面 {i + 1}
-                      </button>
-                    ))}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-      )}
     </div>
   );
 }
