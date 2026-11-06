@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D2 Simple 面談を読む</title>
+<meta name="description" content="ReflectionSpark 画面 2 の比較モック（D2 Simple）。D2 の思想を D1 のシンプルさで。ダミーデータだけを使い、API は呼ばない。">
+<style>
+/* ---------- トークン：静かな画面。色は 1 つの差し色だけ ---------- */
+:root {
+  --bg: #f7f5f1;
+  --surface: #fdfcfa;
+  --ink: #1d1b18;
+  --ink-2: #5d574f;
+  --ink-3: #8d867c;
+  --line: #e6e1d9;
+  --line-2: #d6d0c6;
+  --accent: #27505a;          /* 深い青緑。差し色はこれだけ */
+  --accent-soft: #e4ecec;
+  --focus: #27505a;
+  --self: #3a3632;            /* 地図：講師 */
+  --other: #9aa9a9;           /* 地図：生徒 */
+  --mark: #27505a;
+  --shadow: 0 1px 0 rgba(0,0,0,.03), 0 8px 24px -16px rgba(29,27,24,.25);
+  --radius: 6px;
+  --maxw: 44rem;
+  --fs: 16px;
+}
+@media (min-width: 900px) { :root { --fs: 17px; } }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171614; --surface: #1e1c19; --ink: #ebe7e0; --ink-2: #b4ada3; --ink-3: #7f786e;
+    --line: #2d2a26; --line-2: #3b3732; --accent: #8fbfc4; --accent-soft: #223236; --focus: #8fbfc4;
+    --self: #d9d3ca; --other: #5f7476; --mark: #8fbfc4;
+    --shadow: 0 1px 0 rgba(0,0,0,.2), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171614; --surface: #1e1c19; --ink: #ebe7e0; --ink-2: #b4ada3; --ink-3: #7f786e;
+  --line: #2d2a26; --line-2: #3b3732; --accent: #8fbfc4; --accent-soft: #223236; --focus: #8fbfc4;
+  --self: #d9d3ca; --other: #5f7476; --mark: #8fbfc4;
+  --shadow: 0 1px 0 rgba(0,0,0,.2), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+
+/* ---------- 土台 ---------- */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: var(--fs); line-height: 1.85; letter-spacing: .01em;
+  font-feature-settings: "palt" 1;
+  padding-bottom: 7rem; /* 下の導線の分 */
+}
+a { color: var(--accent); text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 16px; }
+.eyebrow { margin: 0; font-size: .78rem; letter-spacing: .12em; color: var(--ink-3); text-transform: uppercase; }
+.quiet { color: var(--ink-2); }
+.small { font-size: .86rem; }
+.tiny { font-size: .78rem; color: var(--ink-3); }
+hr.hair { border: 0; border-top: 1px solid var(--line); margin: 0; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- 上の帯 ---------- */
+.top { border-bottom: 1px solid var(--line); background: var(--bg); }
+.top .wrap { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1.25rem; padding-top: .8rem; padding-bottom: .8rem; }
+.brand { font-weight: 600; letter-spacing: .02em; }
+.steps { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: .25rem .9rem; margin: 0; padding: 0; list-style: none; font-size: .8rem; color: var(--ink-3); }
+.steps li[aria-current="step"] { color: var(--ink); font-weight: 600; }
+.mocktag { margin-left: auto; font-size: .74rem; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 999px; padding: 0 .6rem; line-height: 1.5; }
+
+/* ---------- 1. 面談名と基本情報 ---------- */
+.head { padding: 2.6rem 0 1.6rem; }
+.head h1 { margin: .35rem 0 .35rem; font-size: 1.75rem; font-weight: 600; line-height: 1.35; letter-spacing: .005em; }
+.head .meta { margin: 0; color: var(--ink-2); font-size: .95rem; }
+.head .meta span + span::before { content: "・"; color: var(--ink-3); margin: 0 .15em; }
+
+/* ---------- 2. Conversation Atlas ---------- */
+.atlas { padding: 1.4rem 0 2.2rem; border-top: 1px solid var(--line); }
+.atlas-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .6rem; }
+.atlas-head h2 { margin: 0; font-size: .95rem; font-weight: 600; }
+.atlas-legend { display: flex; gap: 1rem; font-size: .78rem; color: var(--ink-2); }
+.atlas-legend i { display: inline-block; width: .6rem; height: .6rem; border-radius: 2px; vertical-align: -1px; margin-right: .35rem; }
+.atlas-legend .self i { background: var(--self); }
+.atlas-legend .other i { background: var(--other); }
+.atlas svg { display: block; width: 100%; height: auto; overflow: visible; }
+.atlas .bar { cursor: pointer; }
+.atlas .bar:hover rect, .atlas .bar:focus-visible rect { opacity: .55; }
+.atlas .bar rect { transition: opacity .12s; }
+.atlas .range { fill: none; stroke: var(--mark); stroke-width: 1.2; opacity: .55; }
+.atlas .pin { cursor: pointer; }
+.atlas .pin circle { fill: var(--bg); stroke: var(--mark); stroke-width: 1.6; }
+.atlas .pin text { fill: var(--mark); font-size: 11px; font-weight: 600; text-anchor: middle; dominant-baseline: central; }
+.atlas .pin[aria-pressed="true"] circle { fill: var(--mark); }
+.atlas .pin[aria-pressed="true"] text { fill: var(--bg); }
+.atlas .pin:hover circle { stroke-width: 2.4; }
+.atlas .axis { stroke: var(--line-2); stroke-width: 1; }
+.chapters { display: flex; margin: .35rem 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.chapters li { position: relative; padding: .4rem .5rem .1rem 0; font-size: .78rem; color: var(--ink-2); line-height: 1.5; min-width: 0; }
+.chapters li + li { border-left: 1px solid var(--line); padding-left: .5rem; }
+.chapters b { font-weight: 600; color: var(--ink); margin-right: .3em; }
+.chapters .label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chapters-legend { display: none; margin: .5rem 0 0; font-size: .78rem; color: var(--ink-2); line-height: 1.7; }
+.chapters-legend b { font-weight: 600; color: var(--ink); margin-right: .25em; }
+.chapters-legend span + span::before { content: "　"; }
+@media (max-width: 640px) {
+  .chapters .label { display: none; }
+  .chapters li { padding-right: .3rem; }
+  .chapters-legend { display: block; }
+}
+.atlas .hint { margin: .9rem 0 0; font-size: .82rem; color: var(--ink-3); }
+
+/* ---------- 3. 注目した場面と根拠の発話 ---------- */
+.scene { padding: 2rem 0 0; border-top: 1px solid var(--line); }
+.scene-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1rem; }
+.scene-top h2 { margin: 0; font-size: .95rem; font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 2px; background: var(--surface); }
+.seg button { padding: .3rem .9rem; border-radius: 999px; font-size: .84rem; color: var(--ink-2); line-height: 1.5; min-height: 2.2rem; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg button small { display: block; font-size: .7rem; line-height: 1.2; opacity: .8; }
+.scene .context { margin: 1.1rem 0 1.2rem; font-size: 1.02rem; color: var(--ink-2); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.lines { list-style: none; margin: 0; padding: .4rem 0; }
+.lines li { display: grid; grid-template-columns: 3.4rem 1fr; gap: .2rem .6rem; padding: .6rem 1.1rem .6rem .9rem; border-left: 3px solid transparent; align-items: baseline; }
+.lines li .who { font-size: .74rem; color: var(--ink-3); white-space: nowrap; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.lines li .who b { display: block; font-weight: 600; color: var(--ink-2); font-size: .84rem; letter-spacing: 0; }
+.lines li .who .mark { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lines li .txt { margin: 0; color: var(--ink-2); }
+.lines li.quoted { border-left-color: var(--line-2); }
+.lines li.quoted .txt { color: var(--ink); }
+.lines li.focal { border-left-color: var(--accent); background: linear-gradient(90deg, var(--accent-soft), transparent 70%); padding-top: .85rem; padding-bottom: .85rem; }
+.lines li.focal .txt { font-size: 1.16rem; line-height: 1.75; color: var(--ink); font-weight: 500; }
+.lines li.dim { opacity: .72; }
+.lines li .mark { font-size: .7rem; color: var(--accent); letter-spacing: .06em; }
+.scene-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem 1rem; padding: .6rem 1.1rem .8rem; border-top: 1px solid var(--line); font-size: .82rem; color: var(--ink-2); }
+.verify::before { content: "✓"; display: inline-block; margin-right: .4em; color: var(--accent); font-weight: 700; }
+.linkish { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; min-height: 2.2rem; }
+.linkish:hover { text-decoration-color: var(--accent); }
+
+/* 自分の見立て（任意）と AI の見立て */
+.own { margin: 1.6rem 0 0; }
+.own label { display: block; font-size: .84rem; color: var(--ink-2); }
+.own input { display: block; width: 100%; margin-top: .3rem; padding: .55rem 0; border: 0; border-bottom: 1px solid var(--line-2); background: transparent; color: var(--ink); font-size: 1rem; line-height: 1.6; border-radius: 0; }
+.own input::placeholder { color: var(--ink-3); }
+.own input:focus { outline: none; border-bottom-color: var(--accent); }
+.own .tiny { margin: .3rem 0 0; }
+
+details.ai { margin: 1rem 0 0; border-top: 1px solid var(--line); }
+details.ai summary { list-style: none; display: flex; align-items: center; gap: .6rem; padding: .95rem 0; cursor: pointer; font-weight: 600; min-height: 2.75rem; }
+details.ai summary::-webkit-details-marker { display: none; }
+details.ai summary .chev { width: .55rem; height: .55rem; border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2); transform: rotate(-45deg); transition: transform .15s; margin-left: .1rem; }
+details.ai[open] summary .chev { transform: rotate(45deg); }
+details.ai summary .when-open { display: none; }
+details.ai[open] summary .when-closed { display: none; }
+details.ai[open] summary .when-open { display: inline; }
+.ai-body { padding: .2rem 0 1.4rem; }
+.ai-body .picked { margin: 0 0 1rem; font-size: .9rem; color: var(--ink-2); }
+.ai-body .picked b { color: var(--ink); font-weight: 600; }
+.compare { display: grid; gap: 1.1rem; grid-template-columns: 1fr; }
+.compare > div { border-left: 2px solid var(--line-2); padding-left: .9rem; }
+.compare > div.you { border-left-color: var(--ink-2); }
+.compare h3 { margin: 0 0 .3rem; font-size: .78rem; letter-spacing: .1em; color: var(--ink-3); font-weight: 600; }
+.compare p { margin: 0 0 .6rem; }
+.compare dl { margin: .2rem 0 0; }
+.compare dt { font-size: .8rem; color: var(--ink-3); margin-top: .5rem; }
+.compare dd { margin: 0; }
+.ai-note { margin: 1.1rem 0 0; font-size: .8rem; color: var(--ink-3); }
+
+/* ---------- 4. 問い ---------- */
+.question { padding: 2.4rem 0 2.4rem; }
+.question .q { margin: .6rem 0 0; font-size: 1.4rem; line-height: 1.65; font-weight: 500; letter-spacing: 0; text-wrap: pretty; }
+.question .note { margin: 1rem 0 0; font-size: .86rem; color: var(--ink-2); }
+
+/* ---------- 開くと見える所 ---------- */
+.drawers { border-top: 1px solid var(--line); }
+details.drawer { border-bottom: 1px solid var(--line); }
+details.drawer summary { list-style: none; display: flex; align-items: center; gap: .7rem; padding: 1rem 0; cursor: pointer; min-height: 3.2rem; }
+details.drawer summary::-webkit-details-marker { display: none; }
+details.drawer summary .t { font-weight: 600; }
+details.drawer summary .s { color: var(--ink-3); font-size: .82rem; margin-left: auto; text-align: right; }
+details.drawer summary .chev { width: .55rem; height: .55rem; border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2); transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details.drawer[open] summary .chev { transform: rotate(45deg); }
+.drawer-body { padding: 0 0 1.6rem; }
+.drawer-body h3 { margin: 1.2rem 0 .3rem; font-size: .8rem; letter-spacing: .1em; color: var(--ink-3); font-weight: 600; }
+.drawer-body h3:first-child { margin-top: .2rem; }
+.drawer-body p { margin: 0; }
+.drawer-body ol { margin: .2rem 0 0; padding-left: 1.4rem; }
+.drawer-body ol li { margin: .15rem 0; }
+
+/* 点 */
+.selfscore { margin: 0 0 1.2rem; padding: 1rem 1.1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.selfscore p { margin: 0; }
+.dots10 { display: flex; flex-wrap: wrap; gap: 4px; margin: .6rem 0 .5rem; }
+.dots10 button { width: 2rem; height: 2.5rem; border: 1px solid var(--line-2); border-radius: 4px; font-size: .9rem; color: var(--ink-2); background: var(--bg); }
+.dots10 button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.scores { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.scores li { border-bottom: 1px solid var(--line); }
+.scores .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .6rem; width: 100%; padding: .75rem 0; text-align: left; min-height: 3rem; }
+.scores .name { color: var(--ink); }
+.scores .name small { display: block; font-size: .76rem; color: var(--ink-3); }
+.scores .val { display: flex; align-items: center; gap: .3rem; font-variant-numeric: tabular-nums; }
+.scores .val i { display: inline-block; width: .62rem; height: .62rem; border-radius: 50%; background: var(--line-2); }
+.scores .val i.on { background: var(--ink-2); }
+.scores .val b { font-weight: 600; margin-left: .4rem; min-width: 1.2em; text-align: right; }
+.scores .val .withhold { color: var(--ink-3); font-size: .9rem; }
+.scores .why { display: none; padding: 0 0 1rem; color: var(--ink-2); font-size: .95rem; }
+.scores li.open .why { display: block; }
+.scores .why .refs { margin: .4rem 0 0; font-size: .8rem; color: var(--ink-3); }
+.scores .why .refs button { color: var(--accent); margin-right: .45em; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; min-height: 2rem; }
+.total { display: flex; flex-wrap: wrap; gap: .4rem 2rem; margin: 1rem 0 0; align-items: baseline; }
+.total .n { font-size: 1.5rem; font-weight: 600; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.total .lbl { font-size: .8rem; color: var(--ink-3); display: block; letter-spacing: .08em; }
+.total .gap { flex-basis: 100%; font-size: .86rem; color: var(--ink-2); }
+
+/* 全発話 */
+.all { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.all li { display: grid; grid-template-columns: 2.4rem 3.6rem 1fr; gap: 0 .6rem; padding: .4rem .5rem .4rem .4rem; border-left: 3px solid transparent; font-size: .95rem; scroll-margin-top: 1rem; }
+.all li .no { color: var(--ink-3); font-size: .78rem; font-variant-numeric: tabular-nums; padding-top: .2em; }
+.all li .sp { font-size: .82rem; color: var(--ink-2); font-weight: 600; padding-top: .1em; }
+.all li .tx { color: var(--ink-2); }
+.all li.q { border-left-color: var(--line-2); }
+.all li.q .tx { color: var(--ink); }
+.all li.flash { background: var(--accent-soft); transition: background .6s; }
+.all li .pin-no { display: inline-block; margin-left: .4em; font-size: .7rem; color: var(--accent); }
+@media (max-width: 480px) { .all li { grid-template-columns: 2rem 3rem 1fr; gap: 0 .45rem; } }
+
+/* 倫理チェックの 1 行（いつも最後） */
+.ethics { margin: 1.6rem 0 0; font-size: .86rem; color: var(--ink-2); }
+.ethics b { font-weight: 600; margin-right: .4em; color: var(--ink); }
+
+/* ---------- 5. 次の画面への導線 ---------- */
+.cta { position: fixed; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+.cta .wrap { display: flex; align-items: center; gap: 1rem; padding-top: .7rem; padding-bottom: .7rem; }
+.cta .primary { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; background: var(--accent); color: #fff; border-radius: 999px; padding: .7rem 1.4rem; font-weight: 600; min-height: 3rem; flex: none; }
+:root[data-theme="dark"] .cta .primary { color: #10191b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cta .primary { color: #10191b; } }
+.cta .primary .arrow { font-weight: 400; }
+.cta .lead { font-size: .84rem; color: var(--ink-2); min-width: 0; }
+@media (max-width: 480px) { .cta .lead { display: none; } .cta .primary { flex: 1; } }
+.cta .toast { display: none; font-size: .82rem; color: var(--ink-2); }
+.cta.noted .toast { display: block; }
+.cta.noted .lead { display: none; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">ReflectionSpark</span>
+    <ol class="steps" aria-label="流れ">
+      <li>1 入力</li>
+      <li aria-current="step">2 読む</li>
+      <li>3 自分の言葉で</li>
+      <li>4 次に試すひとつ</li>
+      <li>5 次の面談で</li>
+    </ol>
+    <span class="mocktag" title="API は呼ばない。ダミーデータ student-shinro の保存済みの分析結果を使う">比較モック D2 Simple</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. 面談名と基本情報 -->
+  <section class="head" aria-labelledby="h1">
+    <p class="eyebrow">2. 読む</p>
+    <h1 id="h1">Aさんとの生徒面談</h1>
+    <p class="meta"><span>初回</span><span>進路</span><span id="meta-count">— 発話</span><span id="meta-ratio">話した量 —</span></p>
+  </section>
+
+  <!-- 2. Conversation Atlas -->
+  <section class="atlas" aria-labelledby="atlas-h">
+    <div class="atlas-head">
+      <h2 id="atlas-h">面談の地図</h2>
+      <div class="atlas-legend" aria-hidden="true"><span class="self"><i></i>講師</span><span class="other"><i></i>生徒</span></div>
+    </div>
+    <div id="atlas"></div>
+    <ol class="chapters" id="chapters" aria-label="面談の流れ"></ol>
+    <p class="chapters-legend" id="chapters-legend" aria-hidden="true"></p>
+    <p class="hint">棒の長さは発話の長さ。番号の印は、AI が注目した 2 つの場面。印を押すと下にその場面が出ます。棒を押すとその発話を開きます。</p>
+  </section>
+
+  <!-- 3. 注目した場面と根拠の発話 -->
+  <section class="scene" aria-labelledby="scene-h" id="scene">
+    <div class="scene-top">
+      <h2 id="scene-h">注目した場面</h2>
+      <div class="seg" role="group" aria-label="場面を切り替える" id="seg"></div>
+    </div>
+    <p class="context" id="scene-context"></p>
+
+    <div class="card">
+      <ol class="lines" id="lines"></ol>
+      <div class="scene-foot">
+        <span class="verify" id="verify"></span>
+        <button type="button" class="linkish" id="wide-btn" aria-expanded="false">前後をもう少し読む</button>
+      </div>
+    </div>
+
+    <div class="own">
+      <label for="own-input">自分の見立て<span class="quiet">（任意）</span>
+        <input id="own-input" type="text" autocomplete="off" placeholder="ここで何が起きていたと思いますか">
+      </label>
+      <p class="tiny">書かなくても、下の AI の見立ては開けます。書いた言葉は AI には渡しません。</p>
+    </div>
+
+    <details class="ai" id="ai">
+      <summary><span class="chev" aria-hidden="true"></span><span class="when-closed">AI の見立てを開く</span><span class="when-open">AI の見立てを閉じる</span></summary>
+      <div class="ai-body" id="ai-body"></div>
+    </details>
+  </section>
+
+  <!-- 4. 問い -->
+  <section class="question" aria-labelledby="q-h">
+    <p class="eyebrow" id="q-h">この場面の問い</p>
+    <p class="q" id="q"></p>
+    <p class="note">答えは次の画面「3. 自分の言葉で」で書きます。AI の見立てと違うと思う所は、そのまま書いてかまいません。</p>
+  </section>
+
+  <!-- 必要に応じて開く所 -->
+  <section class="drawers" aria-label="必要なときに開く">
+    <details class="drawer" id="d-detail">
+      <summary><span class="chev" aria-hidden="true"></span><span class="t">詳しい分析</span><span class="s">まとめ・流れ・数えた記録</span></summary>
+      <div class="drawer-body" id="detail-body"></div>
+    </details>
+    <details class="drawer" id="d-scores">
+      <summary><span class="chev" aria-hidden="true"></span><span class="t">項目ごとの点と合計</span><span class="s" id="scores-sub">先に自分の点を一つ</span></summary>
+      <div class="drawer-body" id="scores-body"></div>
+    </details>
+    <details class="drawer" id="d-all">
+      <summary><span class="chev" aria-hidden="true"></span><span class="t">全発話</span><span class="s" id="all-sub"></span></summary>
+      <div class="drawer-body"><ol class="all" id="all"></ol></div>
+    </details>
+  </section>
+
+  <p class="ethics" id="ethics"></p>
+</main>
+
+<!-- 5. 次の画面への導線 -->
+<footer class="cta" id="cta">
+  <div class="wrap">
+    <button type="button" class="primary" id="next-btn">次へ　3. 自分の言葉で <span class="arrow" aria-hidden="true">→</span></button>
+    <span class="lead">上の問いに、自分の言葉で答えます。</span>
+    <span class="toast">モックのため、ここから先の画面はありません。本体では「3. 自分の言葉で」に移ります。</span>
+  </div>
+</footer>
+
+<!-- ダミーデータ（eval/cases/student-shinro。工程 0〜2 の保存済みの結果）。実在の人物ではない -->
+<script type="application/json" id="utterances">[{"i":0,"s":"講師","t":"じゃあ始めようか。今日部活は。"},{"i":1,"s":"生徒","t":"今日は早めに終わりました。顧問の先生が出張で。"},{"i":2,"s":"講師","t":"そっか、吹奏楽来月が最後のコンクールだっけ。"},{"i":3,"s":"生徒","t":"はい。引退です。"},{"i":4,"s":"講師","t":"会場はどこ"},{"i":5,"s":"生徒","t":"市民会館です。お母さんも聞きに来るって言ってました。"},{"i":6,"s":"講師","t":"そっか、聞きに来てくれるんだ。曲はもう決まってるの。"},{"i":7,"s":"生徒","t":"決まってます。課題曲と自由曲で自由曲の方にクラリネットのソロがちょっとあって。"},{"i":8,"s":"講師","t":"えソロ吹くの ？"},{"i":9,"s":"生徒","t":"私じゃなくて隣の子です。私はその後ろで伴奏を吹いてるだけです。"},{"i":10,"s":"講師","t":"いやいや、伴奏も大事でしょう。練習きつい。"},{"i":11,"s":"生徒","t":"きついです。朝練もあるし、土曜も 1日の時あるし、でも最後なんで楽しいです。"},{"i":12,"s":"講師","t":"いいね。今日はね、夏休みに入る前に進路の話を 1回ちゃんとしておこうと思って。"},{"i":13,"s":"生徒","t":"はい。"},{"i":14,"s":"講師","t":"4月の面談シートに第一志望は南高って書いてくれてたよね。今も変わってない。"},{"i":15,"s":"生徒","t":"変わってないです。南高には行きたいです。"},{"i":16,"s":"講師","t":"うん、南高のどこがいいなって思ってる。"},{"i":17,"s":"生徒","t":"えっと、部活の先輩が南高に行ってて、吹奏楽部がすごい楽しいって言ってて、去年定期演奏会も見に行ったんですけど。"},{"i":18,"s":"講師","t":"ああ、見に行ったんだ。"},{"i":19,"s":"生徒","t":"はい、大きいホールでお客さんもいっぱいで、最後の曲でみんな立って演奏してて、なんか鳥肌立って。"},{"i":20,"s":"講師","t":"鳥肌立ったんだ。"},{"i":21,"s":"生徒","t":"そうそうなんです。あそこで吹きたいなって、その時思って。"},{"i":22,"s":"講師","t":"そっか、そこではっきり決まったんだね。"},{"i":23,"s":"生徒","t":"はい、それからずっと南高です。"},{"i":24,"s":"講師","t":"吹奏楽の他に南高でやってみたいことってある。"},{"i":25,"s":"生徒","t":"うん英語はちょっと好きかもしれないです。南高留学の制度があるって先輩が言ってて。"},{"i":26,"s":"講師","t":"へえ、それは知らなかった。英語が好きっていうのは初めて聞いたね。"},{"i":27,"s":"生徒","t":"洋楽とか聞くんで、歌詞の意味がわかるとちょっと嬉しいっていうか。"},{"i":28,"s":"講師","t":"いいね。そういうのお家の人は南高のことなんて言ってる。"},{"i":29,"s":"生徒","t":"お母さんは行けるなら行けばって、お父さんはあんまり何も言わないです。"},{"i":30,"s":"講師","t":"そっか、反対はされてないんだね。"},{"i":31,"s":"生徒","t":"はい、電車で 1本なんで通うのも楽だし。"},{"i":32,"s":"講師","t":"併願の私立は何か考えてる。"},{"i":33,"s":"生徒","t":"まだ全然です。お母さんは説明会に行ってみればって言ってるんですけど。"},{"i":34,"s":"講師","t":"うん、私立の説明会は秋が多いから夏休みの終わりくらいに一緒に見ようか資料は教室にもあるから"},{"i":35,"s":"生徒","t":"はい"},{"i":36,"s":"講師","t":"じゃあちょっと成績の話もしようか。 5月の模試帰ってきたよね。"},{"i":37,"s":"生徒","t":"はい"},{"i":38,"s":"講師","t":"南高判定どうだった"},{"i":39,"s":"生徒","t":"Dでしたはいだから正直無理なのかなってちょっと思ってて。"},{"i":40,"s":"講師","t":"そっか、Dって書いてあったら無理かもって思うよね。見たときどんな感じだった。"},{"i":41,"s":"生徒","t":"なんかああ、やっぱりって数学が思ったより取れなかったんで。"},{"i":42,"s":"講師","t":"やっぱりって思ったんだ。"},{"i":43,"s":"生徒","t":"はいでも行きたいのは行きたいんです。"},{"i":44,"s":"講師","t":"うん Dを見ても行きたい気持ちは変わらないんだね。"},{"i":45,"s":"生徒","t":"変わらないです"},{"i":46,"s":"講師","t":"わかった点数ごとに見てもいい"},{"i":47,"s":"生徒","t":"はいこれです。"},{"i":48,"s":"講師","t":"英語が 92国語が 88数学が 64理科が 71社会が 80か。"},{"i":49,"s":"生徒","t":"数学だけ低いですよね。"},{"i":50,"s":"講師","t":"数学はどの辺が難しかった。"},{"i":51,"s":"生徒","t":"関数とか図形の証明とかあと時間が足りなくて最後の大問は手をつけてないです。"},{"i":52,"s":"講師","t":"関数は 2年の内容も入ってるからね。 1次関数のところここで落としてるね。"},{"i":53,"s":"生徒","t":"2年の時、あんまりちゃんとやってなかったんで。"},{"i":54,"s":"講師","t":"でも大問の一番の計算は全部合ってるよ。ここは落としてない。"},{"i":55,"s":"生徒","t":"あ、計算は割と好きなんです。"},{"i":56,"s":"講師","t":"うん、計算が取れてるのは大きいよ。関数も式を立てるところまで行けば、あとは計算だからね。"},{"i":57,"s":"生徒","t":"式を立てるのがわからないんです。"},{"i":58,"s":"講師","t":"そうだよね。そこは夏にやろう。"},{"i":59,"s":"生徒","t":"はい。"},{"i":60,"s":"講師","t":"英語は前より上がってたもんね。単語頑張ってたし。"},{"i":61,"s":"生徒","t":"学校で毎週小テストがあるんで、それだけはやってます。"},{"i":62,"s":"講師","t":"国語は"},{"i":63,"s":"生徒","t":"国語はいつも通りくらいです。漢字は取れるけど、記述が苦手で。"},{"i":64,"s":"講師","t":"理科と社会は"},{"i":65,"s":"生徒","t":"社会は割と取れました。理科は電気のところがわからなくて。"},{"i":66,"s":"講師","t":"電気は計算も入るからね。電流と電圧の問題ここ 2つ落としてる。"},{"i":67,"s":"生徒","t":"オームの法則まだ混ざるんです"},{"i":68,"s":"講師","t":"内申も大事だから期末から"},{"i":69,"s":"生徒","t":"月の日からです。"},{"i":70,"s":"講師","t":"コンクールの前か大変だね。"},{"i":71,"s":"生徒","t":"はいテスト前も部活休みにならないんで。"},{"i":72,"s":"講師","t":"学校のワークの提出もあるでしょ。"},{"i":73,"s":"生徒","t":"あります。数学はまだ半分くらい残ってます。"},{"i":74,"s":"講師","t":"そっか期末が終わったら 7月の模試もあるけど、数学はどれくらい取りたいとかある。"},{"i":75,"s":"生徒","t":"75は取りたいです。 5月が 64だったんで。"},{"i":76,"s":"講師","t":"75ね。"},{"i":77,"s":"生徒","t":"はい"},{"i":78,"s":"講師","t":"ちなみにさ、普段家ではどんな感じ平日の夜とか。"},{"i":79,"s":"生徒","t":"家ですかえっと、部活が 7時くらいまであって、帰ってご飯食べてお風呂入って"},{"i":80,"s":"講師","t":"うん。"},{"i":81,"s":"生徒","t":"で、あとはスマホ見たり動画見たりして寝ます。"},{"i":82,"s":"講師","t":"スマホはどれくらい見てる。"},{"i":83,"s":"生徒","t":"3時間もっとかも"},{"i":84,"s":"講師","t":"いたら練るのに"},{"i":85,"s":"生徒","t":"はい"},{"i":86,"s":"講師","t":"っちゃ塾の宿題は"},{"i":87,"s":"生徒","t":"塾の宿題は塾に早めに来てやってます"},{"i":88,"s":"講師","t":"るんだ"},{"i":89,"s":"生徒","t":"いんで"},{"i":90,"s":"講師","t":"単語の小の勉強は"},{"i":91,"s":"生徒","t":"あれは朝学校で友達と問題を出し合ってます。"},{"i":92,"s":"講師","t":"なるほどね。じゃあ家で机に向かう時間っていうと"},{"i":93,"s":"生徒","t":"ほぼないです。ゼロかもしれないです。"},{"i":94,"s":"講師","t":"ゼロか土日は"},{"i":95,"s":"生徒","t":"土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。"},{"i":96,"s":"講師","t":"大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。"},{"i":97,"s":"生徒","t":"はい。"},{"i":98,"s":"講師","t":"講習の組み立てを先に話しておくとね。 7月21日から始まって中三は月曜から金曜まで午後 1時から 5時。お盆の週だけ休み。前半の 2週間は 1、2年の復習で関数も証明もそこでもう 1回やる。お盆明けからは 3年の内容と入試の形の問題に入っていく。最後の 1時間は演習の時間にして、その日の確認テストをやるからね。"},{"i":99,"s":"生徒","t":"はい。"},{"i":100,"s":"講師","t":"数学は毎日ある。最初は計算と 1次関数からだから計算が取れてるのはそこで生きてくると思う。英語は長文、国語は記述の練習が中心。理科は電気のところもやるし、社会は歴史の流れを一回通す。講習の宿題は毎回出すからね。量は多くないけど、次の日の最初に小テストをするから、その日のうちにやっておくと次の日が楽だよ。"},{"i":101,"s":"生徒","t":"はい。"},{"i":102,"s":"講師","t":"で、夏が終わると 9月からは学校の授業もどんどん進むし、塾も入試の過去問に入っていくの。秋になると新しいことを覚え直す時間はだんだん取れなくなってくるから、穴を埋めるならやっぱり夏なんだよね。"},{"i":103,"s":"生徒","t":"はい"},{"i":104,"s":"講師","t":"だから 8月の終わりの模試が 1つの目安になると思う。夏にやった分はそこに出てくることが多いから。そこで判定がどう動くかを見て、 9月の面談でまた一緒に考えよう。模試の申し込みの用紙は講習の初日に配るから、お家の方に渡しておいてね。"},{"i":105,"s":"生徒","t":"は"},{"i":106,"s":"講師","t":"あと自習室は朝 10時から開けてるから講習の前でも後でも使っていいよ。お昼は休憩室で食べていいし。講習のテキストは初日に渡すから、筆箱とノートだけ持ってきて、ノートは一冊でいいけど、日付だけは書いといて後で見返すと時にどこまでやったかわかるから。"},{"i":107,"s":"生徒","t":"はい。"},{"i":108,"s":"講師","t":"休むときは前の日までに教室に電話をもらえれば振替えの日を作るからね。部活の大会とか学校の補習とかでどうしても来られない日もあると思うから。"},{"i":109,"s":"生徒","t":"はい。"},{"i":110,"s":"講師","t":"それと南高のオープンスクール 8月にあるの知ってる"},{"i":111,"s":"生徒","t":"あ、先輩が言ってました部活体験もできるって。"},{"i":112,"s":"講師","t":"そうそう、申し込みは学校経由だと思うから、担任の先生に聞いてみて。"},{"i":113,"s":"生徒","t":"行きたいです。"},{"i":114,"s":"講師","t":"うん、行っておいで。実際に見るとまた気持ちも変わるからね。コンクールは何日だっけ"},{"i":115,"s":"生徒","t":"月の 18日です"},{"i":116,"s":"講師","t":"じゃあ講習が始まるちょっと前だね。"},{"i":117,"s":"生徒","t":"はい、県大会に行けたら 8月もあるんですけど。"},{"i":118,"s":"講師","t":"お行けるといいね。その時は講習の日程また相談しよう。"},{"i":119,"s":"生徒","t":"はい。でも引退したらちょっと寂しいかもしれないです。 3年間ずっと部活だったんで。"},{"i":120,"s":"講師","t":"そうだよね。毎日行ってた場所がなくなるからね。"},{"i":121,"s":"生徒","t":"はい"},{"i":122,"s":"講師","t":"学校の 3者面談はいつ ？"},{"i":123,"s":"生徒","t":"7月の終わりです。25日だったかな。"},{"i":124,"s":"講師","t":"そこでも第一志望は南高っていうつもり。"},{"i":125,"s":"生徒","t":"はい言います"},{"i":126,"s":"講師","t":"うん、お家の方には今日話したこと、私からも電話でざっくり伝えておくね。"},{"i":127,"s":"生徒","t":"はい"},{"i":128,"s":"講師","t":"何か聞いておきたいことある。"},{"i":129,"s":"生徒","t":"えっと特にないです。"},{"i":130,"s":"講師","t":"そっかじゃあまずはコンクール頑張って終わったら夏から一緒に頑張ろう。"},{"i":131,"s":"生徒","t":"はい、ありがとうございました。"}]</script>
+<script type="application/json" id="analysis">
+{
+  "flow": [
+    { "from": 0,   "to": 11,  "label": "部活",           "text": "部活とコンクールの話から始まる" },
+    { "from": 12,  "to": 35,  "label": "進路と志望校",     "text": "進路の話：南高を志望する理由（定期演奏会）、英語への関心、家族の考え、併願の私立" },
+    { "from": 36,  "to": 77,  "label": "模試の判定と点",   "text": "月模試のD判定と教科ごとの点、数学の目標75点" },
+    { "from": 78,  "to": 109, "label": "家での学習と講習", "text": "家での学習時間がほぼゼロと分かり、夏期講習の組み立て・8月模試・自習室などの説明へ" },
+    { "from": 110, "to": 131, "label": "締めくくり",       "text": "オープンスクール、コンクールの日程、引退の寂しさ、三者面談を確かめて締めくくる" }
+  ],
+  "scenes": [
+    {
+      "type": "よく表れた所",
+      "items": [[1, "受け止めた"]],
+      "context": "5月の模試で南高の判定がDだったと生徒が話し、「無理なのかな」と口にした場面。",
+      "focal": 40,
+      "show": [39, 44],
+      "wide": [36, 47],
+      "quotes": [
+        { "index": 39, "text": "Dでしたはいだから正直無理なのかなってちょっと思ってて。" },
+        { "index": 40, "text": "そっか、Dって書いてあったら無理かもって思うよね。見たときどんな感じだった。" },
+        { "index": 41, "text": "なんかああ、やっぱりって数学が思ったより取れなかったんで。" },
+        { "index": 42, "text": "やっぱりって思ったんだ。" },
+        { "index": 43, "text": "はいでも行きたいのは行きたいんです。" },
+        { "index": 44, "text": "うん Dを見ても行きたい気持ちは変わらないんだね。" },
+        { "index": 46, "text": "わかった点数ごとに見てもいい" }
+      ],
+      "observation": "生徒が「Dでしたはいだから正直無理なのかなってちょっと思ってて。」と話した直後、講師は点数や勉強方法の話に入らず、生徒の「無理かも」という言葉を言い直し、見たときの様子を尋ねています。その後も「やっぱりって思ったんだ。」「うん Dを見ても行きたい気持ちは変わらないんだね。」と、生徒の言葉を返しています。点数ごとに見るのは、その後に「わかった点数ごとに見てもいい」と生徒に尋ねてからです。",
+      "reaction": "生徒は「なんかああ、やっぱりって数学が思ったより取れなかったんで。」と話を続け、その後「はいでも行きたいのは行きたいんです。」と、志望の気持ちを自分から口にしています。",
+      "reading": "講師が言葉を返し続けたことで、生徒が「無理かも」から「でも行きたい」まで自分の言葉で話を進められたと読めます。また、点数の話に入る前に生徒に確認を取ったことで、話題の切り替えを生徒と合わせて進めたと読めます。",
+      "asChoice": null,
+      "question": "「見たときどんな感じだった」と尋ねたとき、生徒の答えから何を確かめようとしていましたか。"
+    },
+    {
+      "type": "次に試せる所",
+      "items": [[3, "解像度を上げ、相手が選んだ"], [4, "目標とつないだ"]],
+      "context": "家で机に向かう時間がほぼゼロで、土日も勉強していないと生徒が話した後、講師が夏期講習の説明に入った場面。",
+      "focal": 96,
+      "show": [95, 97],
+      "wide": [92, 101],
+      "quotes": [
+        { "index": 95, "text": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。" },
+        { "index": 96, "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。" },
+        { "index": 97, "text": "はい。" },
+        { "index": 75, "text": "75は取りたいです。 5月が 64だったんで。" },
+        { "index": 73, "text": "あります。数学はまだ半分くらい残ってます。" },
+        { "index": 99, "text": "はい。" },
+        { "index": 101, "text": "はい。" },
+        { "index": 107, "text": "はい。" },
+        { "index": 130, "text": "そっかじゃあまずはコンクール頑張って終わったら夏から一緒に頑張ろう。" }
+      ],
+      "observation": "生徒が「土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。」と話した直後に、講師は「大丈夫。これからだよ」と返し、その後、講習の日程、教科ごとの内容、9月以降の流れ、8月の模試、自習室、持ち物、休むときの連絡まで説明を続けています（発話 98〜108）。この間、生徒が次にやることを自分で口にする場面はありません。生徒が少し前に挙げた数学の目標「75は取りたいです。 5月が 64だったんで。」（発話 75）や、「数学はまだ半分くらい残ってます。」（発話 73）というワークの話は、この説明の中では出てきていません。",
+      "reaction": "生徒は「はい。」と答え、その後の講師の説明にも「はい。」「はい。」「はい。」と短い返事が続いています。生徒が自分から話し始めるのは、オープンスクールの話題になってからです。",
+      "reading": "面談の中で決まった次の行動は「夏から頑張ろう」と講習の流れまでで、生徒自身の「いつ・何を」は言葉になっていないと読めます。また、生徒が口にした「75」という目標や、期末前に残っているワークと、講習の内容とのつながりは、この範囲では話されていないと読めます。",
+      "asChoice": "生徒が「やばいですよね」と言ったところで、まず安心させることを優先した可能性があります。また、締めくくりで「そっかじゃあまずはコンクール頑張って終わったら夏から一緒に頑張ろう。」（発話 130）と話していることから、コンクール前の生徒に今は負担を足さないという判断や、夏休み前に講習の情報を伝えきる時間の都合があったのかもしれません。どの理由があったかは、この文字起こしの範囲では確認できません。",
+      "question": "次に、生徒が自分の今の状況について「やばいですよね」と口にする場面が来たら、その後のやり取りで何を試してみたいですか。"
+    }
+  ],
+  "summary": "D判定の話題では、講師が方法に移る前に生徒の言葉を返し続け、生徒が「でも行きたい」と自分から志望の気持ちを言い直すところまで話が進みました。一方、家庭学習ゼロの話の後は講習の説明が続き、生徒自身が決めた「いつ・何を」や、数学75点という目標と講習とのつながりは言葉になっていない所があります。",
+  "extraQuestion": "スマホの時間を聞いた後のやり取り（講師の「いたら練るのに」のあたり）は文字起こしが途切れていますが、そこではどんな話をしていましたか。",
+  "insightOwner": "講師",
+  "items": [
+    { "item": 1, "name": "受け止めた", "score": 4, "reason": "「鳥肌」「無理なのかな」「やっぱり」を講師が生徒の言葉で返し、生徒は「あそこで吹きたい」「でも行きたいのは行きたい」と続けました。一方、「式を立てるのがわからない」（発話 57）と「やばいですよね」（発話 95）の後は、講師がすぐ「夏にやろう」「夏から頑張ろう」と方法の話に移り、生徒の返事は「はい」だけでした。", "utterances": [19, 20, 21, 39, 40, 41, 42, 43, 44, 45, 57, 58, 95, 96, 97] },
+    { "item": 2, "name": "選択肢を広げた", "score": 4, "reason": "講師は点数を聞いた後で「1次関数で落としている」「計算は落としていない」「電流と電圧で2つ落としている」と見立てを伝え、生徒は「計算は割と好き」「式を立てるのがわからない」「オームの法則まだ混ざる」と続けました。オープンスクールの案内にも「行きたいです」と応じています。一方、ワークが半分残っている話（発話 73）と、家での時間がほぼゼロという話（発話 93〜95）の後は、見立てが足されず、励ましと講習の説明に移りました。", "utterances": [32, 33, 34, 52, 53, 54, 55, 56, 57, 66, 67, 73, 95, 96, 110, 111, 113] },
+    { "item": 3, "name": "解像度を上げ、相手が選んだ", "score": 2, "reason": "面談で決まった次の行動は「夏から一緒に頑張ろう」と講習の流れまででした。生徒の発話に「いつ・何を」は出ていません。オープンスクールに「行きたいです」と生徒が自分で言った所はありますが、いつ・何をするかまでは具体になっていません。3者面談の件は「言うつもり？」という閉じた問いで終わっています。", "utterances": [34, 58, 96, 98, 100, 113, 124, 125, 130] },
+    { "item": 4, "name": "目標とつないだ", "score": 3, "reason": "講師は第一志望の南高とその理由を丁寧に確かめ、オープンスクールの案内で目標と行動をつなぎました。生徒はこれに「行きたいです」と続けています。一方、生徒が口にした「数学75」（発話 75）は、講師が「75ね」と返しただけで、講習や期末の行動とは結ばれませんでした。", "utterances": [14, 15, 16, 17, 21, 23, 43, 74, 75, 76, 104, 110, 111, 112, 113] },
+    { "item": 5, "name": "前回決めたことに触れた", "score": null, "reason": "4月の面談シートに触れた所（発話 14）はありますが、前回決めた行動を話題にした所は、範囲では確認できないため判定しません。", "utterances": [14, 60] }
+  ],
+  "ethics": { "level": "問題なし", "text": "他の生徒・家庭の情報の扱い、誘導、立場、見込みの誇張のいずれにも、気になる所は本文に見当たりません。講習の案内は通常の案内の範囲と読めます。" }
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+  const U = JSON.parse(document.getElementById("utterances").textContent);   // [{i, s, t}]
+  const A = JSON.parse(document.getElementById("analysis").textContent);
+  const SELF = "講師";
+  const $ = (id) => document.getElementById(id);
+  const chars = (s) => Array.from(s || "").length;
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = {
+    get(k) { try { return localStorage.getItem("d2simple:" + k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem("d2simple:" + k, v); } catch { /* 無くても動く */ } },
+  };
+
+  // ---- 引用の照合：cited_text を発話の本文と完全一致で照らす。一致した引用だけを画面に出す ----
+  for (const sc of A.scenes) {
+    for (const q of sc.quotes) q.verified = U[q.index] !== undefined && U[q.index].t === q.text;
+    sc.quotedSet = new Set(sc.quotes.filter((q) => q.verified).map((q) => q.index));
+  }
+
+  // ---- 1. 基本情報：数えた記録はアプリが数える（AI を呼ばない）----
+  let selfChars = 0, otherChars = 0, longest = null, run = null;
+  for (const u of U) {
+    const n = chars(u.t);
+    if (u.s === SELF) selfChars += n; else otherChars += n;
+    if (run && run.s === u.s) { run.c += n; run.to = u.i; } else run = { s: u.s, c: n, from: u.i, to: u.i };
+    if (!longest || run.c > longest.c) longest = { ...run };
+  }
+  const selfPct = Math.round((selfChars / (selfChars + otherChars)) * 100);
+  $("meta-count").textContent = `${U.length} 発話`;
+  $("meta-ratio").textContent = `話した量 講師 ${selfPct}%・生徒 ${100 - selfPct}%`;
+
+  // ---- 2. Atlas ----
+  // 地図。狭い画面では横幅の単位を小さくして、同じ高さの棒が画面の上で大きく見えるようにする
+  let atlasNarrow = null;
+  function buildAtlas() {
+    const narrow = window.innerWidth <= 640;
+    if (atlasNarrow === narrow) return;
+    atlasNarrow = narrow;
+    const W = narrow ? 480 : 1000, H = 128, mid = 64, n = U.length, slot = W / n, bw = Math.max(1.6, slot * 0.7);
+    const hOf = (t) => Math.min(44, 3 + Math.sqrt(chars(t)) * 3.4);
+    let s = `<svg viewBox="0 -14 ${W} ${H + 14}" role="img" aria-label="面談の地図。${n} の発話を順に並べ、講師は上、生徒は下に、長さを棒で示す">`;
+    s += `<line class="axis" x1="0" y1="${mid}" x2="${W}" y2="${mid}"/>`;
+    for (const f of A.flow) {
+      if (f.from > 0) s += `<line class="axis" x1="${(f.from * slot).toFixed(1)}" y1="6" x2="${(f.from * slot).toFixed(1)}" y2="${H - 6}" stroke-dasharray="2 3"/>`;
+    }
+    for (const u of U) {
+      const x = (u.i * slot + (slot - bw) / 2).toFixed(2), h = hOf(u.t).toFixed(1);
+      const y = u.s === SELF ? (mid - h).toFixed(1) : mid;
+      const fill = u.s === SELF ? "var(--self)" : "var(--other)";
+      s += `<g class="bar" data-i="${u.i}" tabindex="0" role="button" aria-label="発話 ${u.i} ${esc(u.s)}"><title>発話 ${u.i}　${esc(u.s)}：${esc(u.t)}</title><rect x="${x}" y="${y}" width="${bw.toFixed(2)}" height="${h}" rx="1" fill="${fill}"/></g>`;
+    }
+    A.scenes.forEach((sc, k) => {
+      const x1 = sc.show[0] * slot, x2 = (sc.show[1] + 1) * slot, cx = (sc.focal + 0.5) * slot;
+      s += `<path class="range" d="M${x1.toFixed(1)} ${H - 4} v4 H${x2.toFixed(1)} v-4"/>`;
+      s += `<g class="pin" data-scene="${k}" tabindex="0" role="button" aria-pressed="false" aria-label="場面 ${k + 1}（発話 ${sc.show[0]}〜${sc.show[1]}）を下に出す"><circle cx="${cx.toFixed(1)}" cy="-1" r="9"/><text x="${cx.toFixed(1)}" y="-1">${k + 1}</text></g>`;
+    });
+    s += "</svg>";
+    $("atlas").innerHTML = s;
+    $("chapters").innerHTML = A.flow.map((f, k) => `<li style="flex:${f.to - f.from + 1} 1 0" title="${esc(f.text)}（発話 ${f.from}〜${f.to}）"><b>${k + 1}</b><span class="label">${esc(f.label)}</span></li>`).join("");
+    $("chapters-legend").innerHTML = A.flow.map((f, k) => `<span><b>${k + 1}</b>${esc(f.label)}</span>`).join("");
+    for (const p of document.querySelectorAll(".pin")) p.setAttribute("aria-pressed", String(Number(p.dataset.scene) === current));
+  }
+  $("atlas").addEventListener("click", onAtlas);
+  $("atlas").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onAtlas(e); } });
+  window.addEventListener("resize", buildAtlas);
+  function onAtlas(e) {
+    const pin = e.target.closest(".pin");
+    if (pin) { showScene(Number(pin.dataset.scene)); $("scene").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    const bar = e.target.closest(".bar");
+    if (bar) openUtterance(Number(bar.dataset.i));
+  }
+
+  // ---- 3. 場面 ----
+  let current = 0, wide = false;
+  function lineHtml(u, sc, big) {
+    const quoted = sc.quotedSet.has(u.i);
+    const cls = [u.i === sc.focal ? "focal" : "", quoted ? "quoted" : "", !quoted && u.i !== sc.focal ? "dim" : ""].filter(Boolean).join(" ");
+    return `<li class="${cls}"><span class="who"><b>${esc(u.s)}</b>${u.i}${quoted ? `<span class="mark">（引用した発話）</span>` : ""}</span><p class="txt">${esc(u.t)}</p></li>`;
+  }
+  function showScene(k) {
+    current = k; wide = false;
+    const sc = A.scenes[k];
+    $("scene-context").textContent = sc.context;
+    renderLines();
+    const ok = sc.quotes.filter((q) => q.verified).length, all = sc.quotes.length;
+    const inRange = sc.quotes.filter((q) => q.verified && q.index >= sc.show[0] && q.index <= sc.show[1]).length;
+    $("verify").textContent = ok === all ? `引用 ${all} 件すべて原文と一致（この範囲に ${inRange} 件）` : `引用 ${ok}／${all} 件が原文と一致（一致しない引用は出していません）`;
+    $("q").textContent = sc.question;
+    for (const b of document.querySelectorAll("#seg button")) b.setAttribute("aria-pressed", String(Number(b.dataset.scene) === k));
+    for (const p of document.querySelectorAll(".pin")) p.setAttribute("aria-pressed", String(Number(p.dataset.scene) === k));
+    $("own-input").value = store.get("own:" + k) || "";
+    renderAi();
+    store.set("scene", String(k));
+  }
+  function renderLines() {
+    const sc = A.scenes[current];
+    const [a, b] = wide ? sc.wide : sc.show;
+    $("lines").innerHTML = U.slice(a, b + 1).map((u) => lineHtml(u, sc)).join("");
+    $("wide-btn").textContent = wide ? "最初の範囲に戻す" : "前後をもう少し読む";
+    $("wide-btn").setAttribute("aria-expanded", String(wide));
+  }
+  function renderAi() {
+    const sc = A.scenes[current];
+    const own = ($("own-input").value || "").trim();
+    const items = sc.items.map(([n, name]) => `${n} ${name}`).join("、");
+    let h = `<p class="picked">AI はこの場面を<b>「${esc(sc.type)}」</b>として選びました。関わる項目：${esc(items)}。</p>`;
+    h += `<div class="compare ${own ? "two" : ""}">`;
+    if (own) h += `<div class="you"><h3>あなたの見立て</h3><p>${esc(own)}</p></div>`;
+    h += `<div><h3>AI の見立て</h3><dl><dt>文字起こしから確かめられること（観察）</dt><dd>${esc(sc.observation)}</dd><dt>直後の相手の反応</dt><dd>${esc(sc.reaction)}</dd><dt>読み（解釈）</dt><dd>${esc(sc.reading)}</dd>${sc.asChoice ? `<dt>意図した選択として見ると</dt><dd>${esc(sc.asChoice)}</dd>` : ""}</dl></div>`;
+    h += `</div>`;
+    h += `<p class="ai-note">「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。AI の読みと自分の見立てが違っていてかまいません。</p>`;
+    $("ai-body").innerHTML = h;
+  }
+  $("seg").innerHTML = A.scenes.map((sc, k) => `<button type="button" data-scene="${k}" aria-pressed="false">場面 ${k + 1}<small>発話 ${sc.show[0]}〜${sc.show[1]}</small></button>`).join("");
+  $("seg").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showScene(Number(b.dataset.scene)); });
+  $("wide-btn").addEventListener("click", () => { wide = !wide; renderLines(); });
+  $("own-input").addEventListener("input", () => { store.set("own:" + current, $("own-input").value); renderAi(); });
+
+  // ---- 詳しい分析 ----
+  function renderDetail() {
+    const L = longest;
+    $("detail-body").innerHTML =
+      `<h3>サマリー</h3><p>${esc(A.summary)}</p>` +
+      `<h3>面談の流れ</h3><ol>${A.flow.map((f) => `<li>${esc(f.text)}（発話 ${f.from}〜${f.to}）</li>`).join("")}</ol>` +
+      `<h3>気づきの持ち主</h3><p>面談の最後に残ったテーマを主に言葉にしたのは：${esc(A.insightOwner)}</p>` +
+      `<h3>数えた記録（点には入りません）</h3><p>話した量（文字数）：講師 ${selfPct}%、生徒 ${100 - selfPct}%（${selfChars} 字／${otherChars} 字）。いちばん長く続けて話した：${esc(L.s)}、${L.c} 字（発話 ${L.from}${L.from === L.to ? "" : "〜" + L.to}）。</p>` +
+      `<h3>もう一つの問い</h3><p>${esc(A.extraQuestion)}</p>`;
+  }
+
+  // ---- 点：先に自分の点（任意）→ AI の点 ----
+  let selfScore = store.get("self") ? Number(store.get("self")) : null;
+  let scoresShown = store.get("scoresShown") === "1";
+  function renderScores() {
+    const judged = A.items.filter((i) => i.score !== null);
+    const sum = judged.reduce((s, i) => s + i.score, 0), max = judged.length * 5, scaled = Math.round((sum / max) * 100) / 10;
+    let h = "";
+    if (!scoresShown) {
+      h += `<div class="selfscore"><p>先に、この面談の点を一つ付けます（10 点満点）。この点は AI に渡しません。あとで AI の点と並べます。</p>` +
+        `<div class="dots10" role="group" aria-label="自分の点">${Array.from({ length: 10 }, (_, i) => `<button type="button" data-v="${i + 1}" aria-pressed="${selfScore === i + 1}">${i + 1}</button>`).join("")}</div>` +
+        `<button type="button" class="linkish" id="skip-self">付けずに AI の点を見る</button></div>`;
+      $("scores-sub").textContent = "先に自分の点を一つ";
+    } else {
+      h += `<p class="tiny">点は面談の点で、人の点ではありません。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと理由と根拠の発話が開きます。</p>`;
+      h += `<ul class="scores">${A.items.map((it) => `<li><button type="button" class="row" aria-expanded="false"><span class="name">${it.item}. ${esc(it.name)}</span><span class="val">${it.score === null ? `<span class="withhold">判定しない</span>` : Array.from({ length: 5 }, (_, i) => `<i class="${i < it.score ? "on" : ""}"></i>`).join("") + `<b>${it.score}</b>`}</span></button>` +
+        `<div class="why"><p>${esc(it.reason)}</p><p class="refs">根拠の発話：${it.utterances.map((n) => `<button type="button" data-u="${n}">${n}</button>`).join("")}</p></div></li>`).join("")}</ul>`;
+      h += `<div class="total"><div><span class="lbl">AI の点（合計）</span><span class="n">${scaled}</span><span class="quiet"> ／10</span><span class="tiny">　判定した ${judged.length} 項目の ${sum}／${max} を 10 点に換算（仮）</span></div>`;
+      h += `<div><span class="lbl">自分の点</span><span class="n">${selfScore === null ? "—" : selfScore}</span><span class="quiet"> ／10</span></div>`;
+      if (selfScore !== null && Math.abs(selfScore - scaled) >= 2) h += `<p class="gap">自分の点と AI の点に差があります。差は、どちらが正しいかではなく、確かめる点です。</p>`;
+      h += `</div>`;
+      $("scores-sub").textContent = `AI ${scaled}／10${selfScore !== null ? `・自分 ${selfScore}／10` : ""}`;
+    }
+    $("scores-body").innerHTML = h;
+  }
+  $("scores-body").addEventListener("click", (e) => {
+    const d = e.target.closest(".dots10 button");
+    if (d) { selfScore = Number(d.dataset.v); store.set("self", String(selfScore)); scoresShown = true; store.set("scoresShown", "1"); renderScores(); return; }
+    if (e.target.closest("#skip-self")) { scoresShown = true; store.set("scoresShown", "1"); renderScores(); return; }
+    const row = e.target.closest(".row");
+    if (row) { const li = row.parentElement; li.classList.toggle("open"); row.setAttribute("aria-expanded", String(li.classList.contains("open"))); return; }
+    const ref = e.target.closest(".refs button");
+    if (ref) openUtterance(Number(ref.dataset.u));
+  });
+
+  // ---- 全発話 ----
+  function renderAll() {
+    const pinned = new Map(); A.scenes.forEach((sc, k) => pinned.set(sc.focal, k + 1));
+    const quoted = new Set(); for (const sc of A.scenes) for (const i of sc.quotedSet) quoted.add(i);
+    $("all").innerHTML = U.map((u) => `<li id="u-${u.i}" class="${quoted.has(u.i) ? "q" : ""}"><span class="no">${u.i}</span><span class="sp">${esc(u.s)}</span><span class="tx">${esc(u.t)}${pinned.has(u.i) ? `<span class="pin-no">場面 ${pinned.get(u.i)}</span>` : ""}</span></li>`).join("");
+    $("all-sub").textContent = `${U.length} 発話・引用した発話に線`;
+  }
+  function openUtterance(i) {
+    const d = $("d-all"); d.open = true;
+    const li = $("u-" + i); if (!li) return;
+    li.scrollIntoView({ behavior: "smooth", block: "center" });
+    li.classList.add("flash"); setTimeout(() => li.classList.remove("flash"), 1400);
+  }
+
+  // ---- 倫理チェック（1 行。点にしない。いつも最後）----
+  const mark = { "問題なし": "○", "判断できない": "—", "確かめてください": "●", "所属の手順": "●" }[A.ethics.level] || "●";
+  $("ethics").innerHTML = `<b>${mark} 倫理チェック</b>${esc(A.ethics.level)}。点にはせず、合計にも入れません。`;
+
+  // ---- 5. 導線 ----
+  $("next-btn").addEventListener("click", () => { $("cta").classList.add("noted"); });
+
+  buildAtlas();
+  renderDetail();
+  renderScores();
+  renderAll();
+  showScene(Number(store.get("scene") || 0) === 1 ? 1 : 0);
+})();
+</script>
+</body>
+</html>
