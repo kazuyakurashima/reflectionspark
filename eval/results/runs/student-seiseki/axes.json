@@ -1,0 +1,1678 @@
+{
+  "case": "student-seiseki",
+  "axis1": {
+    "generated": 3,
+    "discarded": 0,
+    "displayed": 3,
+    "displayedVerified": 3,
+    "displayedMatchRate": 1,
+    "scenesWithoutQuote": 0,
+    "contextWithJudgement": [],
+    "neighborsMissing": 0
+  },
+  "axis2": {
+    "aiScenes": [
+      {
+        "type": "よく表れた所",
+        "items": [
+          1,
+          2
+        ],
+        "utterances": [
+          50,
+          53
+        ],
+        "lines": [
+          57,
+          60
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "items": [
+          1,
+          3,
+          4
+        ],
+        "utterances": [
+          72
+        ],
+        "lines": [
+          95
+        ]
+      }
+    ],
+    "scenes": [
+      {
+        "truthName": "強み・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          39,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61
+        ],
+        "droppedLines": [
+          40,
+          48,
+          62
+        ],
+        "absent": false,
+        "matched": true
+      },
+      {
+        "truthName": "強み・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          63,
+          65,
+          66,
+          67,
+          68,
+          69,
+          71,
+          72,
+          73,
+          74
+        ],
+        "droppedLines": [
+          64,
+          70,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80
+        ],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          13,
+          15
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          99
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      }
+    ],
+    "climax": null,
+    "items": [
+      {
+        "item": 1,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 1 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": null,
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        },
+        "bad": null
+      },
+      {
+        "item": 2,
+        "mark": "○×",
+        "good": {
+          "truthName": "項目 2 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": null,
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        },
+        "bad": {
+          "truthName": "項目 2 まずく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": null,
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        }
+      },
+      {
+        "item": 3,
+        "mark": "○×",
+        "good": {
+          "truthName": "項目 3 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            137,
+            141
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": {
+          "truthName": "項目 3 まずく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": null,
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        }
+      },
+      {
+        "item": 4,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 4 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": null,
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        },
+        "bad": null
+      },
+      {
+        "item": 5,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      }
+    ]
+  },
+  "axis3": [
+    {
+      "scene": "よく表れた所",
+      "score": 5,
+      "reason": "発話50の場面に絞った一つの開かれた問いで、答えや解釈を先に示していないため、四つの観点をすべて満たしている。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "「どんな一言」と開いた形で一つの事柄を聞いており、目標を聞いた後に講師が案を示した発話72の場面にも沿っている。ただ「案を出す前か後に」という枠が、案の出し方に手を入れるべきだという読みを少し先に示している。"
+    }
+  ],
+  "axis5": {
+    "hits": [
+      {
+        "word": "性質",
+        "field": "step1.scenes[1].observation",
+        "context": "表示を控えました（人物の性質を言い表す言葉が含まれて"
+      }
+    ],
+    "withheld": [
+      {
+        "step": "step1",
+        "field": "scenes[1].observation",
+        "words": [
+          "性質"
+        ],
+        "original": "生徒が発話 63 で目標を口にした後、講師は発話 64 から発話 70 にかけて、時期の見通しと数学の性質を話しました。発話 72 では、冬期講習でのやり直しと、ワークを毎日やる案を出しています。ワークを毎日いつ・どれだけやるかは、この時点では具体になっていません。発話 78 では、期末の点より講習最後のテストを目安にする案も講師から出ています。"
+      }
+    ],
+    "unverifiedQuotes": 0,
+    "scoresInStep1": false,
+    "scoresPerItem": true
+  },
+  "axis6": null,
+  "axis8": {
+    "firstMeeting": true,
+    "item5Withheld": true,
+    "withheldAsTruth": [
+      {
+        "item": 1,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 2,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 3,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 4,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 5,
+        "truth": true,
+        "ai": true
+      }
+    ],
+    "truthNoScene": false,
+    "saidNoScene": false
+  },
+  "axis9": {
+    "pairs": [],
+    "satisfied": 0,
+    "countable": 0,
+    "pairsIncludingDraft": 0,
+    "absentItems": []
+  },
+  "axis10": [
+    {
+      "scene": "よく表れた所",
+      "score": 3,
+      "reason": "発話50の問いの形と、発話51・53で生徒が自分の言葉で重なりを言い表した流れは引用と前後の発話で確かめられます。一方、発話47の打ち明けと発話48の礼・範囲の質問は示された発話に無く、読みの「受け止めてから」もこの確かめられない部分に頼っています。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "発話72は計画の中身と毎日のワークが講師の側から示されたことを直接支え、直後の発話73の短い返事とも合っています。ただし、観察は表示が控えられていて照合できません。また、読みの後半（発話91・92との照合、発話106以降で生徒の言葉が増えたこと）は引用の外の文脈に頼っています。"
+    }
+  ],
+  "axis11": {
+    "utterances": 122,
+    "aligned": 121,
+    "correct": 118,
+    "accuracy": 0.9752066115702479,
+    "byConfidence": [
+      {
+        "confidence": "高",
+        "count": 108,
+        "wrong": 0
+      },
+      {
+        "confidence": "中",
+        "count": 10,
+        "wrong": 1
+      },
+      {
+        "confidence": "低",
+        "count": 4,
+        "wrong": 2
+      }
+    ],
+    "spanningSpeakers": 2,
+    "multipleOthers": false,
+    "wrong": [
+      {
+        "index": 62,
+        "ai": "講師",
+        "truth": "生徒",
+        "confidence": "低",
+        "text": "するんだは期末は"
+      },
+      {
+        "index": 85,
+        "ai": "生徒",
+        "truth": "講師",
+        "confidence": "中",
+        "text": "やっぱり"
+      },
+      {
+        "index": 91,
+        "ai": "生徒",
+        "truth": "講師",
+        "confidence": "低",
+        "text": "6時半です。帰ると 7時過ぎで。ご飯食べてお風呂入って 8時半ぐらいはクは提出の"
+      }
+    ]
+  },
+  "axis12": {
+    "corrections": [
+      {
+        "index": 3,
+        "kind": "近い音の聞き違え",
+        "before": "電池に入る",
+        "after": "ベンチに入る",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "ンチに入る"
+      },
+      {
+        "index": 7,
+        "kind": "欠けた音",
+        "before": "ニバスで",
+        "after": "ミニバスで",
+        "verdict": "元が正しかった",
+        "scriptWindow": "ニバスで"
+      },
+      {
+        "index": 17,
+        "kind": "同音の取り違え",
+        "before": "帰ってきた時",
+        "after": "返ってきた時",
+        "verdict": "拾えた",
+        "scriptWindow": "返ってきた時"
+      },
+      {
+        "index": 18,
+        "kind": "同音の取り違え",
+        "before": "帰ってきた時",
+        "after": "返ってきた時",
+        "verdict": "拾えた",
+        "scriptWindow": "返ってきた時"
+      },
+      {
+        "index": 30,
+        "kind": "同音の取り違え",
+        "before": "映すだけ",
+        "after": "写すだけ",
+        "verdict": "拾えた",
+        "scriptWindow": "写すだけ"
+      },
+      {
+        "index": 36,
+        "kind": "同音の取り違え",
+        "before": "大門",
+        "after": "大問",
+        "verdict": "拾えた",
+        "scriptWindow": "大問"
+      },
+      {
+        "index": 38,
+        "kind": "同音の取り違え",
+        "before": "文章台",
+        "after": "文章題",
+        "verdict": "拾えた",
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 38,
+        "kind": "同音の取り違え",
+        "before": "1時関数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 39,
+        "kind": "同音の取り違え",
+        "before": "文章台",
+        "after": "文章題",
+        "verdict": "拾えた",
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 40,
+        "kind": "同音の取り違え",
+        "before": "文章台",
+        "after": "文章題",
+        "verdict": "拾えた",
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 42,
+        "kind": "近い音の聞き違え",
+        "before": "1時間数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 42,
+        "kind": "同音の取り違え",
+        "before": "文章台",
+        "after": "文章題",
+        "verdict": "拾えた",
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 48,
+        "kind": "同音の取り違え",
+        "before": "映した",
+        "after": "写した",
+        "verdict": "拾えた",
+        "scriptWindow": "写した"
+      },
+      {
+        "index": 53,
+        "kind": "同音の取り違え",
+        "before": "映したところ",
+        "after": "写したところ",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "写した所"
+      },
+      {
+        "index": 64,
+        "kind": "近い音の聞き違え",
+        "before": "1時間数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 68,
+        "kind": "同音の取り違え",
+        "before": "1時関数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 72,
+        "kind": "同音の取り違え",
+        "before": "登記講習",
+        "after": "冬期講習",
+        "verdict": "拾えた",
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 74,
+        "kind": "同音の取り違え",
+        "before": "移したく",
+        "after": "写したく",
+        "verdict": "拾えた",
+        "scriptWindow": "写したく"
+      },
+      {
+        "index": 76,
+        "kind": "同音の取り違え",
+        "before": "登記講習",
+        "after": "冬期講習",
+        "verdict": "拾えた",
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 76,
+        "kind": "近い音の聞き違え",
+        "before": "不規則同士",
+        "after": "不規則動詞",
+        "verdict": "拾えた",
+        "scriptWindow": "不規則動詞"
+      },
+      {
+        "index": 83,
+        "kind": "同音の取り違え",
+        "before": "1時関数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 84,
+        "kind": "同音の取り違え",
+        "before": "工店",
+        "after": "交点",
+        "verdict": "拾えた",
+        "scriptWindow": "交点"
+      },
+      {
+        "index": 84,
+        "kind": "近い音の聞き違え",
+        "before": "四季",
+        "after": "式",
+        "verdict": "拾えた",
+        "scriptWindow": "式"
+      },
+      {
+        "index": 84,
+        "kind": "同音の取り違え",
+        "before": "建てられれば",
+        "after": "立てられれば",
+        "verdict": "拾えた",
+        "scriptWindow": "立てられれば"
+      },
+      {
+        "index": 92,
+        "kind": "同音の取り違え",
+        "before": "移さなくて",
+        "after": "写さなくて",
+        "verdict": "拾えた",
+        "scriptWindow": "写さなくて"
+      },
+      {
+        "index": 113,
+        "kind": "同音の取り違え",
+        "before": "映した",
+        "after": "写した",
+        "verdict": "拾えた",
+        "scriptWindow": "写した"
+      },
+      {
+        "index": 114,
+        "kind": "同音の取り違え",
+        "before": "登記講習",
+        "after": "冬期講習",
+        "verdict": "拾えた",
+        "scriptWindow": "冬期講習"
+      }
+    ],
+    "applied": 27,
+    "discarded": 0,
+    "picked": 19,
+    "overfixedOriginalCorrect": 1,
+    "overfixedWrongWord": 7,
+    "unaligned": 0,
+    "pickedByKind": {
+      "同音の取り違え": 17,
+      "近い音の聞き違え": 2
+    },
+    "mismatchSpots": 116,
+    "mismatchTouched": 25,
+    "missed": [
+      {
+        "line": 4,
+        "memoText": "2"
+      },
+      {
+        "line": 4,
+        "memoText": "多分"
+      },
+      {
+        "line": 6,
+        "memoText": "1"
+      },
+      {
+        "line": 13,
+        "memoText": "51"
+      },
+      {
+        "line": 15,
+        "memoText": "1"
+      },
+      {
+        "line": 15,
+        "memoText": "76"
+      },
+      {
+        "line": 16,
+        "memoText": "76"
+      },
+      {
+        "line": 23,
+        "memoText": "他"
+      },
+      {
+        "line": 24,
+        "memoText": "64"
+      },
+      {
+        "line": 24,
+        "memoText": "72"
+      },
+      {
+        "line": 24,
+        "memoText": "68"
+      },
+      {
+        "line": 24,
+        "memoText": "75"
+      },
+      {
+        "line": 25,
+        "memoText": "70"
+      },
+      {
+        "line": 26,
+        "memoText": "一番"
+      },
+      {
+        "line": 27,
+        "memoText": "一番"
+      },
+      {
+        "line": 30,
+        "memoText": "割"
+      },
+      {
+        "line": 30,
+        "memoText": "1"
+      },
+      {
+        "line": 30,
+        "memoText": "方"
+      },
+      {
+        "line": 30,
+        "memoText": "2"
+      },
+      {
+        "line": 30,
+        "memoText": "2"
+      },
+      {
+        "line": 30,
+        "memoText": "わ"
+      },
+      {
+        "line": 32,
+        "memoText": "わ"
+      },
+      {
+        "line": 32,
+        "memoText": "頷"
+      },
+      {
+        "line": 32,
+        "memoText": "わ"
+      },
+      {
+        "line": 33,
+        "memoText": "わ"
+      },
+      {
+        "line": 33,
+        "memoText": "頷"
+      },
+      {
+        "line": 38,
+        "memoText": "多"
+      },
+      {
+        "line": 43,
+        "memoText": "3"
+      },
+      {
+        "line": 44,
+        "memoText": "わ"
+      },
+      {
+        "line": 46,
+        "memoText": "書"
+      },
+      {
+        "line": 46,
+        "memoText": "わ"
+      },
+      {
+        "line": 47,
+        "memoText": "ろ"
+      },
+      {
+        "line": 49,
+        "memoText": "ろ"
+      },
+      {
+        "line": 49,
+        "memoText": "ろ"
+      },
+      {
+        "line": 50,
+        "memoText": "後"
+      },
+      {
+        "line": 54,
+        "memoText": "ろ"
+      },
+      {
+        "line": 56,
+        "memoText": "こ"
+      },
+      {
+        "line": 57,
+        "memoText": "ろ"
+      },
+      {
+        "line": 57,
+        "memoText": "ろ"
+      },
+      {
+        "line": 58,
+        "memoText": "多分"
+      },
+      {
+        "line": 60,
+        "memoText": "ろ"
+      },
+      {
+        "line": 60,
+        "memoText": "わ"
+      },
+      {
+        "line": 61,
+        "memoText": "ろ"
+      },
+      {
+        "line": 61,
+        "memoText": "ろ"
+      },
+      {
+        "line": 63,
+        "memoText": "方"
+      },
+      {
+        "line": 65,
+        "memoText": "綴"
+      },
+      {
+        "line": 65,
+        "memoText": "割"
+      },
+      {
+        "line": 72,
+        "memoText": "6"
+      },
+      {
+        "line": 72,
+        "memoText": "7"
+      },
+      {
+        "line": 74,
+        "memoText": "大体"
+      },
+      {
+        "line": 87,
+        "memoText": "あ"
+      },
+      {
+        "line": 87,
+        "memoText": "結構"
+      },
+      {
+        "line": 87,
+        "memoText": "3"
+      },
+      {
+        "line": 87,
+        "memoText": "1"
+      },
+      {
+        "line": 91,
+        "memoText": "1回わ"
+      },
+      {
+        "line": 91,
+        "memoText": "わ"
+      },
+      {
+        "line": 91,
+        "memoText": "1カ"
+      },
+      {
+        "line": 95,
+        "memoText": "1"
+      },
+      {
+        "line": 95,
+        "memoText": "1"
+      },
+      {
+        "line": 97,
+        "memoText": "わ"
+      },
+      {
+        "line": 97,
+        "memoText": "開"
+      },
+      {
+        "line": 99,
+        "memoText": "12月 25"
+      },
+      {
+        "line": 99,
+        "memoText": "2"
+      },
+      {
+        "line": 99,
+        "memoText": "4"
+      },
+      {
+        "line": 99,
+        "memoText": "3"
+      },
+      {
+        "line": 99,
+        "memoText": "後"
+      },
+      {
+        "line": 99,
+        "memoText": "1"
+      },
+      {
+        "line": 101,
+        "memoText": "1"
+      },
+      {
+        "line": 103,
+        "memoText": "家"
+      },
+      {
+        "line": 106,
+        "memoText": "ろ"
+      },
+      {
+        "line": 106,
+        "memoText": "2"
+      },
+      {
+        "line": 107,
+        "memoText": "ろ"
+      },
+      {
+        "line": 107,
+        "memoText": "ろ"
+      },
+      {
+        "line": 109,
+        "memoText": "わ"
+      },
+      {
+        "line": 109,
+        "memoText": "き"
+      },
+      {
+        "line": 116,
+        "memoText": "6"
+      },
+      {
+        "line": 116,
+        "memoText": "7"
+      },
+      {
+        "line": 117,
+        "memoText": "8"
+      },
+      {
+        "line": 125,
+        "memoText": "11"
+      },
+      {
+        "line": 125,
+        "memoText": "1ヶ"
+      },
+      {
+        "line": 128,
+        "memoText": "80"
+      },
+      {
+        "line": 128,
+        "memoText": "結構"
+      },
+      {
+        "line": 142,
+        "memoText": "とこ"
+      },
+      {
+        "line": 143,
+        "memoText": "わ"
+      },
+      {
+        "line": 143,
+        "memoText": "15"
+      },
+      {
+        "line": 144,
+        "memoText": "ギリギリ"
+      },
+      {
+        "line": 145,
+        "memoText": "15"
+      },
+      {
+        "line": 148,
+        "memoText": "ろ"
+      },
+      {
+        "line": 149,
+        "memoText": "わ"
+      },
+      {
+        "line": 152,
+        "memoText": "9"
+      },
+      {
+        "line": 152,
+        "memoText": "7"
+      }
+    ],
+    "guesses": [
+      {
+        "index": 3,
+        "kind": "崩れ",
+        "fragment": "電池に入る",
+        "guess": "ベンチに入る",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "ンチに入る"
+      },
+      {
+        "index": 7,
+        "kind": "崩れ",
+        "fragment": "ニバス",
+        "guess": "ミニバス",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "ニバス"
+      },
+      {
+        "index": 15,
+        "kind": "崩れ",
+        "fragment": "下がます",
+        "guess": "25下がりました",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "下がってます"
+      },
+      {
+        "index": 17,
+        "kind": "崩れ",
+        "fragment": "帰ってきた時",
+        "guess": "返ってきた時",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "返ってきた時"
+      },
+      {
+        "index": 18,
+        "kind": "崩れ",
+        "fragment": "帰ってきた時",
+        "guess": "返ってきた時",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "返ってきた時"
+      },
+      {
+        "index": 30,
+        "kind": "崩れ",
+        "fragment": "映すだけ",
+        "guess": "写すだけ",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "写すだけ"
+      },
+      {
+        "index": 31,
+        "kind": "崩れ",
+        "fragment": "もうな頷く",
+        "guess": "うなずく",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "もうなずく"
+      },
+      {
+        "index": 32,
+        "kind": "崩れ",
+        "fragment": "な頷く",
+        "guess": "うなずく",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "なずく"
+      },
+      {
+        "index": 34,
+        "kind": "崩れ",
+        "fragment": "止まるとりにはいなんなかってる感じか",
+        "guess": "止まるから言えなくなってる感じか",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "止まると周りに悪いって思うはいみんな分かってる感じなんでみんな分かってる感じか"
+      },
+      {
+        "index": 36,
+        "kind": "崩れ",
+        "fragment": "大門 1",
+        "guess": "大問1",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "大問一"
+      },
+      {
+        "index": 38,
+        "kind": "崩れ",
+        "fragment": "文章台",
+        "guess": "文章題",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 38,
+        "kind": "崩れ",
+        "fragment": "1時関数",
+        "guess": "一次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 39,
+        "kind": "崩れ",
+        "fragment": "文章台",
+        "guess": "文章題",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 40,
+        "kind": "崩れ",
+        "fragment": "文章台",
+        "guess": "文章題",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 42,
+        "kind": "崩れ",
+        "fragment": "1時間数",
+        "guess": "一次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 42,
+        "kind": "崩れ",
+        "fragment": "文章台",
+        "guess": "文章題",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "文章題"
+      },
+      {
+        "index": 48,
+        "kind": "崩れ",
+        "fragment": "映した",
+        "guess": "写した",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "写した"
+      },
+      {
+        "index": 53,
+        "kind": "崩れ",
+        "fragment": "映したところ",
+        "guess": "写したところ",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "写した所"
+      },
+      {
+        "index": 61,
+        "kind": "崩れ",
+        "fragment": "通りま",
+        "guess": "通ります",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "通りま"
+      },
+      {
+        "index": 62,
+        "kind": "崩れ",
+        "fragment": "するんだは期末は",
+        "guess": "通るんだ。じゃあ期末は",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "す"
+      },
+      {
+        "index": 63,
+        "kind": "崩れ",
+        "fragment": "数学成績げたい",
+        "guess": "数学の成績上げたい",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 64,
+        "kind": "崩れ",
+        "fragment": "1時間数",
+        "guess": "一次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 68,
+        "kind": "崩れ",
+        "fragment": "1時関数",
+        "guess": "一次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 72,
+        "kind": "崩れ",
+        "fragment": "登記講習",
+        "guess": "冬期講習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 72,
+        "kind": "崩れ",
+        "fragment": "毎日やるできる",
+        "guess": "毎日やれる",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "毎日やるできる"
+      },
+      {
+        "index": 74,
+        "kind": "崩れ",
+        "fragment": "移したくなっても",
+        "guess": "写したくなっても",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "写したくなっても"
+      },
+      {
+        "index": 74,
+        "kind": "崩れ",
+        "fragment": "開けておいて",
+        "guess": "空けておいて",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "空けておいて"
+      },
+      {
+        "index": 76,
+        "kind": "崩れ",
+        "fragment": "登記講習",
+        "guess": "冬期講習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 76,
+        "kind": "崩れ",
+        "fragment": "不規則同士",
+        "guess": "不規則動詞",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "不規則動詞"
+      },
+      {
+        "index": 80,
+        "kind": "崩れ",
+        "fragment": "おう家の方",
+        "guess": "おうちの方",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "おうちの方"
+      },
+      {
+        "index": 83,
+        "kind": "崩れ",
+        "fragment": "1時関数",
+        "guess": "一次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "一次関数"
+      },
+      {
+        "index": 84,
+        "kind": "崩れ",
+        "fragment": "工店",
+        "guess": "交点",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "交点"
+      },
+      {
+        "index": 84,
+        "kind": "崩れ",
+        "fragment": "四季が 2本建てられれば",
+        "guess": "式が2本立てられれば",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "式が二本立てられれば"
+      },
+      {
+        "index": 90,
+        "kind": "崩れ",
+        "fragment": "聞いてはバスケ",
+        "guess": "聞いてね。バスケ",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "聞いてはいバスケ"
+      },
+      {
+        "index": 91,
+        "kind": "崩れ",
+        "fragment": "8時半ぐらいはクは提出",
+        "guess": "8時半ぐらい。ワークは提出",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "八時半くらいそのくらいですそのあとはだいたいスマホ見てますワクはいつやってる提出"
+      },
+      {
+        "index": 92,
+        "kind": "崩れ",
+        "fragment": "すことになる",
+        "guess": "写すことになる",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "すことになる"
+      },
+      {
+        "index": 92,
+        "kind": "崩れ",
+        "fragment": "移さなくて",
+        "guess": "写さなくて",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "写さなくて"
+      },
+      {
+        "index": 104,
+        "kind": "崩れ",
+        "fragment": "少しずつつか",
+        "guess": "少しずつか",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "少しずつか"
+      },
+      {
+        "index": 105,
+        "kind": "崩れ",
+        "fragment": "いかも",
+        "guess": "いいかも",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "いかも"
+      },
+      {
+        "index": 107,
+        "kind": "崩れ",
+        "fragment": "数の式",
+        "guess": "関数の式",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "数の式"
+      },
+      {
+        "index": 107,
+        "kind": "崩れ",
+        "fragment": "とこう回教えていです",
+        "guess": "とこもう1回教えてほしいです",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "をもう一回教えてほしいです"
+      },
+      {
+        "index": 113,
+        "kind": "崩れ",
+        "fragment": "映したところ",
+        "guess": "写したところ",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "写した所"
+      },
+      {
+        "index": 114,
+        "kind": "崩れ",
+        "fragment": "登記講習",
+        "guess": "冬期講習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "冬期講習"
+      }
+    ],
+    "guessStats": {
+      "total": 43,
+      "reallyBroken": 31,
+      "guessMatchesScript": 23,
+      "changedCorrect": 6,
+      "unaligned": 0
+    }
+  },
+  "guessMeaning": [
+    {
+      "fragment": "電池に入る",
+      "guess": "ベンチに入る",
+      "score": 3,
+      "reason": "「〜ンチに入る」の部分は台本と合いますが、台本は「ンチ」と先頭が欠けていて中心の名詞を確定できず、推測の「ベンチ」が合っているとは言い切れません（「ピンチ」などの可能性もあります）。"
+    },
+    {
+      "fragment": "ニバス",
+      "guess": "ミニバス",
+      "score": 1,
+      "reason": "台本は「ニバス」のままで、推測の「ミニバス」は台本に無い語と意味（ミニバスケットボール）を足しているため、意味が一致しません。"
+    },
+    {
+      "fragment": "下がます",
+      "guess": "25下がりました",
+      "score": 1,
+      "reason": "「下がる」という中心の意味は台本と合うが、台本に無い数値「25」を足しているため、基準により1とする（時制の違いは小さい）。"
+    },
+    {
+      "fragment": "帰ってきた時",
+      "guess": "返ってきた時",
+      "score": 5,
+      "reason": "推測「返ってきた時」は台本「返ってきた時」と表記も意味も一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "帰ってきた時",
+      "guess": "返ってきた時",
+      "score": 5,
+      "reason": "推測「返ってきた時」は台本「返ってきた時」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "映すだけ",
+      "guess": "写すだけ",
+      "score": 5,
+      "reason": "推測「写すだけ」は台本「写すだけ」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "もうな頷く",
+      "guess": "うなずく",
+      "score": 4,
+      "reason": "推測「うなずく」は台本「もうなずく」の中心の意味（頷く）と合っており、台本に無い意味も足していないが、「も」（〜もまた）に当たる語が抜けているため、細かい語の違いとして4点とした。"
+    },
+    {
+      "fragment": "な頷く",
+      "guess": "うなずく",
+      "score": 4,
+      "reason": "台本の「なずく」は「うなずく」が縮まった形と読め、推測「うなずく」と意味はほぼ同じで足された意味もありませんが、台本の語形だけでは「名付く」などの別の語の可能性を完全には否定できないため、5ではなく4としました。"
+    },
+    {
+      "fragment": "止まるとりにはいなんなかってる感じか",
+      "guess": "止まるから言えなくなってる感じか",
+      "score": 1,
+      "reason": "台本は「止まると周りに悪いと思うことをみんな分かっている」という意味だが、推測は「止まるから言えなくなっている」となっており意味が異なる。さらに、台本に無い「言えない」という意味を足している。"
+    },
+    {
+      "fragment": "大門 1",
+      "guess": "大問1",
+      "score": 5,
+      "reason": "推測「大問1」は台本「大問一」と数字の表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "文章台",
+      "guess": "文章題",
+      "score": 5,
+      "reason": "推測「文章題」は台本「文章題」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "1時関数",
+      "guess": "一次関数",
+      "score": 5,
+      "reason": "推測「一次関数」は台本「一次関数」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "文章台",
+      "guess": "文章題",
+      "score": 5,
+      "reason": "推測「文章題」は台本「文章題」と完全に一致し、意味も同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "文章台",
+      "guess": "文章題",
+      "score": 5,
+      "reason": "推測「文章題」は台本「文章題」と完全に一致しており、意味の違いも付け足された意味もない。"
+    },
+    {
+      "fragment": "1時間数",
+      "guess": "一次関数",
+      "score": 5,
+      "reason": "推測「一次関数」は台本「一次関数」と完全に一致しており、意味の追加や欠落もない。"
+    },
+    {
+      "fragment": "文章台",
+      "guess": "文章題",
+      "score": 5,
+      "reason": "推測「文章題」は台本「文章題」と一致し、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "映した",
+      "guess": "写した",
+      "score": 5,
+      "reason": "推測「写した」は台本「写した」と完全に一致しており、意味も同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "映したところ",
+      "guess": "写したところ",
+      "score": 5,
+      "reason": "推測「写したところ」は台本「写した所」と表記の違いだけで、意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "通りま",
+      "guess": "通ります",
+      "score": 4,
+      "reason": "推測の「通ります」は台本の「通りま」の語尾を補っただけで中心の意味は合うが、台本は途中で切れており、否定や過去の可能性もある中で肯定の言い切りを足しているため満点ではない。"
+    },
+    {
+      "fragment": "するんだは期末は",
+      "guess": "通るんだ。じゃあ期末は",
+      "score": 1,
+      "reason": "台本は「す」の一音だけで、推測の「通るんだ。じゃあ期末は」は台本に無い意味を大きく足しているため1点とした（ただし台本が途中で切れている可能性があり、全文の確認が必要）。"
+    },
+    {
+      "fragment": "1時間数",
+      "guess": "一次関数",
+      "score": 5,
+      "reason": "推測「一次関数」は台本「一次関数」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "1時関数",
+      "guess": "一次関数",
+      "score": 5,
+      "reason": "推測「一次関数」は台本「一次関数」と完全に一致しており、意味の追加も欠落もない。"
+    },
+    {
+      "fragment": "登記講習",
+      "guess": "冬期講習",
+      "score": 5,
+      "reason": "推測「冬期講習」は台本「冬期講習」と完全に一致しており、意味が同じで台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "毎日やるできる",
+      "guess": "毎日やれる",
+      "score": 4,
+      "reason": "推測「毎日やれる」は台本「毎日やるできる」の『毎日できる』という意味とほぼ一致し、新しい意味も足していない。ただ、台本にある『やる』の意志のニュアンスが可能の形にまとめられており、細部がわずかに異なる。"
+    },
+    {
+      "fragment": "移したくなっても",
+      "guess": "写したくなっても",
+      "score": 5,
+      "reason": "推測「写したくなっても」は台本「写したくなっても」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "開けておいて",
+      "guess": "空けておいて",
+      "score": 5,
+      "reason": "推測「空けておいて」は台本「空けておいて」と完全に一致し、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "登記講習",
+      "guess": "冬期講習",
+      "score": 5,
+      "reason": "推測「冬期講習」は台本「冬期講習」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "不規則同士",
+      "guess": "不規則動詞",
+      "score": 5,
+      "reason": "推測「不規則動詞」は台本「不規則動詞」と完全に一致しており、意味の過不足もない。"
+    },
+    {
+      "fragment": "おう家の方",
+      "guess": "おうちの方",
+      "score": 5,
+      "reason": "推測「おうちの方」は台本「おうちの方」と一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "1時関数",
+      "guess": "一次関数",
+      "score": 5,
+      "reason": "推測「一次関数」は台本「一次関数」と完全に一致しており、意味も同じで、台本に無い意味の追加もない。"
+    },
+    {
+      "fragment": "工店",
+      "guess": "交点",
+      "score": 5,
+      "reason": "推測「交点」は台本の「交点」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "四季が 2本建てられれば",
+      "guess": "式が2本立てられれば",
+      "score": 5,
+      "reason": "推測「式が2本立てられれば」は台本「式が二本立てられれば」と意味が同じで、違いは数字の表記だけであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "聞いてはバスケ",
+      "guess": "聞いてね。バスケ",
+      "score": 4,
+      "reason": "推測は「聞いて」と「バスケ」という中心の語で台本と合っていますが、台本の「はい」が「ね」に置き換わっている細かい違いがあります。"
+    },
+    {
+      "fragment": "8時半ぐらいはクは提出",
+      "guess": "8時半ぐらい。ワークは提出",
+      "score": 3,
+      "reason": "「8時半ぐらい」と「ワーク」「提出」の語は台本と合いますが、台本の「ワクはいつやってる」という問いが抜け、「ワークは提出」という言い切りに変わっているため、意味は半分ほどしか一致しません。"
+    },
+    {
+      "fragment": "すことになる",
+      "guess": "写すことになる",
+      "score": 1,
+      "reason": "台本は「すことになる」のみで、推測の「写す」という動詞は台本に無い意味を足しているため。"
+    },
+    {
+      "fragment": "移さなくて",
+      "guess": "写さなくて",
+      "score": 5,
+      "reason": "推測「写さなくて」は台本「写さなくて」と完全に一致しており、意味が同じで台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "少しずつつか",
+      "guess": "少しずつか",
+      "score": 5,
+      "reason": "推測「少しずつか」は台本「少しずつか」と完全に一致しており、意味の追加や欠落もない。"
+    },
+    {
+      "fragment": "いかも",
+      "guess": "いいかも",
+      "score": 1,
+      "reason": "台本は断片と同じ「いかも」で、「いい（良い）」という評価の意味を含まないため、推測「いいかも」は台本に無い意味を足している。"
+    },
+    {
+      "fragment": "数の式",
+      "guess": "関数の式",
+      "score": 1,
+      "reason": "台本は「数の式」で、推測の「関数の式」は台本に無い「関数」という意味を足しており、指すものが変わっているため。"
+    },
+    {
+      "fragment": "とこう回教えていです",
+      "guess": "とこもう1回教えてほしいです",
+      "score": 4,
+      "reason": "中心の「もう一回教えてほしいです」は台本と同じ意味ですが、台本の助詞「を」の位置に「とこ」が入っており、細かい語が違います。"
+    },
+    {
+      "fragment": "映したところ",
+      "guess": "写したところ",
+      "score": 5,
+      "reason": "推測「写したところ」は台本「写した所」と表記の違いだけで、意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "登記講習",
+      "guess": "冬期講習",
+      "score": 5,
+      "reason": "推測「冬期講習」は台本「冬期講習」と一致しており、意味が同じで、台本に無い意味も足していない。"
+    }
+  ],
+  "variance": null,
+  "timing": {
+    "step0": {
+      "step0a": {
+        "model": "claude-opus-5-5",
+        "ms": 39128,
+        "inputTokens": 2671,
+        "outputTokens": 5969,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1153
+      },
+      "step0b": {
+        "model": "claude-opus-5-5",
+        "ms": 16794,
+        "inputTokens": 3721,
+        "outputTokens": 1949,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1220
+      },
+      "step0c": {
+        "model": "claude-opus-5-5",
+        "ms": 33131,
+        "inputTokens": 3725,
+        "outputTokens": 3874,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1166
+      }
+    },
+    "step1Ms": 36678,
+    "firstCitationMs": 18813,
+    "step2Ms": 30526,
+    "step4Ms": null
+  }
+}

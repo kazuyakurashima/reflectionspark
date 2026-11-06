@@ -1,0 +1,1303 @@
+{
+  "case": "student-shinro",
+  "axis1": {
+    "generated": 17,
+    "discarded": 0,
+    "displayed": 16,
+    "displayedVerified": 16,
+    "displayedMatchRate": 1,
+    "scenesWithoutQuote": 0,
+    "contextWithJudgement": [],
+    "neighborsMissing": 0
+  },
+  "axis2": {
+    "aiScenes": [
+      {
+        "type": "よく表れた所",
+        "items": [
+          1
+        ],
+        "utterances": [
+          40,
+          39,
+          42,
+          44,
+          46,
+          41,
+          43
+        ],
+        "lines": [
+          40,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          49
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "items": [
+          3,
+          4
+        ],
+        "utterances": [
+          96,
+          95,
+          75,
+          73,
+          97,
+          99,
+          101,
+          107,
+          130
+        ],
+        "lines": [
+          76,
+          78,
+          98,
+          100,
+          101,
+          103,
+          104,
+          106,
+          110,
+          116,
+          141
+        ]
+      }
+    ],
+    "scenes": [
+      {
+        "truthName": "強み・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          21,
+          45,
+          47
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": true
+      },
+      {
+        "truthName": "強み・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          53,
+          57
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          101,
+          103,
+          104,
+          105,
+          106,
+          107,
+          109,
+          110,
+          111,
+          112,
+          113,
+          115,
+          116,
+          117
+        ],
+        "droppedLines": [
+          102,
+          108,
+          114
+        ],
+        "absent": false,
+        "matched": true
+      },
+      {
+        "truthName": "課題・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          1,
+          15,
+          25,
+          33
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      }
+    ],
+    "climax": {
+      "watch": "issueBest",
+      "matched": true
+    },
+    "items": [
+      {
+        "item": 1,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 1 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            21,
+            45,
+            47
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        },
+        "bad": null
+      },
+      {
+        "item": 2,
+        "mark": "×",
+        "good": null,
+        "bad": {
+          "truthName": "項目 2 まずく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            100,
+            101
+          ],
+          "droppedLines": [
+            102
+          ],
+          "absent": false,
+          "matched": false
+        }
+      },
+      {
+        "item": 3,
+        "mark": "×",
+        "good": null,
+        "bad": {
+          "truthName": "項目 3 まずく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            61,
+            101,
+            139,
+            140,
+            141
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        }
+      },
+      {
+        "item": 4,
+        "mark": "×",
+        "good": null,
+        "bad": {
+          "truthName": "項目 4 まずく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            78
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        }
+      },
+      {
+        "item": 5,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      }
+    ]
+  },
+  "axis3": [
+    {
+      "scene": "よく表れた所",
+      "score": 5,
+      "reason": "発話40の「見たときどんな感じだった」という場面に絞った一つの開かれた問いで、答えや解釈を先に示していない。「確かめようとしていた」という前提はやや含むものの、目的の中身は講師に委ねているため、四つの観点をすべて満たす。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 5,
+      "reason": "発話95の「やばいですよね」という場面に即し、答えや解釈を含まず、何を試したいかを一つだけ聞く開かれた問いになっているため、四つの観点をすべて満たしています。"
+    }
+  ],
+  "axis5": {
+    "hits": [],
+    "scoresInStep1": true,
+    "scoresPerItem": true
+  },
+  "axis6": null,
+  "axis8": {
+    "firstMeeting": true,
+    "item5Withheld": true,
+    "withheldAsTruth": [
+      {
+        "item": 1,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 2,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 3,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 4,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 5,
+        "truth": true,
+        "ai": true
+      }
+    ],
+    "saidNoScene": false
+  },
+  "axis9": {
+    "pairs": [
+      {
+        "good": 1,
+        "bad": 4,
+        "goodScore": 4,
+        "badScore": 3,
+        "ok": true
+      }
+    ],
+    "satisfied": 1,
+    "countable": 1,
+    "pairsIncludingDraft": 3
+  },
+  "axis10": [
+    {
+      "scene": "よく表れた所",
+      "score": 4,
+      "reason": "観察（発話40での言い直しと問い、42・44での返し、46での確認）と直後の反応（41・43）は引用と前後の発話に合っており、「でも行きたい」まで生徒が自分の言葉で進めたという読みも引用から導けます。ただ、話題の切り替えを生徒と合わせたという読みは、引用外の発話47「はいこれです」に頼っています。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "観察（「大丈夫。これからだよ」の後に講習説明が続き、生徒の返事は「はい」だけ）と読み（次の行動が生徒の言葉になっておらず、75やワークと講習とのつながりも話されていない）は引用から導けます。ただし、観察の「8月の模試」と反応の「オープンスクールの話題」は示された発話に無く、引用の外の文脈に頼っています。"
+    }
+  ],
+  "axis11": {
+    "utterances": 132,
+    "aligned": 128,
+    "correct": 128,
+    "accuracy": 1,
+    "byConfidence": [
+      {
+        "confidence": "高",
+        "count": 105,
+        "wrong": 0
+      },
+      {
+        "confidence": "中",
+        "count": 20,
+        "wrong": 0
+      },
+      {
+        "confidence": "低",
+        "count": 7,
+        "wrong": 0
+      }
+    ],
+    "spanningSpeakers": 2,
+    "multipleOthers": false,
+    "wrong": []
+  },
+  "axis12": {
+    "corrections": [
+      {
+        "index": 14,
+        "kind": "同音の取り違え",
+        "before": "難航",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "志望は南高って書"
+      },
+      {
+        "index": 15,
+        "kind": "同音の取り違え",
+        "before": "南航",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "いです南高には行"
+      },
+      {
+        "index": 16,
+        "kind": "同音の取り違え",
+        "before": "南港",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "すうん南高のどこ"
+      },
+      {
+        "index": 17,
+        "kind": "同音の取り違え",
+        "before": "南港",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "先輩が南高に行っ"
+      },
+      {
+        "index": 23,
+        "kind": "近い音の聞き違え",
+        "before": "ずっとなんかです",
+        "after": "ずっと南高です",
+        "verdict": "拾えた",
+        "scriptWindow": "れからずっと南高です吹奏楽"
+      },
+      {
+        "index": 24,
+        "kind": "同音の取り違え",
+        "before": "難航",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "ほかに南高でやっ"
+      },
+      {
+        "index": 25,
+        "kind": "同音の取り違え",
+        "before": "南校",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "いです南高留学の"
+      },
+      {
+        "index": 28,
+        "kind": "同音の取り違え",
+        "before": "南港",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "の人は南高のこと"
+      },
+      {
+        "index": 31,
+        "kind": "欠けた音",
+        "before": "通のも",
+        "after": "通うのも",
+        "verdict": "拾えた",
+        "scriptWindow": "なんで通うのも楽だし"
+      },
+      {
+        "index": 32,
+        "kind": "近い音の聞き違え",
+        "before": "平岸",
+        "after": "併願",
+        "verdict": "拾えた",
+        "scriptWindow": "楽だし併願の私立"
+      },
+      {
+        "index": 38,
+        "kind": "同音の取り違え",
+        "before": "難航",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "ねはい南高判定ど"
+      },
+      {
+        "index": 39,
+        "kind": "崩れた語",
+        "before": "でしたかはい",
+        "after": "Dでしたはい",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "ったdでしたdかはいだから"
+      },
+      {
+        "index": 40,
+        "kind": "数字や英字の表記",
+        "before": "ディー",
+        "after": "D",
+        "verdict": "拾えた",
+        "scriptWindow": "そっかdって書"
+      },
+      {
+        "index": 52,
+        "kind": "同音の取り違え",
+        "before": "1時関数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "からね一次関数のとこ"
+      },
+      {
+        "index": 67,
+        "kind": "近い音の聞き違え",
+        "before": "オウムの法則",
+        "after": "オームの法則",
+        "verdict": "拾えた",
+        "scriptWindow": "してるオムの法則まだ混"
+      },
+      {
+        "index": 68,
+        "kind": "同音の取り違え",
+        "before": "内心",
+        "after": "内申",
+        "verdict": "拾えた",
+        "scriptWindow": "んです内申も大事"
+      },
+      {
+        "index": 96,
+        "kind": "数字や英字の表記",
+        "before": "12年",
+        "after": "1、2年",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "ここで一二年の穴を"
+      },
+      {
+        "index": 98,
+        "kind": "数字や英字の表記",
+        "before": "7月二 1日",
+        "after": "7月21日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "くとね七月二十一日から始"
+      },
+      {
+        "index": 98,
+        "kind": "数字や英字の表記",
+        "before": "12年",
+        "after": "1、2年",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "週間は一二年の復習"
+      },
+      {
+        "index": 100,
+        "kind": "同音の取り違え",
+        "before": "1時関数",
+        "after": "1次関数",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "計算と一次関数からだ"
+      },
+      {
+        "index": 108,
+        "kind": "同音の取り違え",
+        "before": "補修",
+        "after": "補習",
+        "verdict": "拾えた",
+        "scriptWindow": "学校の補習とかで"
+      },
+      {
+        "index": 110,
+        "kind": "同音の取り違え",
+        "before": "南航",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "それと南高のオプ"
+      },
+      {
+        "index": 123,
+        "kind": "数字や英字の表記",
+        "before": "二十 5日",
+        "after": "25日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "りです二十五日だった"
+      },
+      {
+        "index": 124,
+        "kind": "同音の取り違え",
+        "before": "難航",
+        "after": "南高",
+        "verdict": "拾えた",
+        "scriptWindow": "志望は南高って言"
+      }
+    ],
+    "applied": 24,
+    "discarded": 0,
+    "picked": 17,
+    "overfixedOriginalCorrect": 0,
+    "overfixedWrongWord": 7,
+    "unaligned": 0,
+    "pickedByKind": {
+      "同音の取り違え": 12,
+      "近い音の聞き違え": 3,
+      "欠けた音": 1,
+      "数字や英字の表記": 1
+    },
+    "mismatchSpots": 82,
+    "mismatchTouched": 22,
+    "missed": [
+      {
+        "line": 8,
+        "memoText": "方"
+      },
+      {
+        "line": 12,
+        "memoText": "1"
+      },
+      {
+        "line": 12,
+        "memoText": "時"
+      },
+      {
+        "line": 13,
+        "memoText": "1"
+      },
+      {
+        "line": 15,
+        "memoText": "4"
+      },
+      {
+        "line": 22,
+        "memoText": "時"
+      },
+      {
+        "line": 28,
+        "memoText": "わ"
+      },
+      {
+        "line": 28,
+        "memoText": "嬉"
+      },
+      {
+        "line": 29,
+        "memoText": "家"
+      },
+      {
+        "line": 29,
+        "memoText": "ん"
+      },
+      {
+        "line": 32,
+        "memoText": "1"
+      },
+      {
+        "line": 37,
+        "memoText": "5"
+      },
+      {
+        "line": 37,
+        "memoText": "帰"
+      },
+      {
+        "line": 49,
+        "memoText": "わ"
+      },
+      {
+        "line": 51,
+        "memoText": "92"
+      },
+      {
+        "line": 51,
+        "memoText": "88"
+      },
+      {
+        "line": 51,
+        "memoText": "64"
+      },
+      {
+        "line": 51,
+        "memoText": "71"
+      },
+      {
+        "line": 51,
+        "memoText": "80"
+      },
+      {
+        "line": 53,
+        "memoText": "辺"
+      },
+      {
+        "line": 55,
+        "memoText": "2"
+      },
+      {
+        "line": 56,
+        "memoText": "2"
+      },
+      {
+        "line": 56,
+        "memoText": "時"
+      },
+      {
+        "line": 58,
+        "memoText": "割"
+      },
+      {
+        "line": 60,
+        "memoText": "わ"
+      },
+      {
+        "line": 68,
+        "memoText": "割"
+      },
+      {
+        "line": 68,
+        "memoText": "わ"
+      },
+      {
+        "line": 69,
+        "memoText": "2"
+      },
+      {
+        "line": 77,
+        "memoText": "7"
+      },
+      {
+        "line": 78,
+        "memoText": "75"
+      },
+      {
+        "line": 78,
+        "memoText": "5"
+      },
+      {
+        "line": 78,
+        "memoText": "64"
+      },
+      {
+        "line": 82,
+        "memoText": "7"
+      },
+      {
+        "line": 86,
+        "memoText": "3"
+      },
+      {
+        "line": 103,
+        "memoText": "一番"
+      },
+      {
+        "line": 105,
+        "memoText": "1"
+      },
+      {
+        "line": 105,
+        "memoText": "5"
+      },
+      {
+        "line": 105,
+        "memoText": "2"
+      },
+      {
+        "line": 105,
+        "memoText": "1"
+      },
+      {
+        "line": 105,
+        "memoText": "3"
+      },
+      {
+        "line": 105,
+        "memoText": "1"
+      },
+      {
+        "line": 111,
+        "memoText": "9"
+      },
+      {
+        "line": 113,
+        "memoText": "8"
+      },
+      {
+        "line": 113,
+        "memoText": "1"
+      },
+      {
+        "line": 113,
+        "memoText": "9"
+      },
+      {
+        "line": 113,
+        "memoText": "家"
+      },
+      {
+        "line": 115,
+        "memoText": "0"
+      },
+      {
+        "line": 115,
+        "memoText": "と"
+      },
+      {
+        "line": 115,
+        "memoText": "後"
+      },
+      {
+        "line": 115,
+        "memoText": "時"
+      },
+      {
+        "line": 115,
+        "memoText": "わ"
+      },
+      {
+        "line": 119,
+        "memoText": "8"
+      },
+      {
+        "line": 126,
+        "memoText": "18"
+      },
+      {
+        "line": 128,
+        "memoText": "8"
+      },
+      {
+        "line": 129,
+        "memoText": "時"
+      },
+      {
+        "line": 130,
+        "memoText": "3"
+      },
+      {
+        "line": 133,
+        "memoText": "3"
+      },
+      {
+        "line": 134,
+        "memoText": "7"
+      },
+      {
+        "line": 135,
+        "memoText": "い"
+      },
+      {
+        "line": 137,
+        "memoText": "家"
+      }
+    ],
+    "guesses": [
+      {
+        "index": 14,
+        "kind": "崩れ",
+        "fragment": "難航",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "志望は南高って書"
+      },
+      {
+        "index": 15,
+        "kind": "崩れ",
+        "fragment": "南航",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "いです南高には行"
+      },
+      {
+        "index": 16,
+        "kind": "崩れ",
+        "fragment": "南港",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "すうん南高のどこ"
+      },
+      {
+        "index": 17,
+        "kind": "崩れ",
+        "fragment": "南港",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "先輩が南高に行っ"
+      },
+      {
+        "index": 23,
+        "kind": "崩れ",
+        "fragment": "ずっとなんかです",
+        "guess": "ずっと南高です",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "れからずっと南高です吹奏楽"
+      },
+      {
+        "index": 24,
+        "kind": "崩れ",
+        "fragment": "難航",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "ほかに南高でやっ"
+      },
+      {
+        "index": 25,
+        "kind": "崩れ",
+        "fragment": "南校留学",
+        "guess": "南高は留学",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "いです南高留学の制度"
+      },
+      {
+        "index": 28,
+        "kind": "崩れ",
+        "fragment": "南港",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "の人は南高のこと"
+      },
+      {
+        "index": 31,
+        "kind": "崩れ",
+        "fragment": "通のも",
+        "guess": "通うのも",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "なんで通うのも楽だし"
+      },
+      {
+        "index": 32,
+        "kind": "崩れ",
+        "fragment": "平岸の私立",
+        "guess": "併願の私立",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "楽だし併願の私立は何か"
+      },
+      {
+        "index": 38,
+        "kind": "崩れ",
+        "fragment": "難航",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "ねはい南高判定ど"
+      },
+      {
+        "index": 39,
+        "kind": "崩れ",
+        "fragment": "でしたかはい",
+        "guess": "Dでした。はい",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "ったdでしたdかはいだから"
+      },
+      {
+        "index": 52,
+        "kind": "崩れ",
+        "fragment": "1時関数",
+        "guess": "1次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "からね一次関数のとこ"
+      },
+      {
+        "index": 67,
+        "kind": "崩れ",
+        "fragment": "オウムの法則",
+        "guess": "オームの法則",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "してるオムの法則まだ混"
+      },
+      {
+        "index": 68,
+        "kind": "崩れ",
+        "fragment": "内心も大事だから期末から",
+        "guess": "内申も大事だから。期末いつから",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "んです内申も大事だからね一学期の期末いつから七月の"
+      },
+      {
+        "index": 69,
+        "kind": "崩れ",
+        "fragment": "月の日から",
+        "guess": "7月の◯日から",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "から七月の三日からですコ"
+      },
+      {
+        "index": 84,
+        "kind": "崩れ",
+        "fragment": "いたら練るのに",
+        "guess": "見ていたら寝るのに",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "も気づいたら十二時とか朝練あるのにはい朝"
+      },
+      {
+        "index": 86,
+        "kind": "崩れ",
+        "fragment": "っちゃ塾の宿題は",
+        "guess": "じゃあ塾の宿題は",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "い朝めっちゃ眠いです塾の宿題は塾の宿"
+      },
+      {
+        "index": 88,
+        "kind": "崩れ",
+        "fragment": "るんだ",
+        "guess": "やってるんだ",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 89,
+        "kind": "崩れ",
+        "fragment": "いんで",
+        "guess": "ないんで",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 90,
+        "kind": "崩れ",
+        "fragment": "単語の小の勉強",
+        "guess": "単語の小テストの勉強",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "いんで単語の小テストの勉強はあれ"
+      },
+      {
+        "index": 96,
+        "kind": "崩れ",
+        "fragment": "12年の穴",
+        "guess": "1・2年の穴",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "ここで一二年の穴をどれ"
+      },
+      {
+        "index": 98,
+        "kind": "崩れ",
+        "fragment": "7月二 1日",
+        "guess": "7月21日",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "くとね七月二十一日から始"
+      },
+      {
+        "index": 98,
+        "kind": "崩れ",
+        "fragment": "12年の復習",
+        "guess": "1・2年の復習",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "週間は一二年の復習で関数"
+      },
+      {
+        "index": 100,
+        "kind": "崩れ",
+        "fragment": "1時関数",
+        "guess": "1次関数",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "計算と一次関数からだ"
+      },
+      {
+        "index": 105,
+        "kind": "崩れ",
+        "fragment": "は",
+        "guess": "はい",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 106,
+        "kind": "崩れ",
+        "fragment": "見返すと時に",
+        "guess": "見返す時に",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "あとで見返すときにどこま"
+      },
+      {
+        "index": 108,
+        "kind": "崩れ",
+        "fragment": "補修",
+        "guess": "補習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "学校の補習とかで"
+      },
+      {
+        "index": 110,
+        "kind": "崩れ",
+        "fragment": "南航",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "それと南高のオプ"
+      },
+      {
+        "index": 115,
+        "kind": "崩れ",
+        "fragment": "月の 18日",
+        "guess": "7月の18日",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "っけ七月の十八日ですじ"
+      },
+      {
+        "index": 124,
+        "kind": "崩れ",
+        "fragment": "難航",
+        "guess": "南高",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "志望は南高って言"
+      }
+    ],
+    "guessStats": {
+      "total": 31,
+      "reallyBroken": 21,
+      "guessMatchesScript": 15,
+      "changedCorrect": 0,
+      "unaligned": 0
+    }
+  },
+  "guessMeaning": [
+    {
+      "fragment": "難航",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「難航」に対する推測「南高」は、台本「志望は南高って書」の該当部分「南高」と意味が一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "南航",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「南航」に対する推測「南高」は、台本中の該当語「南高」と意味が一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "南港",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「南港」に当たる台本の語は「南高」で、推測と一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "南港",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「南港」に対する推測「南高」は、台本の該当部分「南高」と意味が一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "ずっとなんかです",
+      "guess": "ずっと南高です",
+      "score": 5,
+      "reason": "推測「ずっと南高です」は、台本のうち断片に当たる部分「ずっと南高です」と意味が一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "難航",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「難航」に当たる台本の語は「南高」であり、推測「南高」はこれと同じ意味で、台本に無い意味も足していないため。"
+    },
+    {
+      "fragment": "南校留学",
+      "guess": "南高は留学",
+      "score": 4,
+      "reason": "断片に当たる台本「南高留学」と、推測「南高は留学」は中心の語（南高・留学）が一致しています。ただし推測は「は」を足して係り方をわずかに変えており、台本の「南高の留学」という意味とは細部が異なります。"
+    },
+    {
+      "fragment": "南港",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「南港」に対する推測「南高」は、台本の中心語「南高」と一致し、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "通のも",
+      "guess": "通うのも",
+      "score": 5,
+      "reason": "推測「通うのも」は、台本「なんで通うのも楽だし」のうち断片「通のも」にあたる部分と意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "平岸の私立",
+      "guess": "併願の私立",
+      "score": 5,
+      "reason": "断片「平岸の私立」に対応する台本の箇所は「併願の私立」で、推測はこれと意味が一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "難航",
+      "guess": "南高",
+      "score": 5,
+      "reason": "推測の「南高」は台本中の該当部分「南高」と一致し、台本に無い意味も足していないため、意味が同じと判断した。"
+    },
+    {
+      "fragment": "でしたかはい",
+      "guess": "Dでした。はい",
+      "score": 4,
+      "reason": "推測の「Dでした。はい」は台本の中心の意味と合っており、台本に無い意味も足していないが、台本にある「Dか」の繰り返しと続く「だから」が抜けているため、ほぼ同じとして4とした。"
+    },
+    {
+      "fragment": "1時関数",
+      "guess": "1次関数",
+      "score": 5,
+      "reason": "断片「1時関数」に当たる台本の語は「一次関数」で、推測「1次関数」とは表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "オウムの法則",
+      "guess": "オームの法則",
+      "score": 4,
+      "reason": "推測「オームの法則」は台本の中心の語「オムの法則」と意味が合い、台本に無い意味も足していないが、前後の「してる」「まだ混」は扱っていないため、ほぼ同じとした。"
+    },
+    {
+      "fragment": "内心も大事だから期末から",
+      "guess": "内申も大事だから。期末いつから",
+      "score": 4,
+      "reason": "「内申も大事だから」「期末いつから」という中心の意味は台本と合い、余計な意味も足していないが、台本にある「一学期の」「七月の」が推測に含まれず、細部が欠けている。"
+    },
+    {
+      "fragment": "月の日から",
+      "guess": "7月の◯日から",
+      "score": 4,
+      "reason": "推測の「7月の◯日から」は台本の「七月の三日から」と月と「から」の意味が一致し、余計な意味も足していないが、日付の「三日」が◯のまま特定されていないため、ほぼ同じという評価にとどまる。"
+    },
+    {
+      "fragment": "いたら練るのに",
+      "guess": "見ていたら寝るのに",
+      "score": 1,
+      "reason": "台本は「気づいたら十二時、朝練があるのに」という意味だが、推測の「見ていたら寝るのに」は「見る」「寝る」という台本に無い意味を足しており、時刻や朝練という中心の意味も捉えていないため意味が違う。"
+    },
+    {
+      "fragment": "っちゃ塾の宿題は",
+      "guess": "じゃあ塾の宿題は",
+      "score": 3,
+      "reason": "「塾の宿題は」は台本と合うが、「っちゃ」は台本では「めっちゃ（眠い）」の末尾なのに、推測では台本に無い「じゃあ」という接続の語に置き換わっており、半分ほどしか合わない。"
+    },
+    {
+      "fragment": "単語の小の勉強",
+      "guess": "単語の小テストの勉強",
+      "score": 5,
+      "reason": "推測「単語の小テストの勉強」は台本中の「単語の小テストの勉強」と意味が一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "12年の穴",
+      "guess": "1・2年の穴",
+      "score": 5,
+      "reason": "推測「1・2年の穴」は台本の「一二年の穴」と同じく一、二年の空白を指しており、意味が一致し、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "7月二 1日",
+      "guess": "7月21日",
+      "score": 5,
+      "reason": "推測「7月21日」は台本の「七月二十一日」と意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "12年の復習",
+      "guess": "1・2年の復習",
+      "score": 5,
+      "reason": "推測「1・2年の復習」は台本の「一二年の復習」と意味が同じで、表記が違うだけであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "1時関数",
+      "guess": "1次関数",
+      "score": 5,
+      "reason": "断片「1時関数」に当たる台本の箇所は「一次関数」であり、推測「1次関数」は表記が違うだけで意味は同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "見返すと時に",
+      "guess": "見返す時に",
+      "score": 4,
+      "reason": "推測「見返す時に」は台本の中心部分「見返すときに」と意味が合い、余計な意味も足していないが、台本にある「あとで」の意味が含まれていないため、細かい語が欠けている。"
+    },
+    {
+      "fragment": "補修",
+      "guess": "補習",
+      "score": 4,
+      "reason": "推測『補習』は台本の中心語『補習』と一致し、台本に無い意味も足していないが、台本の『学校の』『とかで』という周辺の語は推測に含まれていない。"
+    },
+    {
+      "fragment": "南航",
+      "guess": "南高",
+      "score": 5,
+      "reason": "断片「南航」に対する推測「南高」は台本中の該当語「南高」と一致しており、意味は同じで余計な意味も足していない。"
+    },
+    {
+      "fragment": "月の 18日",
+      "guess": "7月の18日",
+      "score": 5,
+      "reason": "推測「7月の18日」は台本の中心部分「七月の十八日」と意味が同じで、前後の「っけ」「ですじ」は前後の発話の切れ端にすぎず、推測が台本に無い意味を足してもいない。"
+    },
+    {
+      "fragment": "難航",
+      "guess": "南高",
+      "score": 5,
+      "reason": "推測「南高」は台本中の該当語「南高」と一致しており、台本に無い意味も足していないため、意味は同じと判断した。"
+    }
+  ],
+  "variance": null,
+  "timing": {
+    "step0": {
+      "step0a": {
+        "model": "claude-opus-5-5",
+        "ms": 83468,
+        "inputTokens": 3161,
+        "outputTokens": 11948,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1153
+      },
+      "step0b": {
+        "model": "claude-opus-5-5",
+        "ms": 19531,
+        "inputTokens": 4297,
+        "outputTokens": 2211,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1220
+      },
+      "step0c": {
+        "model": "claude-opus-5-5",
+        "ms": 28801,
+        "inputTokens": 4301,
+        "outputTokens": 3144,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1166
+      }
+    },
+    "step1Ms": 43328,
+    "firstCitationMs": 24271,
+    "step2Ms": 26323,
+    "step4Ms": null
+  }
+}

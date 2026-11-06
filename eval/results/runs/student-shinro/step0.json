@@ -9,7 +9,6 @@
         "text": "じゃあ始めようか。今日部活は。",
         "original": "じゃあ始めようか。今日部活は。",
         "confidence": "高",
-        "confidenceReason": "面談を始める声かけと問い",
         "check": [],
         "memoSpan": [
           0,
@@ -22,7 +21,6 @@
         "text": "今日は早めに終わりました。顧問の先生が出張で。",
         "original": "今日は早めに終わりました。顧問の先生が出張で。",
         "confidence": "高",
-        "confidenceReason": "部活の問いへの答え",
         "check": [],
         "memoSpan": [
           15,
@@ -35,7 +33,6 @@
         "text": "そっか、吹奏楽来月が最後のコンクールだっけ。",
         "original": "そっか、吹奏楽来月が最後のコンクールだっけ。",
         "confidence": "高",
-        "confidenceReason": "相手の予定を確かめる問い",
         "check": [],
         "memoSpan": [
           38,
@@ -48,7 +45,6 @@
         "text": "はい。引退です。",
         "original": "はい。引退です。",
         "confidence": "高",
-        "confidenceReason": "自分の引退の話",
         "check": [],
         "memoSpan": [
           60,
@@ -60,9 +56,10 @@
         "speaker": "講師",
         "text": "会場はどこ",
         "original": "会場はどこ",
-        "confidence": "高",
-        "confidenceReason": "問い",
-        "check": [],
+        "confidence": "中",
+        "check": [
+          "話者の確からしさが中"
+        ],
         "memoSpan": [
           68,
           73
@@ -73,9 +70,10 @@
         "speaker": "生徒",
         "text": "市民会館です。お母さんも聞きに来るって言ってました。",
         "original": "市民会館です。お母さんも聞きに来るって言ってました。",
-        "confidence": "高",
-        "confidenceReason": "問いへの答えと家族の話",
-        "check": [],
+        "confidence": "中",
+        "check": [
+          "話者の確からしさが中"
+        ],
         "memoSpan": [
           73,
           99
@@ -87,7 +85,6 @@
         "text": "そっか、聞きに来てくれるんだ。曲はもう決まってるの。",
         "original": "そっか、聞きに来てくれるんだ。曲はもう決まってるの。",
         "confidence": "高",
-        "confidenceReason": "受け止めと次の問い",
         "check": [],
         "memoSpan": [
           99,
@@ -100,7 +97,6 @@
         "text": "決まってます。課題曲と自由曲で自由曲の方にクラリネットのソロがちょっとあって。",
         "original": "決まってます。課題曲と自由曲で自由曲の方にクラリネットのソロがちょっとあって。",
         "confidence": "高",
-        "confidenceReason": "曲の説明",
         "check": [],
         "memoSpan": [
           125,
@@ -113,7 +109,6 @@
         "text": "えソロ吹くの ？",
         "original": "えソロ吹くの ？",
         "confidence": "高",
-        "confidenceReason": "確認の問い",
         "check": [],
         "memoSpan": [
           164,
@@ -126,7 +121,6 @@
         "text": "私じゃなくて隣の子です。私はその後ろで伴奏を吹いてるだけです。",
         "original": "私じゃなくて隣の子です。私はその後ろで伴奏を吹いてるだけです。",
         "confidence": "高",
-        "confidenceReason": "自分の担当の説明",
         "check": [],
         "memoSpan": [
           172,
@@ -139,7 +133,6 @@
         "text": "いやいや、伴奏も大事でしょう。練習きつい。",
         "original": "いやいや、伴奏も大事でしょう。練習きつい。",
         "confidence": "高",
-        "confidenceReason": "受け止めと問い",
         "check": [],
         "memoSpan": [
           203,
@@ -152,7 +145,6 @@
         "text": "きついです。朝練もあるし、土曜も 1日の時あるし、でも最後なんで楽しいです。",
         "original": "きついです。朝練もあるし、土曜も 1日の時あるし、でも最後なんで楽しいです。",
         "confidence": "高",
-        "confidenceReason": "練習の様子の答え",
         "check": [],
         "memoSpan": [
           224,
@@ -165,7 +157,6 @@
         "text": "いいね。今日はね、夏休みに入る前に進路の話を 1回ちゃんとしておこうと思って。",
         "original": "いいね。今日はね、夏休みに入る前に進路の話を 1回ちゃんとしておこうと思って。",
         "confidence": "高",
-        "confidenceReason": "面談の目的を示す",
         "check": [],
         "memoSpan": [
           262,
@@ -178,7 +169,6 @@
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           301,
@@ -191,7 +181,6 @@
         "text": "4月の面談シートに第一志望は南高って書いてくれてたよね。今も変わってない。",
         "original": "4月の面談シートに第一志望は難航って書いてくれてたよね。今も変わってない。",
         "confidence": "高",
-        "confidenceReason": "面談シートを踏まえた問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -206,7 +195,6 @@
         "text": "変わってないです。南高には行きたいです。",
         "original": "変わってないです。南航には行きたいです。",
         "confidence": "高",
-        "confidenceReason": "志望の答え",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -221,7 +209,6 @@
         "text": "うん、南高のどこがいいなって思ってる。",
         "original": "うん、南港のどこがいいなって思ってる。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -236,7 +223,6 @@
         "text": "えっと、部活の先輩が南高に行ってて、吹奏楽部がすごい楽しいって言ってて、去年定期演奏会も見に行ったんですけど。",
         "original": "えっと、部活の先輩が南港に行ってて、吹奏楽部がすごい楽しいって言ってて、去年定期演奏会も見に行ったんですけど。",
         "confidence": "高",
-        "confidenceReason": "志望理由の語り",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -251,7 +237,6 @@
         "text": "ああ、見に行ったんだ。",
         "original": "ああ、見に行ったんだ。",
         "confidence": "高",
-        "confidenceReason": "受け止め",
         "check": [],
         "memoSpan": [
           436,
@@ -264,7 +249,6 @@
         "text": "はい、大きいホールでお客さんもいっぱいで、最後の曲でみんな立って演奏してて、なんか鳥肌立って。",
         "original": "はい、大きいホールでお客さんもいっぱいで、最後の曲でみんな立って演奏してて、なんか鳥肌立って。",
         "confidence": "高",
-        "confidenceReason": "体験の語り",
         "check": [],
         "memoSpan": [
           447,
@@ -277,7 +261,6 @@
         "text": "鳥肌立ったんだ。",
         "original": "鳥肌立ったんだ。",
         "confidence": "高",
-        "confidenceReason": "繰り返し",
         "check": [],
         "memoSpan": [
           494,
@@ -290,7 +273,6 @@
         "text": "そうそうなんです。あそこで吹きたいなって、その時思って。",
         "original": "そうそうなんです。あそこで吹きたいなって、その時思って。",
         "confidence": "高",
-        "confidenceReason": "自分の思いの語り",
         "check": [],
         "memoSpan": [
           502,
@@ -303,7 +285,6 @@
         "text": "そっか、そこではっきり決まったんだね。",
         "original": "そっか、そこではっきり決まったんだね。",
         "confidence": "高",
-        "confidenceReason": "要約",
         "check": [],
         "memoSpan": [
           530,
@@ -316,7 +297,6 @@
         "text": "はい、それからずっと南高です。",
         "original": "はい、それからずっとなんかです。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -331,7 +311,6 @@
         "text": "吹奏楽の他に南高でやってみたいことってある。",
         "original": "吹奏楽の他に難航でやってみたいことってある。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -346,7 +325,6 @@
         "text": "うん英語はちょっと好きかもしれないです。南高留学の制度があるって先輩が言ってて。",
         "original": "うん英語はちょっと好きかもしれないです。南校留学の制度があるって先輩が言ってて。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -361,7 +339,6 @@
         "text": "へえ、それは知らなかった。英語が好きっていうのは初めて聞いたね。",
         "original": "へえ、それは知らなかった。英語が好きっていうのは初めて聞いたね。",
         "confidence": "高",
-        "confidenceReason": "受け止め",
         "check": [],
         "memoSpan": [
           627,
@@ -374,7 +351,6 @@
         "text": "洋楽とか聞くんで、歌詞の意味がわかるとちょっと嬉しいっていうか。",
         "original": "洋楽とか聞くんで、歌詞の意味がわかるとちょっと嬉しいっていうか。",
         "confidence": "高",
-        "confidenceReason": "自分の話",
         "check": [],
         "memoSpan": [
           659,
@@ -387,7 +363,6 @@
         "text": "いいね。そういうのお家の人は南高のことなんて言ってる。",
         "original": "いいね。そういうのお家の人は南港のことなんて言ってる。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -402,7 +377,6 @@
         "text": "お母さんは行けるなら行けばって、お父さんはあんまり何も言わないです。",
         "original": "お母さんは行けるなら行けばって、お父さんはあんまり何も言わないです。",
         "confidence": "高",
-        "confidenceReason": "家族の様子の答え",
         "check": [],
         "memoSpan": [
           718,
@@ -415,7 +389,6 @@
         "text": "そっか、反対はされてないんだね。",
         "original": "そっか、反対はされてないんだね。",
         "confidence": "高",
-        "confidenceReason": "確認",
         "check": [],
         "memoSpan": [
           752,
@@ -428,7 +401,6 @@
         "text": "はい、電車で 1本なんで通うのも楽だし。",
         "original": "はい、電車で 1本なんで通のも楽だし。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -443,7 +415,6 @@
         "text": "併願の私立は何か考えてる。",
         "original": "平岸の私立は何か考えてる。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -458,7 +429,6 @@
         "text": "まだ全然です。お母さんは説明会に行ってみればって言ってるんですけど。",
         "original": "まだ全然です。お母さんは説明会に行ってみればって言ってるんですけど。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           800,
@@ -471,7 +441,6 @@
         "text": "うん、私立の説明会は秋が多いから夏休みの終わりくらいに一緒に見ようか資料は教室にもあるから",
         "original": "うん、私立の説明会は秋が多いから夏休みの終わりくらいに一緒に見ようか資料は教室にもあるから",
         "confidence": "高",
-        "confidenceReason": "提案",
         "check": [],
         "memoSpan": [
           834,
@@ -484,7 +453,6 @@
         "text": "はい",
         "original": "はい",
         "confidence": "中",
-        "confidenceReason": "句読点の無い連なりから相づちとして分けた",
         "check": [
           "話者の確からしさが中"
         ],
@@ -499,7 +467,6 @@
         "text": "じゃあちょっと成績の話もしようか。 5月の模試帰ってきたよね。",
         "original": "じゃあちょっと成績の話もしようか。 5月の模試帰ってきたよね。",
         "confidence": "高",
-        "confidenceReason": "話題の切り替え",
         "check": [],
         "memoSpan": [
           881,
@@ -512,7 +479,6 @@
         "text": "はい",
         "original": "はい",
         "confidence": "中",
-        "confidenceReason": "連なりから分けた相づち",
         "check": [
           "話者の確からしさが中"
         ],
@@ -527,7 +493,6 @@
         "text": "南高判定どうだった",
         "original": "難航判定どうだった",
         "confidence": "中",
-        "confidenceReason": "問いとして分けた",
         "check": [
           "話者の確からしさが中",
           "聞き違いを直した所がある"
@@ -540,12 +505,12 @@
       {
         "index": 39,
         "speaker": "生徒",
-        "text": "Dでしたはいだから正直無理なのかなってちょっと思ってて。",
+        "text": "Dでした。はいだから正直無理なのかなってちょっと思ってて。",
         "original": "でしたかはいだから正直無理なのかなってちょっと思ってて。",
-        "confidence": "中",
-        "confidenceReason": "判定の答えらしいが冒頭が崩れている",
+        "confidence": "低",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
-          "話者の確からしさが中",
+          "話者の確からしさが低い",
           "聞き違いを直した所がある"
         ],
         "memoSpan": [
@@ -556,13 +521,10 @@
       {
         "index": 40,
         "speaker": "講師",
-        "text": "そっか、Dって書いてあったら無理かもって思うよね。見たときどんな感じだった。",
+        "text": "そっか、ディーって書いてあったら無理かもって思うよね。見たときどんな感じだった。",
         "original": "そっか、ディーって書いてあったら無理かもって思うよね。見たときどんな感じだった。",
         "confidence": "高",
-        "confidenceReason": "受け止めと問い",
-        "check": [
-          "聞き違いを直した所がある"
-        ],
+        "check": [],
         "memoSpan": [
           951,
           991
@@ -574,7 +536,6 @@
         "text": "なんかああ、やっぱりって数学が思ったより取れなかったんで。",
         "original": "なんかああ、やっぱりって数学が思ったより取れなかったんで。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           991,
@@ -587,7 +548,6 @@
         "text": "やっぱりって思ったんだ。",
         "original": "やっぱりって思ったんだ。",
         "confidence": "高",
-        "confidenceReason": "繰り返し",
         "check": [],
         "memoSpan": [
           1020,
@@ -600,7 +560,6 @@
         "text": "はいでも行きたいのは行きたいんです。",
         "original": "はいでも行きたいのは行きたいんです。",
         "confidence": "高",
-        "confidenceReason": "思いの語り",
         "check": [],
         "memoSpan": [
           1032,
@@ -613,7 +572,6 @@
         "text": "うん Dを見ても行きたい気持ちは変わらないんだね。",
         "original": "うん Dを見ても行きたい気持ちは変わらないんだね。",
         "confidence": "高",
-        "confidenceReason": "要約",
         "check": [],
         "memoSpan": [
           1050,
@@ -626,7 +584,6 @@
         "text": "変わらないです",
         "original": "変わらないです",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1075,
@@ -639,7 +596,6 @@
         "text": "わかった点数ごとに見てもいい",
         "original": "わかった点数ごとに見てもいい",
         "confidence": "中",
-        "confidenceReason": "連なりから分けた問い",
         "check": [
           "話者の確からしさが中"
         ],
@@ -654,7 +610,6 @@
         "text": "はいこれです。",
         "original": "はいこれです。",
         "confidence": "中",
-        "confidenceReason": "成績を見せる言葉として分けた",
         "check": [
           "話者の確からしさが中"
         ],
@@ -669,7 +624,6 @@
         "text": "英語が 92国語が 88数学が 64理科が 71社会が 80か。",
         "original": "英語が 92国語が 88数学が 64理科が 71社会が 80か。",
         "confidence": "高",
-        "confidenceReason": "点数の読み上げ",
         "check": [],
         "memoSpan": [
           1103,
@@ -682,7 +636,6 @@
         "text": "数学だけ低いですよね。",
         "original": "数学だけ低いですよね。",
         "confidence": "高",
-        "confidenceReason": "自分の成績への言及",
         "check": [],
         "memoSpan": [
           1135,
@@ -695,7 +648,6 @@
         "text": "数学はどの辺が難しかった。",
         "original": "数学はどの辺が難しかった。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           1146,
@@ -708,7 +660,6 @@
         "text": "関数とか図形の証明とかあと時間が足りなくて最後の大問は手をつけてないです。",
         "original": "関数とか図形の証明とかあと時間が足りなくて最後の大問は手をつけてないです。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1159,
@@ -721,7 +672,6 @@
         "text": "関数は 2年の内容も入ってるからね。 1次関数のところここで落としてるね。",
         "original": "関数は 2年の内容も入ってるからね。 1時関数のところここで落としてるね。",
         "confidence": "高",
-        "confidenceReason": "解説",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -736,7 +686,6 @@
         "text": "2年の時、あんまりちゃんとやってなかったんで。",
         "original": "2年の時、あんまりちゃんとやってなかったんで。",
         "confidence": "高",
-        "confidenceReason": "自分の振り返り",
         "check": [],
         "memoSpan": [
           1234,
@@ -749,7 +698,6 @@
         "text": "でも大問の一番の計算は全部合ってるよ。ここは落としてない。",
         "original": "でも大問の一番の計算は全部合ってるよ。ここは落としてない。",
         "confidence": "高",
-        "confidenceReason": "成績の指摘",
         "check": [],
         "memoSpan": [
           1257,
@@ -762,7 +710,6 @@
         "text": "あ、計算は割と好きなんです。",
         "original": "あ、計算は割と好きなんです。",
         "confidence": "高",
-        "confidenceReason": "自分の話",
         "check": [],
         "memoSpan": [
           1286,
@@ -775,7 +722,6 @@
         "text": "うん、計算が取れてるのは大きいよ。関数も式を立てるところまで行けば、あとは計算だからね。",
         "original": "うん、計算が取れてるのは大きいよ。関数も式を立てるところまで行けば、あとは計算だからね。",
         "confidence": "高",
-        "confidenceReason": "解説",
         "check": [],
         "memoSpan": [
           1300,
@@ -788,7 +734,6 @@
         "text": "式を立てるのがわからないんです。",
         "original": "式を立てるのがわからないんです。",
         "confidence": "高",
-        "confidenceReason": "自分の困りごと",
         "check": [],
         "memoSpan": [
           1344,
@@ -801,7 +746,6 @@
         "text": "そうだよね。そこは夏にやろう。",
         "original": "そうだよね。そこは夏にやろう。",
         "confidence": "高",
-        "confidenceReason": "提案",
         "check": [],
         "memoSpan": [
           1360,
@@ -814,7 +758,6 @@
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           1375,
@@ -827,7 +770,6 @@
         "text": "英語は前より上がってたもんね。単語頑張ってたし。",
         "original": "英語は前より上がってたもんね。単語頑張ってたし。",
         "confidence": "高",
-        "confidenceReason": "成績への言及",
         "check": [],
         "memoSpan": [
           1378,
@@ -840,7 +782,6 @@
         "text": "学校で毎週小テストがあるんで、それだけはやってます。",
         "original": "学校で毎週小テストがあるんで、それだけはやってます。",
         "confidence": "高",
-        "confidenceReason": "自分の学習の話",
         "check": [],
         "memoSpan": [
           1402,
@@ -853,7 +794,6 @@
         "text": "国語は",
         "original": "国語は",
         "confidence": "中",
-        "confidenceReason": "直後の繰り返しから問いとして分けた",
         "check": [
           "話者の確からしさが中"
         ],
@@ -868,7 +808,6 @@
         "text": "国語はいつも通りくらいです。漢字は取れるけど、記述が苦手で。",
         "original": "国語はいつも通りくらいです。漢字は取れるけど、記述が苦手で。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1431,
@@ -881,7 +820,6 @@
         "text": "理科と社会は",
         "original": "理科と社会は",
         "confidence": "中",
-        "confidenceReason": "直後の答えから問いとして分けた",
         "check": [
           "話者の確からしさが中"
         ],
@@ -896,7 +834,6 @@
         "text": "社会は割と取れました。理科は電気のところがわからなくて。",
         "original": "社会は割と取れました。理科は電気のところがわからなくて。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1467,
@@ -909,7 +846,6 @@
         "text": "電気は計算も入るからね。電流と電圧の問題ここ 2つ落としてる。",
         "original": "電気は計算も入るからね。電流と電圧の問題ここ 2つ落としてる。",
         "confidence": "高",
-        "confidenceReason": "解説",
         "check": [],
         "memoSpan": [
           1495,
@@ -922,7 +858,6 @@
         "text": "オームの法則まだ混ざるんです",
         "original": "オウムの法則まだ混ざるんです",
         "confidence": "高",
-        "confidenceReason": "自分の困りごと",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -937,7 +872,7 @@
         "text": "内申も大事だから期末から",
         "original": "内心も大事だから期末から",
         "confidence": "低",
-        "confidenceReason": "文が崩れていて境目が不確か",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
           "話者の確からしさが低い",
           "聞き違いを直した所がある"
@@ -953,7 +888,7 @@
         "text": "月の日からです。",
         "original": "月の日からです。",
         "confidence": "低",
-        "confidenceReason": "日付の答えらしいが欠けている",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
           "話者の確からしさが低い"
         ],
@@ -968,7 +903,6 @@
         "text": "コンクールの前か大変だね。",
         "original": "コンクールの前か大変だね。",
         "confidence": "高",
-        "confidenceReason": "受け止め",
         "check": [],
         "memoSpan": [
           1560,
@@ -981,7 +915,6 @@
         "text": "はいテスト前も部活休みにならないんで。",
         "original": "はいテスト前も部活休みにならないんで。",
         "confidence": "高",
-        "confidenceReason": "自分の状況",
         "check": [],
         "memoSpan": [
           1573,
@@ -994,7 +927,6 @@
         "text": "学校のワークの提出もあるでしょ。",
         "original": "学校のワークの提出もあるでしょ。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           1592,
@@ -1007,7 +939,6 @@
         "text": "あります。数学はまだ半分くらい残ってます。",
         "original": "あります。数学はまだ半分くらい残ってます。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1608,
@@ -1020,7 +951,6 @@
         "text": "そっか期末が終わったら 7月の模試もあるけど、数学はどれくらい取りたいとかある。",
         "original": "そっか期末が終わったら 7月の模試もあるけど、数学はどれくらい取りたいとかある。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           1629,
@@ -1033,7 +963,6 @@
         "text": "75は取りたいです。 5月が 64だったんで。",
         "original": "75は取りたいです。 5月が 64だったんで。",
         "confidence": "高",
-        "confidenceReason": "目標の答え",
         "check": [],
         "memoSpan": [
           1670,
@@ -1046,7 +975,6 @@
         "text": "75ね。",
         "original": "75ね。",
         "confidence": "高",
-        "confidenceReason": "繰り返し",
         "check": [],
         "memoSpan": [
           1694,
@@ -1059,7 +987,6 @@
         "text": "はい",
         "original": "はい",
         "confidence": "中",
-        "confidenceReason": "連なりから分けた相づち",
         "check": [
           "話者の確からしさが中"
         ],
@@ -1074,7 +1001,6 @@
         "text": "ちなみにさ、普段家ではどんな感じ平日の夜とか。",
         "original": "ちなみにさ、普段家ではどんな感じ平日の夜とか。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           1700,
@@ -1087,7 +1013,6 @@
         "text": "家ですかえっと、部活が 7時くらいまであって、帰ってご飯食べてお風呂入って",
         "original": "家ですかえっと、部活が 7時くらいまであって、帰ってご飯食べてお風呂入って",
         "confidence": "高",
-        "confidenceReason": "生活の答え",
         "check": [],
         "memoSpan": [
           1723,
@@ -1100,7 +1025,6 @@
         "text": "うん。",
         "original": "うん。",
         "confidence": "中",
-        "confidenceReason": "相づちとして分けた",
         "check": [
           "話者の確からしさが中"
         ],
@@ -1115,7 +1039,6 @@
         "text": "で、あとはスマホ見たり動画見たりして寝ます。",
         "original": "で、あとはスマホ見たり動画見たりして寝ます。",
         "confidence": "高",
-        "confidenceReason": "続きの語り",
         "check": [],
         "memoSpan": [
           1763,
@@ -1128,7 +1051,6 @@
         "text": "スマホはどれくらい見てる。",
         "original": "スマホはどれくらい見てる。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           1785,
@@ -1138,143 +1060,99 @@
       {
         "index": 83,
         "speaker": "生徒",
-        "text": "3時間もっとかも",
-        "original": "3時間もっとかも",
-        "confidence": "中",
-        "confidenceReason": "連なりから答えとして分けた",
+        "text": "3時間もっとかもいたら寝るのに",
+        "original": "3時間もっとかもいたら練るのに",
+        "confidence": "低",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
-          "話者の確からしさが中"
+          "話者の確からしさが低い",
+          "聞き違いを直した所がある"
         ],
         "memoSpan": [
           1799,
-          1807
+          1814
         ]
       },
       {
         "index": 84,
         "speaker": "講師",
-        "text": "いたら練るのに",
-        "original": "いたら練るのに",
+        "text": "はいっちゃ塾の宿題は",
+        "original": "はいっちゃ塾の宿題は",
         "confidence": "低",
-        "confidenceReason": "文字が崩れて意味が取れない",
-        "check": [
-          "話者の確からしさが低い"
-        ],
-        "memoSpan": [
-          1807,
-          1814
-        ]
-      },
-      {
-        "index": 85,
-        "speaker": "生徒",
-        "text": "はい",
-        "original": "はい",
-        "confidence": "低",
-        "confidenceReason": "前後が崩れていて話者が不確か",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
           "話者の確からしさが低い"
         ],
         "memoSpan": [
           1814,
-          1816
-        ]
-      },
-      {
-        "index": 86,
-        "speaker": "講師",
-        "text": "っちゃ塾の宿題は",
-        "original": "っちゃ塾の宿題は",
-        "confidence": "中",
-        "confidenceReason": "問いの形だが冒頭が崩れている",
-        "check": [
-          "話者の確からしさが中"
-        ],
-        "memoSpan": [
-          1816,
           1824
         ]
       },
       {
-        "index": 87,
+        "index": 85,
         "speaker": "生徒",
-        "text": "塾の宿題は塾に早めに来てやってます",
-        "original": "塾の宿題は塾に早めに来てやってます",
+        "text": "塾の宿題は塾に早めに来てやってま",
+        "original": "塾の宿題は塾に早めに来てやってま",
         "confidence": "中",
-        "confidenceReason": "答えとして分けたが境目が不確か",
         "check": [
           "話者の確からしさが中"
         ],
         "memoSpan": [
           1824,
-          1841
+          1840
         ]
       },
       {
-        "index": 88,
+        "index": 86,
         "speaker": "講師",
-        "text": "るんだ",
-        "original": "るんだ",
+        "text": "するんだい",
+        "original": "するんだい",
         "confidence": "低",
-        "confidenceReason": "断片で話者が不確か",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
           "話者の確からしさが低い"
         ],
         "memoSpan": [
-          1841,
-          1844
+          1840,
+          1845
         ]
       },
       {
-        "index": 89,
+        "index": 87,
         "speaker": "生徒",
-        "text": "いんで",
-        "original": "いんで",
+        "text": "んで単語の小テストの勉強は",
+        "original": "んで単語の小の勉強は",
         "confidence": "低",
-        "confidenceReason": "断片で話者が不確か",
+        "confidenceReason": "文字が崩れ境目が不明確",
         "check": [
-          "話者の確からしさが低い"
+          "話者の確からしさが低い",
+          "聞き違いを直した所がある"
         ],
         "memoSpan": [
-          1844,
-          1847
-        ]
-      },
-      {
-        "index": 90,
-        "speaker": "講師",
-        "text": "単語の小の勉強は",
-        "original": "単語の小の勉強は",
-        "confidence": "中",
-        "confidenceReason": "問いの形として分けた",
-        "check": [
-          "話者の確からしさが中"
-        ],
-        "memoSpan": [
-          1847,
+          1845,
           1855
         ]
       },
       {
-        "index": 91,
+        "index": 88,
         "speaker": "生徒",
         "text": "あれは朝学校で友達と問題を出し合ってます。",
         "original": "あれは朝学校で友達と問題を出し合ってます。",
-        "confidence": "高",
-        "confidenceReason": "自分の学習の話",
-        "check": [],
+        "confidence": "中",
+        "check": [
+          "話者の確からしさが中"
+        ],
         "memoSpan": [
           1855,
           1876
         ]
       },
       {
-        "index": 92,
+        "index": 89,
         "speaker": "講師",
         "text": "なるほどね。じゃあ家で机に向かう時間っていうと",
         "original": "なるほどね。じゃあ家で机に向かう時間っていうと",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           1876,
@@ -1282,12 +1160,11 @@
         ]
       },
       {
-        "index": 93,
+        "index": 90,
         "speaker": "生徒",
         "text": "ほぼないです。ゼロかもしれないです。",
         "original": "ほぼないです。ゼロかもしれないです。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1899,
@@ -1295,27 +1172,23 @@
         ]
       },
       {
-        "index": 94,
+        "index": 91,
         "speaker": "講師",
         "text": "ゼロか土日は",
         "original": "ゼロか土日は",
-        "confidence": "中",
-        "confidenceReason": "連なりから問いとして分けた",
-        "check": [
-          "話者の確からしさが中"
-        ],
+        "confidence": "高",
+        "check": [],
         "memoSpan": [
           1917,
           1923
         ]
       },
       {
-        "index": 95,
+        "index": 92,
         "speaker": "生徒",
         "text": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。",
         "original": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           1923,
@@ -1323,12 +1196,11 @@
         ]
       },
       {
-        "index": 96,
+        "index": 93,
         "speaker": "講師",
         "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。",
         "original": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 12年の穴をどれだけ埋められるかなんだよ。",
         "confidence": "高",
-        "confidenceReason": "励ましと説明",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1338,12 +1210,11 @@
         ]
       },
       {
-        "index": 97,
+        "index": 94,
         "speaker": "生徒",
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           2046,
@@ -1351,12 +1222,11 @@
         ]
       },
       {
-        "index": 98,
+        "index": 95,
         "speaker": "講師",
         "text": "講習の組み立てを先に話しておくとね。 7月21日から始まって中三は月曜から金曜まで午後 1時から 5時。お盆の週だけ休み。前半の 2週間は 1、2年の復習で関数も証明もそこでもう 1回やる。お盆明けからは 3年の内容と入試の形の問題に入っていく。最後の 1時間は演習の時間にして、その日の確認テストをやるからね。",
         "original": "講習の組み立てを先に話しておくとね。 7月二 1日から始まって中三は月曜から金曜まで午後 1時から 5時。お盆の週だけ休み。前半の 2週間は 12年の復習で関数も証明もそこでもう 1回やる。お盆明けからは 3年の内容と入試の形の問題に入っていく。最後の 1時間は演習の時間にして、その日の確認テストをやるからね。",
         "confidence": "高",
-        "confidenceReason": "講習の説明",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1366,12 +1236,11 @@
         ]
       },
       {
-        "index": 99,
+        "index": 96,
         "speaker": "生徒",
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           2205,
@@ -1379,12 +1248,11 @@
         ]
       },
       {
-        "index": 100,
+        "index": 97,
         "speaker": "講師",
         "text": "数学は毎日ある。最初は計算と 1次関数からだから計算が取れてるのはそこで生きてくると思う。英語は長文、国語は記述の練習が中心。理科は電気のところもやるし、社会は歴史の流れを一回通す。講習の宿題は毎回出すからね。量は多くないけど、次の日の最初に小テストをするから、その日のうちにやっておくと次の日が楽だよ。",
         "original": "数学は毎日ある。最初は計算と 1時関数からだから計算が取れてるのはそこで生きてくると思う。英語は長文、国語は記述の練習が中心。理科は電気のところもやるし、社会は歴史の流れを一回通す。講習の宿題は毎回出すからね。量は多くないけど、次の日の最初に小テストをするから、その日のうちにやっておくと次の日が楽だよ。",
         "confidence": "高",
-        "confidenceReason": "講習の説明",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1394,12 +1262,11 @@
         ]
       },
       {
-        "index": 101,
+        "index": 98,
         "speaker": "生徒",
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           2360,
@@ -1407,12 +1274,11 @@
         ]
       },
       {
-        "index": 102,
+        "index": 99,
         "speaker": "講師",
         "text": "で、夏が終わると 9月からは学校の授業もどんどん進むし、塾も入試の過去問に入っていくの。秋になると新しいことを覚え直す時間はだんだん取れなくなってくるから、穴を埋めるならやっぱり夏なんだよね。",
         "original": "で、夏が終わると 9月からは学校の授業もどんどん進むし、塾も入試の過去問に入っていくの。秋になると新しいことを覚え直す時間はだんだん取れなくなってくるから、穴を埋めるならやっぱり夏なんだよね。",
         "confidence": "高",
-        "confidenceReason": "説明",
         "check": [],
         "memoSpan": [
           2363,
@@ -1420,12 +1286,11 @@
         ]
       },
       {
-        "index": 103,
+        "index": 100,
         "speaker": "生徒",
         "text": "はい",
         "original": "はい",
         "confidence": "中",
-        "confidenceReason": "連なりから分けた相づち",
         "check": [
           "話者の確からしさが中"
         ],
@@ -1435,12 +1300,11 @@
         ]
       },
       {
-        "index": 104,
+        "index": 101,
         "speaker": "講師",
         "text": "だから 8月の終わりの模試が 1つの目安になると思う。夏にやった分はそこに出てくることが多いから。そこで判定がどう動くかを見て、 9月の面談でまた一緒に考えよう。模試の申し込みの用紙は講習の初日に配るから、お家の方に渡しておいてね。",
         "original": "だから 8月の終わりの模試が 1つの目安になると思う。夏にやった分はそこに出てくることが多いから。そこで判定がどう動くかを見て、 9月の面談でまた一緒に考えよう。模試の申し込みの用紙は講習の初日に配るから、お家の方に渡しておいてね。",
         "confidence": "高",
-        "confidenceReason": "説明と依頼",
         "check": [],
         "memoSpan": [
           2461,
@@ -1448,14 +1312,13 @@
         ]
       },
       {
-        "index": 105,
+        "index": 102,
         "speaker": "生徒",
         "text": "は",
         "original": "は",
-        "confidence": "低",
-        "confidenceReason": "一字の断片で相づちと推定",
+        "confidence": "中",
         "check": [
-          "話者の確からしさが低い"
+          "話者の確からしさが中"
         ],
         "memoSpan": [
           2577,
@@ -1463,12 +1326,11 @@
         ]
       },
       {
-        "index": 106,
+        "index": 103,
         "speaker": "講師",
         "text": "あと自習室は朝 10時から開けてるから講習の前でも後でも使っていいよ。お昼は休憩室で食べていいし。講習のテキストは初日に渡すから、筆箱とノートだけ持ってきて、ノートは一冊でいいけど、日付だけは書いといて後で見返すと時にどこまでやったかわかるから。",
         "original": "あと自習室は朝 10時から開けてるから講習の前でも後でも使っていいよ。お昼は休憩室で食べていいし。講習のテキストは初日に渡すから、筆箱とノートだけ持ってきて、ノートは一冊でいいけど、日付だけは書いといて後で見返すと時にどこまでやったかわかるから。",
         "confidence": "高",
-        "confidenceReason": "案内",
         "check": [],
         "memoSpan": [
           2578,
@@ -1476,12 +1338,11 @@
         ]
       },
       {
-        "index": 107,
+        "index": 104,
         "speaker": "生徒",
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           2701,
@@ -1489,12 +1350,11 @@
         ]
       },
       {
-        "index": 108,
+        "index": 105,
         "speaker": "講師",
         "text": "休むときは前の日までに教室に電話をもらえれば振替えの日を作るからね。部活の大会とか学校の補習とかでどうしても来られない日もあると思うから。",
         "original": "休むときは前の日までに教室に電話をもらえれば振替えの日を作るからね。部活の大会とか学校の補修とかでどうしても来られない日もあると思うから。",
         "confidence": "高",
-        "confidenceReason": "案内",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1504,12 +1364,11 @@
         ]
       },
       {
-        "index": 109,
+        "index": 106,
         "speaker": "生徒",
         "text": "はい。",
         "original": "はい。",
         "confidence": "高",
-        "confidenceReason": "相づち",
         "check": [],
         "memoSpan": [
           2773,
@@ -1517,12 +1376,11 @@
         ]
       },
       {
-        "index": 110,
+        "index": 107,
         "speaker": "講師",
         "text": "それと南高のオープンスクール 8月にあるの知ってる",
         "original": "それと南航のオープンスクール 8月にあるの知ってる",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1532,12 +1390,11 @@
         ]
       },
       {
-        "index": 111,
+        "index": 108,
         "speaker": "生徒",
         "text": "あ、先輩が言ってました部活体験もできるって。",
         "original": "あ、先輩が言ってました部活体験もできるって。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           2801,
@@ -1545,12 +1402,11 @@
         ]
       },
       {
-        "index": 112,
+        "index": 109,
         "speaker": "講師",
         "text": "そうそう、申し込みは学校経由だと思うから、担任の先生に聞いてみて。",
         "original": "そうそう、申し込みは学校経由だと思うから、担任の先生に聞いてみて。",
         "confidence": "高",
-        "confidenceReason": "案内",
         "check": [],
         "memoSpan": [
           2823,
@@ -1558,12 +1414,11 @@
         ]
       },
       {
-        "index": 113,
+        "index": 110,
         "speaker": "生徒",
         "text": "行きたいです。",
         "original": "行きたいです。",
         "confidence": "高",
-        "confidenceReason": "自分の希望",
         "check": [],
         "memoSpan": [
           2856,
@@ -1571,12 +1426,11 @@
         ]
       },
       {
-        "index": 114,
+        "index": 111,
         "speaker": "講師",
         "text": "うん、行っておいで。実際に見るとまた気持ちも変わるからね。コンクールは何日だっけ",
         "original": "うん、行っておいで。実際に見るとまた気持ちも変わるからね。コンクールは何日だっけ",
         "confidence": "高",
-        "confidenceReason": "後押しと問い",
         "check": [],
         "memoSpan": [
           2863,
@@ -1584,27 +1438,23 @@
         ]
       },
       {
-        "index": 115,
+        "index": 112,
         "speaker": "生徒",
         "text": "月の 18日です",
         "original": "月の 18日です",
-        "confidence": "中",
-        "confidenceReason": "連なりから答えとして分けた",
-        "check": [
-          "話者の確からしさが中"
-        ],
+        "confidence": "高",
+        "check": [],
         "memoSpan": [
           2903,
           2911
         ]
       },
       {
-        "index": 116,
+        "index": 113,
         "speaker": "講師",
         "text": "じゃあ講習が始まるちょっと前だね。",
         "original": "じゃあ講習が始まるちょっと前だね。",
         "confidence": "高",
-        "confidenceReason": "確認",
         "check": [],
         "memoSpan": [
           2911,
@@ -1612,12 +1462,11 @@
         ]
       },
       {
-        "index": 117,
+        "index": 114,
         "speaker": "生徒",
         "text": "はい、県大会に行けたら 8月もあるんですけど。",
         "original": "はい、県大会に行けたら 8月もあるんですけど。",
         "confidence": "高",
-        "confidenceReason": "自分の予定",
         "check": [],
         "memoSpan": [
           2928,
@@ -1625,12 +1474,11 @@
         ]
       },
       {
-        "index": 118,
+        "index": 115,
         "speaker": "講師",
         "text": "お行けるといいね。その時は講習の日程また相談しよう。",
         "original": "お行けるといいね。その時は講習の日程また相談しよう。",
         "confidence": "高",
-        "confidenceReason": "応答と提案",
         "check": [],
         "memoSpan": [
           2951,
@@ -1638,12 +1486,11 @@
         ]
       },
       {
-        "index": 119,
+        "index": 116,
         "speaker": "生徒",
         "text": "はい。でも引退したらちょっと寂しいかもしれないです。 3年間ずっと部活だったんで。",
         "original": "はい。でも引退したらちょっと寂しいかもしれないです。 3年間ずっと部活だったんで。",
         "confidence": "高",
-        "confidenceReason": "自分の思い",
         "check": [],
         "memoSpan": [
           2977,
@@ -1651,12 +1498,11 @@
         ]
       },
       {
-        "index": 120,
+        "index": 117,
         "speaker": "講師",
         "text": "そうだよね。毎日行ってた場所がなくなるからね。",
         "original": "そうだよね。毎日行ってた場所がなくなるからね。",
         "confidence": "高",
-        "confidenceReason": "受け止め",
         "check": [],
         "memoSpan": [
           3018,
@@ -1664,12 +1510,11 @@
         ]
       },
       {
-        "index": 121,
+        "index": 118,
         "speaker": "生徒",
         "text": "はい",
         "original": "はい",
         "confidence": "中",
-        "confidenceReason": "連なりから分けた相づち",
         "check": [
           "話者の確からしさが中"
         ],
@@ -1679,12 +1524,11 @@
         ]
       },
       {
-        "index": 122,
+        "index": 119,
         "speaker": "講師",
         "text": "学校の 3者面談はいつ ？",
         "original": "学校の 3者面談はいつ ？",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           3043,
@@ -1692,12 +1536,11 @@
         ]
       },
       {
-        "index": 123,
+        "index": 120,
         "speaker": "生徒",
         "text": "7月の終わりです。25日だったかな。",
         "original": "7月の終わりです。二十 5日だったかな。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1707,12 +1550,11 @@
         ]
       },
       {
-        "index": 124,
+        "index": 121,
         "speaker": "講師",
         "text": "そこでも第一志望は南高っていうつもり。",
         "original": "そこでも第一志望は難航っていうつもり。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [
           "聞き違いを直した所がある"
         ],
@@ -1722,27 +1564,23 @@
         ]
       },
       {
-        "index": 125,
+        "index": 122,
         "speaker": "生徒",
         "text": "はい言います",
         "original": "はい言います",
-        "confidence": "中",
-        "confidenceReason": "連なりから答えとして分けた",
-        "check": [
-          "話者の確からしさが中"
-        ],
+        "confidence": "高",
+        "check": [],
         "memoSpan": [
           3096,
           3102
         ]
       },
       {
-        "index": 126,
+        "index": 123,
         "speaker": "講師",
         "text": "うん、お家の方には今日話したこと、私からも電話でざっくり伝えておくね。",
         "original": "うん、お家の方には今日話したこと、私からも電話でざっくり伝えておくね。",
         "confidence": "高",
-        "confidenceReason": "連絡の約束",
         "check": [],
         "memoSpan": [
           3102,
@@ -1750,12 +1588,11 @@
         ]
       },
       {
-        "index": 127,
+        "index": 124,
         "speaker": "生徒",
         "text": "はい",
         "original": "はい",
         "confidence": "中",
-        "confidenceReason": "連なりから分けた相づち",
         "check": [
           "話者の確からしさが中"
         ],
@@ -1765,12 +1602,11 @@
         ]
       },
       {
-        "index": 128,
+        "index": 125,
         "speaker": "講師",
         "text": "何か聞いておきたいことある。",
         "original": "何か聞いておきたいことある。",
         "confidence": "高",
-        "confidenceReason": "問い",
         "check": [],
         "memoSpan": [
           3139,
@@ -1778,12 +1614,11 @@
         ]
       },
       {
-        "index": 129,
+        "index": 126,
         "speaker": "生徒",
         "text": "えっと特にないです。",
         "original": "えっと特にないです。",
         "confidence": "高",
-        "confidenceReason": "答え",
         "check": [],
         "memoSpan": [
           3153,
@@ -1791,12 +1626,11 @@
         ]
       },
       {
-        "index": 130,
+        "index": 127,
         "speaker": "講師",
         "text": "そっかじゃあまずはコンクール頑張って終わったら夏から一緒に頑張ろう。",
         "original": "そっかじゃあまずはコンクール頑張って終わったら夏から一緒に頑張ろう。",
         "confidence": "高",
-        "confidenceReason": "締めの声かけ",
         "check": [],
         "memoSpan": [
           3163,
@@ -1804,12 +1638,11 @@
         ]
       },
       {
-        "index": 131,
+        "index": 128,
         "speaker": "生徒",
         "text": "はい、ありがとうございました。",
         "original": "はい、ありがとうございました。",
         "confidence": "高",
-        "confidenceReason": "締めのあいさつ",
         "check": [],
         "memoSpan": [
           3197,
@@ -1888,15 +1721,9 @@
         },
         {
           "index": 39,
-          "kind": "崩れた語",
+          "kind": "欠けた音",
           "before": "でしたかはい",
-          "after": "Dでしたはい"
-        },
-        {
-          "index": 40,
-          "kind": "数字や英字の表記",
-          "before": "ディー",
-          "after": "D"
+          "after": "Dでした。はい"
         },
         {
           "index": 52,
@@ -1907,8 +1734,8 @@
         {
           "index": 67,
           "kind": "近い音の聞き違え",
-          "before": "オウムの法則",
-          "after": "オームの法則"
+          "before": "オウム",
+          "after": "オーム"
         },
         {
           "index": 68,
@@ -1917,49 +1744,61 @@
           "after": "内申"
         },
         {
-          "index": 96,
-          "kind": "数字や英字の表記",
-          "before": "12年",
-          "after": "1、2年"
+          "index": 83,
+          "kind": "近い音の聞き違え",
+          "before": "練る",
+          "after": "寝る"
         },
         {
-          "index": 98,
+          "index": 87,
+          "kind": "欠けた音",
+          "before": "単語の小の勉強",
+          "after": "単語の小テストの勉強"
+        },
+        {
+          "index": 93,
+          "kind": "数字や英字の表記",
+          "before": "12年の穴",
+          "after": "1、2年の穴"
+        },
+        {
+          "index": 95,
           "kind": "数字や英字の表記",
           "before": "7月二 1日",
           "after": "7月21日"
         },
         {
-          "index": 98,
+          "index": 95,
           "kind": "数字や英字の表記",
-          "before": "12年",
-          "after": "1、2年"
+          "before": "12年の復習",
+          "after": "1、2年の復習"
         },
         {
-          "index": 100,
+          "index": 97,
           "kind": "同音の取り違え",
           "before": "1時関数",
           "after": "1次関数"
         },
         {
-          "index": 108,
+          "index": 105,
           "kind": "同音の取り違え",
           "before": "補修",
           "after": "補習"
         },
         {
-          "index": 110,
+          "index": 107,
           "kind": "同音の取り違え",
           "before": "南航",
           "after": "南高"
         },
         {
-          "index": 123,
+          "index": 120,
           "kind": "数字や英字の表記",
           "before": "二十 5日",
           "after": "25日"
         },
         {
-          "index": 124,
+          "index": 121,
           "kind": "同音の取り違え",
           "before": "難航",
           "after": "南高"
@@ -2034,15 +1873,9 @@
         },
         {
           "index": 39,
-          "kind": "崩れた語",
+          "kind": "欠けた音",
           "before": "でしたかはい",
-          "after": "Dでしたはい"
-        },
-        {
-          "index": 40,
-          "kind": "数字や英字の表記",
-          "before": "ディー",
-          "after": "D"
+          "after": "Dでした。はい"
         },
         {
           "index": 52,
@@ -2053,8 +1886,8 @@
         {
           "index": 67,
           "kind": "近い音の聞き違え",
-          "before": "オウムの法則",
-          "after": "オームの法則"
+          "before": "オウム",
+          "after": "オーム"
         },
         {
           "index": 68,
@@ -2063,49 +1896,61 @@
           "after": "内申"
         },
         {
-          "index": 96,
-          "kind": "数字や英字の表記",
-          "before": "12年",
-          "after": "1、2年"
+          "index": 83,
+          "kind": "近い音の聞き違え",
+          "before": "練る",
+          "after": "寝る"
         },
         {
-          "index": 98,
+          "index": 87,
+          "kind": "欠けた音",
+          "before": "単語の小の勉強",
+          "after": "単語の小テストの勉強"
+        },
+        {
+          "index": 93,
+          "kind": "数字や英字の表記",
+          "before": "12年の穴",
+          "after": "1、2年の穴"
+        },
+        {
+          "index": 95,
           "kind": "数字や英字の表記",
           "before": "7月二 1日",
           "after": "7月21日"
         },
         {
-          "index": 98,
+          "index": 95,
           "kind": "数字や英字の表記",
-          "before": "12年",
-          "after": "1、2年"
+          "before": "12年の復習",
+          "after": "1、2年の復習"
         },
         {
-          "index": 100,
+          "index": 97,
           "kind": "同音の取り違え",
           "before": "1時関数",
           "after": "1次関数"
         },
         {
-          "index": 108,
+          "index": 105,
           "kind": "同音の取り違え",
           "before": "補修",
           "after": "補習"
         },
         {
-          "index": 110,
+          "index": 107,
           "kind": "同音の取り違え",
           "before": "南航",
           "after": "南高"
         },
         {
-          "index": 123,
+          "index": 120,
           "kind": "数字や英字の表記",
           "before": "二十 5日",
           "after": "25日"
         },
         {
-          "index": 124,
+          "index": 121,
           "kind": "同音の取り違え",
           "before": "難航",
           "after": "南高"
@@ -2114,252 +1959,269 @@
       "discarded": []
     },
     "step0c": {
-      "summary": "講師が、吹奏楽のコンクールを控えた中学3年の生徒と、第一志望の高校（文字起こしでは「難航」「南港」などと表記）を中心に進路を話している。5月の模試がD判定で数学が低かったことや、家での学習時間がほぼないことを確かめたうえで、夏期講習の組み立て、オープンスクール、三者面談の予定を伝えている。",
+      "summary": "中学3年の生徒は吹奏楽部で、7月のコンクールで引退します。第一志望の南高（文字起こしでは「難航」「南港」などと表記）は、部活の先輩や定期演奏会がきっかけで選んでいます。5月の模試はD判定で数学が64点と低く、講師は夏期講習の組み立て、家庭学習の時間、オープンスクールや三者面談の予定を確認しています。",
       "guesses": [
         {
           "index": 14,
           "kind": "崩れ",
           "fragment": "難航",
           "guess": "南高",
-          "clue": "第一志望の学校名として話されており、後の発話では「南航」「南港」と表記が揺れている"
+          "clue": "志望校の名前として話されており、音が同じ"
         },
         {
           "index": 15,
           "kind": "崩れ",
           "fragment": "南航",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "14と同じ志望校の名前で、音が同じ"
         },
         {
           "index": 16,
           "kind": "崩れ",
           "fragment": "南港",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "志望校の名前で、音が同じ"
         },
         {
           "index": 17,
           "kind": "崩れ",
           "fragment": "南港",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "先輩の進学先として話されており、志望校と音が同じ"
         },
         {
           "index": 23,
           "kind": "崩れ",
           "fragment": "ずっとなんかです",
           "guess": "ずっと南高です",
-          "clue": "「なんか」と「なんこう」は音が近く、志望が決まった流れに合う"
+          "clue": "志望が決まった話の続きで、「なんか」と「なんこう」の音が近い"
         },
         {
           "index": 24,
           "kind": "崩れ",
           "fragment": "難航",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "志望校の名前で、音が同じ"
         },
         {
           "index": 25,
           "kind": "崩れ",
           "fragment": "南校留学",
-          "guess": "南高は留学",
-          "clue": "学校名の表記揺れに加えて助詞が抜けている"
+          "guess": "南高、留学",
+          "clue": "志望校に留学制度があるという話で、音が同じ"
         },
         {
           "index": 28,
           "kind": "崩れ",
           "fragment": "南港",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "志望校の名前で、音が同じ"
         },
         {
           "index": 31,
           "kind": "崩れ",
           "fragment": "通のも",
           "guess": "通うのも",
-          "clue": "電車1本で通学が楽という文脈"
+          "clue": "電車で1本という話の続きで、音が欠けている"
         },
         {
           "index": 32,
           "kind": "崩れ",
-          "fragment": "平岸の私立",
-          "guess": "併願の私立",
-          "clue": "「へいがん」と音が近く、私立の受験先を聞く文脈に合う"
+          "fragment": "平岸",
+          "guess": "併願",
+          "clue": "私立の受験先を聞く場面で、音が近い"
         },
         {
           "index": 38,
           "kind": "崩れ",
-          "fragment": "難航",
-          "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "fragment": "難航判定",
+          "guess": "南高判定",
+          "clue": "模試の志望校判定を聞いており、音が同じ"
         },
         {
           "index": 39,
           "kind": "崩れ",
           "fragment": "でしたかはい",
-          "guess": "Dでした。はい",
-          "clue": "次の講師の発話で「ディーって書いてあったら」と受けている"
+          "guess": "Dでした、はい",
+          "clue": "40で講師が「ディー」と受けており、判定の文字が欠けている"
         },
         {
           "index": 52,
           "kind": "崩れ",
           "fragment": "1時関数",
           "guess": "1次関数",
-          "clue": "数学の単元名で、音が同じ"
+          "clue": "数学の単元の話で、音が同じ"
         },
         {
           "index": 67,
           "kind": "崩れ",
           "fragment": "オウムの法則",
           "guess": "オームの法則",
-          "clue": "電流と電圧の話をしており、音が近い"
+          "clue": "電流と電圧の話で、音が近い"
         },
         {
           "index": 68,
           "kind": "崩れ",
-          "fragment": "内心も大事だから期末から",
-          "guess": "内申も大事だから。期末いつから",
-          "clue": "成績の話の流れで、生徒が日付で答えている"
+          "fragment": "内心",
+          "guess": "内申",
+          "clue": "成績と期末試験の話で、音が同じ"
+        },
+        {
+          "index": 68,
+          "kind": "崩れ",
+          "fragment": "期末から",
+          "guess": "期末いつから",
+          "clue": "69で生徒が日付で答えており、問いの語が欠けている"
         },
         {
           "index": 69,
           "kind": "崩れ",
           "fragment": "月の日から",
           "guess": "7月の◯日から",
-          "clue": "月と日の数字が抜けており、コンクールの前と続いている"
+          "clue": "日付の数字が抜けている。70に「コンクールの前」とある"
+        },
+        {
+          "index": 83,
+          "kind": "崩れ",
+          "fragment": "練る",
+          "guess": "寝る",
+          "clue": "夜の過ごし方の話で、音が同じ"
+        },
+        {
+          "index": 83,
+          "kind": "崩れ",
+          "fragment": "いたら",
+          "guess": "気づいたら",
+          "clue": "「寝る」につながる語の頭が欠けているように読める"
         },
         {
           "index": 84,
           "kind": "崩れ",
-          "fragment": "いたら練るのに",
-          "guess": "見ていたら寝るのに",
-          "clue": "スマホを3時間見るという話のすぐ後で、「練る」は「寝る」と音が同じ"
+          "fragment": "はいっちゃ",
+          "guess": "はい、じゃあ",
+          "clue": "話題を変える言葉で、音が近い"
+        },
+        {
+          "index": 85,
+          "kind": "崩れ",
+          "fragment": "やってま",
+          "guess": "やってます",
+          "clue": "語尾が欠けている"
         },
         {
           "index": 86,
           "kind": "崩れ",
-          "fragment": "っちゃ塾の宿題は",
-          "guess": "じゃあ塾の宿題は",
-          "clue": "語頭が欠けていると読める"
+          "fragment": "するんだい",
+          "guess": "そうなんだ",
+          "clue": "相づちの位置にあり、音が近い"
         },
         {
-          "index": 88,
-          "kind": "崩れ",
-          "fragment": "るんだ",
-          "guess": "やってるんだ",
-          "clue": "語頭が欠けており、塾で宿題をやっているという話を受けている"
+          "index": 87,
+          "kind": "話者の取り違え",
+          "fragment": "んで単語の小の勉強は",
+          "guess": "講師",
+          "clue": "質問の形で、88で生徒が答えている"
         },
         {
-          "index": 89,
-          "kind": "崩れ",
-          "fragment": "いんで",
-          "guess": "ないんで",
-          "clue": "語頭が欠けている"
-        },
-        {
-          "index": 90,
+          "index": 87,
           "kind": "崩れ",
           "fragment": "単語の小の勉強",
           "guess": "単語の小テストの勉強",
-          "clue": "61で学校の単語の小テストの話が出ている"
+          "clue": "61で単語の小テストの話が出ており、語が欠けている"
         },
         {
-          "index": 96,
+          "index": 93,
           "kind": "崩れ",
           "fragment": "12年の穴",
-          "guess": "1・2年の穴",
-          "clue": "中学1・2年の内容の復習を指す文脈"
+          "guess": "1、2年の穴",
+          "clue": "1・2年の内容の復習の話で、区切りが抜けている"
         },
         {
-          "index": 98,
+          "index": 95,
           "kind": "崩れ",
           "fragment": "7月二 1日",
           "guess": "7月21日",
-          "clue": "講習の開始日の数字表記が崩れている"
+          "clue": "講習の開始日で、数字の表記が崩れている"
         },
         {
-          "index": 98,
+          "index": 95,
           "kind": "崩れ",
           "fragment": "12年の復習",
-          "guess": "1・2年の復習",
-          "clue": "後に「3年の内容」と続いている"
+          "guess": "1、2年の復習",
+          "clue": "後に「3年の内容」と続くため"
         },
         {
-          "index": 100,
+          "index": 97,
           "kind": "崩れ",
           "fragment": "1時関数",
           "guess": "1次関数",
-          "clue": "数学の単元名で、音が同じ"
+          "clue": "数学の単元の話で、音が同じ"
+        },
+        {
+          "index": 103,
+          "kind": "崩れ",
+          "fragment": "見返すと時に",
+          "guess": "見返す時に",
+          "clue": "余分な音が入っている"
         },
         {
           "index": 105,
           "kind": "崩れ",
-          "fragment": "は",
-          "guess": "はい",
-          "clue": "返事の語尾が切れている"
-        },
-        {
-          "index": 106,
-          "kind": "崩れ",
-          "fragment": "見返すと時に",
-          "guess": "見返す時に",
-          "clue": "余分な「と」が入っている"
-        },
-        {
-          "index": 108,
-          "kind": "崩れ",
           "fragment": "補修",
           "guess": "補習",
-          "clue": "学校の授業の文脈で、音が同じ"
+          "clue": "学校で来られない予定の話で、音が同じ"
         },
         {
-          "index": 110,
+          "index": 107,
           "kind": "崩れ",
           "fragment": "南航",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "志望校のオープンスクールの話で、音が同じ"
         },
         {
-          "index": 115,
+          "index": 112,
           "kind": "崩れ",
           "fragment": "月の 18日",
           "guess": "7月の18日",
-          "clue": "月の数字が抜けており、講習が始まる少し前と続いている"
+          "clue": "113で「講習が始まるちょっと前」とあり、月の数字が欠けている"
         },
         {
-          "index": 124,
+          "index": 121,
           "kind": "崩れ",
           "fragment": "難航",
           "guess": "南高",
-          "clue": "同じ学校名の表記揺れ"
+          "clue": "第一志望の名前で、音が同じ"
         }
-      ]
-    }
+      ],
+      "withheld": [],
+      "unverifiedQuotes": []
+    },
+    "step0aMode": "copy"
   },
   "timing": {
     "step0a": {
       "model": "claude-opus-5-5",
-      "ms": 83468,
+      "ms": 43253,
       "inputTokens": 3161,
-      "outputTokens": 11948,
-      "cacheReadTokens": 0,
-      "cacheWriteTokens": 1153
+      "outputTokens": 6681,
+      "cacheReadTokens": 1153,
+      "cacheWriteTokens": 0
     },
     "step0b": {
       "model": "claude-opus-5-5",
-      "ms": 19531,
-      "inputTokens": 4297,
-      "outputTokens": 2211,
-      "cacheReadTokens": 0,
-      "cacheWriteTokens": 1220
+      "ms": 20027,
+      "inputTokens": 4271,
+      "outputTokens": 2293,
+      "cacheReadTokens": 1220,
+      "cacheWriteTokens": 0
     },
     "step0c": {
       "model": "claude-opus-5-5",
-      "ms": 28801,
-      "inputTokens": 4301,
-      "outputTokens": 3144,
-      "cacheReadTokens": 0,
-      "cacheWriteTokens": 1166
+      "ms": 31626,
+      "inputTokens": 4275,
+      "outputTokens": 3674,
+      "cacheReadTokens": 1166,
+      "cacheWriteTokens": 0
     }
   },
   "unanchored": 0

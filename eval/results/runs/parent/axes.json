@@ -1,10 +1,10 @@
 {
   "case": "parent",
   "axis1": {
-    "generated": 11,
+    "generated": 2,
     "discarded": 0,
-    "displayed": 11,
-    "displayedVerified": 11,
+    "displayed": 2,
+    "displayedVerified": 2,
     "displayedMatchRate": 1,
     "scenesWithoutQuote": 0,
     "contextWithJudgement": [],
@@ -18,18 +18,10 @@
           2
         ],
         "utterances": [
-          46,
-          44,
-          47,
-          51,
-          53
+          46
         ],
         "lines": [
-          45,
-          47,
-          48,
-          52,
-          54
+          47
         ]
       },
       {
@@ -38,20 +30,10 @@
           1
         ],
         "utterances": [
-          28,
-          27,
-          29,
-          31,
-          66,
-          67
+          28
         ],
         "lines": [
-          28,
-          29,
-          30,
-          32,
-          67,
-          68
+          29
         ]
       }
     ],
@@ -219,17 +201,19 @@
   "axis3": [
     {
       "scene": "よく表れた所",
-      "score": 3,
-      "reason": "開かれた一つの問いだが、発話番号がずれていて（許可を求めたのは44、見立ては46、47は保護者の発話）引用との対応が不正確なうえ、「順番を組み立てていた」と意図を前提にしており、軽い誘導がある。"
+      "score": 4,
+      "reason": "開かれた問いが一つに絞られ、答えも先に言っていない。ただし引用した発話 46 の見立ての中身ではなく、観察にだけある発話 44 の了承のタイミングを聞いているため、引用に即しているかは少しずれる。また「そのタイミングを選んだ」には、意図して選んだという前提がわずかに含まれる。"
     },
     {
       "scene": "次に試せる所",
-      "score": 5,
-      "reason": "答えを示さずに開いた形で問うており、発話27の言葉とその直後の一言という場面に即し、聞いていることも一つに絞れているため、四つの観点をすべて満たす。"
+      "score": 4,
+      "reason": "開かれた形で、発話27から28の場面に即した問いを一つに絞れているが、「お願いや提案に移る前に」という前提が、お願いに移ったことを見直すべき点として先に示しており、誘導しない観点からはやや外れる。"
     }
   ],
   "axis5": {
     "hits": [],
+    "withheld": [],
+    "unverifiedQuotes": 0,
     "scoresInStep1": false,
     "scoresPerItem": true
   },
@@ -264,24 +248,26 @@
         "ai": true
       }
     ],
+    "truthNoScene": false,
     "saidNoScene": false
   },
   "axis9": {
     "pairs": [],
     "satisfied": 0,
     "countable": 0,
-    "pairsIncludingDraft": 0
+    "pairsIncludingDraft": 0,
+    "absentItems": []
   },
   "axis10": [
     {
       "scene": "よく表れた所",
-      "score": 3,
-      "reason": "観察の前半（発話44で許可を求め、45の承諾後に46で落とした問題を分けて伝えた流れ）と直後の反応（47・51・53）は引用と前後の発話に合っています。一方で、観察の「家で勉強していない」「言うと喧嘩になる」と、読みの起点である「どうしようもない」は、示された引用にも前後の発話にも無く、読みが引用から離れています。なお、問いの発話番号（1-45、1-47）は、許可を求めた発話44と見立てを伝えた発話46とずれています。"
+      "score": 4,
+      "reason": "発話46の『単語が覚えられていない』と発話47で保護者が単語の話を続けたことから、話の的が単語に絞られたという読みは導けます。一方で、発話44での了承の求め、『家で勉強していない』という保護者の見方、発話23〜43の内容、発話51・53・54以降のつながりは引用と前後の発話の外にあり、読みの一部がその文脈に頼っています。"
     },
     {
       "scene": "次に試せる所",
       "score": 4,
-      "reason": "観察（発話27の後に発話28で講師が家での声かけを依頼）と直後の反応（発話29）は前後の発話と一致し、「どう言えばいいのかわからない」（発話31）から気持ちの話が続いていたという読みも引用から導けます。ただし、「喧嘩の話を繰り返した」は引用外の文脈の一行に頼っています。また、発話31は講師の発話30を挟んでいるため「続けて」はやや不正確で、4とします。"
+      "reason": "発話27から28、29への流れに沿った観察と、迷いが説明へ移ったという読みは引用と前後の発話で裏付けられるが、発話31の内容と模試という面談目的は示された範囲の外の文脈に頼っている。"
     }
   ],
   "axis11": {
@@ -292,12 +278,12 @@
     "byConfidence": [
       {
         "confidence": "高",
-        "count": 73,
+        "count": 82,
         "wrong": 0
       },
       {
         "confidence": "中",
-        "count": 13,
+        "count": 4,
         "wrong": 0
       },
       {
@@ -306,7 +292,7 @@
         "wrong": 0
       }
     ],
-    "spanningSpeakers": 1,
+    "spanningSpeakers": 0,
     "multipleOthers": false,
     "wrong": []
   },
@@ -318,7 +304,7 @@
         "before": "同名詞",
         "after": "動名詞",
         "verdict": "拾えた",
-        "scriptWindow": "定詞と動名詞の問題"
+        "scriptWindow": "動名詞"
       },
       {
         "index": 27,
@@ -326,15 +312,7 @@
         "before": "私が行っても",
         "after": "私が言っても",
         "verdict": "拾えた",
-        "scriptWindow": "なので私が言っても仕方な"
-      },
-      {
-        "index": 65,
-        "kind": "語の区切り",
-        "before": "言わ。ずに",
-        "after": "言わずに",
-        "verdict": "拾えた",
-        "scriptWindow": "るさく言わずに見てい"
+        "scriptWindow": "私が言っても"
       },
       {
         "index": 72,
@@ -342,7 +320,7 @@
         "before": "登記講習",
         "after": "冬期講習",
         "verdict": "拾えた",
-        "scriptWindow": "すあと冬期講習の案内"
+        "scriptWindow": "冬期講習"
       },
       {
         "index": 72,
@@ -350,7 +328,15 @@
         "before": "12学期",
         "after": "1、2学期",
         "verdict": "言った言葉と違う",
-        "scriptWindow": "中二は一二学期の復習"
+        "scriptWindow": "一二学期"
+      },
+      {
+        "index": 65,
+        "kind": "語の区切り",
+        "before": "言わ。ずに",
+        "after": "言わずに",
+        "verdict": "拾えた",
+        "scriptWindow": "言わずに"
       }
     ],
     "applied": 5,
@@ -361,8 +347,8 @@
     "unaligned": 0,
     "pickedByKind": {
       "同音の取り違え": 2,
-      "語の区切り": 1,
-      "近い音の聞き違え": 1
+      "近い音の聞き違え": 1,
+      "語の区切り": 1
     },
     "mismatchSpots": 49,
     "mismatchTouched": 4,
@@ -557,17 +543,7 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "定詞と動名詞の問題"
-      },
-      {
-        "index": 25,
-        "kind": "崩れ",
-        "fragment": "思ってたってで",
-        "guess": "思ってたって言って",
-        "reallyBroken": false,
-        "guessMatchesScript": false,
-        "changedCorrect": true,
-        "scriptWindow": "ろうと思ってたってで結局や"
+        "scriptWindow": "動名詞"
       },
       {
         "index": 27,
@@ -577,27 +553,17 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "なので私が言っても仕方な"
+        "scriptWindow": "私が言っても"
       },
       {
-        "index": 63,
+        "index": 25,
         "kind": "崩れ",
-        "fragment": "お兄ちゃんのの時",
-        "guess": "お兄ちゃんの時",
-        "reallyBroken": true,
-        "guessMatchesScript": false,
-        "changedCorrect": false,
-        "scriptWindow": "心ですお兄ちゃんのときはそう"
-      },
-      {
-        "index": 65,
-        "kind": "崩れ",
-        "fragment": "言わ。ずに",
-        "guess": "言わずに",
+        "fragment": "今やろうと思ってたってで",
+        "guess": "今やろうと思ってたって言って",
         "reallyBroken": false,
-        "guessMatchesScript": true,
-        "changedCorrect": false,
-        "scriptWindow": "るさく言わずに見てい"
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "今やろうと思ってたってで"
       },
       {
         "index": 72,
@@ -607,7 +573,7 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "すあと冬期講習の案内"
+        "scriptWindow": "冬期講習"
       },
       {
         "index": 72,
@@ -617,7 +583,27 @@
         "reallyBroken": true,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "中二は一二学期の復習"
+        "scriptWindow": "一二学期"
+      },
+      {
+        "index": 63,
+        "kind": "崩れ",
+        "fragment": "お兄ちゃんのの時",
+        "guess": "お兄ちゃんの時",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "お兄ちゃんのとき"
+      },
+      {
+        "index": 65,
+        "kind": "崩れ",
+        "fragment": "言わ。ずに",
+        "guess": "言わずに",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "言わずに"
       }
     ],
     "guessStats": {
@@ -632,44 +618,44 @@
     {
       "fragment": "同名詞",
       "guess": "動名詞",
-      "score": 4,
-      "reason": "推測の「動名詞」は、断片に当たる台本の語「動名詞」と一致し、台本に無い意味も足していないが、台本の「定詞と」「問題」の部分までは含んでいないため4とした。"
-    },
-    {
-      "fragment": "思ってたってで",
-      "guess": "思ってたって言って",
-      "score": 3,
-      "reason": "「思ってた」は台本と合いますが、台本は「思ってたってで結局」と次へつながる形です。推測の「言って」は台本に無い語で、発話したという意味が足されている可能性があるため、半分ほどの一致です。"
+      "score": 5,
+      "reason": "推測「動名詞」は台本「動名詞」と完全に一致し、台本に無い意味も足していないため、意味が同じと判断した。"
     },
     {
       "fragment": "私が行っても",
       "guess": "私が言っても",
       "score": 5,
-      "reason": "推測「私が言っても」は、台本のうち断片に当たる部分「私が言っても」と意味が同じです。台本に無い意味も足していません。「なので」「仕方な」は断片の範囲外なので評価に含めていません。"
+      "reason": "推測「私が言っても」は台本「私が言っても」と完全に一致しており、台本に無い意味も足していない。"
     },
     {
-      "fragment": "お兄ちゃんのの時",
-      "guess": "お兄ちゃんの時",
-      "score": 5,
-      "reason": "推測「お兄ちゃんの時」は、断片に当たる台本の「お兄ちゃんのとき」と意味が同じで、台本に無い意味も足していない。前後の「心です」「はそう」は断片の外の語と見た。"
-    },
-    {
-      "fragment": "言わ。ずに",
-      "guess": "言わずに",
+      "fragment": "今やろうと思ってたってで",
+      "guess": "今やろうと思ってたって言って",
       "score": 4,
-      "reason": "推測「言わずに」は台本の該当部分と一致し、余分な意味も足していないが、台本にある「うるさく」という限定が含まれず、意味がやや広くなっている。"
+      "reason": "「今やろうと思ってた」という引用の中心は台本と同じですが、文末の「で」が「言って」に置き換わり、つなぎの語が細かく異なります。"
     },
     {
       "fragment": "登記講習",
       "guess": "冬期講習",
       "score": 5,
-      "reason": "断片「登記講習」にあたる台本の語は「冬期講習」で、推測と意味が同じであり、台本に無い意味も足していない。"
+      "reason": "推測「冬期講習」は台本の「冬期講習」と意味も表記も一致しており、台本に無い意味も足していない。"
     },
     {
       "fragment": "12学期",
       "guess": "1、2学期",
       "score": 5,
-      "reason": "推測「1、2学期」は台本の「一二学期」と同じく1学期と2学期を指しており、表記が違うだけで意味は一致し、台本に無い意味も足していない。"
+      "reason": "推測「1、2学期」は台本「一二学期」と表記が違うだけで、同じく一学期と二学期を指しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "お兄ちゃんのの時",
+      "guess": "お兄ちゃんの時",
+      "score": 5,
+      "reason": "推測「お兄ちゃんの時」は台本「お兄ちゃんのとき」と表記の違いだけで意味が同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "言わ。ずに",
+      "guess": "言わずに",
+      "score": 5,
+      "reason": "推測「言わずに」は台本「言わずに」と完全に一致し、意味の付け足しもない。"
     }
   ],
   "variance": null,
@@ -677,32 +663,32 @@
     "step0": {
       "step0a": {
         "model": "claude-opus-5-5",
-        "ms": 64252,
+        "ms": 33121,
         "inputTokens": 2677,
-        "outputTokens": 9022,
+        "outputTokens": 4984,
         "cacheReadTokens": 0,
         "cacheWriteTokens": 1153
       },
       "step0b": {
         "model": "claude-opus-5-5",
-        "ms": 6490,
+        "ms": 5454,
         "inputTokens": 3427,
-        "outputTokens": 459,
+        "outputTokens": 489,
         "cacheReadTokens": 0,
         "cacheWriteTokens": 1220
       },
       "step0c": {
         "model": "claude-opus-5-5",
-        "ms": 11896,
+        "ms": 10824,
         "inputTokens": 3431,
-        "outputTokens": 926,
+        "outputTokens": 1040,
         "cacheReadTokens": 0,
         "cacheWriteTokens": 1166
       }
     },
-    "step1Ms": 38177,
-    "firstCitationMs": 21031,
-    "step2Ms": 28133,
+    "step1Ms": 30296,
+    "firstCitationMs": 14154,
+    "step2Ms": 25657,
     "step4Ms": null
   }
 }

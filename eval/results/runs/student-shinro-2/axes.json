@@ -1,10 +1,10 @@
 {
   "case": "student-shinro-2",
   "axis1": {
-    "generated": 10,
+    "generated": 2,
     "discarded": 0,
-    "displayed": 9,
-    "displayedVerified": 9,
+    "displayed": 2,
+    "displayedVerified": 2,
     "displayedMatchRate": 1,
     "scenesWithoutQuote": 0,
     "contextWithJudgement": [],
@@ -19,17 +19,10 @@
           4
         ],
         "utterances": [
-          50,
-          51,
-          53,
-          55
+          49
         ],
         "lines": [
-          63,
-          64,
-          66,
-          68,
-          70
+          63
         ]
       },
       {
@@ -38,19 +31,10 @@
           2
         ],
         "utterances": [
-          44,
-          46,
-          45,
-          47,
-          48
+          45
         ],
         "lines": [
-          55,
-          57,
-          58,
-          59,
-          60,
-          61
+          59
         ]
       }
     ],
@@ -233,16 +217,18 @@
     {
       "scene": "よく表れた所",
       "score": 4,
-      "reason": "答えを先に示さず、開かれた一つの問いとして「この差どう思う」の場面を直接聞いているが、その発話は発話50なのに「1-51」と番号を示しており、引用との対応がわずかにずれている。"
+      "reason": "発話 47 から 49 への移り目という引用場面に即しており、問いは一つで、解釈も先に示していません。ただ、選んだ言葉は観察にすでに書かれているため答えが事実の確認で終わりやすく、考えを深める開かれ方はやや弱いです。"
     },
     {
       "scene": "次に試せる所",
       "score": 4,
-      "reason": "問いは一つに絞れており、開かれた形で、答えを先に言っていない。ただし「問いを口にした後」という区切りは発話44の場面を指しているものの、その発話や生徒の短い返答には直接触れておらず、引用に即しているかはやや弱い。"
+      "reason": "開かれた単一の問いで、発話43から45の場面に即していますが、「生徒の答えが出てくるまでの間に」という前提が「答えを待つべきだった」という解釈を少し含んでおり、誘導しない点がわずかに弱いです。"
     }
   ],
   "axis5": {
     "hits": [],
+    "withheld": [],
+    "unverifiedQuotes": 0,
     "scoresInStep1": false,
     "scoresPerItem": true
   },
@@ -254,19 +240,7 @@
       63
     ],
     "aiEvidenceLines": [
-      37,
-      38,
-      40,
-      45,
-      47,
-      49,
-      53,
-      63,
-      68,
-      69,
-      70,
-      74,
-      82
+      63
     ],
     "evidenceOverlaps": true,
     "source": "決め"
@@ -301,6 +275,7 @@
         "ai": false
       }
     ],
+    "truthNoScene": false,
     "saidNoScene": false
   },
   "axis9": {
@@ -308,60 +283,61 @@
       {
         "good": 2,
         "bad": 4,
-        "goodScore": 3,
-        "badScore": 4,
+        "goodScore": 4,
+        "badScore": 5,
         "ok": false
       },
       {
         "good": 3,
         "bad": 4,
         "goodScore": 5,
-        "badScore": 4,
-        "ok": true
+        "badScore": 5,
+        "ok": false
       },
       {
         "good": 5,
         "bad": 4,
         "goodScore": 4,
-        "badScore": 4,
+        "badScore": 5,
         "ok": false
       }
     ],
-    "satisfied": 1,
+    "satisfied": 0,
     "countable": 3,
-    "pairsIncludingDraft": 3
+    "pairsIncludingDraft": 3,
+    "absentItems": []
   },
   "axis10": [
     {
       "scene": "よく表れた所",
-      "score": 3,
-      "reason": "観察（志望と家庭学習ゼロを一つの問いに並べたこと、「いつやる？」「月水金ね」）と読み（案と曜日を生徒が自分で決めた）は発話50〜56から導けますが、直後の反応にある「スマホをリビングに置くことも自分から付け足した」は引用にも前後の発話にも無く、反応の観点を満たしません。また、問いが「1-51」を講師の問いとしていますが、該当する講師の発話は50です。"
+      "score": 4,
+      "reason": "発話49の引用は、志望と家での勉強ゼロを並べて差を問う観察を直接支えており、発話50の反応も前後の発話と合っています。ただし、それが生徒自身の言葉だという点（発話30・40）、発話47、そして曜日や環境の工夫を生徒が決めたという読み（発話52〜56）は、引用の外の文脈に頼っています。"
     },
     {
       "scene": "次に試せる所",
       "score": 4,
-      "reason": "観察・反応・読みの中身は発話44〜48と合っています。問いの言い換え、体験談と見立てまで同じ発話で話したこと、生徒の短い返答、講師の「私ばっかり話しちゃったね」は、どれも引用から読み取れます。ただし発話番号が一つずつずれています（46を1-47、生徒の発話47を1-48と表記）。そのため、引用との照合で食い違いが生じるので減点しました。"
+      "reason": "観察（発話44で生徒が家の状況を話し始め、発話45で講師が答えとたとえを示した流れ）と直後の反応（発話46の『はい。でも帰ると動画』）は前後の発話と合っており、44と46がどちらも帰宅後を指すという読みも引用から導けます。ただ、発話43の問いと、見立てが発話52で生徒の言葉として使われたという部分は、引用の外の文脈に頼っています。"
     }
   ],
   "axis11": {
-    "utterances": 84,
-    "aligned": 84,
-    "correct": 83,
-    "accuracy": 0.9880952380952381,
+    "utterances": 83,
+    "aligned": 83,
+    "correct": 82,
+    "accuracy": 0.9879518072289156,
     "byConfidence": [
       {
         "confidence": "高",
-        "count": 73,
+        "count": 74,
         "wrong": 0
       },
       {
         "confidence": "中",
-        "count": 9,
+        "count": 8,
         "wrong": 0
       },
       {
         "confidence": "低",
-        "count": 2,
+        "count": 1,
         "wrong": 1
       }
     ],
@@ -373,7 +349,7 @@
         "ai": "講師",
         "truth": "生徒",
         "confidence": "低",
-        "text": "お月の 64じゃない"
+        "text": "お月の 64じゃない計算としたでも最後の大門はまた手をつけられなくて。"
       }
     ]
   },
@@ -385,100 +361,99 @@
         "before": "老けた",
         "after": "弾けた",
         "verdict": "言った言葉と違う",
-        "scriptWindow": "ゃんと吹けたはいソ"
+        "scriptWindow": "吹けた"
       },
       {
-        "index": 15,
+        "index": 14,
         "kind": "同音の取り違え",
         "before": "大門",
         "after": "大問",
         "verdict": "拾えた",
-        "scriptWindow": "最後の大問はまた"
+        "scriptWindow": "大問"
       },
       {
-        "index": 18,
+        "index": 17,
         "kind": "近い音の聞き違え",
-        "before": "洗った",
-        "after": "上がった",
-        "verdict": "拾えた",
-        "scriptWindow": "のは上がったんだね"
+        "before": "洗ったんだね",
+        "after": "あったんだね",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "がったんだね"
       },
       {
-        "index": 20,
-        "kind": "崩れた語",
+        "index": 19,
+        "kind": "同音の取り違え",
         "before": "オウムの法則",
         "after": "オームの法則",
         "verdict": "拾えた",
-        "scriptWindow": "電気かオムの法則まだ混"
+        "scriptWindow": "オムの法則"
       },
       {
-        "index": 27,
+        "index": 26,
         "kind": "同音の取り違え",
-        "before": "難航",
-        "after": "南高",
+        "before": "難航って",
+        "after": "南高って",
         "verdict": "拾えた",
-        "scriptWindow": "だった南高って言"
+        "scriptWindow": "南高って"
       },
       {
-        "index": 30,
+        "index": 29,
         "kind": "同音の取り違え",
         "before": "答えるよね",
-        "after": "こたえるよね",
-        "verdict": "拾えた",
-        "scriptWindow": "うんこたえるよねはいお"
+        "after": "堪えるよね",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "たえるよね"
       },
       {
-        "index": 44,
+        "index": 43,
         "kind": "語の区切り",
         "before": "上がることそうでもない",
         "after": "上がる子とそうでもない",
         "verdict": "拾えた",
-        "scriptWindow": "模試で上がる子とそうでもない子がい"
+        "scriptWindow": "上がる子とそうでもない"
       },
       {
-        "index": 59,
-        "kind": "近い音の聞き違え",
-        "before": "何個行きたい",
-        "after": "南高行きたい",
+        "index": 58,
+        "kind": "同音の取り違え",
+        "before": "何個行きたいんで",
+        "after": "南高行きたいんで",
         "verdict": "拾えた",
-        "scriptWindow": "だはい南高行きたいんでオ"
+        "scriptWindow": "南高行きたいんで"
       },
       {
-        "index": 63,
+        "index": 62,
         "kind": "近い音の聞き違え",
         "before": "接点",
         "after": "切片",
         "verdict": "拾えた",
-        "scriptWindow": "傾きと切片を先に"
+        "scriptWindow": "切片"
       },
       {
-        "index": 76,
+        "index": 75,
         "kind": "崩れた語",
         "before": "もわ",
         "after": "模試は",
-        "verdict": "拾えた",
-        "scriptWindow": "月の模試は三十日"
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "試は"
       },
       {
-        "index": 78,
+        "index": 77,
         "kind": "欠けた音",
         "before": "でいから",
         "after": "でいいから",
         "verdict": "拾えた",
-        "scriptWindow": "かったでいいからそのま"
+        "scriptWindow": "でいいから"
       }
     ],
     "applied": 11,
     "discarded": 0,
-    "picked": 10,
+    "picked": 7,
     "overfixedOriginalCorrect": 0,
-    "overfixedWrongWord": 1,
+    "overfixedWrongWord": 4,
     "unaligned": 0,
     "pickedByKind": {
-      "同音の取り違え": 3,
-      "近い音の聞き違え": 3,
-      "崩れた語": 2,
+      "同音の取り違え": 4,
       "語の区切り": 1,
+      "近い音の聞き違え": 1,
       "欠けた音": 1
     },
     "mismatchSpots": 63,
@@ -710,7 +685,7 @@
         "reallyBroken": true,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "ゃんと吹けたはいソ"
+        "scriptWindow": "吹けた"
       },
       {
         "index": 14,
@@ -723,161 +698,171 @@
         "scriptWindow": null
       },
       {
-        "index": 15,
+        "index": 14,
         "kind": "崩れ",
         "fragment": "計算としたでも",
-        "guess": "計算は取れた、でも",
+        "guess": "計算落としたけど",
         "reallyBroken": false,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "いはい計算と関数の一問目は取れましたでも最後の"
+        "scriptWindow": "計算と関数の一問目は取れましたでも"
       },
       {
-        "index": 15,
+        "index": 14,
         "kind": "崩れ",
         "fragment": "大門",
         "guess": "大問",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "最後の大問はまた"
+        "scriptWindow": "大問"
       },
       {
-        "index": 18,
-        "kind": "崩れ",
-        "fragment": "洗った",
-        "guess": "上がった",
+        "index": 14,
+        "kind": "話者の取り違え",
+        "fragment": "最後の大門はまた手をつけられなくて",
+        "guess": "生徒",
         "reallyBroken": true,
-        "guessMatchesScript": true,
+        "guessMatchesScript": null,
         "changedCorrect": false,
-        "scriptWindow": "のは上がったんだね"
+        "scriptWindow": "最後の大問はまた手をつけられなくて"
       },
       {
-        "index": 20,
+        "index": 17,
+        "kind": "崩れ",
+        "fragment": "洗ったんだね",
+        "guess": "上がったんだね",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "がったんだね"
+      },
+      {
+        "index": 19,
         "kind": "崩れ",
         "fragment": "オウムの法則",
         "guess": "オームの法則",
         "reallyBroken": false,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "電気かオムの法則まだ混"
+        "scriptWindow": "オムの法則"
       },
       {
-        "index": 27,
+        "index": 26,
         "kind": "崩れ",
         "fragment": "難航",
         "guess": "南高",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "だった南高って言"
+        "scriptWindow": "南高"
       },
       {
-        "index": 30,
-        "kind": "崩れ",
-        "fragment": "答える",
-        "guess": "堪える",
-        "reallyBroken": true,
-        "guessMatchesScript": false,
-        "changedCorrect": false,
-        "scriptWindow": "うんこたえるよねは"
-      },
-      {
-        "index": 36,
+        "index": 35,
         "kind": "崩れ",
         "fragment": "は前に",
-        "guess": "で、前に",
+        "guess": "前に",
         "reallyBroken": false,
-        "guessMatchesScript": false,
+        "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "ねはい前に夏から"
+        "scriptWindow": "前に"
       },
       {
-        "index": 41,
-        "kind": "崩れ",
-        "fragment": "動画見てね寝ちゃって",
-        "guess": "動画見てて寝ちゃって",
-        "reallyBroken": false,
-        "guessMatchesScript": false,
-        "changedCorrect": false,
-        "scriptWindow": "のまま動画見て寝ちゃってほぼゼ"
-      },
-      {
-        "index": 44,
+        "index": 43,
         "kind": "崩れ",
         "fragment": "上がることそうでもない子",
         "guess": "上がる子とそうでもない子",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "模試で上がる子とそうでもない子がいる"
+        "scriptWindow": "上がる子とそうでもない子"
       },
       {
-        "index": 53,
+        "index": 50,
+        "kind": "崩れ",
+        "fragment": "スマホ見ちゃ自分でも",
+        "guess": "スマホ見ちゃって自分でも",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "スマホ見ちゃう自分でも"
+      },
+      {
+        "index": 52,
         "kind": "崩れ",
         "fragment": "迷うわないし",
         "guess": "迷わないし",
         "reallyBroken": false,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "いいか迷わないしさっき"
+        "scriptWindow": "迷わないし"
       },
       {
-        "index": 59,
+        "index": 58,
         "kind": "崩れ",
         "fragment": "何個行きたいんで",
         "guess": "南高行きたいんで",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "だはい南高行きたいんでオプン"
+        "scriptWindow": "南高行きたいんで"
       },
       {
-        "index": 63,
+        "index": 62,
         "kind": "崩れ",
         "fragment": "接点",
         "guess": "切片",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "傾きと切片を先に"
+        "scriptWindow": "切片"
       },
       {
-        "index": 76,
+        "index": 70,
         "kind": "崩れ",
-        "fragment": "もわ",
-        "guess": "模試は",
+        "fragment": "決まってない。て。",
+        "guess": "決まってなくて",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "月の模試は三十日"
+        "scriptWindow": "決まってなくて"
       },
       {
-        "index": 78,
+        "index": 75,
+        "kind": "崩れ",
+        "fragment": "8月のもわ",
+        "guess": "8月の模試は",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "八月の模試は"
+      },
+      {
+        "index": 77,
         "kind": "崩れ",
         "fragment": "数はよりで",
         "guess": "それで",
         "reallyBroken": false,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "ねはい数学は七十より上げたいです次の"
+        "scriptWindow": "数学は七十より上げたいで"
       },
       {
-        "index": 78,
+        "index": 77,
         "kind": "崩れ",
-        "fragment": "できなかったでいから",
-        "guess": "できなかったでいいから",
+        "fragment": "いから",
+        "guess": "いいから",
         "reallyBroken": false,
-        "guessMatchesScript": true,
-        "changedCorrect": false,
-        "scriptWindow": "ったらできなかったでいいからそのま"
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "いから"
       }
     ],
     "guessStats": {
-      "total": 17,
-      "reallyBroken": 9,
-      "guessMatchesScript": 10,
-      "changedCorrect": 0,
+      "total": 18,
+      "reallyBroken": 10,
+      "guessMatchesScript": 9,
+      "changedCorrect": 1,
       "unaligned": 0
     }
   },
@@ -886,97 +871,97 @@
       "fragment": "老けた",
       "guess": "弾けた",
       "score": 2,
-      "reason": "台本の「吹けた」は管楽器などを吹けたという意味で、推測の「弾けた」は演奏できたという向きは合うものの、中心となる動詞が「弾く」に変わっているため。"
+      "reason": "推測『弾けた』と台本『吹けた』はどちらも楽器を演奏できたという方向では合いますが、弦・鍵盤の演奏と管楽器の演奏という中心の動詞が異なり、『弾けた』は『はじけた』と読まれる余地もあります。"
     },
     {
       "fragment": "計算としたでも",
-      "guess": "計算は取れた、でも",
-      "score": 3,
-      "reason": "「計算は取れた、でも」は台本の「取れました、でも」という流れに合い、台本に無い意味も足していないが、「関数の一問目」が抜けているため、取れた対象の半分ほどしか合っていない。"
+      "guess": "計算落としたけど",
+      "score": 1,
+      "reason": "台本は「計算と関数の一問目は取れた」という得点できた内容だが、推測は「計算を落とした」と失点の意味になっており、意味が逆で台本に無い内容を足している。"
     },
     {
       "fragment": "大門",
       "guess": "大問",
-      "score": 4,
-      "reason": "推測『大問』は台本の中心語『大問』と一致し、台本に無い意味も足していないが、台本にある『最後の』『はまた』の部分は含まれていない。"
+      "score": 5,
+      "reason": "推測「大問」は台本「大問」と完全に一致しており、意味の追加もない。"
     },
     {
-      "fragment": "洗った",
-      "guess": "上がった",
-      "score": 4,
-      "reason": "推測の「上がった」は台本の中心の語と一致し、余分な意味も足していないが、台本の「のは」「んだね」にあたる部分が推測に含まれていない。"
+      "fragment": "洗ったんだね",
+      "guess": "上がったんだね",
+      "score": 1,
+      "reason": "語尾の「がったんだね」は台本と重なりますが、推測の「上」は台本に無く、「上がった」という台本で確かめられない意味を足しているため、基準に従い1点とします。"
     },
     {
       "fragment": "オウムの法則",
       "guess": "オームの法則",
       "score": 5,
-      "reason": "台本の「オムの法則」は「電気」の話の流れからオームの法則を指すと読め、推測「オームの法則」は意味が同じで、台本に無い意味も足していないため。"
+      "reason": "台本の「オムの法則」はオームの法則を短く発音したものと読め、推測「オームの法則」は意味が同じで、台本に無い意味も足していない。"
     },
     {
       "fragment": "難航",
       "guess": "南高",
-      "score": 4,
-      "reason": "推測『南高』は台本の中心語『南高』と一致し、余分な意味も足していない。ただし台本にある前後の『だった』『って言』は推測に含まれておらず、細かい語に差がある。"
-    },
-    {
-      "fragment": "答える",
-      "guess": "堪える",
-      "score": 4,
-      "reason": "台本の「こたえるよね」は読みが一致し、「身にこたえる、つらい」の意味であれば推測の「堪える」でもほぼ通じますが、「我慢する」とも読める漢字のため細かなずれが残ります。"
+      "score": 5,
+      "reason": "推測「南高」は台本の「南高」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
     },
     {
       "fragment": "は前に",
-      "guess": "で、前に",
-      "score": 3,
-      "reason": "推測の「前に」は台本と合うが、台本の「はい」や「夏から」が入っておらず、「で」は台本に無いつなぎの語のため、半分ほど合う程度にとどまる。"
-    },
-    {
-      "fragment": "動画見てね寝ちゃって",
-      "guess": "動画見てて寝ちゃって",
+      "guess": "前に",
       "score": 5,
-      "reason": "推測「動画見てて寝ちゃって」は台本の「動画見て寝ちゃって」と同じく、動画を見ているうちに寝てしまったという意味で、「見てて」と「見て」は言い回しの違いにとどまり、台本に無い意味も足していない。"
+      "reason": "推測「前に」は台本「前に」と意味が一致しており、台本に無い意味も足していない。"
     },
     {
       "fragment": "上がることそうでもない子",
       "guess": "上がる子とそうでもない子",
-      "score": 4,
-      "reason": "推測「上がる子とそうでもない子」は台本の中心の意味と一致し、台本に無い意味も足していないが、「模試で」「がいる」が含まれていないため、細かい違いが残る。"
+      "score": 5,
+      "reason": "推測「上がる子とそうでもない子」は台本と完全に一致しており、意味が同じで、台本に無い意味も足されていない。"
+    },
+    {
+      "fragment": "スマホ見ちゃ自分でも",
+      "guess": "スマホ見ちゃって自分でも",
+      "score": 3,
+      "reason": "推測の『見ちゃって』は文をつなぐ形で、台本の『見ちゃう』は『自分』を修飾する形なので、語は同じでも文の組み立てと意味が半分ほどずれている。"
     },
     {
       "fragment": "迷うわないし",
       "guess": "迷わないし",
       "score": 5,
-      "reason": "推測「迷わないし」は、台本の該当部分「迷わないし」と意味が同じで、台本に無い意味も足していない。前後の「いいか」「さっき」は断片の範囲外のため、減点しない。"
+      "reason": "推測「迷わないし」は台本「迷わないし」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
     },
     {
       "fragment": "何個行きたいんで",
       "guess": "南高行きたいんで",
       "score": 5,
-      "reason": "推測の「南高行きたいんで」は、台本の該当部分「南高行きたいんで」と意味も語も一致しており、台本に無い意味も足していない。"
+      "reason": "推測「南高行きたいんで」は台本「南高行きたいんで」と一字一句同じで意味も一致しており、台本に無い意味の追加もない。"
     },
     {
       "fragment": "接点",
       "guess": "切片",
-      "score": 3,
-      "reason": "推測『切片』は台本の中心語の一つと一致し、余計な意味も足していないが、台本にある『傾き』と『先に』の意味が含まれず、合うのは半分ほどにとどまる。"
+      "score": 5,
+      "reason": "推測「切片」は台本「切片」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
     },
     {
-      "fragment": "もわ",
-      "guess": "模試は",
-      "score": 3,
-      "reason": "推測「模試は」は台本の「模試は」とは合い、台本に無い意味も足していませんが、「月の」と「三十日」が抜けているため、台本全体の意味とは半分ほどしか合いません。"
+      "fragment": "決まってない。て。",
+      "guess": "決まってなくて",
+      "score": 5,
+      "reason": "推測「決まってなくて」は台本「決まってなくて」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "8月のもわ",
+      "guess": "8月の模試は",
+      "score": 5,
+      "reason": "推測「8月の模試は」は台本「八月の模試は」と表記の違い（数字と漢数字）だけで意味は同じで、台本に無い意味も足していない。"
     },
     {
       "fragment": "数はよりで",
       "guess": "それで",
       "score": 1,
-      "reason": "台本では断片『数はよりで』は『数学は七十より上げたい』に当たり、数学の点数を七十点より上げたいという意味だが、推測『それで』はつなぎの言葉で、この中心の意味をまったく捉えていない。"
+      "reason": "台本は『数学を七十点より上げたい』という目標を述べているが、推測の『それで』は接続の語にすぎず、数学・七十・上げたいという中心の意味をどれも含まないため、意味が違う。"
     },
     {
-      "fragment": "できなかったでいから",
-      "guess": "できなかったでいいから",
-      "score": 5,
-      "reason": "推測「できなかったでいいから」は台本の該当部分「できなかったでいいから」と意味が一致しており、台本に無い意味も足していない。"
+      "fragment": "いから",
+      "guess": "いいから",
+      "score": 1,
+      "reason": "台本は「いから」のままで、形容詞の語尾に「から」が続いた断片とも読めますが、推測の「いいから」は「良い」や「構わない」という台本に無い意味を足しているため、意味が合いません。"
     }
   ],
   "variance": null,
@@ -984,32 +969,32 @@
     "step0": {
       "step0a": {
         "model": "claude-opus-5-5",
-        "ms": 60044,
+        "ms": 33403,
         "inputTokens": 2713,
-        "outputTokens": 8431,
+        "outputTokens": 4966,
         "cacheReadTokens": 1153,
         "cacheWriteTokens": 0
       },
       "step0b": {
         "model": "claude-opus-5-5",
-        "ms": 15055,
-        "inputTokens": 3446,
-        "outputTokens": 1455,
+        "ms": 16961,
+        "inputTokens": 3437,
+        "outputTokens": 1667,
         "cacheReadTokens": 1220,
         "cacheWriteTokens": 0
       },
       "step0c": {
         "model": "claude-opus-5-5",
-        "ms": 24816,
-        "inputTokens": 3450,
-        "outputTokens": 2504,
+        "ms": 22743,
+        "inputTokens": 3441,
+        "outputTokens": 2332,
         "cacheReadTokens": 1166,
         "cacheWriteTokens": 0
       }
     },
-    "step1Ms": 44618,
-    "firstCitationMs": 25635,
-    "step2Ms": 25190,
-    "step4Ms": 42907
+    "step1Ms": 34716,
+    "firstCitationMs": 18770,
+    "step2Ms": 25315,
+    "step4Ms": 37312
   }
 }

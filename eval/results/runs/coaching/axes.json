@@ -1,10 +1,10 @@
 {
   "case": "coaching",
   "axis1": {
-    "generated": 12,
+    "generated": 2,
     "discarded": 0,
-    "displayed": 10,
-    "displayedVerified": 10,
+    "displayed": 2,
+    "displayedVerified": 2,
     "displayedMatchRate": 1,
     "scenesWithoutQuote": 0,
     "contextWithJudgement": [],
@@ -18,18 +18,10 @@
           5
         ],
         "utterances": [
-          2,
-          4,
-          6,
-          3,
-          9
+          2
         ],
         "lines": [
-          3,
-          4,
-          5,
-          7,
-          10
+          3
         ]
       },
       {
@@ -39,18 +31,10 @@
           2
         ],
         "utterances": [
-          44,
-          43,
-          46,
-          45,
-          53
+          43
         ],
         "lines": [
-          44,
-          45,
-          46,
-          47,
-          54
+          44
         ]
       }
     ],
@@ -199,17 +183,19 @@
   "axis3": [
     {
       "scene": "よく表れた所",
-      "score": 4,
-      "reason": "答えを先に言わず開かれた一つの問いだが、発話2の「あれどうだった」という場面ではなく、前回決めたことを話題にするとき一般の問いになっている。「面談の始めに」も、近況を聞いた後という実際の場面と少しずれている。"
+      "score": 5,
+      "reason": "「あるとしたら」と前置きして答えを先に言わず、どの発話のどんな聞き方かを本人に考えさせる開いた形で、発話2〜13の場面に即しています。「どの発話」と「どんな聞き方」は一つの問いにまとまっているため、四つの観点すべてを満たします。"
     },
     {
       "scene": "次に試せる所",
       "score": 4,
-      "reason": "Not leading, open-ended, and limited to one question, but it describes the situation in generalized terms rather than tying it directly to the specific moment in 発話43–44 (the student looking down and the coach's reassuring reply), so the anchoring to the quoted exchange is somewhat weak."
+      "reason": "はい・いいえで終わらない一つの問いで、発話43のように試した後の出来事や心配が語られる場面に沿って次の返し方を尋ねている。ただし「助言に移る前に」という言い方が、助言へ移るのが早かったという読みを少し先に示している。"
     }
   ],
   "axis5": {
     "hits": [],
+    "withheld": [],
+    "unverifiedQuotes": 0,
     "scoresInStep1": false,
     "scoresPerItem": true
   },
@@ -244,6 +230,7 @@
         "ai": false
       }
     ],
+    "truthNoScene": false,
     "saidNoScene": false
   },
   "axis9": {
@@ -279,18 +266,19 @@
     ],
     "satisfied": 2,
     "countable": 4,
-    "pairsIncludingDraft": 6
+    "pairsIncludingDraft": 6,
+    "absentItems": []
   },
   "axis10": [
     {
       "scene": "よく表れた所",
-      "score": 4,
-      "reason": "観察（前回決めた小テストを話題にし「どうだった」と尋ね、発話4・6で短く返す）と反応（発話3で中身、発話9で丸付けの交換の工夫）は引用と前後の発話に一致しています。一方で、読みの因果には引用外の文脈が要ります。発話6は引用外の発話5を受けた返しで、発話9の工夫の話は引用外の発話8の問い「それ自分で考えたの」に続いて出ています。そのため「短い返しが続いたことで」という読みは引用だけでは完結しません。"
+      "score": 3,
+      "reason": "観察の前半と発話3の反応は、引用と前後の発話に合っています。一方で、発話4〜13の問いと反応は示された範囲に無く、確かめられません。読みの中心である、短い問いが重なって工夫（丸付けの交換、記録の表）が出てきたという点も、引用の外の発話に頼っています。また、引用の「あれどうだった」から、結果より先に続け方を聞いたとまでは導けず、読みは引用から離れています。"
     },
     {
       "scene": "次に試せる所",
-      "score": 2,
-      "reason": "観察と直後の反応は発話43・44・46・45・53に沿っていますが、読みは引用と食い違っています。読みはクライアントの話を「1-44」、別の面の話を「1-54」としていますが、引用では44と54はコーチの発話で、該当するクライアントの発話は43と53です。読みの中身自体は引用から導けます。"
+      "score": 4,
+      "reason": "発話43の心配（次の週に来ないかもしれない、話しかけてこなくなった）と発話44の安心させる返しは引用と前後の発話から確かめられ、『中身を聞かれる前に受け取られた』という読みは引用だけで導ける。一方、『話が叱る方針へ戻った』『話題がまだ続いていた』という部分は、提示されていない発話45・46・48・53に頼っている。"
     }
   ],
   "axis11": {
@@ -301,12 +289,12 @@
     "byConfidence": [
       {
         "confidence": "高",
-        "count": 68,
+        "count": 67,
         "wrong": 0
       },
       {
         "confidence": "中",
-        "count": 4,
+        "count": 5,
         "wrong": 0
       },
       {
@@ -315,7 +303,7 @@
         "wrong": 0
       }
     ],
-    "spanningSpeakers": 0,
+    "spanningSpeakers": 1,
     "multipleOthers": false,
     "wrong": []
   },
@@ -327,7 +315,7 @@
         "before": "最初の 3文は",
         "after": "最初の 3分は",
         "verdict": "言った言葉と違う",
-        "scriptWindow": "を五問最初の三分はみんな"
+        "scriptWindow": "最初の三分は"
       },
       {
         "index": 9,
@@ -335,7 +323,7 @@
         "before": "自分の髪を見てる",
         "after": "自分の紙を見てる",
         "verdict": "拾えた",
-        "scriptWindow": "みんな自分の紙を見てるんです"
+        "scriptWindow": "自分の紙を見てる"
       },
       {
         "index": 18,
@@ -343,7 +331,7 @@
         "before": "行ってきたんだ",
         "after": "言ってきたんだ",
         "verdict": "拾えた",
-        "scriptWindow": "うから言ってきたんだいいク"
+        "scriptWindow": "言ってきたんだ"
       },
       {
         "index": 34,
@@ -351,7 +339,7 @@
         "before": "行ったらすぐ授業に戻る",
         "after": "言ったらすぐ授業に戻る",
         "verdict": "拾えた",
-        "scriptWindow": "しない言ったらすぐ授業に戻るこれだ"
+        "scriptWindow": "言ったらすぐ授業に戻る"
       },
       {
         "index": 38,
@@ -359,7 +347,7 @@
         "before": "時間がまるでしょ",
         "after": "時間が止まるでしょ",
         "verdict": "拾えた",
-        "scriptWindow": "十人の時間が止まるでしょちゃん"
+        "scriptWindow": "時間が止まるでしょ"
       },
       {
         "index": 41,
@@ -367,7 +355,7 @@
         "before": "強めに行った",
         "after": "強めに言った",
         "verdict": "拾えた",
-        "scriptWindow": "ょっと強めに言ったことが"
+        "scriptWindow": "強めに言った"
       },
       {
         "index": 52,
@@ -375,7 +363,7 @@
         "before": "上手に敷かれる人",
         "after": "上手に叱れる人",
         "verdict": "拾えた",
-        "scriptWindow": "初から上手に叱れる人なんて"
+        "scriptWindow": "上手に叱れる人"
       },
       {
         "index": 60,
@@ -383,15 +371,15 @@
         "before": "登記講習",
         "after": "冬期講習",
         "verdict": "拾えた",
-        "scriptWindow": "すあと冬期講習の担当"
+        "scriptWindow": "冬期講習"
       },
       {
         "index": 63,
         "kind": "崩れた語",
         "before": "もっていですですか",
-        "after": "もってっていいですか",
+        "after": "もっていっていいですか",
         "verdict": "言った言葉と違う",
-        "scriptWindow": "に一冊もらってもいいですか予習し"
+        "scriptWindow": "もらってもいいですか"
       }
     ],
     "applied": 9,
@@ -658,27 +646,27 @@
         "reallyBroken": true,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "を五問最初の三分はみんな"
+        "scriptWindow": "最初の三分は"
       },
       {
         "index": 9,
         "kind": "崩れ",
-        "fragment": "自分の髪を見てるんです",
-        "guess": "自分の紙を見てるんです",
+        "fragment": "自分の髪を見てる",
+        "guess": "自分の紙を見てる",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "みんな自分の紙を見てるんです最近は"
+        "scriptWindow": "自分の紙を見てる"
       },
       {
         "index": 13,
         "kind": "崩れ",
-        "fragment": "4問 5問問取れる",
-        "guess": "4問5問取れる",
+        "fragment": "5問問取れる",
+        "guess": "5問取れる",
         "reallyBroken": true,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "は毎回四問五問取れるように"
+        "scriptWindow": "五問取れる"
       },
       {
         "index": 18,
@@ -688,7 +676,7 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "うから言ってきたんだいいク"
+        "scriptWindow": "言ってきたんだ"
       },
       {
         "index": 34,
@@ -698,7 +686,7 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "しない言ったらすぐ授業に戻るこれだ"
+        "scriptWindow": "言ったらすぐ授業に戻る"
       },
       {
         "index": 38,
@@ -708,17 +696,27 @@
         "reallyBroken": false,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "めると二十人の時間が止まるでしょちゃん"
+        "scriptWindow": "二十人の時間が止まるでしょ"
       },
       {
         "index": 41,
         "kind": "崩れ",
-        "fragment": "ちょっと強めに行った",
-        "guess": "ちょっと強めに言った",
+        "fragment": "強めに行った",
+        "guess": "強めに言った",
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "に一回ちょっと強めに言ったことが"
+        "scriptWindow": "強めに言った"
+      },
+      {
+        "index": 43,
+        "kind": "崩れ",
+        "fragment": "心配で来たんですけど",
+        "guess": "心配してたんですけど",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "心配で来たんですけど"
       },
       {
         "index": 52,
@@ -728,7 +726,7 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "初から上手に叱れる人なんて"
+        "scriptWindow": "上手に叱れる人"
       },
       {
         "index": 60,
@@ -738,24 +736,24 @@
         "reallyBroken": true,
         "guessMatchesScript": true,
         "changedCorrect": false,
-        "scriptWindow": "すあと冬期講習の担当"
+        "scriptWindow": "冬期講習"
       },
       {
         "index": 63,
         "kind": "崩れ",
-        "fragment": "1冊もっていですですか",
-        "guess": "1冊もらっていいですか",
+        "fragment": "もっていですですか",
+        "guess": "もらっていいですか",
         "reallyBroken": true,
         "guessMatchesScript": false,
         "changedCorrect": false,
-        "scriptWindow": "ト先に一冊もらってもいいですか予習し"
+        "scriptWindow": "もらってもいいですか"
       }
     ],
     "guessStats": {
-      "total": 10,
+      "total": 11,
       "reallyBroken": 9,
       "guessMatchesScript": 7,
-      "changedCorrect": 0,
+      "changedCorrect": 1,
       "unaligned": 0
     }
   },
@@ -764,61 +762,67 @@
       "fragment": "最初の 3文は",
       "guess": "最初の3分は",
       "score": 5,
-      "reason": "推測「最初の3分は」は台本中の「最初の三分は」と意味が同じで、台本に無い意味も足していない。"
+      "reason": "推測『最初の3分は』は台本『最初の三分は』と数字の表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
     },
     {
-      "fragment": "自分の髪を見てるんです",
-      "guess": "自分の紙を見てるんです",
-      "score": 4,
-      "reason": "推測は「髪」を「紙」に正しく直しており、中心の意味は台本と一致し、余分な意味も足していないが、台本にある「みんな」「最近は」の要素が含まれていない。"
+      "fragment": "自分の髪を見てる",
+      "guess": "自分の紙を見てる",
+      "score": 5,
+      "reason": "推測「自分の紙を見てる」は台本「自分の紙を見てる」と同じ文で、意味が一致しており、台本に無い意味も足していない。"
     },
     {
-      "fragment": "4問 5問問取れる",
-      "guess": "4問5問取れる",
-      "score": 4,
-      "reason": "推測の「4問5問取れる」は台本の中心の意味と合い、余分な意味も足していないが、台本にある「毎回」と目標を表す「ように」が抜けているため、細かい違いとして4点とした。"
+      "fragment": "5問問取れる",
+      "guess": "5問取れる",
+      "score": 5,
+      "reason": "推測「5問取れる」は台本「五問取れる」と表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
     },
     {
       "fragment": "行ってきたんだ",
       "guess": "言ってきたんだ",
       "score": 5,
-      "reason": "推測「言ってきたんだ」は台本内の該当部分「言ってきたんだ」と意味が一致し、台本に無い意味も足していない（前後の「うから」「いいク」は断片の範囲外）。"
+      "reason": "推測「言ってきたんだ」は台本「言ってきたんだ」と完全に一致しており、意味が同じで台本に無い意味も足していない。"
     },
     {
       "fragment": "行ったらすぐ授業に戻る",
       "guess": "言ったらすぐ授業に戻る",
-      "score": 4,
-      "reason": "推測「言ったらすぐ授業に戻る」は台本の中心部分と一致し、台本に無い意味も足していないが、前後の「しない」「これだ」が含まれず、細かい違いが残る。"
+      "score": 5,
+      "reason": "推測は台本と同じ文言で、意味が一致しており、台本に無い意味も足していない。"
     },
     {
       "fragment": "二十人の時間がまるでしょ",
       "guess": "二十人の時間が止まるでしょ",
       "score": 5,
-      "reason": "推測「二十人の時間が止まるでしょ」は、断片に当たる台本部分「二十人の時間が止まるでしょ」と意味が同じで、台本に無い意味も足していない。前後の「めると」「ちゃん」は断片の範囲外なので減点しない。"
+      "reason": "推測「二十人の時間が止まるでしょ」は台本と一字一句同じで、意味が完全に一致しており、台本に無い意味も足していない。"
     },
     {
-      "fragment": "ちょっと強めに行った",
-      "guess": "ちょっと強めに言った",
-      "score": 4,
-      "reason": "推測の「ちょっと強めに言った」は台本の中心の意味と合っており、余計な意味も足していないが、台本にある「一回」と「ことが」が含まれていないため、細かい語の違いとして4とした。"
+      "fragment": "強めに行った",
+      "guess": "強めに言った",
+      "score": 5,
+      "reason": "推測「強めに言った」は台本「強めに言った」と完全に一致しており、意味も同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "心配で来たんですけど",
+      "guess": "心配してたんですけど",
+      "score": 3,
+      "reason": "推測は「心配」の部分は台本と合いますが、台本の「来た」（心配して足を運んだという行動）が抜けており、意味は半分ほどしか合いません。台本に無い意味は足されていません。"
     },
     {
       "fragment": "上手に敷かれる人",
       "guess": "上手に叱れる人",
       "score": 5,
-      "reason": "断片「上手に敷かれる人」に対応する台本の箇所は「上手に叱れる人」で、推測はこれと一致しており、台本に無い意味も足していない。"
+      "reason": "推測「上手に叱れる人」は台本「上手に叱れる人」と完全に一致しており、意味の追加も欠落もない。"
     },
     {
       "fragment": "登記講習",
       "guess": "冬期講習",
       "score": 5,
-      "reason": "断片「登記講習」に対する推測「冬期講習」は、台本の「冬期講習」と意味が同じで、台本に無い意味も足していない。"
+      "reason": "推測「冬期講習」は台本「冬期講習」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
     },
     {
-      "fragment": "1冊もっていですですか",
-      "guess": "1冊もらっていいですか",
+      "fragment": "もっていですですか",
+      "guess": "もらっていいですか",
       "score": 5,
-      "reason": "推測「1冊もらっていいですか」は、断片に当たる台本部分「一冊もらってもいいですか」と意味が同じで、違いは「も」の有無という言い回しだけです。台本に無い意味も足していません。「先に」「予習し」は断片の外にあるため、評価の対象に含めていません。"
+      "reason": "推測「もらっていいですか」は台本「もらってもいいですか」と「も」の有無が違うだけで、許可を求める意味は同じであり、台本に無い意味も足していない。"
     }
   ],
   "variance": null,
@@ -826,32 +830,32 @@
     "step0": {
       "step0a": {
         "model": "claude-opus-5-5",
-        "ms": 63968,
+        "ms": 35742,
         "inputTokens": 2790,
-        "outputTokens": 9006,
+        "outputTokens": 5196,
         "cacheReadTokens": 0,
         "cacheWriteTokens": 1160
       },
       "step0b": {
         "model": "claude-opus-5-5",
-        "ms": 11879,
+        "ms": 9830,
         "inputTokens": 3529,
-        "outputTokens": 1205,
+        "outputTokens": 969,
         "cacheReadTokens": 0,
         "cacheWriteTokens": 1224
       },
       "step0c": {
         "model": "claude-opus-5-5",
-        "ms": 14485,
+        "ms": 14497,
         "inputTokens": 3533,
-        "outputTokens": 1352,
+        "outputTokens": 1460,
         "cacheReadTokens": 0,
         "cacheWriteTokens": 1170
       }
     },
-    "step1Ms": 35163,
-    "firstCitationMs": 17283,
-    "step2Ms": 30593,
+    "step1Ms": 34241,
+    "firstCitationMs": 16641,
+    "step2Ms": 29444,
     "step4Ms": null
   }
 }

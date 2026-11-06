@@ -1,0 +1,1538 @@
+{
+  "case": "trap-scoreask",
+  "axis1": {
+    "generated": 2,
+    "discarded": 0,
+    "displayed": 2,
+    "displayedVerified": 2,
+    "displayedMatchRate": 1,
+    "scenesWithoutQuote": 0,
+    "contextWithJudgement": [
+      {
+        "type": "次に試せる所",
+        "context": "生徒が発話 39 で、併願校をいつまでに決めればよいかを尋ねた。",
+        "words": [
+          "よい"
+        ]
+      }
+    ],
+    "neighborsMissing": 0
+  },
+  "axis2": {
+    "aiScenes": [
+      {
+        "type": "よく表れた所",
+        "items": [
+          1,
+          2
+        ],
+        "utterances": [
+          22
+        ],
+        "lines": [
+          25
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "items": [
+          2
+        ],
+        "utterances": [
+          40
+        ],
+        "lines": [
+          49
+        ]
+      }
+    ],
+    "scenes": [
+      {
+        "truthName": "強み・いちばん",
+        "source": "決め",
+        "verified": true,
+        "truthLines": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "強み・次点",
+        "source": "決め",
+        "verified": true,
+        "truthLines": [
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": true
+      },
+      {
+        "truthName": "課題・いちばん",
+        "source": "決め",
+        "verified": true,
+        "truthLines": [
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": true
+      }
+    ],
+    "climax": null,
+    "items": [
+      {
+        "item": 1,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 1 よく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": null
+      },
+      {
+        "item": 2,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 2 よく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        },
+        "bad": null
+      },
+      {
+        "item": 3,
+        "mark": "○×",
+        "good": {
+          "truthName": "項目 3 よく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            99,
+            100,
+            101,
+            103,
+            104,
+            105,
+            106,
+            107
+          ],
+          "droppedLines": [
+            102,
+            108
+          ],
+          "absent": false,
+          "matched": false
+        },
+        "bad": {
+          "truthName": "項目 3 まずく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            83,
+            85
+          ],
+          "droppedLines": [
+            82,
+            84,
+            86
+          ],
+          "absent": false,
+          "matched": false
+        }
+      },
+      {
+        "item": 4,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 4 よく",
+          "source": "案",
+          "verified": false,
+          "truthLines": [
+            99,
+            100,
+            101,
+            103,
+            104,
+            105,
+            106,
+            107
+          ],
+          "droppedLines": [
+            102,
+            108
+          ],
+          "absent": false,
+          "matched": false
+        },
+        "bad": null
+      },
+      {
+        "item": 5,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      }
+    ]
+  },
+  "axis3": [
+    {
+      "scene": "よく表れた所",
+      "score": 5,
+      "reason": "答えや解釈を先に示さず、「どこが」と本人が振り返って答える開かれた形で、発話22の見立てに至る具体的なやり取りに絞って一つだけ尋ねている。手がかりがあった前提は置いているが、範囲が広く誘導は小さい。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "答えを先に示さず、開かれた一つの問いになっている。ただ「進路の手続きについての質問」と範囲が広く、発話40で時期の一点を問われた場面には十分に結び付いていないため、引用への即し方がやや弱い。"
+    }
+  ],
+  "axis5": {
+    "hits": [],
+    "withheld": [],
+    "unverifiedQuotes": 0,
+    "scoresInStep1": true,
+    "scoresPerItem": true
+  },
+  "axis6": null,
+  "axis8": {
+    "firstMeeting": true,
+    "item5Withheld": true,
+    "withheldAsTruth": [
+      {
+        "item": 1,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 2,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 3,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 4,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 5,
+        "truth": true,
+        "ai": true
+      }
+    ],
+    "truthNoScene": false,
+    "saidNoScene": false
+  },
+  "axis9": {
+    "pairs": [],
+    "satisfied": 0,
+    "countable": 0,
+    "pairsIncludingDraft": 0,
+    "absentItems": []
+  },
+  "axis10": [
+    {
+      "scene": "よく表れた所",
+      "score": 3,
+      "reason": "引用の発話 22 は「力の低下ではなく形式への不慣れ」という見立てを示し、発話 23 の同意とほっとした反応とも合うため、別の見方を足したという読みの後半は引用で支えられています。一方で、観察と読みの多くは引用の外にある発話に頼っています。観察は発話 6〜20 の流れの説明が中心で、読みの「ショックや恥ずかしさをまず言葉で返した」、反応の発話 25 も同様に引用と前後の発話からは確かめられません。そのため、読みは引用から離れている部分が大きいと判断しました。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "発話39の時期だけを問う質問、発話40で出願・説明会・講習まで続けて伝えた内容、発話41の短い相づちは、引用と前後の発話から確かめられ、読みの中心も引用から導けます。ただし発話42〜46、81、82は提示された引用の外にあり、観察と読みの一部がその文脈に頼っているため4点です。"
+    }
+  ],
+  "axis11": {
+    "utterances": 109,
+    "aligned": 107,
+    "correct": 105,
+    "accuracy": 0.9813084112149533,
+    "byConfidence": [
+      {
+        "confidence": "高",
+        "count": 94,
+        "wrong": 1
+      },
+      {
+        "confidence": "中",
+        "count": 11,
+        "wrong": 0
+      },
+      {
+        "confidence": "低",
+        "count": 4,
+        "wrong": 1
+      }
+    ],
+    "spanningSpeakers": 5,
+    "multipleOthers": false,
+    "wrong": [
+      {
+        "index": 35,
+        "ai": "生徒",
+        "truth": "講師",
+        "confidence": "高",
+        "text": "変わってないです。西高は今の模試の判定だと 9月がシーでした。"
+      },
+      {
+        "index": 79,
+        "ai": "生徒",
+        "truth": "講師",
+        "confidence": "低",
+        "text": "点とかお高いね。"
+      }
+    ]
+  },
+  "axis12": {
+    "corrections": [
+      {
+        "index": 0,
+        "kind": "同音の取り違え",
+        "before": "帰ってきたね",
+        "after": "返ってきたね",
+        "verdict": "拾えた",
+        "scriptWindow": "返ってきたね"
+      },
+      {
+        "index": 1,
+        "kind": "近い音の聞き違え",
+        "before": "車体",
+        "after": "社会",
+        "verdict": "拾えた",
+        "scriptWindow": "社会"
+      },
+      {
+        "index": 1,
+        "kind": "同音の取り違え",
+        "before": "帰ってきました",
+        "after": "返ってきました",
+        "verdict": "拾えた",
+        "scriptWindow": "返ってきました"
+      },
+      {
+        "index": 17,
+        "kind": "同音の取り違え",
+        "before": "監視",
+        "after": "冠詞",
+        "verdict": "拾えた",
+        "scriptWindow": "冠詞"
+      },
+      {
+        "index": 17,
+        "kind": "同音の取り違え",
+        "before": "3単元",
+        "after": "3単現",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "三単現"
+      },
+      {
+        "index": 18,
+        "kind": "同音の取り違え",
+        "before": "かけてる",
+        "after": "書けてる",
+        "verdict": "拾えた",
+        "scriptWindow": "書けてる"
+      },
+      {
+        "index": 35,
+        "kind": "数字や英字の表記",
+        "before": "シー",
+        "after": "C",
+        "verdict": "拾えた",
+        "scriptWindow": "c"
+      },
+      {
+        "index": 39,
+        "kind": "近い音の聞き違え",
+        "before": "平岸",
+        "after": "併願",
+        "verdict": "拾えた",
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 40,
+        "kind": "同音の取り違え",
+        "before": "平願ね",
+        "after": "併願ね",
+        "verdict": "拾えた",
+        "scriptWindow": "併願ね"
+      },
+      {
+        "index": 40,
+        "kind": "近い音の聞き違え",
+        "before": "平岸の組み方",
+        "after": "併願の組み方",
+        "verdict": "拾えた",
+        "scriptWindow": "併願の組み方"
+      },
+      {
+        "index": 40,
+        "kind": "同音の取り違え",
+        "before": "平願校",
+        "after": "併願校",
+        "verdict": "拾えた",
+        "scriptWindow": "併願校"
+      },
+      {
+        "index": 40,
+        "kind": "数字や英字の表記",
+        "before": "12月二十3日",
+        "after": "12月23日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "十二月二十三日"
+      },
+      {
+        "index": 42,
+        "kind": "同音の取り違え",
+        "before": "内心が中心",
+        "after": "内申が中心",
+        "verdict": "拾えた",
+        "scriptWindow": "内申が中心"
+      },
+      {
+        "index": 42,
+        "kind": "同音の取り違え",
+        "before": "内心がどのくらい",
+        "after": "内申がどのくらい",
+        "verdict": "拾えた",
+        "scriptWindow": "内申がどのくらい"
+      },
+      {
+        "index": 42,
+        "kind": "同音の取り違え",
+        "before": "内心に入る",
+        "after": "内申に入る",
+        "verdict": "拾えた",
+        "scriptWindow": "内申に入る"
+      },
+      {
+        "index": 42,
+        "kind": "助詞や語尾の聞き違え",
+        "before": "変わってくれる",
+        "after": "変わってくる",
+        "verdict": "拾えた",
+        "scriptWindow": "変わってくる"
+      },
+      {
+        "index": 44,
+        "kind": "欠けた音",
+        "before": "5教科のころ",
+        "after": "5教科のところ",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "五教科の所"
+      },
+      {
+        "index": 44,
+        "kind": "同音の取り違え",
+        "before": "緑大",
+        "after": "緑台",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "り台"
+      },
+      {
+        "index": 44,
+        "kind": "同音の取り違え",
+        "before": "廃点",
+        "after": "配点",
+        "verdict": "拾えた",
+        "scriptWindow": "配点"
+      },
+      {
+        "index": 72,
+        "kind": "同音の取り違え",
+        "before": "3単元と監視",
+        "after": "3単現と冠詞",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "三単現と冠詞"
+      },
+      {
+        "index": 73,
+        "kind": "同音の取り違え",
+        "before": "3単元と監視",
+        "after": "3単現と冠詞",
+        "verdict": "対応なし",
+        "scriptWindow": null
+      },
+      {
+        "index": 81,
+        "kind": "近い音の聞き違え",
+        "before": "閉岸",
+        "after": "併願",
+        "verdict": "拾えた",
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 81,
+        "kind": "欠けた音",
+        "before": "長くったかも",
+        "after": "長かったかも",
+        "verdict": "拾えた",
+        "scriptWindow": "長かったかも"
+      },
+      {
+        "index": 92,
+        "kind": "欠けた音",
+        "before": "関係名詞",
+        "after": "関係代名詞",
+        "verdict": "拾えた",
+        "scriptWindow": "関係代名詞"
+      },
+      {
+        "index": 96,
+        "kind": "近い音の聞き違え",
+        "before": "閉岸",
+        "after": "併願",
+        "verdict": "拾えた",
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 96,
+        "kind": "同音の取り違え",
+        "before": "言っておく",
+        "after": "行っておく",
+        "verdict": "拾えた",
+        "scriptWindow": "行っておく"
+      },
+      {
+        "index": 97,
+        "kind": "同音の取り違え",
+        "before": "科学式",
+        "after": "化学式",
+        "verdict": "拾えた",
+        "scriptWindow": "化学式"
+      },
+      {
+        "index": 98,
+        "kind": "同音の取り違え",
+        "before": "科学式",
+        "after": "化学式",
+        "verdict": "拾えた",
+        "scriptWindow": "化学式"
+      },
+      {
+        "index": 101,
+        "kind": "近い音の聞き違え",
+        "before": "平岸",
+        "after": "併願",
+        "verdict": "拾えた",
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 102,
+        "kind": "近い音の聞き違え",
+        "before": "平岸",
+        "after": "併願",
+        "verdict": "拾えた",
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 107,
+        "kind": "欠けた音",
+        "before": "ありがございました",
+        "after": "ありがとうございました",
+        "verdict": "拾えた",
+        "scriptWindow": "ありがとうございました"
+      }
+    ],
+    "applied": 31,
+    "discarded": 0,
+    "picked": 25,
+    "overfixedOriginalCorrect": 0,
+    "overfixedWrongWord": 5,
+    "unaligned": 1,
+    "pickedByKind": {
+      "同音の取り違え": 13,
+      "近い音の聞き違え": 7,
+      "数字や英字の表記": 1,
+      "助詞や語尾の聞き違え": 1,
+      "欠けた音": 3
+    },
+    "mismatchSpots": 119,
+    "mismatchTouched": 28,
+    "missed": [
+      {
+        "line": 5,
+        "memoText": "84"
+      },
+      {
+        "line": 5,
+        "memoText": "79"
+      },
+      {
+        "line": 5,
+        "memoText": "81"
+      },
+      {
+        "line": 5,
+        "memoText": "76"
+      },
+      {
+        "line": 5,
+        "memoText": "58"
+      },
+      {
+        "line": 14,
+        "memoText": "結構"
+      },
+      {
+        "line": 18,
+        "memoText": "2"
+      },
+      {
+        "line": 18,
+        "memoText": "1"
+      },
+      {
+        "line": 18,
+        "memoText": "い"
+      },
+      {
+        "line": 18,
+        "memoText": "0"
+      },
+      {
+        "line": 18,
+        "memoText": "3"
+      },
+      {
+        "line": 19,
+        "memoText": "3"
+      },
+      {
+        "line": 20,
+        "memoText": "ろでバラバラ"
+      },
+      {
+        "line": 21,
+        "memoText": "ろでバラバラ"
+      },
+      {
+        "line": 22,
+        "memoText": "わ"
+      },
+      {
+        "line": 22,
+        "memoText": "ボロボロ"
+      },
+      {
+        "line": 23,
+        "memoText": "バラバラ"
+      },
+      {
+        "line": 25,
+        "memoText": "わ"
+      },
+      {
+        "line": 27,
+        "memoText": "方"
+      },
+      {
+        "line": 28,
+        "memoText": "2"
+      },
+      {
+        "line": 30,
+        "memoText": "っ"
+      },
+      {
+        "line": 30,
+        "memoText": "方"
+      },
+      {
+        "line": 32,
+        "memoText": "50"
+      },
+      {
+        "line": 32,
+        "memoText": "60"
+      },
+      {
+        "line": 33,
+        "memoText": "0"
+      },
+      {
+        "line": 34,
+        "memoText": "20"
+      },
+      {
+        "line": 35,
+        "memoText": "20"
+      },
+      {
+        "line": 35,
+        "memoText": "2"
+      },
+      {
+        "line": 35,
+        "memoText": "30"
+      },
+      {
+        "line": 40,
+        "memoText": "9"
+      },
+      {
+        "line": 49,
+        "memoText": "12"
+      },
+      {
+        "line": 49,
+        "memoText": "1"
+      },
+      {
+        "line": 49,
+        "memoText": "1"
+      },
+      {
+        "line": 49,
+        "memoText": "1"
+      },
+      {
+        "line": 49,
+        "memoText": "2"
+      },
+      {
+        "line": 49,
+        "memoText": "12"
+      },
+      {
+        "line": 49,
+        "memoText": "11"
+      },
+      {
+        "line": 49,
+        "memoText": "一番"
+      },
+      {
+        "line": 49,
+        "memoText": "0"
+      },
+      {
+        "line": 49,
+        "memoText": "2"
+      },
+      {
+        "line": 49,
+        "memoText": "3"
+      },
+      {
+        "line": 49,
+        "memoText": "方"
+      },
+      {
+        "line": 49,
+        "memoText": "11"
+      },
+      {
+        "line": 49,
+        "memoText": "家"
+      },
+      {
+        "line": 49,
+        "memoText": "季"
+      },
+      {
+        "line": 51,
+        "memoText": "ろ"
+      },
+      {
+        "line": 51,
+        "memoText": "2"
+      },
+      {
+        "line": 51,
+        "memoText": "11"
+      },
+      {
+        "line": 53,
+        "memoText": "3"
+      },
+      {
+        "line": 53,
+        "memoText": "3"
+      },
+      {
+        "line": 53,
+        "memoText": "3"
+      },
+      {
+        "line": 56,
+        "memoText": "緑"
+      },
+      {
+        "line": 57,
+        "memoText": "緑"
+      },
+      {
+        "line": 57,
+        "memoText": "緑"
+      },
+      {
+        "line": 60,
+        "memoText": "言"
+      },
+      {
+        "line": 63,
+        "memoText": "家"
+      },
+      {
+        "line": 67,
+        "memoText": "多分"
+      },
+      {
+        "line": 69,
+        "memoText": "緑"
+      },
+      {
+        "line": 73,
+        "memoText": "11"
+      },
+      {
+        "line": 77,
+        "memoText": "1"
+      },
+      {
+        "line": 79,
+        "memoText": "55"
+      },
+      {
+        "line": 79,
+        "memoText": "0"
+      },
+      {
+        "line": 80,
+        "memoText": "0"
+      },
+      {
+        "line": 80,
+        "memoText": "55"
+      },
+      {
+        "line": 81,
+        "memoText": "か"
+      },
+      {
+        "line": 83,
+        "memoText": "1"
+      },
+      {
+        "line": 85,
+        "memoText": "2"
+      },
+      {
+        "line": 91,
+        "memoText": "0"
+      },
+      {
+        "line": 91,
+        "memoText": "つ"
+      },
+      {
+        "line": 93,
+        "memoText": "1"
+      },
+      {
+        "line": 97,
+        "memoText": "11"
+      },
+      {
+        "line": 97,
+        "memoText": "15"
+      },
+      {
+        "line": 100,
+        "memoText": "75"
+      },
+      {
+        "line": 106,
+        "memoText": "方"
+      },
+      {
+        "line": 110,
+        "memoText": "ウィッチとザット"
+      },
+      {
+        "line": 110,
+        "memoText": "ろ"
+      },
+      {
+        "line": 111,
+        "memoText": "ろ"
+      },
+      {
+        "line": 113,
+        "memoText": "3"
+      },
+      {
+        "line": 114,
+        "memoText": "11"
+      },
+      {
+        "line": 115,
+        "memoText": "2"
+      },
+      {
+        "line": 115,
+        "memoText": "3"
+      },
+      {
+        "line": 115,
+        "memoText": "1"
+      },
+      {
+        "line": 117,
+        "memoText": "他"
+      },
+      {
+        "line": 117,
+        "memoText": "ろ"
+      },
+      {
+        "line": 118,
+        "memoText": "割"
+      },
+      {
+        "line": 118,
+        "memoText": "ろ"
+      },
+      {
+        "line": 121,
+        "memoText": "3"
+      },
+      {
+        "line": 121,
+        "memoText": "んてい"
+      },
+      {
+        "line": 129,
+        "memoText": "後"
+      },
+      {
+        "line": 131,
+        "memoText": "つ"
+      },
+      {
+        "line": 131,
+        "memoText": "0"
+      }
+    ],
+    "guesses": [
+      {
+        "index": 1,
+        "kind": "崩れ",
+        "fragment": "車体",
+        "guess": "社会",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "社会"
+      },
+      {
+        "index": 17,
+        "kind": "崩れ",
+        "fragment": "監視",
+        "guess": "冠詞",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "冠詞"
+      },
+      {
+        "index": 17,
+        "kind": "崩れ",
+        "fragment": "3単元",
+        "guess": "3単現",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "三単現"
+      },
+      {
+        "index": 19,
+        "kind": "崩れ",
+        "fragment": "ボロボロ出て",
+        "guess": "ボロが出て",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "ぼろぼろ出て"
+      },
+      {
+        "index": 35,
+        "kind": "崩れ",
+        "fragment": "シー",
+        "guess": "C",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "c"
+      },
+      {
+        "index": 36,
+        "kind": "崩れ",
+        "fragment": "戻ればは見える",
+        "guess": "戻ればBは見える",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "戻ればbは見える"
+      },
+      {
+        "index": 39,
+        "kind": "崩れ",
+        "fragment": "はいはまだ決めてない",
+        "guess": "併願はまだ決めてない",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "はい併願はまだ決めてない"
+      },
+      {
+        "index": 39,
+        "kind": "崩れ",
+        "fragment": "平岸",
+        "guess": "併願",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 40,
+        "kind": "崩れ",
+        "fragment": "平願",
+        "guess": "併願",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 40,
+        "kind": "崩れ",
+        "fragment": "平岸の組み方",
+        "guess": "併願の組み方",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "併願の組み方"
+      },
+      {
+        "index": 42,
+        "kind": "崩れ",
+        "fragment": "内心",
+        "guess": "内申",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "内申"
+      },
+      {
+        "index": 42,
+        "kind": "崩れ",
+        "fragment": "変わってくれる",
+        "guess": "変わってくる",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "変わってくる"
+      },
+      {
+        "index": 44,
+        "kind": "崩れ",
+        "fragment": "5教科のころ",
+        "guess": "5教科のところ",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "五教科の所"
+      },
+      {
+        "index": 44,
+        "kind": "崩れ",
+        "fragment": "緑大",
+        "guess": "緑台",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "り台"
+      },
+      {
+        "index": 44,
+        "kind": "崩れ",
+        "fragment": "廃点",
+        "guess": "配点",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "配点"
+      },
+      {
+        "index": 70,
+        "kind": "崩れ",
+        "fragment": "55くらい",
+        "guess": "50語くらい",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "十語くらい"
+      },
+      {
+        "index": 71,
+        "kind": "崩れ",
+        "fragment": "55書けますかね",
+        "guess": "50語書けますかね",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "十語書けますかね"
+      },
+      {
+        "index": 72,
+        "kind": "崩れ",
+        "fragment": "かける量",
+        "guess": "書ける量",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "書ける量"
+      },
+      {
+        "index": 72,
+        "kind": "崩れ",
+        "fragment": "3単元と監視",
+        "guess": "3単現と冠詞",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "三単現と冠詞"
+      },
+      {
+        "index": 73,
+        "kind": "崩れ",
+        "fragment": "3単元と監視",
+        "guess": "3単現と冠詞",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 79,
+        "kind": "崩れ",
+        "fragment": "点とかお高いね",
+        "guess": "9点とかですかね",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "点とかお高いね"
+      },
+      {
+        "index": 81,
+        "kind": "崩れ",
+        "fragment": "閉岸",
+        "guess": "併願",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 81,
+        "kind": "崩れ",
+        "fragment": "長くったかも",
+        "guess": "長かったかも",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "長かったかも"
+      },
+      {
+        "index": 91,
+        "kind": "崩れ",
+        "fragment": "文の方が大きい",
+        "guess": "長文の方が大きい",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "文のほうが配点が大きい"
+      },
+      {
+        "index": 92,
+        "kind": "崩れ",
+        "fragment": "関係名詞",
+        "guess": "関係代名詞",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "関係代名詞"
+      },
+      {
+        "index": 94,
+        "kind": "崩れ",
+        "fragment": "聞いてい",
+        "guess": "聞いて",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "聞いて"
+      },
+      {
+        "index": 96,
+        "kind": "崩れ",
+        "fragment": "閉岸",
+        "guess": "併願",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "併願"
+      },
+      {
+        "index": 96,
+        "kind": "崩れ",
+        "fragment": "説明会は 1つは言っておく",
+        "guess": "説明会は1つは行っておく",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "説明会は一つは行っておく"
+      },
+      {
+        "index": 97,
+        "kind": "崩れ",
+        "fragment": "科学式",
+        "guess": "化学式",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "化学式"
+      },
+      {
+        "index": 98,
+        "kind": "崩れ",
+        "fragment": "科学式",
+        "guess": "化学式",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "化学式"
+      },
+      {
+        "index": 99,
+        "kind": "崩れ",
+        "fragment": "は",
+        "guess": "はい",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 107,
+        "kind": "崩れ",
+        "fragment": "ありがございました",
+        "guess": "ありがとうございました",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "ありがとうございました"
+      },
+      {
+        "index": 108,
+        "kind": "崩れ",
+        "fragment": "まだってる",
+        "guess": "まだ録ってる",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "まだ回ってる"
+      }
+    ],
+    "guessStats": {
+      "total": 33,
+      "reallyBroken": 23,
+      "guessMatchesScript": 19,
+      "changedCorrect": 1,
+      "unaligned": 0
+    }
+  },
+  "guessMeaning": [
+    {
+      "fragment": "車体",
+      "guess": "社会",
+      "score": 5,
+      "reason": "推測「社会」は台本「社会」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "監視",
+      "guess": "冠詞",
+      "score": 5,
+      "reason": "推測「冠詞」は台本の「冠詞」と完全に一致しており、意味が同じで台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "3単元",
+      "guess": "3単現",
+      "score": 5,
+      "reason": "推測「3単現」は台本「三単現」と表記が算用数字か漢数字かの違いだけで、三人称単数現在を指す意味は同じであり、余分な意味も足していない。"
+    },
+    {
+      "fragment": "ボロボロ出て",
+      "guess": "ボロが出て",
+      "score": 2,
+      "reason": "台本の『ぼろぼろ出て』は次々と出てくる様子を表すが、推測の『ボロが出て』は隠れた欠点が表に出る意味になっており、出てくるという向きは合うものの中心の語の意味が違う。"
+    },
+    {
+      "fragment": "シー",
+      "guess": "C",
+      "score": 5,
+      "reason": "推測「C」は台本の「c」と大文字・小文字が違うだけで、指すアルファベットの文字は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "戻ればは見える",
+      "guess": "戻ればBは見える",
+      "score": 5,
+      "reason": "推測「戻ればBは見える」は台本「戻ればbは見える」と大文字・小文字の表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "はいはまだ決めてない",
+      "guess": "併願はまだ決めてない",
+      "score": 4,
+      "reason": "推測は台本の中心部分「併願はまだ決めてない」と一致し、余計な意味も足していないが、冒頭の相づち「はい」が抜けているため、細かい語の違いとして4点とした。"
+    },
+    {
+      "fragment": "平岸",
+      "guess": "併願",
+      "score": 5,
+      "reason": "推測「併願」は台本の「併願」と一致しており、意味は同じで余分な意味も足されていない。"
+    },
+    {
+      "fragment": "平願",
+      "guess": "併願",
+      "score": 5,
+      "reason": "推測「併願」は台本の「併願」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "平岸の組み方",
+      "guess": "併願の組み方",
+      "score": 5,
+      "reason": "推測「併願の組み方」は台本「併願の組み方」と完全に一致しており、意味の追加や欠落もない。"
+    },
+    {
+      "fragment": "内心",
+      "guess": "内申",
+      "score": 5,
+      "reason": "推測「内申」は台本の「内申」と一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "変わってくれる",
+      "guess": "変わってくる",
+      "score": 5,
+      "reason": "推測「変わってくる」は台本「変わってくる」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "5教科のころ",
+      "guess": "5教科のところ",
+      "score": 5,
+      "reason": "推測「5教科のところ」は台本「五教科の所」と表記の違いだけで意味が同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "緑大",
+      "guess": "緑台",
+      "score": 1,
+      "reason": "台本は「り台」で「台」は合うが、推測は台本に無い「緑」という意味を足しており、意味が一致しないため。"
+    },
+    {
+      "fragment": "廃点",
+      "guess": "配点",
+      "score": 5,
+      "reason": "推測「配点」は台本「配点」と完全に一致しており、意味も同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "55くらい",
+      "guess": "50語くらい",
+      "score": 2,
+      "reason": "「〜語くらい」という語数の目安を述べている点は台本と合うが、中心となる数が台本の「十」ではなく「50」になっており、意味の核が違う。"
+    },
+    {
+      "fragment": "55書けますかね",
+      "guess": "50語書けますかね",
+      "score": 2,
+      "reason": "「〜語書けますかね」という問いかけの形は台本と合っていますが、中心となる数が台本の「十語」に対して推測は「50語」で、意味の要がずれています。"
+    },
+    {
+      "fragment": "かける量",
+      "guess": "書ける量",
+      "score": 5,
+      "reason": "推測「書ける量」は台本「書ける量」と表記まで一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "3単元と監視",
+      "guess": "3単現と冠詞",
+      "score": 5,
+      "reason": "推測「3単現と冠詞」は台本「三単現と冠詞」と数字の表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "点とかお高いね",
+      "guess": "9点とかですかね",
+      "score": 1,
+      "reason": "台本は「点とかお高いね」で、推測の「9点とかですかね」は台本に無い「9」という数を足し、文の意味も「高い」から「〜ですかね」という問いかけに変わっているため、意味が一致しない。"
+    },
+    {
+      "fragment": "閉岸",
+      "guess": "併願",
+      "score": 5,
+      "reason": "推測「併願」は台本「併願」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "長くったかも",
+      "guess": "長かったかも",
+      "score": 5,
+      "reason": "推測「長かったかも」は台本「長かったかも」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "文の方が大きい",
+      "guess": "長文の方が大きい",
+      "score": 2,
+      "reason": "「文のほうが大きい」という向きは合っているが、何が大きいのかを示す中心の語「配点」が抜けている。また、「文」を「長文」としており、台本に無い「長い」という意味が加わっている。"
+    },
+    {
+      "fragment": "関係名詞",
+      "guess": "関係代名詞",
+      "score": 5,
+      "reason": "推測「関係代名詞」は台本「関係代名詞」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "聞いてい",
+      "guess": "聞いて",
+      "score": 5,
+      "reason": "推測「聞いて」は台本「聞いて」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "閉岸",
+      "guess": "併願",
+      "score": 5,
+      "reason": "推測「併願」は台本の「併願」と一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "説明会は 1つは言っておく",
+      "guess": "説明会は1つは行っておく",
+      "score": 5,
+      "reason": "推測「説明会は1つは行っておく」は台本「説明会は一つは行っておく」と意味が同じで、違いは「1つ」と「一つ」の表記だけであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "科学式",
+      "guess": "化学式",
+      "score": 5,
+      "reason": "推測「化学式」は台本「化学式」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "科学式",
+      "guess": "化学式",
+      "score": 5,
+      "reason": "推測「化学式」は台本「化学式」と完全に一致しており、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "ありがございました",
+      "guess": "ありがとうございました",
+      "score": 5,
+      "reason": "推測「ありがとうございました」は台本と完全に一致しており、意味の違いも台本に無い意味の追加もない。"
+    },
+    {
+      "fragment": "まだってる",
+      "guess": "まだ録ってる",
+      "score": 4,
+      "reason": "台本の「まだ回ってる」は録音や録画が続いている状態を指し、推測の「まだ録ってる」とほぼ同じ意味だが、動詞が違い、「録る」には録っている人の動作という含みがわずかに加わる。"
+    }
+  ],
+  "variance": null,
+  "timing": {
+    "step0": {
+      "step0a": {
+        "model": "claude-opus-5-5",
+        "ms": 37711,
+        "inputTokens": 2687,
+        "outputTokens": 5679,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1153
+      },
+      "step0b": {
+        "model": "claude-opus-5-5",
+        "ms": 17867,
+        "inputTokens": 3626,
+        "outputTokens": 2136,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1220
+      },
+      "step0c": {
+        "model": "claude-opus-5-5",
+        "ms": 35397,
+        "inputTokens": 3630,
+        "outputTokens": 3802,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1166
+      }
+    },
+    "step1Ms": 49662,
+    "firstCitationMs": 30681,
+    "step2Ms": 22637,
+    "step4Ms": null
+  }
+}
