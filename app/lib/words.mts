@@ -44,14 +44,16 @@ export type TextPart = { text: string; index?: undefined } | { text: string; ind
 /**
  * AI が書いた文を、ふつうの文と、発言の番号の印に分ける。印の text は画面に出す言葉（「発言 42」、続きの番号は「44」）。
  * 発話の並びの範囲に無い番号と、前回の面談の番号は印にせず、言葉だけ読み替える。
+ * プロンプトの語（よく表れた所・次に試せる所）が文に出たら、画面の場面の名前に読み替える。
  */
-export function splitRefs(text: string, count: number): TextPart[] {
+export function splitRefs(source: string, count: number): TextPart[] {
+  const text = (source ?? "").replaceAll("よく表れた所", sceneTypeLabel("よく表れた所")).replaceAll("次に試せる所", sceneTypeLabel("次に試せる所"));
   const parts: TextPart[] = [];
   const push = (t: string) => {
     if (t) parts.push({ text: t });
   };
   let last = 0;
-  for (const g of (text ?? "").matchAll(GROUP)) {
+  for (const g of text.matchAll(GROUP)) {
     push(text.slice(last, g.index));
     const previous = PREVIOUS.test(text.slice(0, g.index));
     let inner = 0;
@@ -66,7 +68,7 @@ export function splitRefs(text: string, count: number): TextPart[] {
     push(g[0].slice(inner));
     last = g.index + g[0].length;
   }
-  push((text ?? "").slice(last));
+  push(text.slice(last));
   return parts;
 }
 
