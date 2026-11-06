@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { RefText } from "@/app/components/RefText";
-import { BTN_PRIMARY, CARD, FIELD, H1, LEAD, LINK, PAGE } from "@/app/components/ui";
+import { BTN_PRIMARY, FIELD, H1, LEAD, LINK, PAGE } from "@/app/components/ui";
 import { questionsOf, updateSession, useSession } from "@/app/lib/session";
 
 export default function Screen3() {
@@ -17,7 +17,7 @@ export default function Screen3() {
   if (!session || !session.analysis) {
     return (
       <main className={PAGE}>
-        <section className={CARD}>
+        <section>
           <p>先に「2 読む」でフィードバックを読んでください。</p>
           <Link href="/reflection" className={`mt-2 inline-block ${LINK}`}>
             2 読む へ
@@ -35,7 +35,7 @@ export default function Screen3() {
 
   return (
     <main className={PAGE}>
-      <section className={CARD}>
+      <section>
         <h1 className={H1}>問いに答える</h1>
         <p className={LEAD}>場面を読んで受け取った問いに、自分の言葉で答えます。答えは、次に試す行動の候補を作る材料になります。全部に答えなくてもかまいません。AI の見立てと違うと思う所は、そのまま書いてください。</p>
 

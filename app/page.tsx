@@ -14,7 +14,7 @@ import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
 import { WaitNote } from "@/app/components/WaitNote";
-import { BTN_PRIMARY, BTN_SECONDARY, CARD, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, SEG, segItem } from "@/app/components/ui";
+import { BTN_PRIMARY, BTN_SECONDARY, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, SEG, segItem } from "@/app/components/ui";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
@@ -130,7 +130,7 @@ export default function Screen1() {
 
   return (
     <main className={PAGE}>
-      <section className={CARD}>
+      <section>
         <h1 className={H1}>面談内容を入力する</h1>
         <p className={LEAD}>面談の文字起こしを貼ります。ボイスメモの文字起こし（話者の無い文）のままでかまいません。</p>
 
@@ -186,7 +186,7 @@ export default function Screen1() {
       </section>
 
       {transcript && groups && (
-        <section className={`mt-6 ${CARD}`}>
+        <section className="mt-16">
           {mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、仮の出力です。話者は文の区切りだけで交互に付けてあり、本物の整形ではありません。</p>}
           <h2 className={H2}>
             {transcript.utterances.length} の発言に区切り、話者を付けました

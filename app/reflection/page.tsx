@@ -21,7 +21,7 @@ import { SceneLines } from "@/app/components/SceneLines";
 import { ScoreTable } from "@/app/components/Scores";
 import { Island } from "@/app/components/UtteranceView";
 import { WaitNote } from "@/app/components/WaitNote";
-import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, CARD, H1, LINK, NOTE, PAGE } from "@/app/components/ui";
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, LINK, NOTE, PAGE } from "@/app/components/ui";
 import { chaptersOf, sceneSpan, spanWindow, wideWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
 import { updateSession, useSession } from "@/app/lib/session";
@@ -64,7 +64,7 @@ export default function Screen2() {
   if (!session || !transcript) {
     return (
       <main className={PAGE}>
-        <section className={CARD}>
+        <section>
           <p>先に「1 入力」で、文字起こしを整形してください。</p>
           <Link href="/" className={`mt-2 inline-block ${LINK}`}>
             1 入力 へ
@@ -80,7 +80,7 @@ export default function Screen2() {
 
   return (
     <main className={PAGE}>
-      <section className="rs-wrap pb-6">
+      <section className="pb-6">
         <h1 className={H1}>
           {session.otherName ? `${session.otherName}との` : ""}
           {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}
@@ -127,10 +127,10 @@ export default function Screen2() {
           </button>
         </div>
       ) : !analysis ? (
-        <section className="rs-wrap py-6">
+        <section className="py-6">
           <p className="font-semibold">AI が面談を読んでいます…</p>
           <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度最初から分析します。" />
-          <div className="rs-inner mt-6 rounded-md border border-line bg-surface px-5 py-4">
+          <div className="mt-6 rounded-md border border-line bg-surface px-5 py-4">
             <SelfScore selfScore={session.selfScore} lead="待つ間に、この面談の自分の点を付けておけます（付けなくても読めます）。あとで AI の点と並べます。" confirmLabel="待つ" canRedo />
           </div>
         </section>
@@ -283,7 +283,6 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </section>
       ) : (
         <>
-          <div className="rs-wrap">
           <p className="text-[1.02rem]">
             AI がこの面談から、{scenes.map((sc) => sceneTypeLabel(sc.type)).join("と、")}を選びました。場面ごとに、やりとりを読んで、問いを一つ受け取ります。
             {session.spark && (
@@ -299,9 +298,8 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
           <section className="mt-12" aria-label="面談の地図">
             <Atlas t={t} spans={spans} sceneNames={scenes.map((sc) => sceneTypeLabel(sc.type))} current={current} chapters={chapters} onScene={(k) => showScene(k, false)} />
           </section>
-          </div>
 
-          <section ref={sceneRef} className="rs-wrap mt-16 scroll-mt-6" aria-label={`場面 ${current + 1}`}>
+          <section ref={sceneRef} className="mt-16 scroll-mt-6" aria-label={`場面 ${current + 1}`}>
             <div className="grid grid-cols-2 gap-2" role="group" aria-label="場面を選ぶ">
               {scenes.map((_, k) => {
                 const s = spans[k];
@@ -341,7 +339,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
 
                 <Step n={1} title="やりとりを読む">
                   {span && win ? (
-                    <div className="rs-inner rounded-md border border-line bg-surface shadow-[0_8px_24px_-16px_rgba(29,27,24,0.25)]">
+                    <div className="rounded-md border border-line bg-surface shadow-[0_8px_24px_-16px_rgba(29,27,24,0.25)]">
                       <SceneLines t={t} span={span} from={win.from} to={win.to} />
                       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-line px-4 py-2.5 text-[0.82rem] text-ink-2 sm:px-5">
                         <span>
@@ -392,7 +390,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </>
       )}
 
-      <section className="rs-wrap mt-20" aria-label="面談の全体">
+      <section className="mt-20" aria-label="面談の全体">
         <h2 className="text-[0.95rem] font-semibold">面談の全体</h2>
         <p className="mb-3 text-[0.86rem] text-ink-2">必要なときに開きます。開かなくても、次へ進めます。</p>
         <div className="border-t border-line">
@@ -445,7 +443,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
             onToggle={() => setOpen((o) => ({ ...o, scores: !o.scores }))}
           >
             {session.selfScore === null ? (
-              <div className="rs-inner rounded-md border border-line bg-surface px-5 py-4">
+              <div className="rounded-md border border-line bg-surface px-5 py-4">
                 <SelfScore selfScore={null} lead="先に、この面談の自分の点を一つ決めます。AI の点に引っぱられずに自分の見方を残すためで、AI の点を見た後は変えられません。" confirmLabel="AI の点を見る" canRedo={false} />
               </div>
             ) : (

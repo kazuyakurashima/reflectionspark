@@ -20,7 +20,7 @@ import { previousQuoteOf } from "@/app/lib/previous-quote.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { RefChip, RefText } from "@/app/components/RefText";
 import { ScoreTable } from "@/app/components/Scores";
-import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, BTN_SMALL_PRIMARY, CARD, FIELD, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
 import { refLabel } from "@/app/lib/words.mts";
 import { UtteranceContext } from "@/app/components/UtteranceView";
 import { WaitNote } from "@/app/components/WaitNote";
@@ -76,7 +76,7 @@ export default function Screen5() {
   if (!session || (!spark && !session.sparkSkipped)) {
     return (
       <main className={PAGE}>
-        <section className={CARD}>
+        <section>
           <p>先に「4 次に試すひとつ」で、試す行動を決めてください。</p>
           <Link href="/spark" className={`mt-2 inline-block ${LINK}`}>
             4 次に試すひとつ へ
@@ -88,7 +88,7 @@ export default function Screen5() {
   if (!spark) {
     return (
       <main className={PAGE}>
-        <section className={CARD}>
+        <section>
           <h1 className={H1}>次の面談で</h1>
           <p className={LEAD}>前回は行動を見送ったので、追うものがありません。次の面談は「1 入力」から新しく始めてください。</p>
           <Link href="/" className={`mt-3 inline-block ${LINK}`}>
@@ -169,7 +169,7 @@ export default function Screen5() {
 
   return (
     <main className={PAGE}>
-      <section className={CARD}>
+      <section>
         <h1 className={H1}>次の面談で</h1>
         <p className={LEAD}>次の面談が終わったら、その文字起こしをここに貼ります。前回決めた行動が、その面談でどう現れたかを確かめます。先に自分で評価を付け、そのあと AI の判定を読みます。</p>
 
@@ -202,7 +202,7 @@ export default function Screen5() {
 
       {transcript && (
         <>
-          <section className={`mt-6 ${CARD}`}>
+          <section className="mt-16">
             {fu?.mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、整形は仮の出力です。</p>}
             <h2 className={H2}>{transcript.utterances.length} の発言に区切り、話者を付けました</h2>
             <p className={LEAD}>このまま進めます。気になるときだけ、開いて確かめてください。</p>
@@ -219,7 +219,7 @@ export default function Screen5() {
             </Collapsible>
           </section>
 
-          <section className={`mt-6 ${CARD}`}>
+          <section className="mt-16">
             <h2 className={H2}>自分の評価</h2>
             {selfDone ? (
               <p className="mt-3">
@@ -284,13 +284,13 @@ export default function Screen5() {
               </button>
             </div>
           ) : !result ? (
-            <section className={`mt-6 ${CARD}`}>
+            <section className="mt-16">
               <p className="font-semibold">AI が面談を読んでいます…</p>
               <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度読みます。自分の評価は残っています。" />
             </section>
           ) : (
             <>
-              <section className={`mt-6 ${CARD}`}>
+              <section className="mt-16">
                 {result.mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、判定と点は仮です。</p>}
                 <h2 className={H2}>判定</h2>
                 <dl className="mt-4 flex flex-wrap gap-x-12 gap-y-3">
@@ -360,7 +360,7 @@ export default function Screen5() {
                 )}
               </section>
 
-              <section className={`mt-6 ${CARD}`}>
+              <section className="mt-16">
                 <h2 className={H2}>項目ごとの点と合計</h2>
                 <ScoreTable items={result.step4.items} total={result.step4.total} t={transcript} selfScore={fu?.selfScore ?? null} />
               </section>

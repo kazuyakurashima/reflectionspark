@@ -13,7 +13,7 @@ import type { Candidate } from "@/engine/types.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { RefChip, RefText } from "@/app/components/RefText";
 import { WaitNote } from "@/app/components/WaitNote";
-import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, CARD, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
+import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
 import type { SparkChoice } from "@/app/lib/session";
@@ -63,7 +63,7 @@ export default function Screen4() {
   if (!session || !analysis || !transcript) {
     return (
       <main className={PAGE}>
-        <section className={CARD}>
+        <section>
           <p>先に「2 読む」でフィードバックを読み、「3 問いに答える」で問いに答えてください。</p>
           <Link href="/reflection" className={`mt-2 inline-block ${LINK}`}>
             2 読む へ
@@ -103,7 +103,7 @@ export default function Screen4() {
 
   return (
     <main className={PAGE}>
-      <section className={CARD}>
+      <section>
         <h1 className={H1}>
           次に試すひとつ<span className="ml-3 text-[0.86rem] font-normal text-ink-3">Your Spark</span>
         </h1>
