@@ -13,13 +13,15 @@ import { useEffect, useRef, useState } from "react";
 import type { FollowUpResponse, Step0Response } from "@/engine/server.mts";
 import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { FollowUpVerdict, Utterance } from "@/engine/types.mts";
-import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { previousQuoteOf } from "@/app/lib/previous-quote.mts";
 import { Collapsible } from "@/app/components/Collapsible";
+import { RefChip, RefText } from "@/app/components/RefText";
 import { ScoreTable } from "@/app/components/Scores";
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, BTN_SMALL_PRIMARY, CARD, FIELD, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
+import { refLabel } from "@/app/lib/words.mts";
 import { UtteranceContext } from "@/app/components/UtteranceView";
 import { WaitNote } from "@/app/components/WaitNote";
 import { fetchStep0c, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
@@ -70,25 +72,29 @@ export default function Screen5() {
     })();
   }, [spark, transcript, result, retry]);
 
-  if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
+  if (session === undefined) return <main className={`${PAGE} text-sm text-ink-2`}>読み込んでいます…</main>;
   if (!session || (!spark && !session.sparkSkipped)) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-6">
-        <p className="text-sm">先に画面 4 で「次に試すひとつ」を決めてください。</p>
-        <Link href="/spark" className="text-sm text-sky-800 underline">
-          画面 4 へ
-        </Link>
+      <main className={PAGE}>
+        <section className={CARD}>
+          <p>先に「4 次に試すひとつ」で、試す行動を決めてください。</p>
+          <Link href="/spark" className={`mt-2 inline-block ${LINK}`}>
+            4 次に試すひとつ へ
+          </Link>
+        </section>
       </main>
     );
   }
   if (!spark) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-6">
-        <h1 className="text-xl font-bold">5. 次の面談で</h1>
-        <p className="mt-2 text-sm">前回は行動を見送ったので、追うものがありません。次の面談は画面 1 から新しく始めてください。</p>
-        <Link href="/" className="text-sm text-sky-800 underline">
-          画面 1 へ
-        </Link>
+      <main className={PAGE}>
+        <section className={CARD}>
+          <h1 className={H1}>次の面談で</h1>
+          <p className={LEAD}>前回は行動を見送ったので、追うものがありません。次の面談は「1 入力」から新しく始めてください。</p>
+          <Link href="/" className={`mt-3 inline-block ${LINK}`}>
+            1 入力 へ
+          </Link>
+        </section>
       </main>
     );
   }
@@ -152,45 +158,60 @@ export default function Screen5() {
     router.push("/reflection");
   };
 
+  const VERIFIED = (
+    <span className="ml-3 whitespace-nowrap text-ink-2">
+      <span aria-hidden="true" className="mr-1 font-bold text-accent">
+        ✓
+      </span>
+      引用は原文と一致
+    </span>
+  );
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-xl font-bold">5. 次の面談で</h1>
-      <p className="mt-1 text-sm text-stone-600">続きの面談を貼ります。先に自分で「できた／一部／まだ／場面がなかった」と点を付け、そのあと AI の判定を読みます。自己評価は AI に渡しません。</p>
+    <main className={PAGE}>
+      <section className={CARD}>
+        <h1 className={H1}>次の面談で</h1>
+        <p className={LEAD}>次の面談が終わったら、その文字起こしをここに貼ります。前回決めた行動が、その面談でどう現れたかを確かめます。先に自分で評価を付け、そのあと AI の判定を読みます。</p>
 
-      <section className="mt-4 rounded border-2 border-amber-400 bg-amber-50 p-4">
-        <p className="text-xs text-amber-900">前回決めた、次に試すひとつ（{spark.timesFollowed} 回追った）</p>
-        <p className="mt-1 font-semibold">{spark.sentence}</p>
-        {spark.criterion && <p className="mt-1 text-sm text-stone-700">できたかの基準：{spark.criterion}</p>}
-      </section>
+        <div className={`mt-6 ${SPARK_BOX}`}>
+          <p className="text-xs font-semibold text-amber-900">
+            前回決めた、次に試すひとつ{spark.timesFollowed > 0 ? `（${spark.timesFollowed} 回追った）` : ""}
+          </p>
+          <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{spark.sentence}</p>
+          {spark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{spark.criterion}</p>}
+        </div>
 
-      <section className="mt-5 space-y-3 rounded border border-stone-200 bg-white p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm text-stone-600">続きの面談の文字起こし</span>
-          <button type="button" onClick={loadDemo} className="ml-auto rounded border border-sky-700 px-3 py-1 text-sm text-sky-800 hover:bg-sky-50">
+        <label className="mt-7 block">
+          <span className="flex items-baseline justify-between gap-3">
+            <span className={LABEL}>次の面談の文字起こし</span>
+            <span className="text-xs tabular-nums text-ink-3">{[...raw].length} 字</span>
+          </span>
+          <textarea value={raw} onChange={(e) => setRaw(e.target.value)} rows={transcript ? 4 : 7} placeholder="ここに貼る。実在の人の名前が入っていないかを確かめてください。" className={`mt-1.5 block w-full ${FIELD}`} />
+        </label>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={format} disabled={busy || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
+            {busy ? "整形しています…" : transcript ? "もう一度整形する" : "整形する"}
+          </button>
+          <button type="button" onClick={loadDemo} disabled={busy} className={BTN_SECONDARY}>
             サンプルの続きを選ぶ（Demo Mode）
           </button>
         </div>
-        <textarea value={raw} onChange={(e) => setRaw(e.target.value)} rows={6} placeholder="ここに貼る" className="w-full rounded border border-stone-300 p-2 font-mono text-sm" aria-label="続きの面談の文字起こし" />
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={format} disabled={busy || raw.trim() === ""} className="rounded bg-stone-800 px-4 py-2 text-sm text-white disabled:opacity-40">
-            {busy ? "整形しています…" : "整形する"}
-          </button>
-          <span className="text-xs text-stone-500">{[...raw].length} 字</span>
-        </div>
         {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
-        {error && <p className="text-sm text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
+        {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
       </section>
 
       {transcript && (
         <>
-          <section className="mt-5">
-            {fu?.mock && <p className="mb-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">API キーが無いので、整形は仮の出力です。</p>}
-            <Collapsible label={`確かめる所（${toCheckCount} 件）と Claude が直した所（${correctedCount} 件）を開く`} openLabel="確かめる所を閉じる">
-              {groups && <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} />}
-              {checkCount === 0 && <p className="text-sm text-stone-700">0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>}
+          <section className={`mt-6 ${CARD}`}>
+            {fu?.mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、整形は仮の出力です。</p>}
+            <h2 className={H2}>{transcript.utterances.length} の発言に区切り、話者を付けました</h2>
+            <p className={LEAD}>このまま進めます。気になるときだけ、開いて確かめてください。</p>
+            <Collapsible label={`確かめて直す（${toCheckCount + correctedCount} 件）`} openLabel="確かめる所を閉じる" className="mt-4">
+              {groups && <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} className="mt-6" />}
+              {checkCount === 0 && <p className="text-[0.92rem] text-ink-2">0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>}
             </Collapsible>
-            <Collapsible label={`全文（${transcript.utterances.length} 発話）を開く`} openLabel="全文を閉じる" className="mt-2">
-              <div className="space-y-2">
+            <Collapsible label={`全文を見る（発言 ${transcript.utterances.length} 回）`} openLabel="全文を閉じる" className="mt-2">
+              <div className="mt-4 space-y-3">
                 {transcript.utterances.map((u) => (
                   <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
                 ))}
@@ -198,41 +219,58 @@ export default function Screen5() {
             </Collapsible>
           </section>
 
-          <section className="mt-5 rounded border border-stone-200 bg-white p-4">
-            <h2 className="font-bold">自分の評価（先に付ける。AI に渡さない）</h2>
+          <section className={`mt-6 ${CARD}`}>
+            <h2 className={H2}>自分の評価</h2>
             {selfDone ? (
-              <p className="mt-2 text-sm">
-                自分の判定：<span className="font-semibold">{fu?.selfVerdict}</span>　自分の点：<span className="font-semibold">{fu?.selfScore}／10</span>
+              <p className="mt-3">
+                自分の判定：<span className="font-semibold">{fu?.selfVerdict}</span>
+                <span className="ml-6">
+                  自分の点：<span className="font-semibold tabular-nums">{fu?.selfScore}／10</span>
+                </span>
               </p>
             ) : (
-              <div className="mt-2 space-y-3">
-                <div className="flex flex-wrap gap-2">
+              <>
+                <p className={LEAD}>AI の判定を読む前に付けます。AI には渡しません。</p>
+                <p className={`mt-6 ${LABEL}`} id="verdict-label">
+                  前回決めた行動は、今回の面談で
+                </p>
+                <div className={`mt-1.5 ${SEG}`} role="group" aria-labelledby="verdict-label">
                   {VERDICTS.map((v) => (
-                    <label key={v} className={`cursor-pointer rounded border px-3 py-1 text-sm ${verdict === v ? "border-stone-800 bg-stone-800 text-white" : "border-stone-300"}`}>
-                      <input type="radio" name="verdict" value={v} checked={verdict === v} onChange={() => setVerdict(v)} className="sr-only" />
+                    <button key={v} type="button" onClick={() => setVerdict(v)} aria-pressed={verdict === v} className={segItem(verdict === v)}>
                       {v}
-                    </label>
+                    </button>
                   ))}
                 </div>
-                <div className="flex flex-wrap items-end gap-3">
-                  <label className="text-sm">
-                    <span className="block text-stone-600">この面談の点（10 点満点）</span>
-                    <input type="number" min={1} max={10} value={score} onChange={(e) => setScore(e.target.value)} className="mt-1 w-24 rounded border border-stone-300 px-2 py-1" />
-                  </label>
-                  <button type="button" onClick={submitSelf} disabled={!verdict || !(Number(score) >= 1 && Number(score) <= 10)} className="rounded bg-stone-800 px-4 py-2 text-sm text-white disabled:opacity-40">
-                    付けた。AI の判定を見る
-                  </button>
+                <p className={`mt-6 ${LABEL}`} id="score-label">
+                  この面談の点（10 点満点）
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5" role="group" aria-labelledby="score-label">
+                  {Array.from({ length: 10 }, (_, i) => String(i + 1)).map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setScore(v)}
+                      aria-pressed={score === v}
+                      className={`h-11 w-10 rounded-md border text-[0.95rem] tabular-nums ${score === v ? "border-accent bg-accent text-white" : "border-line-2 bg-white text-ink-2 hover:border-ink-2"}`}
+                    >
+                      {v}
+                    </button>
+                  ))}
                 </div>
-              </div>
+                <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <button type="button" onClick={submitSelf} disabled={!verdict || !(Number(score) >= 1 && Number(score) <= 10)} className={BTN_PRIMARY}>
+                    この評価に決めて、AI の判定を見る
+                  </button>
+                  <span className="text-[0.86rem] text-ink-3">
+                    {result ? "AI の判定は届いています。" : followError ? "AI の読みに失敗しました。評価を付けると、やり直せます。" : "AI が読んでいます（1 分ほど）。"}
+                  </span>
+                </div>
+              </>
             )}
           </section>
 
-          {!selfDone ? (
-            <p className="mt-4 text-sm text-stone-500">
-              自分の評価を付けると、AI の判定が開きます。{result ? "（判定は届いています）" : followError ? "（AI の読みに失敗しました。評価を付けると、やり直せます）" : "（読んでいます。1 分ほどかかります）"}
-            </p>
-          ) : followError && !result ? (
-            <div className="mt-4 rounded border border-red-200 bg-white px-3 py-2 text-sm">
+          {!selfDone ? null : followError && !result ? (
+            <div className={`mt-6 ${NOTE}`}>
               <p className="text-red-700">AI が読めませんでした：{followError}</p>
               <button
                 type="button"
@@ -240,95 +278,116 @@ export default function Screen5() {
                   setFollowError(null);
                   setRetry((n) => n + 1);
                 }}
-                className="mt-2 rounded border border-stone-300 px-3 py-1"
+                className={`mt-2 ${BTN_SMALL}`}
               >
                 もう一度読む
               </button>
             </div>
           ) : !result ? (
-            <div className="mt-4">
-              <p className="text-sm text-stone-500">読んでいます…</p>
+            <section className={`mt-6 ${CARD}`}>
+              <p className="font-semibold">AI が面談を読んでいます…</p>
               <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度読みます。自分の評価は残っています。" />
-            </div>
+            </section>
           ) : (
-            <div className="mt-6 space-y-6">
-              {result.mock && <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">API キーが無いので、仮の出力です。引用は本文の発話ですが、判定と点は仮です。</p>}
-              <section className="rounded border border-stone-200 bg-white p-4">
-                <h2 className="font-bold">判定</h2>
-                <div className="mt-2 flex flex-wrap gap-6 text-sm">
-                  <p>
-                    AI：<span className="text-lg font-semibold">{result.step4.verdict}</span>
-                  </p>
-                  <p>
-                    自分：<span className="text-lg font-semibold">{fu?.selfVerdict}</span>
-                  </p>
-                </div>
-                {fu?.selfVerdict !== result.step4.verdict && <p className="mt-1 text-xs text-stone-600">自分の判定と AI の判定がずれています。ずれは、どちらが正しいかではなく、確かめる点です。</p>}
-                <p className="mt-3 text-sm">
-                  <span className="font-semibold">なぜ</span>　{result.step4.why}
+            <>
+              <section className={`mt-6 ${CARD}`}>
+                {result.mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、判定と点は仮です。</p>}
+                <h2 className={H2}>判定</h2>
+                <dl className="mt-4 flex flex-wrap gap-x-12 gap-y-3">
+                  <div>
+                    <dt className="text-xs text-ink-3">AI の判定</dt>
+                    <dd className="text-[1.4rem] font-semibold leading-snug">{result.step4.verdict}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-ink-3">自分の判定</dt>
+                    <dd className="text-[1.4rem] font-semibold leading-snug">{fu?.selfVerdict}</dd>
+                  </div>
+                </dl>
+                {fu?.selfVerdict !== result.step4.verdict && <p className="mt-2 text-[0.86rem] text-ink-2">自分の判定と AI の判定がずれています。ずれは、どちらが正しいかではなく、確かめる点です。</p>}
+                <p className="mt-6 text-xs font-semibold text-ink-3">なぜ</p>
+                <p className="mt-1">
+                  <RefText t={transcript} text={result.step4.why} />
                 </p>
+
                 {prevQuote && (
-                  <div className="mt-3">
-                    <p className="text-xs text-stone-500">前回（この行動を決めた面談）の発言</p>
-                    <blockquote className="mt-1 border-l-4 border-amber-400 pl-3">
-                      <p className="whitespace-pre-wrap text-sm">「{prevQuote.text}」</p>
-                      <p className="mt-1 text-xs text-stone-500">
-                        {[prevQuote.speaker, prevQuote.index !== null ? utteranceLabel(prevQuote.index) : null].filter((x) => x !== null).join("・")}
-                        <span className="ml-2 rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">引用は原文と一致</span>
-                      </p>
-                    </blockquote>
+                  <div className="mt-7">
+                    <p className="text-xs font-semibold text-ink-3">前回（この行動を決めた面談）の発言</p>
+                    <div className="mt-1.5 rounded-md bg-tint-self px-4 py-3">
+                      <p className="whitespace-pre-wrap">{prevQuote.text}</p>
+                    </div>
+                    <p className="mt-1.5 px-1 text-xs text-ink-3">
+                      {prevQuote.speaker}
+                      {prevQuote.index !== null &&
+                        (session.transcript ? (
+                          <RefChip t={session.transcript} index={prevQuote.index} className="ml-2">
+                            {refLabel(prevQuote.index)}
+                          </RefChip>
+                        ) : (
+                          <span className="ml-2">{refLabel(prevQuote.index)}</span>
+                        ))}
+                      {VERIFIED}
+                    </p>
                   </div>
                 )}
-                {prevQuote && result.step4.quotes.length > 0 && <p className="mt-3 text-xs text-stone-500">今回の発言（判定の根拠）</p>}
                 {result.step4.quotes.length > 0 ? (
-                  <blockquote className={`${prevQuote ? "mt-1" : "mt-3"} border-l-4 border-stone-400 pl-3`}>
+                  <div className="mt-7">
+                    <p className="text-xs font-semibold text-ink-3">今回の発言（判定の根拠）</p>
                     {result.step4.quotes.map((q) => (
-                      <div key={q.index} className="mb-2">
-                        <p className="text-sm">「{q.text}」</p>
-                        <p className="mt-1 text-xs text-stone-500">
-                          {transcript.utterances[q.index]?.speaker}・
-                          <button type="button" onClick={() => setOpenQuote(openQuote === q.index ? null : q.index)} className="text-sky-800 hover:underline">
-                            {utteranceLabel(q.index)}
-                          </button>
-                          <span className="ml-2 rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">引用は原文と一致</span>
+                      <div key={q.index} className="mt-1.5 [&+div]:mt-4">
+                        <div className="rounded-md bg-accent-mid px-4 py-3 shadow-[inset_4px_0_0_var(--color-accent)]">
+                          <p className="whitespace-pre-wrap font-medium">{q.text}</p>
+                        </div>
+                        <p className="mt-1.5 px-1 text-xs text-ink-3">
+                          {transcript.utterances[q.index]?.speaker}
+                          <RefChip t={transcript} index={q.index} onClick={() => setOpenQuote(openQuote === q.index ? null : q.index)} className="ml-2">
+                            {refLabel(q.index)}
+                          </RefChip>
+                          <span className="ml-1">（押すと前後も開きます）</span>
+                          {VERIFIED}
                         </p>
                         {openQuote === q.index && <UtteranceContext t={transcript} index={q.index} />}
                       </div>
                     ))}
-                  </blockquote>
+                  </div>
                 ) : (
-                  <p className="mt-3 text-sm text-stone-600">根拠の引用はありません（場面が無かったときは、引用が無いのが正しい形です）。</p>
+                  <p className="mt-6 text-[0.95rem] text-ink-2">根拠の引用はありません（場面が無かったときは、引用が無いのが正しい形です）。</p>
                 )}
-                {result.step4.otherPersonLine && <p className="mt-3 text-sm text-stone-700">相手が前回決めたことについて：{result.step4.otherPersonLine}</p>}
+                {result.step4.otherPersonLine && (
+                  <p className="mt-6 text-[0.95rem] text-ink-2">
+                    相手が前回決めたことについて：
+                    <RefText t={transcript} text={result.step4.otherPersonLine} />
+                  </p>
+                )}
               </section>
 
-              <section>
-                <h2 className="font-bold">項目ごとの点と合計</h2>
+              <section className={`mt-6 ${CARD}`}>
+                <h2 className={H2}>項目ごとの点と合計</h2>
                 <ScoreTable items={result.step4.items} total={result.step4.total} t={transcript} selfScore={fu?.selfScore ?? null} />
               </section>
 
               {third && (
-                <section className="rounded border-2 border-sky-700 bg-sky-50 p-4">
-                  <p className="text-sm font-semibold">この行動を追うのは 3 回目です。続けますか、変えますか。</p>
-                  <p className="mt-1 text-xs text-stone-600">同じ行動は 2〜3 回で身につくことが多く、それ以上は別の場面に向けたほうが伸びやすいためです。</p>
-                  <div className="mt-2 flex gap-2 text-sm">
-                    <button type="button" onClick={keep} className="rounded border border-stone-300 bg-white px-3 py-1">
+                <section className="mt-6 rounded-lg bg-accent-soft px-5 py-5 sm:px-8">
+                  <p className="font-semibold">この行動を追うのは 3 回目です。続けますか、変えますか。</p>
+                  <p className="mt-1 text-[0.86rem] text-ink-2">同じ行動は 2〜3 回で身につくことが多く、それ以上は別の場面に向けたほうが伸びやすいためです。</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button type="button" onClick={keep} className={BTN_SMALL}>
                       続ける
                     </button>
-                    <button type="button" onClick={change} className="rounded bg-sky-800 px-3 py-1 text-white">
+                    <button type="button" onClick={change} className={BTN_SMALL_PRIMARY}>
                       変える（今回の面談から選び直す）
                     </button>
                   </div>
                 </section>
               )}
 
-              <div className="rounded border border-dashed border-stone-300 p-3 text-sm text-stone-600">
-                次の面談も同じ行動を追うなら、このまま次の文字起こしを貼ります。新しい面談として振り返るなら、画面 1 から始めます。
-                <Link href="/" className="ml-2 text-sky-800 underline">
-                  画面 1 へ
+              <p className="mt-8 px-1 text-[0.92rem] text-ink-2">
+                次の面談も同じ行動を追うなら、この画面に次の文字起こしを貼ります。新しい面談として振り返るなら、
+                <Link href="/" className={LINK}>
+                  1 入力
                 </Link>
-              </div>
-            </div>
+                から始めます。
+              </p>
+            </>
           )}
         </>
       )}

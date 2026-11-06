@@ -21,6 +21,7 @@ import { SceneLines } from "@/app/components/SceneLines";
 import { ScoreTable } from "@/app/components/Scores";
 import { Island } from "@/app/components/UtteranceView";
 import { WaitNote } from "@/app/components/WaitNote";
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, CARD, H1, LINK, NOTE, PAGE } from "@/app/components/ui";
 import { chaptersOf, sceneSpan, spanWindow, wideWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
 import { updateSession, useSession } from "@/app/lib/session";
@@ -28,8 +29,6 @@ import type { SessionData } from "@/app/lib/session";
 import { countTranscript, ethicsMark } from "@/app/lib/view";
 import { refListLabel, refRangeLabel, sceneTypeLabel } from "@/app/lib/words.mts";
 
-const PAGE = "mx-auto max-w-3xl px-4 text-base leading-[1.85] md:text-[1.0625rem]";
-const PRIMARY = "inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-accent px-6 py-2.5 font-semibold text-white hover:bg-accent/90";
 
 export default function Screen2() {
   const session = useSession();
@@ -61,14 +60,16 @@ export default function Screen2() {
     })();
   }, [transcript, analysis, firstMeeting, retry]);
 
-  if (session === undefined) return <main className={`${PAGE} py-8 text-sm text-ink-2`}>読み込んでいます…</main>;
+  if (session === undefined) return <main className={`${PAGE} text-sm text-ink-2`}>読み込んでいます…</main>;
   if (!session || !transcript) {
     return (
-      <main className={`${PAGE} py-8`}>
-        <p>先に画面 1 で文字起こしを整形してください。</p>
-        <Link href="/" className="text-accent underline underline-offset-[3px]">
-          画面 1 へ
-        </Link>
+      <main className={PAGE}>
+        <section className={CARD}>
+          <p>先に「1 入力」で、文字起こしを整形してください。</p>
+          <Link href="/" className={`mt-2 inline-block ${LINK}`}>
+            1 入力 へ
+          </Link>
+        </section>
       </main>
     );
   }
@@ -79,8 +80,8 @@ export default function Screen2() {
 
   return (
     <main className={PAGE}>
-      <section className="pb-6 pt-10">
-        <h1 className="text-[1.75rem] font-semibold leading-snug">
+      <section className="pb-6">
+        <h1 className={H1}>
           {session.otherName ? `${session.otherName}との` : ""}
           {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}
         </h1>
@@ -120,7 +121,7 @@ export default function Screen2() {
               setError(null);
               setRetry((n) => n + 1);
             }}
-            className="mt-2 rounded-full border border-line-2 px-4 py-1"
+            className={`mt-2 ${BTN_SMALL}`}
           >
             もう一度分析する
           </button>
@@ -169,7 +170,7 @@ function SelfScore({ selfScore, lead, confirmLabel, canRedo }: { selfScore: numb
             type="button"
             onClick={() => setPicked(v)}
             aria-pressed={picked === v}
-            className={`h-11 w-9 rounded border text-[0.95rem] tabular-nums ${picked === v ? "border-accent bg-accent text-white" : "border-line-2 bg-paper text-ink-2 hover:border-ink-2"}`}
+            className={`h-11 w-10 rounded-md border text-[0.95rem] tabular-nums ${picked === v ? "border-accent bg-accent text-white" : "border-line-2 bg-paper text-ink-2 hover:border-ink-2"}`}
           >
             {v}
           </button>
@@ -180,7 +181,7 @@ function SelfScore({ selfScore, lead, confirmLabel, canRedo }: { selfScore: numb
           type="button"
           disabled={picked === null}
           onClick={() => picked !== null && updateSession((s) => ({ ...s, selfScore: picked }))}
-          className="min-h-10 rounded-full border border-accent px-5 text-[0.95rem] font-semibold text-accent hover:bg-accent-soft disabled:border-line-2 disabled:text-ink-3 disabled:hover:bg-transparent"
+          className={BTN_SECONDARY}
         >
           {picked === null ? "点を選んでください" : `${picked} 点に決めて、${confirmLabel}`}
         </button>
@@ -274,7 +275,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
 
   return (
     <>
-      {a.mock && <p className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">API キーが無いので、仮の出力です。引用は本文の発話ですが、読みと問いと点は仮の文です。</p>}
+      {a.mock && <p className={`mb-6 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、読みと問いと点は仮の文です。</p>}
 
       {step1.noScene ? (
         <section className="py-6">
@@ -310,7 +311,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                     type="button"
                     onClick={() => showScene(k, false)}
                     aria-pressed={active}
-                    className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 text-left transition-colors ${active ? "border-accent bg-accent text-white" : "border-line-2 bg-surface text-ink-2 hover:border-accent"}`}
+                    className={`flex items-center gap-3 rounded-md border px-4 py-2.5 text-left transition-colors ${active ? "border-accent bg-accent text-white" : "border-line-2 bg-surface text-ink-2 hover:border-accent"}`}
                   >
                     <span
                       aria-hidden="true"
@@ -380,7 +381,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                     <RefText t={t} text={scene.question} />
                   </p>
                   <p className="mt-3 text-[0.86rem] text-ink-2">
-                    次の画面「3. 自分の言葉で」で、この問いに答えます。その答えをもとに、次の面談で試す行動の候補を作ります。AI の見立てと違うと思う所は、そのまま書いてかまいません。
+                    次の画面「3 問いに答える」で、この問いに答えます。その答えをもとに、次の面談で試す行動の候補を作ります。AI の見立てと違うと思う所は、そのまま書いてかまいません。
                   </p>
                 </Step>
               </>
@@ -500,12 +501,12 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
       <div className="sticky bottom-0 z-10 -mx-4 mt-10 border-t border-line bg-paper/90 px-4 py-3 backdrop-blur-md">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           {nextScene >= 0 ? (
-            <button type="button" onClick={() => showScene(nextScene, true)} className={PRIMARY}>
+            <button type="button" onClick={() => showScene(nextScene, true)} className={BTN_PRIMARY}>
               場面 {nextScene + 1} を読む
             </button>
           ) : (
-            <Link href="/answers" className={PRIMARY}>
-              次へ　3. 自分の言葉で
+            <Link href="/answers" className={BTN_PRIMARY}>
+              次へ　問いに答える
             </Link>
           )}
           <span className="hidden text-[0.86rem] text-ink-2 sm:inline">
@@ -527,7 +528,7 @@ function AiView({ t, scene, own, open, onToggle }: { t: Transcript; scene: Scene
   const items = scene.items.map((i) => `${i} ${RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}`).join("、");
   return (
     <div>
-      <button type="button" onClick={onToggle} aria-expanded={open} className="flex min-h-11 items-center gap-3 rounded-full border border-line-2 bg-surface px-5 py-1.5 font-semibold hover:border-ink-2">
+      <button type="button" onClick={onToggle} aria-expanded={open} className={`gap-3 ${BTN_SECONDARY}`}>
         <Chevron open={open} />
         {open ? "AI の見立てを閉じる" : "AI の見立てを読む"}
       </button>

@@ -13,14 +13,14 @@ import { SPEAKER_LABELS } from "@/engine/types.mts";
 import { CHECK_EDITED_BY_USER } from "@/app/lib/view";
 import { MARK_CORRECTED, guessViews } from "@/app/lib/check-groups.mts";
 import { refLabel } from "@/app/lib/words.mts";
+import { BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, QUIET_LINK, SEG, segItem } from "./ui";
 import { correctionsOf } from "./UtteranceView";
 
 /** 前後に並べる発言の数（前と後それぞれ） */
 const CONTEXT = 2;
 const MARK_BEFORE = "bg-transparent text-inherit underline decoration-ink-3 decoration-wavy decoration-1 underline-offset-[5px]";
 const MARK_AFTER = "bg-transparent font-semibold text-inherit underline decoration-accent decoration-2 underline-offset-[5px]";
-const QUIET = "text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink";
-const SMALL_BUTTON = "min-h-9 rounded-full border border-line-2 bg-surface px-4 text-[0.86rem] hover:border-ink-2 disabled:opacity-40";
+const QUIET = QUIET_LINK;
 
 export function CheckUtterance({
   t,
@@ -98,21 +98,21 @@ export function CheckUtterance({
     </>
   );
   const editor = (
-    <div className="rounded-xl border border-line-2 bg-paper p-3">
+    <div className="rounded-md border border-line-2 bg-paper p-3">
       <textarea
         ref={areaRef}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
-        className="w-full rounded-lg border border-line-2 bg-surface px-3 py-2 text-[0.95rem] leading-[1.7] focus:border-accent focus:outline-none"
+        className={`block w-full ${FIELD}`}
         aria-label={`${refLabel(u.index)} の本文`}
       />
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <button type="button" onClick={commitText} className="min-h-9 rounded-full bg-accent px-4 text-[0.86rem] font-semibold text-white hover:bg-accent/90">
+        <button type="button" onClick={commitText} className={BTN_SMALL_PRIMARY}>
           この文にする
         </button>
         {onSplit && (
-          <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className={SMALL_BUTTON} title="本文の中でカーソルを置いた所で、2 つの発言に分けます">
+          <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className={BTN_SMALL} title="本文の中でカーソルを置いた所で、2 つの発言に分けます">
             カーソルの位置で分ける
           </button>
         )}
@@ -122,7 +122,7 @@ export function CheckUtterance({
             setDraft(u.text ?? "");
             setEditing(false);
           }}
-          className={`px-2 text-[0.86rem] ${QUIET}`}
+          className={BTN_SMALL}
         >
           やめる
         </button>
@@ -130,7 +130,7 @@ export function CheckUtterance({
     </div>
   );
   const guessBox = guesses.length > 0 && (
-    <div className="space-y-3 rounded-lg bg-accent-soft px-4 py-3 text-[0.92rem] leading-[1.7]">
+    <div className="space-y-3 rounded-md bg-accent-soft px-4 py-3 text-[0.92rem] leading-[1.7]">
       {guesses.map((g, i) => (
         <div key={i}>
           <p>
@@ -143,7 +143,7 @@ export function CheckUtterance({
                 <span className="text-xs text-ink-2">直すと　</span>
                 {marked(g.applied, [g.guess], MARK_AFTER)}
               </p>
-              <button type="button" onClick={() => applyGuess(g.applied as string)} className="min-h-9 shrink-0 rounded-full border border-accent px-4 text-[0.86rem] font-semibold text-accent hover:bg-white/60">
+              <button type="button" onClick={() => applyGuess(g.applied as string)} className={BTN_SMALL}>
                 この推測で直す
               </button>
             </div>
@@ -190,17 +190,17 @@ export function CheckUtterance({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-surface px-4 py-4 shadow-[0_1px_2px_rgba(29,27,24,0.04)] sm:px-5">
+    <div className="rounded-md border border-line-2 px-4 py-4 sm:px-5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="font-semibold tabular-nums">{refLabel(u.index)}</span>
-        <span className="inline-flex rounded-full border border-line-2 bg-paper p-0.5 text-[0.86rem]" role="group" aria-label={`${refLabel(u.index)} の話者`}>
+        <span className={SEG} role="group" aria-label={`${refLabel(u.index)} の話者`}>
           {[self, other].map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setSpeaker(s)}
               aria-pressed={u.speaker === s}
-              className={`min-h-8 rounded-full px-3.5 ${u.speaker === s ? "bg-accent font-semibold text-white" : "text-ink-2 hover:text-ink"}`}
+              className={segItem(u.speaker === s, true)}
             >
               {s}
             </button>

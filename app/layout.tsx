@@ -16,12 +16,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ja">
       <body className="min-h-screen bg-paper text-ink">
-        <header className="bg-paper">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-6 gap-y-1.5 px-4 py-3">
-            <Link href="/" className="flex items-center gap-2 text-[1.2rem] font-bold tracking-tight">
-              <Mark className="h-6 w-6" />
-              ReflectionSpark
-            </Link>
+        <header className="mx-auto max-w-3xl px-4 pb-7 pt-4">
+          <Link href="/" className="inline-flex items-center gap-2.5 text-[1.3rem] font-bold tracking-tight">
+            <Mark className="h-7 w-7" />
+            ReflectionSpark
+          </Link>
+          <div className="mt-5">
             <Suspense fallback={null}>
               <StepNav />
             </Suspense>

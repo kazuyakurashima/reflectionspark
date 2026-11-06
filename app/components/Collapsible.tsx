@@ -4,6 +4,8 @@
 
 import { useState } from "react";
 
+import { LINK } from "./ui";
+
 export function Collapsible({
   label,
   openLabel,
@@ -25,7 +27,7 @@ export function Collapsible({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="text-[0.92rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent"
+        className={`text-[0.92rem] ${LINK}`}
       >
         {open ? (openLabel ?? "閉じる") : label}
       </button>
@@ -42,7 +44,7 @@ export function ReadMore({ first, rest }: { first: string; rest: string }) {
   return (
     <p>
       {first}{" "}
-      <button type="button" onClick={() => setOpen(true)} className="text-[0.92rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
+      <button type="button" onClick={() => setOpen(true)} className={`text-[0.92rem] ${LINK}`}>
         続きを読む
       </button>
     </p>

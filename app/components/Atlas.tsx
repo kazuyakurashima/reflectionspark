@@ -11,6 +11,7 @@ import { SPEAKER_LABELS } from "@/engine/types.mts";
 import type { Transcript } from "@/engine/types.mts";
 import type { Chapter, SceneSpan } from "@/app/lib/scene-view.mts";
 import { refLabel, refRangeLabel } from "@/app/lib/words.mts";
+import { BTN_SMALL } from "./ui";
 
 const MID = 50;
 const GUIDE_KEY = "reflectionspark:map-guide-seen";
@@ -74,7 +75,7 @@ export function Atlas({
       </div>
 
       {guide && (
-        <div className="mt-3 rounded-lg bg-accent-soft px-5 py-4 text-[0.92rem] leading-[1.75]">
+        <div className="mt-3 rounded-md bg-accent-soft px-5 py-4 text-[0.92rem] leading-[1.75]">
           <ul className="space-y-1">
             <li>
               <b className="font-semibold">棒 1 本が、1 つの発言。</b>上が{self}、下が{other}で、長いほど長く話しています。
@@ -83,10 +84,10 @@ export function Atlas({
               <b className="font-semibold">丸の数字が、AI の選んだ場面。</b>押すと、その場面が下に出ます。
             </li>
             <li>
-              <b className="font-semibold">マウスを載せると、中身が出ます。</b>棒ならその発言、「話題」の数字ならその話題です（スマホでは押します）。
+              <b className="font-semibold">マウスを載せると、中身が出ます。</b>{chapters.length > 0 ? "棒ならその発言、「話題」の数字ならその話題です" : "棒に載せると、その発言です"}（スマホでは押します）。
             </li>
           </ul>
-          <button type="button" onClick={closeGuide} className="mt-3 min-h-9 rounded-full border border-accent px-5 text-[0.86rem] font-semibold text-accent hover:bg-white/60">
+          <button type="button" onClick={closeGuide} className={`mt-3 ${BTN_SMALL}`}>
             わかった
           </button>
         </div>

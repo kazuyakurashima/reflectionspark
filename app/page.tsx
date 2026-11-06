@@ -1,8 +1,8 @@
 "use client";
 
 // 画面 1：面談内容を入力する。文字起こしを貼り、相手の呼び名を選び、整形（工程 0）の結果を本人が確かめて直す。
-// 確かめる所（確からしさが低い発話、0b で直した所、相手が 2 人以上と推定した所）を先に出し、全文は畳んで後ろに置く。
-// 見た目は画面 2 と同じ決まり（色は app/globals.css、会話は話者ごとの島）。次へのボタンは下に固定する。
+// 整形の結果は、件数だけを先に出す。確かめる所（確からしさが低い発話、0b で直した所、相手が 2 人以上と推定した所）と全文は、本人が開いたときに出す。
+// 見た目の決まりは app/components/ui.ts と app/globals.css。
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +14,7 @@ import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
 import { WaitNote } from "@/app/components/WaitNote";
+import { BTN_PRIMARY, BTN_SECONDARY, CARD, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, SEG, segItem } from "@/app/components/ui";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
@@ -23,11 +24,6 @@ const KINDS: { value: MeetingKind; label: string }[] = [
   { value: "保護者", label: "保護者面談" },
   { value: "コーチング", label: "コーチング（1on1）" },
 ];
-
-const PAGE = "mx-auto max-w-3xl px-4 text-base leading-[1.85] md:text-[1.0625rem]";
-const PRIMARY = "inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-accent px-6 py-2.5 font-semibold text-white hover:bg-accent/90 disabled:bg-line-2 disabled:text-ink-3";
-const SECONDARY = "inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface px-5 text-[0.95rem] hover:border-ink-2 disabled:opacity-40";
-const LABEL = "block text-[0.86rem] text-ink-2";
 
 /** 整形の結果が変わったときに消す、後の工程のデータ */
 const cleared: Pick<SessionData, "analysis" | "selfScore" | "selfNote" | "ownViews" | "answers" | "candidates" | "spark" | "sparkSkipped" | "followUp"> = {
@@ -56,6 +52,8 @@ export default function Screen1() {
     return () => clearInterval(timer);
   }, [startedAt]);
   const elapsed = startedAt === null ? 0 : Math.max(0, Math.floor((now - startedAt) / 1000));
+  /** 確かめる所を開いているか。整形はほとんど合っているので、最初は件数だけを出して畳んでおく */
+  const [detail, setDetail] = useState(false);
 
   if (session === undefined) return <main className={`${PAGE} py-8 text-sm text-ink-2`}>読み込んでいます…</main>;
 
@@ -118,61 +116,44 @@ export default function Screen1() {
   const checkCount = groups ? countChecks(groups) : 0;
   const toCheckCount = groups ? countToCheck(groups) : 0;
 
+  /** 整形の結果を一行ずつ数える（0 件の行は出さない） */
+  const counts = groups
+    ? [
+        { label: "区切りを迷った所", n: groups.unanchored.length },
+        { label: "話者を迷った所", n: groups.speaker.length },
+        { label: "相手が 2 人以上かもしれない所", n: groups.multiple.length },
+        { label: "意味が通らず、推測を付けた所", n: groups.guessed.length },
+        { label: "そのほか", n: groups.other.length },
+        { label: "Claude が聞き違いを直した所", n: groups.corrected.length },
+      ].filter((c) => c.n > 0)
+    : [];
+
   return (
     <main className={PAGE}>
-      <section className="pb-2 pt-6">
-        <h1 className="text-[1.75rem] font-semibold leading-snug">面談内容を入力する</h1>
-        <p className="mt-2 text-ink-2">
-          面談の文字起こしを貼ります。iPhone や Mac のボイスメモの文字起こし（話者の無い文）でかまいません。Claude が発言に区切って話者を付け、あなたが確かめて直します。
-        </p>
-      </section>
+      <section className={CARD}>
+        <h1 className={H1}>面談内容を入力する</h1>
+        <p className={LEAD}>面談の文字起こしを貼ります。ボイスメモの文字起こし（話者の無い文）のままでかまいません。</p>
 
-      {raw.trim() === "" && (
-        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl bg-accent-soft px-5 py-4">
-          <p className="min-w-0 grow basis-72 text-[0.95rem] leading-[1.7]">
-            <span className="font-semibold">手元に文字起こしが無くても試せます。</span>
-            ダミーの面談のサンプルで、1 から 5 まで通せます（ログイン不要）。
-          </p>
-          <button type="button" onClick={loadDemo} className="min-h-11 shrink-0 rounded-full border border-accent bg-surface px-5 text-[0.95rem] font-semibold text-accent hover:bg-white">
-            サンプルを選ぶ（Demo Mode）
-          </button>
-        </div>
-      )}
-
-      <section className="mt-8 space-y-6">
-        <div className="flex flex-wrap gap-x-10 gap-y-5">
+        <div className="mt-7 flex flex-wrap gap-x-8 gap-y-5">
           <div>
             <p className={LABEL} id="kind-label">
               場面の種類
             </p>
-            <div className="mt-1.5 inline-flex flex-wrap rounded-full border border-line-2 bg-surface p-0.5 text-[0.92rem]" role="group" aria-labelledby="kind-label">
+            <div className={`mt-1.5 ${SEG}`} role="group" aria-labelledby="kind-label">
               {KINDS.map((k) => (
-                <button
-                  key={k.value}
-                  type="button"
-                  onClick={() => kind !== k.value && setInput({ kind: k.value })}
-                  aria-pressed={kind === k.value}
-                  className={`min-h-10 rounded-full px-4 ${kind === k.value ? "bg-accent font-semibold text-white" : "text-ink-2 hover:text-ink"}`}
-                >
+                <button key={k.value} type="button" onClick={() => kind !== k.value && setInput({ kind: k.value })} aria-pressed={kind === k.value} className={segItem(kind === k.value)}>
                   {k.label}
                 </button>
               ))}
             </div>
           </div>
           <label className="block">
-            <span className={LABEL}>
-              相手の呼び名<span className="ml-2 text-ink-3">記録を相手ごとにつなぐ札</span>
-            </span>
-            <input
-              value={otherName}
-              onChange={(e) => setInput({ otherName: e.target.value })}
-              placeholder="例：Aさん"
-              className="mt-1.5 block min-h-11 w-56 rounded-lg border border-line-2 bg-surface px-3.5 text-[0.98rem] placeholder:text-ink-3 focus:border-accent focus:outline-none"
-            />
+            <span className={LABEL}>相手の呼び名</span>
+            <input value={otherName} onChange={(e) => setInput({ otherName: e.target.value })} placeholder="例：Aさん" className={`mt-1.5 block min-h-12 w-52 ${FIELD}`} />
           </label>
         </div>
 
-        <label className="block">
+        <label className="mt-6 block">
           <span className="flex items-baseline justify-between gap-3">
             <span className={LABEL}>文字起こし</span>
             <span className="text-xs tabular-nums text-ink-3">{[...raw].length} 字</span>
@@ -180,90 +161,95 @@ export default function Screen1() {
           <textarea
             value={raw}
             onChange={(e) => setInput({ raw: e.target.value })}
-            rows={transcript ? 5 : 10}
+            rows={transcript ? 4 : 9}
             placeholder="ここに貼る。実在の人の名前が入っていないかを確かめてください。"
-            className="mt-1.5 block w-full rounded-xl border border-line-2 bg-surface px-4 py-3 text-[0.95rem] leading-[1.8] placeholder:text-ink-3 focus:border-accent focus:outline-none"
+            className={`mt-1.5 block w-full ${FIELD}`}
           />
         </label>
 
-        <div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <button type="button" onClick={format} disabled={busy || raw.trim() === ""} className={transcript ? SECONDARY : PRIMARY}>
-              {busy ? "整形しています…" : transcript ? "もう一度整形する" : "整形する"}
-            </button>
-            {busy ? (
-              <span className="text-[0.86rem] text-ink-2" aria-live="polite">
-                {elapsed < 5 ? "読んでいます" : "発言に区切って話者を付けています"}（{elapsed} 秒）
-              </span>
-            ) : (
-              <span className="text-[0.86rem] text-ink-2">
-                {transcript ? "文字起こしを貼り替えたときに押します。" : "発言に区切って、話者を付けます（1 分ほど）。"}
-                {raw.trim() !== "" && (
-                  <button type="button" onClick={loadDemo} className="ml-3 text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink">
-                    サンプルに入れ替える（Demo Mode）
-                  </button>
-                )}
-              </span>
-            )}
-          </div>
-          {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
-          {error && <p className="mt-2 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={format} disabled={busy || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
+            {busy ? "整形しています…" : transcript ? "もう一度整形する" : "整形する"}
+          </button>
+          <button type="button" onClick={loadDemo} disabled={busy} className={BTN_SECONDARY}>
+            サンプルを選ぶ（Demo Mode）
+          </button>
+          {busy && (
+            <span className="text-[0.86rem] text-ink-2" aria-live="polite">
+              {elapsed < 5 ? "読んでいます" : "発言に区切って話者を付けています"}（{elapsed} 秒）
+            </span>
+          )}
         </div>
+        {!transcript && !busy && <p className="mt-3 text-[0.86rem] text-ink-3">「整形する」を押すと、Claude が発言に区切って話者を付けます（1 分ほど）。サンプルは作りものの面談で、ログイン不要で 1 から 5 まで試せます。</p>}
+        {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
+        {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
       </section>
 
-      {transcript && (
-        <>
-          <section className="mt-16">
-            {mock && (
-              <p className="mb-6 rounded-lg border border-line-2 bg-surface px-4 py-3 text-[0.92rem] leading-[1.7]">
-                API キーが無いので、仮の出力です。話者は文の区切りだけで交互に付けてあり、本物の整形ではありません。
-              </p>
-            )}
-            <h2 className="flex flex-wrap items-baseline gap-x-3 text-[1.35rem] font-semibold leading-snug">
-              確かめる所
-              <span className="text-base font-normal tabular-nums text-ink-2">{toCheckCount} 件</span>
-              {ms !== null && <span className="text-xs font-normal tabular-nums text-ink-3">整形 {Math.round(ms / 100) / 10} 秒</span>}
-            </h2>
-            <p className="mt-2 text-[0.95rem] text-ink-2">
-              話者と区切りで Claude が迷った所と、意味が通らず推測を付けた所を、一つずつ出します。その下に、Claude が聞き違いを直した所の一覧があります。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残します。
-            </p>
-            <p className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink-3">
-              <span>
-                <span className="font-semibold text-ink underline decoration-accent decoration-2 underline-offset-[5px]">太字の下線</span>　Claude が直した後の言葉
-              </span>
-              <span>
-                <span className="text-ink underline decoration-ink-3 decoration-wavy decoration-1 underline-offset-[5px]">波線</span>　直す前の言葉と、意味が通らないと見た所
-              </span>
-            </p>
-            {checkCount === 0 && <p className="mt-4 text-[0.95rem]">0 件です。0 件は、聞き違いが無いことの証明ではありません。全文も一度は目を通してください。</p>}
-            {transcript.step0c === null && <p className="mt-2 text-xs text-ink-3">意味が通らない所の推測は別に読んでいます。届いたら発言に添えます（分析には使いません）。</p>}
-            {groups && <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} className="mt-10" />}
-          </section>
+      {transcript && groups && (
+        <section className={`mt-6 ${CARD}`}>
+          {mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、仮の出力です。話者は文の区切りだけで交互に付けてあり、本物の整形ではありません。</p>}
+          <h2 className={H2}>
+            {transcript.utterances.length} の発言に区切り、話者を付けました
+            {ms !== null && <span className="ml-3 text-xs font-normal tabular-nums text-ink-3">{Math.round(ms / 100) / 10} 秒</span>}
+          </h2>
+          <p className={LEAD}>このまま次へ進めます。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残り、次の画面でも見られます。</p>
 
-          <section className="mt-16">
-            <h2 className="flex items-baseline gap-3 text-[1.35rem] font-semibold leading-snug">
-              全文
-              <span className="text-base font-normal tabular-nums text-ink-2">発言 {transcript.utterances.length} 回</span>
-            </h2>
-            <p className="mt-2 text-[0.95rem] text-ink-2">整形した後の面談の全部です。発言にマウスを載せると、「話者を替える」「本文を直す」が出ます（スマホではいつも出ています）。</p>
-            <Collapsible label="全文を開く" openLabel="全文を閉じる" className="mt-3">
-              <div className="mt-4 space-y-3">
-                {transcript.utterances.map((u) => (
-                  <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
-                ))}
-              </div>
-            </Collapsible>
-          </section>
+          {counts.length > 0 ? (
+            <ul className="mt-4 flex flex-wrap gap-x-8 gap-y-1 text-[0.92rem] text-ink-2">
+              {counts.map((c) => (
+                <li key={c.label}>
+                  {c.label}
+                  <span className="ml-2 font-semibold tabular-nums text-ink">{c.n}</span> 件
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-[0.92rem] text-ink-2">確かめる所は 0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>
+          )}
+          {transcript.step0c === null && <p className="mt-2 text-xs text-ink-3">意味が通らない所の推測は別に読んでいます。届いたら発言に添えます（分析には使いません）。</p>}
 
-          <div className="sticky bottom-0 z-10 -mx-4 mt-12 border-t border-line bg-paper/90 px-4 py-3 backdrop-blur-md">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <button type="button" onClick={goNext} className={PRIMARY}>
-                次へ　2. フィードバックを読む
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={goNext} className={BTN_PRIMARY}>
+              次へ　フィードバックを読む
+            </button>
+            {checkCount > 0 && (
+              <button type="button" onClick={() => setDetail((d) => !d)} aria-expanded={detail} className={BTN_SECONDARY}>
+                {detail ? "確かめる所を閉じる" : `確かめて直す（${toCheckCount + groups.corrected.length} 件）`}
               </button>
-              <span className="hidden text-[0.86rem] text-ink-2 sm:inline">次の画面で、AI が面談を読みます（1 分ほど）。</span>
-            </div>
+            )}
           </div>
-        </>
+
+          {detail && (
+            <div className="mt-10">
+              <p className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink-3">
+                <span>
+                  <span className="font-semibold text-ink underline decoration-accent decoration-2 underline-offset-[5px]">太字の下線</span>　Claude が直した後の言葉
+                </span>
+                <span>
+                  <span className="text-ink underline decoration-ink-3 decoration-wavy decoration-1 underline-offset-[5px]">波線</span>　直す前の言葉と、意味が通らないと見た所
+                </span>
+              </p>
+              <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} className="mt-8" />
+              <div className="mt-10 flex flex-wrap items-center gap-3">
+                <button type="button" onClick={goNext} className={BTN_PRIMARY}>
+                  次へ　フィードバックを読む
+                </button>
+                <button type="button" onClick={() => setDetail(false)} className={BTN_SECONDARY}>
+                  確かめる所を閉じる
+                </button>
+              </div>
+            </div>
+          )}
+
+          <Collapsible label={`全文を見る（発言 ${transcript.utterances.length} 回）`} openLabel="全文を閉じる" className="mt-6">
+            <p className="text-[0.86rem] text-ink-3">発言にマウスを載せると、「話者を替える」「本文を直す」が出ます（スマホではいつも出ています）。</p>
+            <div className="mt-4 space-y-3">
+              {transcript.utterances.map((u) => (
+                <CheckUtterance key={u.index} t={transcript} u={u} onChange={update} onSplit={split} />
+              ))}
+            </div>
+          </Collapsible>
+        </section>
       )}
     </main>
   );

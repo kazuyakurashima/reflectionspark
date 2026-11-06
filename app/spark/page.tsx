@@ -10,9 +10,11 @@ import { useEffect, useRef, useState } from "react";
 
 import type { CandidatesResponse } from "@/engine/server.mts";
 import type { Candidate } from "@/engine/types.mts";
-import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { Collapsible } from "@/app/components/Collapsible";
+import { RefChip, RefText } from "@/app/components/RefText";
 import { WaitNote } from "@/app/components/WaitNote";
+import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, CARD, FIELD, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
+import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
 import type { SparkChoice } from "@/app/lib/session";
 
@@ -57,14 +59,16 @@ export default function Screen4() {
     })();
   }, [session, transcript, nextScene, candidates, retry]);
 
-  if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
+  if (session === undefined) return <main className={`${PAGE} text-sm text-ink-2`}>読み込んでいます…</main>;
   if (!session || !analysis || !transcript) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-6">
-        <p className="text-sm">先に画面 2 でフィードバックを読み、画面 3 で問いに答えてください。</p>
-        <Link href="/reflection" className="text-sm text-sky-800 underline">
-          画面 2 へ
-        </Link>
+      <main className={PAGE}>
+        <section className={CARD}>
+          <p>先に「2 読む」でフィードバックを読み、「3 問いに答える」で問いに答えてください。</p>
+          <Link href="/reflection" className={`mt-2 inline-block ${LINK}`}>
+            2 読む へ
+          </Link>
+        </section>
       </main>
     );
   }
@@ -95,99 +99,114 @@ export default function Screen4() {
   const spark = session.spark;
   const cands = candidates?.step3.candidates ?? [];
 
+  const quote = nextScene?.quotes[0] ?? null;
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-xl font-bold">
-        4. 次に試すひとつ <span className="ml-1 text-xs font-normal text-stone-500">Your Spark</span>
-      </h1>
-      <p className="mt-1 text-sm text-stone-600">次の一回で試す行動を一つだけ持ち帰ります。候補から選ぶ、直して使う、見送る、はあなたが決めます。</p>
+    <main className={PAGE}>
+      <section className={CARD}>
+        <h1 className={H1}>
+          次に試すひとつ<span className="ml-3 text-[0.86rem] font-normal text-ink-3">Your Spark</span>
+        </h1>
+        <p className={LEAD}>次の面談で試す行動を、一つだけ持ち帰ります。候補から選ぶ、直して使う、見送る、はあなたが決めます。</p>
 
-      {nextScene && (
-        <section className="mt-4 rounded border border-stone-200 bg-white p-4 text-sm">
-          <p className="text-xs text-stone-500">次に試せる所</p>
-          <p>{nextScene.context}</p>
-          {nextScene.quotes[0] && <p className="mt-1 text-stone-700">「{nextScene.quotes[0].text}」（{utteranceLabel(nextScene.quotes[0].index)}）</p>}
-        </section>
-      )}
+        {nextScene && (
+          <div className="mt-6 rounded-md bg-paper px-5 py-4">
+            <p className="text-xs font-semibold text-ink-3">{sceneTypeLabel(nextScene.type)}</p>
+            <p className="mt-1 text-[0.98rem]">
+              <RefText t={transcript} text={nextScene.context} />
+            </p>
+            {quote && (
+              <p className="mt-2 text-[0.98rem] text-ink-2">
+                「{quote.text}」
+                <RefChip t={transcript} index={quote.index} className="ml-1 text-xs">
+                  {refLabel(quote.index)}
+                </RefChip>
+              </p>
+            )}
+          </div>
+        )}
 
-      {spark && (
-        <section className="mt-4 rounded border-2 border-amber-400 bg-amber-50 p-4">
-          <p className="text-xs text-amber-900">持ち帰るひとつ{spark.edited ? "（直して使う）" : ""}</p>
-          <p className="mt-1 font-semibold">{spark.sentence}</p>
-          {spark.criterion && <p className="mt-1 text-sm text-stone-700">できたかの基準：{spark.criterion}</p>}
-        </section>
-      )}
-      {session.sparkSkipped && !spark && <p className="mt-4 rounded border border-stone-300 bg-white px-3 py-2 text-sm">今回は見送りました。次の面談では追跡しません。</p>}
+        {spark && (spark.edited || !cands.some((c) => c.sentence === spark.sentence)) && (
+          <div className={`mt-6 ${SPARK_BOX}`}>
+            <p className="text-xs font-semibold text-amber-900">持ち帰るひとつ{spark.edited ? "（直して使う）" : ""}</p>
+            <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{spark.sentence}</p>
+            {spark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{spark.criterion}</p>}
+          </div>
+        )}
+        {session.sparkSkipped && !spark && <p className={`mt-6 ${NOTE}`}>今回は見送りました。次の面談では追跡しません。</p>}
 
-      <section className="mt-5">
-        <h2 className="font-bold">候補</h2>
-        {candidates?.mock && <p className="mt-1 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">API キーが無いので、仮の出力です。候補の文は仮です。</p>}
+        <h2 className={`mt-10 ${H2}`}>候補</h2>
+        {candidates?.mock && <p className={`mt-3 ${NOTE}`}>API キーが無いので、仮の出力です。候補の文は仮です。</p>}
         {!nextScene && (
-          <p className="mt-2 rounded border border-stone-300 bg-white px-3 py-2 text-sm">
-            この面談では「次に試せる所」の場面が挙がっていないので、候補はありません。候補は、その場面とあなたの答えから作るためです。今回は見送って、次の面談へ進めます。
-          </p>
+          <p className={`mt-3 ${NOTE}`}>この面談では「次に試せる場面」が挙がっていないので、候補はありません。候補は、その場面とあなたの答えから作るためです。今回は見送って、先へ進めます。</p>
         )}
         {error && (
-          <div className="mt-2 rounded border border-red-200 bg-white px-3 py-2 text-sm">
+          <div className={`mt-3 ${NOTE}`}>
             <p className="text-red-700">候補を作れませんでした：{error}</p>
-            <button type="button" onClick={recreate} className="mt-2 rounded border border-stone-300 px-3 py-1">
+            <button type="button" onClick={recreate} className={`mt-2 ${BTN_SMALL}`}>
               もう一度作る
             </button>
           </div>
         )}
         {nextScene && !candidates && !error && (
-          <div className="mt-2">
-            <p className="text-sm text-stone-500">候補を作っています…</p>
+          <div className="mt-3">
+            <p className="font-semibold">候補を作っています…</p>
             <WaitNote time="20〜30 秒ほど" reopen="この画面を開き直すと、もう一度作ります。" />
           </div>
         )}
         {candidates && cands.length === 0 && !error && (
-          <div className="mt-2 rounded border border-stone-300 bg-white px-3 py-2 text-sm">
+          <div className={`mt-3 ${NOTE}`}>
             <p>次の面談の文字起こしで確かめられる候補が、一つも残りませんでした。</p>
-            <button type="button" onClick={recreate} className="mt-2 rounded border border-stone-300 px-3 py-1">
+            <button type="button" onClick={recreate} className={`mt-2 ${BTN_SMALL}`}>
               もう一度作る
             </button>
           </div>
         )}
-        <div className="mt-2 space-y-3">
+        <div className="mt-4 space-y-4">
           {cands.map((c, i) => {
             const chosen = spark !== null && !spark.edited && spark.sentence === c.sentence;
             return (
-              <div key={i} className={`rounded border p-4 ${chosen ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white"}`}>
-                <p className="text-sm font-semibold">{c.sentence}</p>
-                {c.basis && <p className="mt-1 text-xs text-stone-500">どこから作ったか：{c.basis}</p>}
+              <div key={i} className={`rounded-md border px-5 py-4 ${chosen ? "border-amber-300 bg-amber-50" : "border-line-2"}`}>
+                {chosen && <p className="mb-1 text-xs font-semibold text-amber-900">持ち帰るひとつ</p>}
+                <p className="text-[1.02rem] font-semibold leading-[1.7]">{c.sentence}</p>
+                {c.basis && (
+                  <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">
+                    どこから作ったか：
+                    <RefText t={transcript} text={c.basis} />
+                  </p>
+                )}
                 <Collapsible label="セリフの例と、できたかの基準を開く" className="mt-2">
-                  <p className="text-xs text-stone-500">セリフの例</p>
-                  <ul className="list-disc pl-5 text-sm">
+                  <p className="text-xs font-semibold text-ink-3">セリフの例</p>
+                  <ul className="mt-1 space-y-0.5 text-[0.95rem]">
                     {c.lines.map((l, j) => (
                       <li key={j}>「{l}」</li>
                     ))}
                   </ul>
-                  <p className="mt-2 text-xs text-stone-500">できたかの基準（次の面談で何が言葉に表れたら「できた」か）</p>
-                  <p className="text-sm">{c.criterion}</p>
+                  <p className="mt-3 text-xs font-semibold text-ink-3">できたかの基準（次の面談で何が言葉に表れたら「できた」か）</p>
+                  <p className="mt-1 text-[0.95rem]">{c.criterion}</p>
                 </Collapsible>
                 {editing === i ? (
-                  <div className="mt-3 space-y-2">
-                    <label className="block text-xs text-stone-600">
-                      一文（もし〜なら、〜する）
-                      <textarea value={draftSentence} onChange={(e) => setDraftSentence(e.target.value)} rows={2} className="mt-1 w-full rounded border border-stone-300 p-2 text-sm" />
+                  <div className="mt-4 space-y-3">
+                    <label className="block">
+                      <span className={LABEL}>一文（もし〜なら、〜する）</span>
+                      <textarea value={draftSentence} onChange={(e) => setDraftSentence(e.target.value)} rows={2} className={`mt-1.5 block w-full ${FIELD}`} />
                     </label>
-                    <label className="block text-xs text-stone-600">
-                      できたかの基準
-                      <textarea value={draftCriterion} onChange={(e) => setDraftCriterion(e.target.value)} rows={2} className="mt-1 w-full rounded border border-stone-300 p-2 text-sm" />
+                    <label className="block">
+                      <span className={LABEL}>できたかの基準</span>
+                      <textarea value={draftCriterion} onChange={(e) => setDraftCriterion(e.target.value)} rows={2} className={`mt-1.5 block w-full ${FIELD}`} />
                     </label>
-                    <div className="flex gap-2 text-sm">
-                      <button type="button" onClick={() => choose(c, i, { sentence: draftSentence.trim(), criterion: draftCriterion.trim() })} disabled={draftSentence.trim() === ""} className="rounded bg-amber-600 px-3 py-1 text-white disabled:opacity-40">
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" onClick={() => choose(c, i, { sentence: draftSentence.trim(), criterion: draftCriterion.trim() })} disabled={draftSentence.trim() === ""} className={BTN_SMALL_PRIMARY}>
                         この文で持ち帰る
                       </button>
-                      <button type="button" onClick={() => setEditing(null)} className="rounded border border-stone-300 px-3 py-1">
+                      <button type="button" onClick={() => setEditing(null)} className={BTN_SMALL}>
                         やめる
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-3 flex gap-2 text-sm">
-                    <button type="button" onClick={() => choose(c, i, null)} className="rounded bg-amber-600 px-3 py-1 text-white">
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => choose(c, i, null)} className={BTN_SMALL_PRIMARY}>
                       {chosen ? "これにした" : "これにする"}
                     </button>
                     <button
@@ -197,7 +216,7 @@ export default function Screen4() {
                         setDraftSentence(c.sentence);
                         setDraftCriterion(c.criterion);
                       }}
-                      className="rounded border border-stone-300 px-3 py-1"
+                      className={BTN_SMALL}
                     >
                       直して使う
                     </button>
@@ -208,17 +227,18 @@ export default function Screen4() {
           })}
         </div>
         {/* 候補が無いとき・作れなかったときも、見送って先へ進める */}
-        <button type="button" onClick={skip} className="mt-3 block text-sm text-stone-600 underline underline-offset-2">
+        <button type="button" onClick={skip} className={`mt-4 block text-[0.92rem] ${QUIET_LINK}`}>
           今回は見送る（持ち帰らない）
         </button>
-      </section>
 
-      <div className="mt-6 flex items-center gap-3">
-        <button type="button" onClick={() => router.push("/next")} disabled={!spark && !session.sparkSkipped} className="rounded bg-sky-800 px-4 py-2 text-sm text-white disabled:opacity-40">
-          次へ：次の面談で →
-        </button>
-        <span className="text-xs text-stone-500">選ぶか見送るかを決めると進めます。</span>
-      </div>
+        <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <button type="button" onClick={() => router.push("/next")} disabled={!spark && !session.sparkSkipped} className={BTN_PRIMARY}>
+            次へ　次の面談で
+          </button>
+          {!spark && !session.sparkSkipped && <span className="text-[0.86rem] text-ink-3">選ぶか見送るかを決めると進めます。</span>}
+        </div>
+        <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">今日の振り返りはここまでです。「5 次の面談で」は、次の面談が終わってから、その文字起こしを貼って使います。サンプルでは、続きの面談でそのまま試せます。</p>
+      </section>
     </main>
   );
 }
