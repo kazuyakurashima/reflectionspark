@@ -3,7 +3,7 @@
 
 export function WaitNote({ time, reopen }: { time: string; reopen: string }) {
   return (
-    <p className="mt-1 text-xs text-stone-500" aria-live="polite">
+    <p className="mt-1 text-xs leading-relaxed text-ink-3" aria-live="polite">
       {time}かかります（長い面談ではもっとかかります）。このタブは開いたままにしてください。待つ間、ほかの作業をしていてかまいません。タブを閉じたときは、{reopen}
     </p>
   );

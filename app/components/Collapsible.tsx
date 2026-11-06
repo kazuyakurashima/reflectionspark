@@ -25,7 +25,7 @@ export function Collapsible({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="text-sm text-sky-800 underline-offset-2 hover:underline"
+        className="text-[0.92rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent"
       >
         {open ? (openLabel ?? "閉じる") : label}
       </button>
@@ -42,7 +42,7 @@ export function ReadMore({ first, rest }: { first: string; rest: string }) {
   return (
     <p>
       {first}{" "}
-      <button type="button" onClick={() => setOpen(true)} className="text-sm text-sky-800 underline-offset-2 hover:underline">
+      <button type="button" onClick={() => setOpen(true)} className="text-[0.92rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
         続きを読む
       </button>
     </p>
