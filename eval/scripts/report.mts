@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { Step0Timing } from "../../engine/step0.mts";
-import type { Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "../../engine/types.mts";
+import type { CallMeta, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "../../engine/types.mts";
 import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, step0Variance } from "../lib/axes.mts";
 import type { Axis1, Axis11, Axis12, Axis2, Axis5, Axis6, Axis8, Axis9, Step0Variance } from "../lib/axes.mts";
 import { loadCase, loadJson, RUNS_DIR, saveJson } from "../lib/cases.mts";
@@ -30,6 +30,17 @@ const truthDir = argOf("--truth") ? path.resolve(argOf("--truth")!) : undefined;
 const outDir = path.resolve(argOf("--out") ?? runsDir);
 const onlyCases = argOf("--cases")?.split(",") ?? null;
 const e2eArg = argOf("--e2e");
+
+// 判定の使用量（トークン数だけ）。最後に 1 行出す
+const judgeUsage = { calls: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+function counted<T extends { meta: CallMeta }>(j: T): T {
+  judgeUsage.calls += 1;
+  judgeUsage.inputTokens += j.meta.inputTokens;
+  judgeUsage.outputTokens += j.meta.outputTokens;
+  judgeUsage.cacheReadTokens += j.meta.cacheReadTokens;
+  judgeUsage.cacheWriteTokens += j.meta.cacheWriteTokens;
+  return j;
+}
 type Step0File = { transcript: Transcript; timing: Step0Timing; unanchored: number };
 
 type CaseAxes = {
@@ -86,10 +97,10 @@ for (const name of listTruthCases(truthDir).filter((n) => !onlyCases || onlyCase
     ax.axis3 = [];
     ax.axis10 = [];
     for (const sc of s1.scenes) {
-      const q = await judgeQuestion(sc, t);
+      const q = counted(await judgeQuestion(sc, t));
       ax.axis3.push({ scene: sc.type, score: q.score, reason: q.reason });
       if (sc.quotes.length) {
-        const s = await judgeQuoteSupport(sc, t);
+        const s = counted(await judgeQuoteSupport(sc, t));
         ax.axis10.push({ scene: sc.type, score: s.score, reason: s.reason });
       }
     }
@@ -98,7 +109,7 @@ for (const name of listTruthCases(truthDir).filter((n) => !onlyCases || onlyCase
     ax.guessMeaning = [];
     for (const g of ax.axis12.guesses) {
       if (g.kind !== "崩れ" || !g.scriptWindow) continue;
-      const j = await judgeGuessMeaning(g.fragment, g.guess, g.scriptWindow);
+      const j = counted(await judgeGuessMeaning(g.fragment, g.guess, g.scriptWindow));
       ax.guessMeaning.push({ fragment: g.fragment, guess: g.guess, score: j.score, reason: j.reason });
     }
   }
@@ -188,7 +199,7 @@ if (e2eArg === "none") {
   const axis4: { sentence: string; score: number | null; reason: string }[] = [];
   for (const c of e2e.step3.candidates) {
     if (judgeE2e && nextScene) {
-      const j = await judgeAction(c, e2e.answer, nextScene);
+      const j = counted(await judgeAction(c, e2e.answer, nextScene));
       axis4.push({ sentence: c.sentence, score: j.score, reason: j.reason });
     } else axis4.push({ sentence: c.sentence, score: null, reason: judgeE2e ? "次に試せる所が無い" : "（--judge で判定）" });
   }
@@ -276,3 +287,4 @@ const out = path.join(outDir, "report.md");
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(out, lines.join("\n"));
 console.log(lines.join("\n"));
+console.log(`判定の使用量 ${JSON.stringify(judgeUsage)}`);

@@ -1,0 +1,1104 @@
+{
+  "case": "trap-noevidence",
+  "axis1": {
+    "generated": 2,
+    "discarded": 0,
+    "displayed": 2,
+    "displayedVerified": 2,
+    "displayedMatchRate": 1,
+    "scenesWithoutQuote": 0,
+    "contextWithJudgement": [],
+    "neighborsMissing": 0
+  },
+  "axis2": {
+    "aiScenes": [
+      {
+        "type": "よく表れた所",
+        "items": [
+          2
+        ],
+        "utterances": [
+          16
+        ],
+        "lines": [
+          17
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "items": [
+          1,
+          4
+        ],
+        "utterances": [
+          88
+        ],
+        "lines": [
+          92
+        ]
+      }
+    ],
+    "scenes": [],
+    "climax": null,
+    "items": [
+      {
+        "item": 1,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      },
+      {
+        "item": 2,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      },
+      {
+        "item": 3,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      },
+      {
+        "item": 4,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      },
+      {
+        "item": 5,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      }
+    ]
+  },
+  "axis3": [
+    {
+      "scene": "よく表れた所",
+      "score": 4,
+      "reason": "開かれた一つの問いで、発話16〜18の場面に即している。ただ「保護者の予定のほかに」と、ほかにも確かめたいことがあった前提を置いている点が少し誘導寄りで、誘導しないという観点は大きくは外れないものの、完全には満たしていない。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "開かれた一つの問いで、時間の制約という意図した選択も尊重しており、答えも先に言っていない。ただし、発話 88 の英検や中二といった具体に触れず「先の見通しを口にしたとき」と一般化しているため、引用の場面への即し方がやや弱い。"
+    }
+  ],
+  "axis5": {
+    "hits": [],
+    "withheld": [],
+    "unverifiedQuotes": 0,
+    "scoresInStep1": true,
+    "scoresPerItem": true
+  },
+  "axis6": null,
+  "axis8": {
+    "firstMeeting": true,
+    "item5Withheld": true,
+    "withheldAsTruth": [
+      {
+        "item": 1,
+        "truth": true,
+        "ai": false
+      },
+      {
+        "item": 2,
+        "truth": true,
+        "ai": false
+      },
+      {
+        "item": 3,
+        "truth": true,
+        "ai": false
+      },
+      {
+        "item": 4,
+        "truth": true,
+        "ai": true
+      },
+      {
+        "item": 5,
+        "truth": true,
+        "ai": true
+      }
+    ],
+    "truthNoScene": true,
+    "saidNoScene": false
+  },
+  "axis9": {
+    "pairs": [],
+    "satisfied": 0,
+    "countable": 0,
+    "pairsIncludingDraft": 0,
+    "absentItems": []
+  },
+  "axis10": [
+    {
+      "scene": "よく表れた所",
+      "score": 4,
+      "reason": "二つの方法を示して午後の予定を確かめる流れは発話16と発話17で確かめられ、読みの前半も引用から導けるが、観察の発話18、反応の発話19、読みの後半の発話92・93は示された前後の発話の外にあり、その部分は引用の外の文脈に頼っている。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 3,
+      "reason": "観察は発話88と89に沿っていますが、反応の欄は直後の講師の発話89ではなく、示されていない発話90と91を根拠にしているため前後の発話と合いません。読みの「数少ない所」「目標につながる入口」も引用の外の判断に頼っています。"
+    }
+  ],
+  "axis11": {
+    "utterances": 101,
+    "aligned": 101,
+    "correct": 101,
+    "accuracy": 1,
+    "byConfidence": [
+      {
+        "confidence": "高",
+        "count": 94,
+        "wrong": 0
+      },
+      {
+        "confidence": "中",
+        "count": 7,
+        "wrong": 0
+      },
+      {
+        "confidence": "低",
+        "count": 0,
+        "wrong": 0
+      }
+    ],
+    "spanningSpeakers": 1,
+    "multipleOthers": false,
+    "wrong": []
+  },
+  "axis12": {
+    "corrections": [
+      {
+        "index": 2,
+        "kind": "同音の取り違え",
+        "before": "登記講習",
+        "after": "冬期講習",
+        "verdict": "拾えた",
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 2,
+        "kind": "崩れた語",
+        "before": "15分。どいただければ",
+        "after": "15分ほどいただければ",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "十五分ほどいただければ"
+      },
+      {
+        "index": 4,
+        "kind": "同音の取り違え",
+        "before": "登記講習",
+        "after": "冬期講習",
+        "verdict": "拾えた",
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 4,
+        "kind": "数字や英字の表記",
+        "before": "12月二十5日",
+        "after": "12月25日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "十二月二十五日"
+      },
+      {
+        "index": 16,
+        "kind": "同音の取り違え",
+        "before": "補修",
+        "after": "補習",
+        "verdict": "拾えた",
+        "scriptWindow": "補習"
+      },
+      {
+        "index": 18,
+        "kind": "同音の取り違え",
+        "before": "補修",
+        "after": "補習",
+        "verdict": "拾えた",
+        "scriptWindow": "補習"
+      },
+      {
+        "index": 26,
+        "kind": "同音の取り違え",
+        "before": "政府の数",
+        "after": "正負の数",
+        "verdict": "拾えた",
+        "scriptWindow": "正負の数"
+      },
+      {
+        "index": 40,
+        "kind": "数字や英字の表記",
+        "before": "122時",
+        "after": "12時",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "十二時"
+      },
+      {
+        "index": 46,
+        "kind": "同音の取り違え",
+        "before": "出血",
+        "after": "出欠",
+        "verdict": "拾えた",
+        "scriptWindow": "出欠"
+      },
+      {
+        "index": 66,
+        "kind": "崩れた語",
+        "before": "も試",
+        "after": "模試",
+        "verdict": "拾えた",
+        "scriptWindow": "模試"
+      },
+      {
+        "index": 69,
+        "kind": "崩れた語",
+        "before": "も試",
+        "after": "模試",
+        "verdict": "拾えた",
+        "scriptWindow": "模試"
+      },
+      {
+        "index": 69,
+        "kind": "同音の取り違え",
+        "before": "帰ってきます",
+        "after": "返ってきます",
+        "verdict": "拾えた",
+        "scriptWindow": "返ってきます"
+      },
+      {
+        "index": 73,
+        "kind": "同音の取り違え",
+        "before": "ジム",
+        "after": "事務",
+        "verdict": "拾えた",
+        "scriptWindow": "事務"
+      },
+      {
+        "index": 73,
+        "kind": "数字や英字の表記",
+        "before": "二十 7日",
+        "after": "27日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "二十七日"
+      },
+      {
+        "index": 73,
+        "kind": "数字や英字の表記",
+        "before": "二十5日",
+        "after": "25日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "二十五日"
+      },
+      {
+        "index": 77,
+        "kind": "数字や英字の表記",
+        "before": "二十 7日",
+        "after": "27日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "二十七日"
+      },
+      {
+        "index": 78,
+        "kind": "数字や英字の表記",
+        "before": "二十 7日",
+        "after": "27日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "二十七日"
+      },
+      {
+        "index": 78,
+        "kind": "数字や英字の表記",
+        "before": "二十5日",
+        "after": "25日",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "二十五日"
+      },
+      {
+        "index": 88,
+        "kind": "同音の取り違え",
+        "before": "産休",
+        "after": "3級",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "三級"
+      },
+      {
+        "index": 92,
+        "kind": "同音の取り違え",
+        "before": "補修",
+        "after": "補習",
+        "verdict": "拾えた",
+        "scriptWindow": "補習"
+      }
+    ],
+    "applied": 20,
+    "discarded": 0,
+    "picked": 11,
+    "overfixedOriginalCorrect": 0,
+    "overfixedWrongWord": 9,
+    "unaligned": 0,
+    "pickedByKind": {
+      "同音の取り違え": 9,
+      "崩れた語": 2
+    },
+    "mismatchSpots": 134,
+    "mismatchTouched": 21,
+    "missed": [
+      {
+        "line": 5,
+        "memoText": "0"
+      },
+      {
+        "line": 5,
+        "memoText": "12"
+      },
+      {
+        "line": 5,
+        "memoText": "2"
+      },
+      {
+        "line": 5,
+        "memoText": "4"
+      },
+      {
+        "line": 6,
+        "memoText": "時"
+      },
+      {
+        "line": 7,
+        "memoText": "0"
+      },
+      {
+        "line": 7,
+        "memoText": "12"
+      },
+      {
+        "line": 7,
+        "memoText": "3"
+      },
+      {
+        "line": 8,
+        "memoText": "3"
+      },
+      {
+        "line": 9,
+        "memoText": "1日 2"
+      },
+      {
+        "line": 9,
+        "memoText": "50"
+      },
+      {
+        "line": 9,
+        "memoText": "2"
+      },
+      {
+        "line": 9,
+        "memoText": "0"
+      },
+      {
+        "line": 9,
+        "memoText": "3"
+      },
+      {
+        "line": 9,
+        "memoText": "1"
+      },
+      {
+        "line": 10,
+        "memoText": "わ"
+      },
+      {
+        "line": 11,
+        "memoText": "12月 31"
+      },
+      {
+        "line": 11,
+        "memoText": "1月 3"
+      },
+      {
+        "line": 11,
+        "memoText": "1月 4"
+      },
+      {
+        "line": 11,
+        "memoText": "6"
+      },
+      {
+        "line": 11,
+        "memoText": "9"
+      },
+      {
+        "line": 12,
+        "memoText": "30"
+      },
+      {
+        "line": 13,
+        "memoText": "30"
+      },
+      {
+        "line": 14,
+        "memoText": "30"
+      },
+      {
+        "line": 14,
+        "memoText": "多分"
+      },
+      {
+        "line": 15,
+        "memoText": "30"
+      },
+      {
+        "line": 17,
+        "memoText": "30"
+      },
+      {
+        "line": 19,
+        "memoText": "1"
+      },
+      {
+        "line": 19,
+        "memoText": "7"
+      },
+      {
+        "line": 19,
+        "memoText": "40"
+      },
+      {
+        "line": 19,
+        "memoText": "30"
+      },
+      {
+        "line": 20,
+        "memoText": "わ"
+      },
+      {
+        "line": 21,
+        "memoText": "わ"
+      },
+      {
+        "line": 23,
+        "memoText": "方"
+      },
+      {
+        "line": 24,
+        "memoText": "わ"
+      },
+      {
+        "line": 25,
+        "memoText": "2"
+      },
+      {
+        "line": 25,
+        "memoText": "時"
+      },
+      {
+        "line": 26,
+        "memoText": "2"
+      },
+      {
+        "line": 27,
+        "memoText": "1"
+      },
+      {
+        "line": 27,
+        "memoText": "2"
+      },
+      {
+        "line": 29,
+        "memoText": "2"
+      },
+      {
+        "line": 29,
+        "memoText": "3"
+      },
+      {
+        "line": 29,
+        "memoText": "2"
+      },
+      {
+        "line": 34,
+        "memoText": "わ"
+      },
+      {
+        "line": 35,
+        "memoText": "後"
+      },
+      {
+        "line": 35,
+        "memoText": "3"
+      },
+      {
+        "line": 36,
+        "memoText": "わ"
+      },
+      {
+        "line": 39,
+        "memoText": "方が後"
+      },
+      {
+        "line": 43,
+        "memoText": "後"
+      },
+      {
+        "line": 44,
+        "memoText": "空"
+      },
+      {
+        "line": 45,
+        "memoText": "1"
+      },
+      {
+        "line": 45,
+        "memoText": "6"
+      },
+      {
+        "line": 46,
+        "memoText": "わ"
+      },
+      {
+        "line": 49,
+        "memoText": "方"
+      },
+      {
+        "line": 50,
+        "memoText": "わ"
+      },
+      {
+        "line": 51,
+        "memoText": "止"
+      },
+      {
+        "line": 52,
+        "memoText": "多分"
+      },
+      {
+        "line": 53,
+        "memoText": "20"
+      },
+      {
+        "line": 54,
+        "memoText": "わ"
+      },
+      {
+        "line": 55,
+        "memoText": "時"
+      },
+      {
+        "line": 55,
+        "memoText": "椅子"
+      },
+      {
+        "line": 55,
+        "memoText": "5"
+      },
+      {
+        "line": 56,
+        "memoText": "わ"
+      },
+      {
+        "line": 59,
+        "memoText": "7"
+      },
+      {
+        "line": 60,
+        "memoText": "1"
+      },
+      {
+        "line": 61,
+        "memoText": "時"
+      },
+      {
+        "line": 62,
+        "memoText": "わ"
+      },
+      {
+        "line": 63,
+        "memoText": "1"
+      },
+      {
+        "line": 63,
+        "memoText": "1月 18"
+      },
+      {
+        "line": 63,
+        "memoText": "3"
+      },
+      {
+        "line": 63,
+        "memoText": "9"
+      },
+      {
+        "line": 63,
+        "memoText": "12"
+      },
+      {
+        "line": 63,
+        "memoText": "1月 6"
+      },
+      {
+        "line": 65,
+        "memoText": "3500"
+      },
+      {
+        "line": 65,
+        "memoText": "2"
+      },
+      {
+        "line": 66,
+        "memoText": "わ"
+      },
+      {
+        "line": 67,
+        "memoText": "6"
+      },
+      {
+        "line": 69,
+        "memoText": "時"
+      },
+      {
+        "line": 69,
+        "memoText": "挟"
+      },
+      {
+        "line": 69,
+        "memoText": "い"
+      },
+      {
+        "line": 71,
+        "memoText": "時"
+      },
+      {
+        "line": 73,
+        "memoText": "2"
+      },
+      {
+        "line": 73,
+        "memoText": "時"
+      },
+      {
+        "line": 76,
+        "memoText": "わ"
+      },
+      {
+        "line": 77,
+        "memoText": "2"
+      },
+      {
+        "line": 77,
+        "memoText": "2"
+      },
+      {
+        "line": 78,
+        "memoText": "25"
+      },
+      {
+        "line": 81,
+        "memoText": "時"
+      },
+      {
+        "line": 81,
+        "memoText": "1"
+      },
+      {
+        "line": 81,
+        "memoText": "1"
+      },
+      {
+        "line": 82,
+        "memoText": "1"
+      },
+      {
+        "line": 82,
+        "memoText": "2"
+      },
+      {
+        "line": 85,
+        "memoText": "3"
+      },
+      {
+        "line": 85,
+        "memoText": "1月 8"
+      },
+      {
+        "line": 85,
+        "memoText": "通"
+      },
+      {
+        "line": 85,
+        "memoText": "7"
+      },
+      {
+        "line": 85,
+        "memoText": "8"
+      },
+      {
+        "line": 87,
+        "memoText": "2"
+      },
+      {
+        "line": 87,
+        "memoText": "2"
+      },
+      {
+        "line": 87,
+        "memoText": "15"
+      },
+      {
+        "line": 87,
+        "memoText": "1"
+      },
+      {
+        "line": 88,
+        "memoText": "2月 15"
+      },
+      {
+        "line": 89,
+        "memoText": "40"
+      },
+      {
+        "line": 91,
+        "memoText": "1"
+      },
+      {
+        "line": 93,
+        "memoText": "わ"
+      },
+      {
+        "line": 96,
+        "memoText": "30"
+      },
+      {
+        "line": 97,
+        "memoText": "1"
+      },
+      {
+        "line": 97,
+        "memoText": "4"
+      },
+      {
+        "line": 98,
+        "memoText": "わ"
+      },
+      {
+        "line": 99,
+        "memoText": "0"
+      },
+      {
+        "line": 99,
+        "memoText": "9時 50"
+      },
+      {
+        "line": 100,
+        "memoText": "9時 50分。わ"
+      },
+      {
+        "line": 101,
+        "memoText": "4"
+      }
+    ],
+    "guesses": [
+      {
+        "index": 2,
+        "kind": "崩れ",
+        "fragment": "登記講習",
+        "guess": "冬期講習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 2,
+        "kind": "崩れ",
+        "fragment": "15分。どいただければ",
+        "guess": "15分ほどいただければ",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "十五分ほどいただければ"
+      },
+      {
+        "index": 4,
+        "kind": "崩れ",
+        "fragment": "登記講習",
+        "guess": "冬期講習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "冬期講習"
+      },
+      {
+        "index": 16,
+        "kind": "崩れ",
+        "fragment": "補修",
+        "guess": "補習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "補習"
+      },
+      {
+        "index": 18,
+        "kind": "崩れ",
+        "fragment": "補修",
+        "guess": "補習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "補習"
+      },
+      {
+        "index": 26,
+        "kind": "崩れ",
+        "fragment": "政府の数",
+        "guess": "正負の数",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "正負の数"
+      },
+      {
+        "index": 40,
+        "kind": "崩れ",
+        "fragment": "122時",
+        "guess": "12時",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "十二時"
+      },
+      {
+        "index": 46,
+        "kind": "崩れ",
+        "fragment": "出血",
+        "guess": "出欠",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "出欠"
+      },
+      {
+        "index": 51,
+        "kind": "崩れ",
+        "fragment": "雨の日だだけ",
+        "guess": "雨の日だけ",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "雨の日だけ"
+      },
+      {
+        "index": 58,
+        "kind": "崩れ",
+        "fragment": "午前のは休み",
+        "guess": "午前の部は休み",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "午前の部は休み"
+      },
+      {
+        "index": 66,
+        "kind": "崩れ",
+        "fragment": "も試",
+        "guess": "模試",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "模試"
+      },
+      {
+        "index": 69,
+        "kind": "崩れ",
+        "fragment": "も試",
+        "guess": "模試",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "模試"
+      },
+      {
+        "index": 69,
+        "kind": "崩れ",
+        "fragment": "帰ってきます",
+        "guess": "返ってきます",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "返ってきます"
+      },
+      {
+        "index": 73,
+        "kind": "崩れ",
+        "fragment": "ジム",
+        "guess": "事務",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "事務"
+      },
+      {
+        "index": 88,
+        "kind": "崩れ",
+        "fragment": "産休",
+        "guess": "三級",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "三級"
+      },
+      {
+        "index": 92,
+        "kind": "崩れ",
+        "fragment": "補修",
+        "guess": "補習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "補習"
+      }
+    ],
+    "guessStats": {
+      "total": 16,
+      "reallyBroken": 14,
+      "guessMatchesScript": 14,
+      "changedCorrect": 0,
+      "unaligned": 0
+    }
+  },
+  "guessMeaning": [
+    {
+      "fragment": "登記講習",
+      "guess": "冬期講習",
+      "score": 5,
+      "reason": "推測「冬期講習」は台本「冬期講習」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "15分。どいただければ",
+      "guess": "15分ほどいただければ",
+      "score": 5,
+      "reason": "推測「15分ほどいただければ」は台本「十五分ほどいただければ」と数字の表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "登記講習",
+      "guess": "冬期講習",
+      "score": 5,
+      "reason": "推測「冬期講習」は台本「冬期講習」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "補修",
+      "guess": "補習",
+      "score": 5,
+      "reason": "推測「補習」は台本の「補習」と完全に一致しており、意味も同じで、台本に無い意味も足されていない。"
+    },
+    {
+      "fragment": "補修",
+      "guess": "補習",
+      "score": 5,
+      "reason": "推測「補習」は台本「補習」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "政府の数",
+      "guess": "正負の数",
+      "score": 5,
+      "reason": "推測「正負の数」は台本「正負の数」と完全に一致し、台本に無い意味も足されていない。"
+    },
+    {
+      "fragment": "122時",
+      "guess": "12時",
+      "score": 5,
+      "reason": "推測の「12時」は台本の「十二時」と表記が違うだけで意味は同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "出血",
+      "guess": "出欠",
+      "score": 5,
+      "reason": "推測「出欠」は台本「出欠」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "雨の日だだけ",
+      "guess": "雨の日だけ",
+      "score": 5,
+      "reason": "推測「雨の日だけ」は台本「雨の日だけ」と一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "午前のは休み",
+      "guess": "午前の部は休み",
+      "score": 5,
+      "reason": "推測「午前の部は休み」は台本「午前の部は休み」と完全に一致しており、意味の追加も欠落もない。"
+    },
+    {
+      "fragment": "も試",
+      "guess": "模試",
+      "score": 5,
+      "reason": "推測「模試」は台本「模試」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "も試",
+      "guess": "模試",
+      "score": 5,
+      "reason": "推測「模試」は台本「模試」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "帰ってきます",
+      "guess": "返ってきます",
+      "score": 5,
+      "reason": "推測「返ってきます」は台本「返ってきます」と一致しており、意味が同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "ジム",
+      "guess": "事務",
+      "score": 5,
+      "reason": "推測「事務」は台本「事務」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "産休",
+      "guess": "三級",
+      "score": 5,
+      "reason": "推測「三級」は台本の「三級」と完全に一致し、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "補修",
+      "guess": "補習",
+      "score": 5,
+      "reason": "推測「補習」は台本「補習」と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    }
+  ],
+  "variance": null,
+  "timing": {
+    "step0": {
+      "step0a": {
+        "model": "claude-opus-5-5",
+        "ms": 35874,
+        "inputTokens": 2768,
+        "outputTokens": 5468,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1153
+      },
+      "step0b": {
+        "model": "claude-opus-5-5",
+        "ms": 12197,
+        "inputTokens": 3636,
+        "outputTokens": 1378,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1220
+      },
+      "step0c": {
+        "model": "claude-opus-5-5",
+        "ms": 15677,
+        "inputTokens": 3640,
+        "outputTokens": 1667,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1166
+      }
+    },
+    "step1Ms": 32597,
+    "firstCitationMs": 17546,
+    "step2Ms": 24137,
+    "step4Ms": null
+  }
+}

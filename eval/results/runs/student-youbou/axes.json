@@ -1,0 +1,864 @@
+{
+  "case": "student-youbou",
+  "axis1": {
+    "generated": 2,
+    "discarded": 0,
+    "displayed": 2,
+    "displayedVerified": 2,
+    "displayedMatchRate": 1,
+    "scenesWithoutQuote": 0,
+    "contextWithJudgement": [],
+    "neighborsMissing": 0
+  },
+  "axis2": {
+    "aiScenes": [
+      {
+        "type": "よく表れた所",
+        "items": [
+          1
+        ],
+        "utterances": [
+          32
+        ],
+        "lines": [
+          39
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "items": [
+          1
+        ],
+        "utterances": [
+          107
+        ],
+        "lines": [
+          129,
+          130
+        ]
+      }
+    ],
+    "scenes": [
+      {
+        "truthName": "強み・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          25,
+          27
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "強み・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          19,
+          21,
+          25,
+          29,
+          33,
+          45,
+          51
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          95,
+          96,
+          97,
+          98,
+          99
+        ],
+        "droppedLines": [
+          80,
+          91,
+          92,
+          93,
+          94
+        ],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          67,
+          69,
+          71
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      }
+    ],
+    "climax": null,
+    "items": [
+      {
+        "item": 1,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 1 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            19,
+            21,
+            25,
+            29,
+            33,
+            45,
+            51
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": null
+      },
+      {
+        "item": 2,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 2 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            87
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": null
+      },
+      {
+        "item": 3,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 3 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            87
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": null
+      },
+      {
+        "item": 4,
+        "mark": "○",
+        "good": {
+          "truthName": "項目 4 よく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            77,
+            78,
+            87,
+            89,
+            90
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": null
+      },
+      {
+        "item": 5,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      }
+    ]
+  },
+  "axis3": [
+    {
+      "scene": "よく表れた所",
+      "score": 5,
+      "reason": "発話32で先に添えた一言と問いの順番という事実だけを示し、ねらいや効果の解釈は先に言っていない。本人が考えて答える開かれた形で、その場面に絞った一つの問いになっている。「選びましたか」は意図して選んだことを前提にしているが、大きく外れるほどではない。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 5,
+      "reason": "答えや解釈を含まず「どんな一言」と開いて聞いています。締めくくりの途中で生徒が自分から家の話を出した発話107の場面を、次に試す形で一つだけ問うており、四つの観点すべてを満たします。"
+    }
+  ],
+  "axis5": {
+    "hits": [],
+    "withheld": [],
+    "unverifiedQuotes": 0,
+    "scoresInStep1": false,
+    "scoresPerItem": true
+  },
+  "axis6": null,
+  "axis8": {
+    "firstMeeting": true,
+    "item5Withheld": true,
+    "withheldAsTruth": [
+      {
+        "item": 1,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 2,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 3,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 4,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 5,
+        "truth": true,
+        "ai": true
+      }
+    ],
+    "truthNoScene": false,
+    "saidNoScene": false
+  },
+  "axis9": {
+    "pairs": [],
+    "satisfied": 0,
+    "countable": 0,
+    "pairsIncludingDraft": 0,
+    "absentItems": []
+  },
+  "axis10": [
+    {
+      "scene": "よく表れた所",
+      "score": 4,
+      "reason": "発話32の引用は、母親に伝えないと先に述べてから本人の考えを尋ねたという観察と、生徒自身の見方を聞く場所が作られたという読みを直接支えており、発話33の反応とも合っている。一方で、言葉を返し続けたことや、見ていない時にはやっているという事実が出てきたという読みは、示されていない発話34〜42に頼っている。「母親が知らない」という点も引用の外からの補足である。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "観察の発話107・108の内容は引用と前後の発話に一致し、話題の区切り（106）で生徒が自分から喧嘩の話を出し、講師が予定の連絡（108）へ移ったという読みも引用から導けます。ただし「再び」は発話47に、「聞かれないまま終わった」は発話109〜111に頼っており、これらは示された前後の発話に含まれないため、読みの一部が引用の外の文脈に依存しています。"
+    }
+  ],
+  "axis11": {
+    "utterances": 124,
+    "aligned": 119,
+    "correct": 118,
+    "accuracy": 0.9915966386554622,
+    "byConfidence": [
+      {
+        "confidence": "高",
+        "count": 108,
+        "wrong": 1
+      },
+      {
+        "confidence": "中",
+        "count": 9,
+        "wrong": 0
+      },
+      {
+        "confidence": "低",
+        "count": 7,
+        "wrong": 0
+      }
+    ],
+    "spanningSpeakers": 4,
+    "multipleOthers": false,
+    "wrong": [
+      {
+        "index": 106,
+        "ai": "講師",
+        "truth": "生徒",
+        "confidence": "高",
+        "text": "英語はまあそのままで"
+      }
+    ]
+  },
+  "axis12": {
+    "corrections": [
+      {
+        "index": 5,
+        "kind": "欠けた音",
+        "before": "グルは",
+        "after": "シングルは",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "グルスは"
+      },
+      {
+        "index": 32,
+        "kind": "同音の取り違え",
+        "before": "ここで行った",
+        "after": "ここで言った",
+        "verdict": "拾えた",
+        "scriptWindow": "ここで言った"
+      },
+      {
+        "index": 66,
+        "kind": "同音の取り違え",
+        "before": "来るように行って",
+        "after": "来るように言って",
+        "verdict": "拾えた",
+        "scriptWindow": "来るように言って"
+      },
+      {
+        "index": 83,
+        "kind": "欠けた音",
+        "before": "時間ですか",
+        "after": "3時間ですか",
+        "verdict": "元が正しかった",
+        "scriptWindow": "時間ですか"
+      },
+      {
+        "index": 84,
+        "kind": "同音の取り違え",
+        "before": "じゃあか木土",
+        "after": "じゃあ火木土",
+        "verdict": "拾えた",
+        "scriptWindow": "じゃあ火木土"
+      },
+      {
+        "index": 102,
+        "kind": "同音の取り違え",
+        "before": "不規則同士",
+        "after": "不規則動詞",
+        "verdict": "拾えた",
+        "scriptWindow": "不規則動詞"
+      },
+      {
+        "index": 102,
+        "kind": "同音の取り違え",
+        "before": "過去分子",
+        "after": "過去分詞",
+        "verdict": "拾えた",
+        "scriptWindow": "過去分詞"
+      }
+    ],
+    "applied": 7,
+    "discarded": 0,
+    "picked": 5,
+    "overfixedOriginalCorrect": 1,
+    "overfixedWrongWord": 1,
+    "unaligned": 0,
+    "pickedByKind": {
+      "同音の取り違え": 5
+    },
+    "mismatchSpots": 63,
+    "mismatchTouched": 5,
+    "missed": [
+      {
+        "line": 10,
+        "memoText": "わ"
+      },
+      {
+        "line": 12,
+        "memoText": "2"
+      },
+      {
+        "line": 12,
+        "memoText": "3"
+      },
+      {
+        "line": 12,
+        "memoText": "5"
+      },
+      {
+        "line": 12,
+        "memoText": "3"
+      },
+      {
+        "line": 15,
+        "memoText": "家"
+      },
+      {
+        "line": 26,
+        "memoText": "ギリギリ"
+      },
+      {
+        "line": 26,
+        "memoText": "後"
+      },
+      {
+        "line": 27,
+        "memoText": "ギリギリ"
+      },
+      {
+        "line": 29,
+        "memoText": "風"
+      },
+      {
+        "line": 33,
+        "memoText": "ん"
+      },
+      {
+        "line": 34,
+        "memoText": "1"
+      },
+      {
+        "line": 36,
+        "memoText": "方"
+      },
+      {
+        "line": 44,
+        "memoText": "方"
+      },
+      {
+        "line": 46,
+        "memoText": "大体"
+      },
+      {
+        "line": 48,
+        "memoText": "う"
+      },
+      {
+        "line": 50,
+        "memoText": "多分"
+      },
+      {
+        "line": 57,
+        "memoText": "欲"
+      },
+      {
+        "line": 59,
+        "memoText": "他"
+      },
+      {
+        "line": 60,
+        "memoText": "行"
+      },
+      {
+        "line": 64,
+        "memoText": "2"
+      },
+      {
+        "line": 67,
+        "memoText": "な"
+      },
+      {
+        "line": 67,
+        "memoText": "3"
+      },
+      {
+        "line": 69,
+        "memoText": "する"
+      },
+      {
+        "line": 69,
+        "memoText": "方"
+      },
+      {
+        "line": 69,
+        "memoText": "い"
+      },
+      {
+        "line": 71,
+        "memoText": "カバン"
+      },
+      {
+        "line": 71,
+        "memoText": "き"
+      },
+      {
+        "line": 73,
+        "memoText": "家"
+      },
+      {
+        "line": 76,
+        "memoText": "6"
+      },
+      {
+        "line": 76,
+        "memoText": "7"
+      },
+      {
+        "line": 77,
+        "memoText": "7"
+      },
+      {
+        "line": 78,
+        "memoText": "8"
+      },
+      {
+        "line": 78,
+        "memoText": "9"
+      },
+      {
+        "line": 79,
+        "memoText": "8"
+      },
+      {
+        "line": 79,
+        "memoText": "1"
+      },
+      {
+        "line": 82,
+        "memoText": "3"
+      },
+      {
+        "line": 83,
+        "memoText": "1"
+      },
+      {
+        "line": 87,
+        "memoText": "3"
+      },
+      {
+        "line": 95,
+        "memoText": "2"
+      },
+      {
+        "line": 95,
+        "memoText": "5"
+      },
+      {
+        "line": 105,
+        "memoText": "家"
+      },
+      {
+        "line": 105,
+        "memoText": "わ"
+      },
+      {
+        "line": 109,
+        "memoText": "方"
+      },
+      {
+        "line": 113,
+        "memoText": "2"
+      },
+      {
+        "line": 116,
+        "memoText": "65"
+      },
+      {
+        "line": 116,
+        "memoText": "70は 70"
+      },
+      {
+        "line": 117,
+        "memoText": "3"
+      },
+      {
+        "line": 119,
+        "memoText": "わ"
+      },
+      {
+        "line": 121,
+        "memoText": "わ"
+      },
+      {
+        "line": 121,
+        "memoText": "ろ"
+      },
+      {
+        "line": 128,
+        "memoText": "72"
+      },
+      {
+        "line": 133,
+        "memoText": "3"
+      },
+      {
+        "line": 143,
+        "memoText": "後"
+      },
+      {
+        "line": 143,
+        "memoText": "7"
+      },
+      {
+        "line": 143,
+        "memoText": "8"
+      },
+      {
+        "line": 145,
+        "memoText": "ろ"
+      },
+      {
+        "line": 147,
+        "memoText": "わ"
+      }
+    ],
+    "guesses": [
+      {
+        "index": 1,
+        "kind": "崩れ",
+        "fragment": "手袋してないの忘れました",
+        "guess": "手袋するの忘れました",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "手袋してないの忘れました"
+      },
+      {
+        "index": 3,
+        "kind": "崩れ",
+        "fragment": "市の学です",
+        "guess": "市の中学です",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "市の中学です"
+      },
+      {
+        "index": 5,
+        "kind": "崩れ",
+        "fragment": "グルは出ます",
+        "guess": "シングルスは出ます",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "グルスはたぶん出られます"
+      },
+      {
+        "index": 32,
+        "kind": "崩れ",
+        "fragment": "ここで行ったこと",
+        "guess": "ここで言ったこと",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "ここで言ったこと"
+      },
+      {
+        "index": 41,
+        "kind": "崩れ",
+        "fragment": "知らないと思うます",
+        "guess": "知らないと思います",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "知らないと思います"
+      },
+      {
+        "index": 59,
+        "kind": "崩れ",
+        "fragment": "は",
+        "guess": "はい",
+        "reallyBroken": false,
+        "guessMatchesScript": null,
+        "changedCorrect": false,
+        "scriptWindow": null
+      },
+      {
+        "index": 62,
+        "kind": "崩れ",
+        "fragment": "するとね",
+        "guess": "それとね",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "それとね"
+      },
+      {
+        "index": 66,
+        "kind": "崩れ",
+        "fragment": "来るように行ってほしい",
+        "guess": "来るように言ってほしい",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "来るように言ってほしい"
+      },
+      {
+        "index": 82,
+        "kind": "崩れ",
+        "fragment": "いんならから 2時から 5時まで",
+        "guess": "来られるなら 2時から 5時まで",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "二時から五時までで"
+      },
+      {
+        "index": 83,
+        "kind": "崩れ",
+        "fragment": "時間ですか長い",
+        "guess": "3時間ですか、長い",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "時間ですか長い"
+      },
+      {
+        "index": 84,
+        "kind": "崩れ",
+        "fragment": "長いですじゃあから時間の時間",
+        "guess": "長いか、じゃあ3時間の時間",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "長いですじゃあ二時から四時二時間はい土曜の二時間"
+      },
+      {
+        "index": 84,
+        "kind": "崩れ",
+        "fragment": "じゃあか木土",
+        "guess": "じゃあ火木土",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "じゃあ火木土"
+      },
+      {
+        "index": 102,
+        "kind": "崩れ",
+        "fragment": "不規則同士の過去分子",
+        "guess": "不規則動詞の過去分詞",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "不規則動詞の過去分詞"
+      }
+    ],
+    "guessStats": {
+      "total": 13,
+      "reallyBroken": 7,
+      "guessMatchesScript": 7,
+      "changedCorrect": 2,
+      "unaligned": 0
+    }
+  },
+  "guessMeaning": [
+    {
+      "fragment": "手袋してないの忘れました",
+      "guess": "手袋するの忘れました",
+      "score": 3,
+      "reason": "推測『手袋するの忘れました』（着け忘れ）は、台本『手袋してないの忘れました』（着けていない状態であることを忘れていた）と、手袋を着けていないという状況は共通する。ただし、忘れた対象が『着ける行為』に置き換わっており、意味は半分ほどしか合わない。"
+    },
+    {
+      "fragment": "市の学です",
+      "guess": "市の中学です",
+      "score": 5,
+      "reason": "推測「市の中学です」は台本「市の中学です」と一字一句同じで意味も一致しており、台本に無い意味の追加もない。"
+    },
+    {
+      "fragment": "グルは出ます",
+      "guess": "シングルスは出ます",
+      "score": 4,
+      "reason": "「シングルスは出る」という中心の意味は台本と合うが、台本の「たぶん」が落ち、「出られます」が「出ます」になっているため、確度と可能の含みが少しずれる。"
+    },
+    {
+      "fragment": "ここで行ったこと",
+      "guess": "ここで言ったこと",
+      "score": 5,
+      "reason": "推測「ここで言ったこと」は台本「ここで言ったこと」と完全に一致しており、意味の違いも台本に無い意味の追加もない。"
+    },
+    {
+      "fragment": "知らないと思うます",
+      "guess": "知らないと思います",
+      "score": 5,
+      "reason": "推測「知らないと思います」は台本「知らないと思います」と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "するとね",
+      "guess": "それとね",
+      "score": 5,
+      "reason": "推測「それとね」は台本「それとね」と一致し、意味は同じで、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "来るように行ってほしい",
+      "guess": "来るように言ってほしい",
+      "score": 5,
+      "reason": "推測「来るように言ってほしい」は台本と完全に一致しており、意味の追加もない。"
+    },
+    {
+      "fragment": "いんならから 2時から 5時まで",
+      "guess": "来られるなら 2時から 5時まで",
+      "score": 1,
+      "reason": "「2時から5時まで」は台本と合うが、台本に無い「来られるなら」という条件の意味を足しているため、基準により1点。"
+    },
+    {
+      "fragment": "時間ですか長い",
+      "guess": "3時間ですか、長い",
+      "score": 1,
+      "reason": "台本は「時間ですか長い」で時間の長さは示されていないが、推測は「3時間」という台本に無い具体的な数を足しているため、基準1に当たる。"
+    },
+    {
+      "fragment": "長いですじゃあから時間の時間",
+      "guess": "長いか、じゃあ3時間の時間",
+      "score": 2,
+      "reason": "「長い」と受けて、じゃあ何時間にするかを決める流れは合っていますが、中心となる長さが台本の「二時間」ではなく「3時間」になっています。また「二時から四時」「土曜」も推測に含まれていません。"
+    },
+    {
+      "fragment": "じゃあか木土",
+      "guess": "じゃあ火木土",
+      "score": 5,
+      "reason": "推測「じゃあ火木土」は台本「じゃあ火木土」と完全に一致し、意味の過不足もない。"
+    },
+    {
+      "fragment": "不規則同士の過去分子",
+      "guess": "不規則動詞の過去分詞",
+      "score": 5,
+      "reason": "推測は台本と完全に一致しており、意味が同じで、台本に無い意味も足していない。"
+    }
+  ],
+  "variance": null,
+  "timing": {
+    "step0": {
+      "step0a": {
+        "model": "claude-opus-5-5",
+        "ms": 40591,
+        "inputTokens": 2561,
+        "outputTokens": 5978,
+        "cacheReadTokens": 1153,
+        "cacheWriteTokens": 0
+      },
+      "step0b": {
+        "model": "claude-opus-5-5",
+        "ms": 11771,
+        "inputTokens": 3627,
+        "outputTokens": 1232,
+        "cacheReadTokens": 1220,
+        "cacheWriteTokens": 0
+      },
+      "step0c": {
+        "model": "claude-opus-5-5",
+        "ms": 23666,
+        "inputTokens": 3631,
+        "outputTokens": 2335,
+        "cacheReadTokens": 1166,
+        "cacheWriteTokens": 0
+      }
+    },
+    "step1Ms": 47754,
+    "firstCitationMs": 31065,
+    "step2Ms": 26240,
+    "step4Ms": null
+  }
+}
