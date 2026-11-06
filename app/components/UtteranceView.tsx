@@ -9,7 +9,7 @@ import { useState } from "react";
 
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import type { Transcript, Utterance } from "@/engine/types.mts";
-import { utteranceLabel } from "@/engine/utterance-no.mts";
+import { refLabel } from "@/app/lib/words.mts";
 import { around } from "@/app/lib/view";
 
 export function guessesOf(t: Transcript, index: number) {
@@ -45,11 +45,11 @@ export function Island({ t, u, role, tag, compact = false }: { t: Transcript; u:
     <div className={`flex flex-col ${isSelf ? "items-end" : "items-start"}`}>
       <p className="mb-1 flex items-baseline gap-2 px-1 text-xs text-ink-3">
         <span className="font-semibold text-ink-2">{u.speaker}</span>
-        <span className="tabular-nums">{utteranceLabel(u.index)}</span>
+        <span className="tabular-nums">{refLabel(u.index)}</span>
         {tag && <span className={role === "focal" ? "font-semibold text-accent" : ""}>{tag}</span>}
       </p>
       <div className={`max-w-[90%] sm:max-w-[84%] ${shape} ${tone} ${size}`}>
-        <p className="whitespace-pre-wrap">{u.text ?? `（${utteranceLabel(u.index)} の本文は出せません）`}</p>
+        <p className="whitespace-pre-wrap">{u.text ?? `（${refLabel(u.index)} の本文は出せません）`}</p>
         {hasNote && (
           <div className="mt-1.5 text-xs font-normal leading-relaxed text-ink-2">
             <button type="button" onClick={() => setNoteOpen((o) => !o)} aria-expanded={noteOpen} className="text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink-2">
@@ -79,7 +79,7 @@ export function UtteranceContext({ t, index }: { t: Transcript; index: number })
     <ol className="mt-2 space-y-2.5 rounded-md border border-line bg-surface px-3 py-3.5 text-ink sm:px-4">
       {around(t, index).map((u) => (
         <li key={u.index}>
-          <Island t={t} u={u} compact role={u.index === index ? "focal" : "plain"} tag={u.index === index ? "根拠の発話" : undefined} />
+          <Island t={t} u={u} compact role={u.index === index ? "focal" : "plain"} tag={u.index === index ? "根拠の発言" : undefined} />
         </li>
       ))}
     </ol>

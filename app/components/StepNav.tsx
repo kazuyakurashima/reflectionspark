@@ -20,7 +20,12 @@ export function StepNav() {
       {STEPS.map((s) => {
         const current = pathname === s.href;
         return (
-          <Link key={s.href} href={s.href} aria-current={current ? "step" : undefined} className={current ? "font-semibold text-ink" : "text-ink-3 hover:text-ink"}>
+          <Link
+            key={s.href}
+            href={s.href}
+            aria-current={current ? "step" : undefined}
+            className={current ? "border-b-2 border-accent pb-0.5 font-semibold text-ink" : "border-b-2 border-transparent pb-0.5 text-ink-3 hover:text-ink"}
+          >
             {s.label}
           </Link>
         );

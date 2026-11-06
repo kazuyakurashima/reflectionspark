@@ -16,8 +16,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="ja">
       <body className="min-h-screen bg-paper text-ink">
         <header className="border-b border-line bg-paper">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-baseline gap-x-5 gap-y-1 px-4 py-3">
-            <Link href="/" className="font-semibold tracking-wide">
+          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-6 gap-y-1.5 px-4 py-3">
+            <Link href="/" className="flex items-center gap-2 text-[1.2rem] font-bold tracking-tight">
+              {/* 火花の印。琥珀色は「次に試すひとつ（Spark）」の色 */}
+              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-amber-500" aria-hidden="true">
+                <path d="M12 1.5c.6 5.6 3.4 8.4 9 9v3c-5.6.6-8.4 3.4-9 9h-.01c-.6-5.6-3.4-8.4-9-9v-3c5.6-.6 8.4-3.4 9-9Z" />
+              </svg>
               ReflectionSpark
             </Link>
             <Suspense fallback={null}>

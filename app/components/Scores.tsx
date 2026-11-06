@@ -1,12 +1,13 @@
 "use client";
 
 // 項目ごとの点と合計（画面 2・5 で同じ見せ方）。判定しない項目は目盛を出さず「判定しない」と書く。
-// 行を押すと理由の一行と根拠の発話が開く。合計はアプリが計算したもので、項目の下に置く（決まり 8）。
+// 行を押すと理由の一行と根拠の発言が開く。根拠の番号は、載せるとその発言が出て、押すと前後 2 つも開く。合計はアプリが計算したもので、項目の下に置く（決まり 8）。
 
 import { useState } from "react";
 
 import { RUBRIC_ITEMS, SCALE } from "@/engine/rubric.mts";
 import type { ItemScore, Step2Result, Transcript } from "@/engine/types.mts";
+import { RefChip, RefText } from "./RefText";
 import { UtteranceContext } from "./UtteranceView";
 
 export function ItemRow({ it, t }: { it: ItemScore; t: Transcript }) {
@@ -33,20 +34,16 @@ export function ItemRow({ it, t }: { it: ItemScore; t: Transcript }) {
       </button>
       {open && (
         <div className="pb-4 pl-5 text-[0.95rem] text-ink-2">
-          <p>{it.reason}</p>
+          <p>
+            <RefText t={t} text={it.reason} />
+          </p>
           {it.utterances.length > 0 && (
             <p className="mt-2 text-xs text-ink-3">
-              根拠の発話：
+              根拠の発言（載せると出ます。押すと前後も開きます）：
               {it.utterances.map((i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                  aria-expanded={openIndex === i}
-                  className={`mr-2 tabular-nums underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent ${openIndex === i ? "font-semibold text-ink" : "text-accent"}`}
-                >
+                <RefChip key={i} t={t} index={i} onClick={() => setOpenIndex(openIndex === i ? null : i)} className={`mr-2 ${openIndex === i ? "font-semibold text-ink" : ""}`}>
                   {i}
-                </button>
+                </RefChip>
               ))}
             </p>
           )}
@@ -61,7 +58,7 @@ export function ScoreTable({ items, total, t, selfScore }: { items: ItemScore[];
   return (
     <>
       <p className="mt-1 text-xs leading-relaxed text-ink-3">
-        点は面談の点で、人の点ではありません。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと、理由と根拠の発話が開きます。
+        点は面談の点で、人の点ではありません。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと、理由と根拠の発言が開きます。
       </p>
       <ul className="mt-2 border-t border-line">
         {items.map((it) => (
