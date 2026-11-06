@@ -13,7 +13,7 @@ import type { Candidate } from "@/engine/types.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { RefChip, RefText } from "@/app/components/RefText";
 import { WaitPanel } from "@/app/components/WaitPanel";
-import { PreviousWordsBlock } from "@/app/components/RecordViews";
+import { PreviousWordsBlock, RepeatScenesBlock } from "@/app/components/RecordViews";
 import { candidatesBody } from "@/app/lib/demo-flag.mts";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
@@ -108,6 +108,7 @@ export default function Screen4() {
   };
   const spark = session.spark;
   const cands = candidates?.step3.candidates ?? [];
+  const repeats = candidates?.step3.repeats ?? [];
 
   const quote = nextScene?.quotes[0] ?? null;
 
@@ -135,6 +136,8 @@ export default function Screen4() {
             )}
           </div>
         )}
+
+        {repeats.length > 0 && <RepeatScenesBlock items={repeats} className="mt-6" />}
 
         {spark && (spark.edited || !cands.some((c) => c.sentence === spark.sentence)) && (
           <div className={`mt-6 ${SPARK_BOX}`}>

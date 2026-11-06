@@ -11,7 +11,7 @@ import { buildRecordList, memoryConfig, parsePreviousRef, parseRecord, parseReco
 import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
 import { buildLedgerEntry, ledgerPath, renderLedgerEntry } from "./score-ledger.mts";
 import { candidatesOrMock, recordsOrOff } from "./server.mts";
-import { attachPreviousWords, parseStep3 } from "./step3.mts";
+import { attachPreviousWords, parseStep3, resolveRepeats } from "./step3.mts";
 import type { Candidate, Quote, Scene, Utterance } from "./types.mts";
 
 
@@ -229,6 +229,29 @@ describe("旗（ストアの番号の環境変数）", () => {
     const raw = { condition: "場面", action: "聞き返す", lines: ["セリフ"], criterion: "基準" };
     assert.equal(parseStep3({ candidates: [{ ...raw, previous_ref: "a｜発話 1" }] }).candidates[0].previousRef, "a｜発話 1");
     assert.equal("previousRef" in parseStep3({ candidates: [{ ...raw, previous_ref: "" }] }).candidates[0], false);
+    // 同じ形の場面の札は、記録を渡すときだけ求める
+    assert.equal(step3System("生徒", true).includes("repeat_refs"), true);
+    assert.equal(step3System("生徒").includes("repeat_refs"), false);
+    assert.equal(STEP3_PAST_SCENES_SCHEMA.required.includes("repeat_refs"), true);
+    assert.equal("repeat_refs" in STEP3_SCHEMA.properties, false);
+  });
+
+  test("決まり 1：同じ形の場面は、札から記録の原文を引く。無い札・相手の発話・重なる発話は出さない", () => {
+    const records = parseRecords([file(first), file(second), file(other)]);
+    const cand = (ref?: string) => attachPreviousWords([{ condition: "c", action: "a", sentence: "s", lines: ["l"], criterion: "k", ...(ref ? { previousRef: ref } : {}) }], records);
+    const got = resolveRepeats(["student-b｜発話 2", "student-x｜発話 2", "student-b｜発話 1", "student-b｜発話 2"], cand(), records);
+    assert.deepEqual(got.map((p) => [p.interviewId, p.utterance, p.own.text]), [["student-b", 2, "嫌いになりそうか。"]]);
+    assert.deepEqual(resolveRepeats([], cand(), records), []);
+    assert.deepEqual(resolveRepeats(null, cand(), records), []);
+    assert.deepEqual(resolveRepeats(undefined, cand(), []), []);
+    // 候補に「前の言葉」として添えた発話は、同じ形の場面に出さない
+    assert.deepEqual(resolveRepeats(["student-b｜発話 2"], cand("student-b｜発話 2"), records), []);
+  });
+
+  test("同じ形の場面は 2 つまでで、古い順に並べる", () => {
+    const records = parseRecords([file(first), file(other)]);
+    const got = resolveRepeats(["student-c｜発話 2", "student-b｜発話 2", "student-c｜発話 4"], [], records);
+    assert.deepEqual(got.map((p) => [p.date, p.interviewId]), [["2025-10-24", "student-b"], ["2025-10-28", "student-c"]]);
   });
 
   test("鍵が無いとき：記録の一覧は旗なしで返し、候補は記録なしで返す", async () => {
