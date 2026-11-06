@@ -13,6 +13,8 @@ import type { Candidate } from "@/engine/types.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { RefChip, RefText } from "@/app/components/RefText";
 import { WaitPanel } from "@/app/components/WaitPanel";
+import { PreviousWordsBlock } from "@/app/components/RecordViews";
+import { candidatesBody } from "@/app/lib/demo-flag.mts";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
@@ -47,7 +49,8 @@ export default function Screen4() {
         const r = await fetch("/api/candidates", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ transcript, scene: nextScene, answer }),
+          // サンプルの印があるときだけ demo: true を送る（貼った面談に、サンプルの講師の記録を添えない）
+          body: JSON.stringify(candidatesBody({ transcript, scene: nextScene, answer, demo: session.demo })),
         });
         const d = (await r.json()) as CandidatesResponse & { error?: string };
         if (!r.ok || d.error) throw new Error(d.error ?? `候補を作れませんでした（${r.status}）`);
@@ -172,7 +175,8 @@ export default function Screen4() {
                     <RefText t={transcript} text={c.basis} />
                   </p>
                 )}
-                <Collapsible label="セリフの例と、できたかの基準を開く" className="mt-2">
+                {c.previous && <PreviousWordsBlock p={c.previous} className="mt-4" />}
+                <Collapsible label="セリフの例と、できたかの基準を開く" className={c.previous ? "mt-3" : "mt-2"}>
                   <p className="text-xs font-semibold text-ink-3">セリフの例</p>
                   <ul className="mt-1 space-y-0.5 text-[0.95rem]">
                     {c.lines.map((l, j) => (

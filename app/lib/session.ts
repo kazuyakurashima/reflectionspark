@@ -44,6 +44,8 @@ export type SessionData = {
   firstMeeting: boolean;
   /** 貼った文字起こし（そのまま） */
   raw: string;
+  /** サンプルの印。「サンプルを選ぶ」で立て、貼る欄の文を書き換えたら外す（app/lib/demo-flag.mts） */
+  demo: boolean;
   /** 整形の結果（本人が画面 1 で直した後） */
   transcript: Transcript | null;
   /** 仮の出力か */
@@ -77,6 +79,7 @@ export function newSession(kind: MeetingKind = "生徒", otherName = "", raw = "
     otherName,
     firstMeeting: true,
     raw,
+    demo: false,
     transcript: null,
     mock: false,
     step0Ms: null,
@@ -98,7 +101,7 @@ export function newFollowUp(raw = ""): FollowUpData {
 
 /** 古い保存に無い項目を埋める */
 function fill(s: Partial<SessionData>): SessionData {
-  return { ...newSession(), ...s, answers: s.answers ?? [], ownViews: s.ownViews ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true } as SessionData;
+  return { ...newSession(), ...s, answers: s.answers ?? [], ownViews: s.ownViews ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true, demo: s.demo === true } as SessionData;
 }
 
 function read(): string | null {

@@ -15,6 +15,8 @@ import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
 import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
+import { demoAfterInput } from "@/app/lib/demo-flag.mts";
+import { RecordsLink } from "@/app/components/RecordViews";
 import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, SEG, segItem } from "@/app/components/ui";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
@@ -61,13 +63,16 @@ export default function Screen1() {
 
   /** 入力（文字起こし・場面の種類）を変えたら、整形の結果と、その後の答え・候補・Spark・追跡をすべて消す。呼び名は札なので消さない */
   const setInput = (patch: Partial<Pick<SessionData, "kind" | "otherName" | "raw">>) =>
-    updateSession((s) => (patch.raw !== undefined || patch.kind !== undefined ? { ...s, ...patch, ...cleared, transcript: null, mock: false, step0Ms: null } : { ...s, ...patch }));
+    updateSession((s) =>
+      patch.raw !== undefined || patch.kind !== undefined ? { ...s, ...patch, ...cleared, transcript: null, mock: false, step0Ms: null, demo: demoAfterInput(s.demo, patch) } : { ...s, ...patch },
+    );
 
   const loadDemo = async () => {
     setError(null);
     const r = await fetch("/api/demo");
     const d = (await r.json()) as { kind: MeetingKind; otherName: string; raw: string };
-    updateSession(() => newSession(d.kind, d.otherName, d.raw));
+    // サンプルの印を立てる（画面 4 で、サンプルの講師の記録を添えてよい印）
+    updateSession(() => ({ ...newSession(d.kind, d.otherName, d.raw), demo: true }));
   };
 
   const format = async () => {
@@ -121,7 +126,11 @@ export default function Screen1() {
   return (
     <main className={PAGE}>
       <section>
-        <h1 className={H1}>面談内容を入力する</h1>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+          <h1 className={H1}>面談内容を入力する</h1>
+          {/* 記録の読み出しが開いているときだけ出る（旗が無ければ出ない） */}
+          <RecordsLink className="text-[0.92rem]" />
+        </div>
         <p className={LEAD}>面談の文字起こしを貼ります。ボイスメモの文字起こし（話者の無い文）のままでかまいません。</p>
 
         <div className="mt-7 flex flex-wrap gap-x-8 gap-y-5">

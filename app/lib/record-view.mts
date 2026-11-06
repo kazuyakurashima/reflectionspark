@@ -1,0 +1,40 @@
+// 記録（Memory）から来た発話を、画面 2 の発話の部品（app/components/UtteranceView.tsx の Island）にそのまま渡せる形にする。
+// 見せ方を新しく作らないための橋渡しで、文は変えない（原文のまま）。API は呼ばない。
+
+import { SPEAKER_LABELS } from "../../engine/types.mts";
+import type { MeetingKind, PreviousWords, Transcript, Utterance } from "../../engine/types.mts";
+
+export type Line = { index: number; speaker: string; text: string };
+
+/** 本人の話者の呼び名（と、相手の呼び名）から、場面の種類を決める。島を右（本人）・左（相手）に置くために使う */
+export function kindOfSpeakers(selfSpeaker: string, others: string[] = []): MeetingKind {
+  const kinds = Object.keys(SPEAKER_LABELS) as MeetingKind[];
+  return kinds.find((k) => SPEAKER_LABELS[k].self === selfSpeaker && others.includes(SPEAKER_LABELS[k].other)) ?? kinds.find((k) => SPEAKER_LABELS[k].self === selfSpeaker) ?? "生徒";
+}
+
+/** 記録の発話を、発話の部品が読む形にする。工程 0 の直しと推測は記録に無いので、空にする */
+export function linesTranscript(kind: MeetingKind, lines: Line[]): Transcript {
+  const utterances: Utterance[] = lines.map((l) => ({ index: l.index, speaker: l.speaker, text: l.text, original: l.text, confidence: "高", check: [], memoSpan: null }));
+  return { kind, raw: "", utterances, multipleOthers: false, step0b: { proposed: [], applied: [], discarded: [] }, step0c: null };
+}
+
+/** 引用と前後の発話を、発話番号の順に 1 本に並べる（同じ番号は引用を残す） */
+export function mergeLines(quotes: Line[], neighbors: Line[]): Line[] {
+  const quoted = new Set(quotes.map((q) => q.index));
+  return [...quotes, ...neighbors.filter((n) => !quoted.has(n.index))].sort((a, b) => a.index - b.index);
+}
+
+/** 前の面談の言葉を、直前 → 本人 → 直後の順に並べる。記録に無い行（null）は出さない */
+export function previousLines(p: PreviousWords): Line[] {
+  return [p.before, p.own, p.after].filter((l): l is Line => l !== null);
+}
+
+/** 「2025-10-24」→「2025 年 10 月 24 日」。読めない形はそのまま返す */
+export function formatDate(date: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  return m ? `${m[1]} 年 ${Number(m[2])} 月 ${Number(m[3])} 日` : date;
+}
+
+export function kindLabel(kind: MeetingKind): string {
+  return kind === "コーチング" ? "1on1" : `${kind}面談`;
+}

@@ -24,6 +24,7 @@ import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2
 import { refLabel } from "@/app/lib/words.mts";
 import { UtteranceContext } from "@/app/components/UtteranceView";
 import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
+import { RecordsLink } from "@/app/components/RecordViews";
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import type { ProgressEvent } from "@/engine/progress.mts";
 import { fetchStep0c, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
@@ -396,6 +397,7 @@ export default function Screen5() {
                 </Link>
                 から始めます。
               </p>
+              <RecordsLink className="mt-4 inline-block px-1 text-[0.92rem]" />
             </>
           )}
         </>
