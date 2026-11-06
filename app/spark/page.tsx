@@ -12,6 +12,7 @@ import type { CandidatesResponse } from "@/engine/server.mts";
 import type { Candidate } from "@/engine/types.mts";
 import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { Collapsible } from "@/app/components/Collapsible";
+import { WaitNote } from "@/app/components/WaitNote";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
 import type { SparkChoice } from "@/app/lib/session";
 
@@ -23,6 +24,7 @@ export default function Screen4() {
   const [draftSentence, setDraftSentence] = useState("");
   const [draftCriterion, setDraftCriterion] = useState("");
   const started = useRef(false);
+  const [retry, setRetry] = useState(0);
 
   const analysis = session?.analysis ?? null;
   const transcript = session?.transcript ?? null;
@@ -53,7 +55,7 @@ export default function Screen4() {
         started.current = false;
       }
     })();
-  }, [session, transcript, nextScene, candidates]);
+  }, [session, transcript, nextScene, candidates, retry]);
 
   if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
   if (!session || !analysis || !transcript) {
@@ -83,6 +85,13 @@ export default function Screen4() {
     setEditing(null);
   };
   const skip = () => updateSession((s) => ({ ...s, spark: null, sparkSkipped: true, followUp: null }));
+  /** 失敗したとき、候補が一つも残らなかったときに、候補を作り直す */
+  const recreate = () => {
+    setError(null);
+    started.current = false;
+    updateSession((s) => ({ ...s, candidates: null }));
+    setRetry((n) => n + 1);
+  };
   const spark = session.spark;
   const cands = candidates?.step3.candidates ?? [];
 
@@ -113,14 +122,40 @@ export default function Screen4() {
       <section className="mt-5">
         <h2 className="font-bold">候補</h2>
         {candidates?.mock && <p className="mt-1 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">API キーが無いので、仮の出力です。候補の文は仮です。</p>}
-        {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
-        {!candidates && !error && <p className="mt-2 text-sm text-stone-500">候補を作っています…</p>}
+        {!nextScene && (
+          <p className="mt-2 rounded border border-stone-300 bg-white px-3 py-2 text-sm">
+            この面談では「次に試せる所」の場面が挙がっていないので、候補はありません。候補は、その場面とあなたの答えから作るためです。今回は見送って、次の面談へ進めます。
+          </p>
+        )}
+        {error && (
+          <div className="mt-2 rounded border border-red-200 bg-white px-3 py-2 text-sm">
+            <p className="text-red-700">候補を作れませんでした：{error}</p>
+            <button type="button" onClick={recreate} className="mt-2 rounded border border-stone-300 px-3 py-1">
+              もう一度作る
+            </button>
+          </div>
+        )}
+        {nextScene && !candidates && !error && (
+          <div className="mt-2">
+            <p className="text-sm text-stone-500">候補を作っています…</p>
+            <WaitNote time="20〜30 秒ほど" reopen="この画面を開き直すと、もう一度作ります。" />
+          </div>
+        )}
+        {candidates && cands.length === 0 && !error && (
+          <div className="mt-2 rounded border border-stone-300 bg-white px-3 py-2 text-sm">
+            <p>次の面談の文字起こしで確かめられる候補が、一つも残りませんでした。</p>
+            <button type="button" onClick={recreate} className="mt-2 rounded border border-stone-300 px-3 py-1">
+              もう一度作る
+            </button>
+          </div>
+        )}
         <div className="mt-2 space-y-3">
           {cands.map((c, i) => {
             const chosen = spark !== null && !spark.edited && spark.sentence === c.sentence;
             return (
               <div key={i} className={`rounded border p-4 ${chosen ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white"}`}>
                 <p className="text-sm font-semibold">{c.sentence}</p>
+                {c.basis && <p className="mt-1 text-xs text-stone-500">どこから作ったか：{c.basis}</p>}
                 <Collapsible label="セリフの例と、できたかの基準を開く" className="mt-2">
                   <p className="text-xs text-stone-500">セリフの例</p>
                   <ul className="list-disc pl-5 text-sm">
@@ -172,11 +207,10 @@ export default function Screen4() {
             );
           })}
         </div>
-        {cands.length > 0 && (
-          <button type="button" onClick={skip} className="mt-3 text-sm text-stone-600 underline-offset-2 hover:underline">
-            今回は見送る（持ち帰らない）
-          </button>
-        )}
+        {/* 候補が無いとき・作れなかったときも、見送って先へ進める */}
+        <button type="button" onClick={skip} className="mt-3 block text-sm text-stone-600 underline underline-offset-2">
+          今回は見送る（持ち帰らない）
+        </button>
       </section>
 
       <div className="mt-6 flex items-center gap-3">
