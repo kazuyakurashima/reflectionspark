@@ -12,7 +12,7 @@ import type { CandidatesResponse } from "@/engine/server.mts";
 import type { Candidate } from "@/engine/types.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { RefChip, RefText } from "@/app/components/RefText";
-import { WaitNote } from "@/app/components/WaitNote";
+import { WaitPanel } from "@/app/components/WaitPanel";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
@@ -149,10 +149,7 @@ export default function Screen4() {
           </div>
         )}
         {nextScene && !candidates && !error && (
-          <div className="mt-3">
-            <p className="font-semibold">候補を作っています…</p>
-            <WaitNote time="20〜30 秒ほど" reopen="この画面を開き直すと、もう一度作ります。" />
-          </div>
+          <WaitPanel className="mt-3" title="候補を作っています" estimate="20〜30 秒ほど" reopen="この画面を開き直すと、もう一度作ります。" view={{ current: 0, status: "選んだ場面とあなたの答えから、行動の候補を書いています", ratio: null }} />
         )}
         {candidates && cands.length === 0 && !error && (
           <div className={`mt-3 ${NOTE}`}>

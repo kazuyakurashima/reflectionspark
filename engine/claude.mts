@@ -68,6 +68,8 @@ export type StructuredParams = {
   model?: string;
   /** 呼び出し先の名前（記録用） */
   label?: string;
+  /** 出力が届くたびに呼ぶ（待つ間の進み具合を数えるため。engine/progress.mts） */
+  onText?: (delta: string) => void;
 };
 
 /**
@@ -104,6 +106,7 @@ export async function callStructured<T>(p: StructuredParams): Promise<Structured
     thinking: { type: "adaptive" },
     output_config: { effort: p.effort ?? "medium", format: { type: "json_schema", schema: sanitizeSchema(p.schema) as Record<string, unknown> } },
   });
+  if (p.onText) stream.on("text", p.onText);
   const msg = await stream.finalMessage();
   const ms = Date.now() - t0;
   const rawText = msg.content

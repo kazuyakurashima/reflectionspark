@@ -22,6 +22,17 @@
   --color-tint-other: #f2ede4;
   --color-bar-self: #47595c;
   --color-bar-other: #b9ab93;
+
+  /* 待つ間の帯（進んだ割合が数えられない段階で、動いていることだけを示す） */
+  --animate-wait-slide: wait-slide 1.8s ease-in-out infinite;
+  @keyframes wait-slide {
+    from {
+      transform: translateX(-110%);
+    }
+    to {
+      transform: translateX(410%);
+    }
+  }
 }
 
 body {

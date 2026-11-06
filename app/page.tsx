@@ -5,7 +5,7 @@
 // 見た目の決まりは app/components/ui.ts と app/globals.css。
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { MeetingKind, Utterance } from "@/engine/types.mts";
@@ -13,7 +13,9 @@ import type { Step0Response } from "@/engine/server.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
-import { WaitNote } from "@/app/components/WaitNote";
+import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
+import { postWithProgress } from "@/app/lib/progress-stream.mts";
+import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, SEG, segItem } from "@/app/components/ui";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
@@ -43,15 +45,8 @@ export default function Screen1() {
   const session = useSession();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** 整形を始めた時刻と、待つ間の経過の秒（進み具合を出す。0a は 1 分前後かかることがある） */
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [now, setNow] = useState(0);
-  useEffect(() => {
-    if (startedAt === null) return;
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, [startedAt]);
-  const elapsed = startedAt === null ? 0 : Math.max(0, Math.floor((now - startedAt) / 1000));
+  /** 整形を待つ間に、サーバーから届いた進み具合（いまの段階と、区切り終えた字数） */
+  const [progress, setProgress] = useState<ProgressEvent | null>(null);
   /** 確かめる所を開いているか。整形はほとんど合っているので、最初は件数だけを出して畳んでおく */
   const [detail, setDetail] = useState(false);
 
@@ -78,13 +73,9 @@ export default function Screen1() {
   const format = async () => {
     setBusy(true);
     setError(null);
-    const t0 = Date.now();
-    setStartedAt(t0);
-    setNow(t0);
+    setProgress(null);
     try {
-      const r = await fetch("/api/step0", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ raw, kind }) });
-      const d = (await r.json()) as Step0Response & { error?: string };
-      if (!r.ok || d.error) throw new Error(d.error ?? `整形に失敗しました（${r.status}）`);
+      const d = await postWithProgress<Step0Response>("/api/step0", { raw, kind }, setProgress, "整形に失敗しました");
       updateSession((s) => ({ ...s, kind, otherName, raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, ...cleared }));
       // 0c は別に回し、届いたら付ける（分析を待たせない）
       void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.transcript ? { ...s, transcript: fn(s.transcript) } : s)));
@@ -92,7 +83,6 @@ export default function Screen1() {
       setError((e as Error).message);
     } finally {
       setBusy(false);
-      setStartedAt(null);
     }
   };
 
@@ -174,14 +164,11 @@ export default function Screen1() {
           <button type="button" onClick={loadDemo} disabled={busy} className={BTN_SECONDARY}>
             サンプルを選ぶ（Demo Mode）
           </button>
-          {busy && (
-            <span className="text-[0.86rem] text-ink-2" aria-live="polite">
-              {elapsed < 5 ? "読んでいます" : "発言に区切って話者を付けています"}（{elapsed} 秒）
-            </span>
-          )}
         </div>
         {!transcript && !busy && <p className="mt-3 text-[0.86rem] text-ink-3">「整形する」を押すと、Claude が発言に区切って話者を付けます（1 分ほど）。サンプルは作りものの面談で、ログイン不要で 1 から 5 まで試せます。</p>}
-        {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
+        {busy && (
+          <WaitPanel className="mt-6" title="整形しています" estimate="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" steps={STEP0_STEPS} view={step0View(progress)} />
+        )}
         {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
       </section>
 

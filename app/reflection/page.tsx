@@ -20,7 +20,9 @@ import { RefText } from "@/app/components/RefText";
 import { SceneLines } from "@/app/components/SceneLines";
 import { ScoreTable } from "@/app/components/Scores";
 import { Island } from "@/app/components/UtteranceView";
-import { WaitNote } from "@/app/components/WaitNote";
+import { ANALYZE_STEPS, WaitPanel, analyzeView } from "@/app/components/WaitPanel";
+import { postWithProgress } from "@/app/lib/progress-stream.mts";
+import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, LINK, NOTE, PAGE } from "@/app/components/ui";
 import { chaptersOf, sceneSpan, spanWindow, wideWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
@@ -35,6 +37,8 @@ export default function Screen2() {
   const [error, setError] = useState<string | null>(null);
   const started = useRef(false);
   const [retry, setRetry] = useState(0);
+  /** 分析を待つ間に、サーバーから届いた進み具合（いまの段階と、書いている所） */
+  const [progress, setProgress] = useState<ProgressEvent | null>(null);
   const transcript = session?.transcript ?? null;
   const analysis = session?.analysis ?? null;
   const firstMeeting = session?.firstMeeting ?? true;
@@ -45,13 +49,7 @@ export default function Screen2() {
     started.current = true;
     (async () => {
       try {
-        const r = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ transcript, firstMeeting }),
-        });
-        const d = (await r.json()) as AnalyzeResponse & { error?: string };
-        if (!r.ok || d.error) throw new Error(d.error ?? `分析に失敗しました（${r.status}）`);
+        const d = await postWithProgress<AnalyzeResponse>("/api/analyze", { transcript, firstMeeting }, setProgress, "分析に失敗しました");
         updateSession((s) => ({ ...s, analysis: { step1: d.step1, step2: d.step2, mock: d.mock } }));
       } catch (e) {
         setError((e as Error).message);
@@ -128,8 +126,7 @@ export default function Screen2() {
         </div>
       ) : !analysis ? (
         <section className="py-6">
-          <p className="font-semibold">AI が面談を読んでいます…</p>
-          <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度最初から分析します。" />
+          <WaitPanel title="AI が面談を読んでいます" estimate="1 分ほど" reopen="この画面を開き直すと、もう一度最初から分析します。" steps={ANALYZE_STEPS} view={analyzeView(progress)} />
           <div className="mt-6 rounded-md border border-line bg-surface px-5 py-4">
             <SelfScore selfScore={session.selfScore} lead="待つ間に、この面談の自分の点を付けておけます（付けなくても読めます）。あとで AI の点と並べます。" confirmLabel="待つ" canRedo />
           </div>

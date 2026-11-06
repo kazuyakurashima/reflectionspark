@@ -3,6 +3,8 @@
 
 import { guardStep1, guardStep2, guardStep3, guardStep4 } from "./guard.mts";
 import { mockStep0, mockStep0c, mockStep1, mockStep2, mockStep3, mockStep4 } from "./mock.mts";
+import { scoredItems, step1Phase, throttled } from "./progress.mts";
+import type { OnProgress } from "./progress.mts";
 import { runStep0, runStep0c } from "./step0.mts";
 import { runStep1 } from "./step1.mts";
 import { runStep2 } from "./step2.mts";
@@ -20,13 +22,14 @@ export type AnalyzeResponse = { step1: Step1Result; step2: Step2Result; mock: bo
 export type CandidatesResponse = { step3: Step3Result; mock: boolean; ms: number };
 export type FollowUpResponse = { step4: Step4Result; mock: boolean; ms: number };
 
-/** 工程 0（画面 1）。0a と 0b。0c は step0cOrMock で別に回す（分析を待たせない）。 */
-export async function step0OrMock(raw: string, kind: MeetingKind): Promise<Step0Response> {
+/** 工程 0（画面 1）。0a と 0b。0c は step0cOrMock で別に回す（分析を待たせない）。onProgress は待つ間の画面用（engine/progress.mts）。 */
+export async function step0OrMock(raw: string, kind: MeetingKind, onProgress?: OnProgress): Promise<Step0Response> {
   const t0 = Date.now();
   if (!hasApiKey()) {
     return { transcript: mockStep0(raw, kind), mock: true, ms: Date.now() - t0 };
   }
-  const r = await runStep0(raw, kind);
+  const send = onProgress ? throttled(onProgress, Math.max(10, Math.round([...raw].length / 200))) : undefined;
+  const r = await runStep0(raw, kind, send ? { onStage: (stage) => send({ stage }), onProgress: (done, total, unit) => send({ stage: "0a", done, total, unit }) } : {});
   return { transcript: r.transcript, mock: false, ms: Date.now() - t0 };
 }
 
@@ -42,14 +45,19 @@ export async function step0cOrMock(transcript: Transcript): Promise<Step0cRespon
 }
 
 /** 工程 1 → 2（画面 2）。本人の自己採点と一言は受け取らない（決まり 10）。 */
-export async function analyzeOrMock(transcript: Transcript, firstMeeting = true): Promise<AnalyzeResponse> {
+export async function analyzeOrMock(transcript: Transcript, firstMeeting = true, onProgress?: OnProgress): Promise<AnalyzeResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {
     const step1 = guardStep1(mockStep1(transcript), transcript.utterances);
     return { step1, step2: guardStep2(mockStep2(transcript, firstMeeting), transcript.utterances), mock: true, ms: Date.now() - t0 };
   }
-  const step1 = await runStep1(transcript);
-  const step2 = await runStep2(transcript, step1.scenes, { firstMeeting });
+  const send = onProgress ? throttled(onProgress) : undefined;
+  let text1 = "";
+  let text2 = "";
+  send?.({ stage: "1", done: 0 });
+  const step1 = await runStep1(transcript, send ? { onText: (d) => send({ stage: "1", done: step1Phase((text1 += d)) }) } : {});
+  send?.({ stage: "2", done: 0, total: 5 });
+  const step2 = await runStep2(transcript, step1.scenes, { firstMeeting, onText: send ? (d) => send({ stage: "2", done: scoredItems((text2 += d)), total: 5 }) : undefined });
   return { step1, step2, mock: false, ms: Date.now() - t0 };
 }
 

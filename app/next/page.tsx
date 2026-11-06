@@ -23,7 +23,9 @@ import { ScoreTable } from "@/app/components/Scores";
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
 import { refLabel } from "@/app/lib/words.mts";
 import { UtteranceContext } from "@/app/components/UtteranceView";
-import { WaitNote } from "@/app/components/WaitNote";
+import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
+import { postWithProgress } from "@/app/lib/progress-stream.mts";
+import type { ProgressEvent } from "@/engine/progress.mts";
 import { fetchStep0c, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
@@ -35,6 +37,8 @@ export default function Screen5() {
   const [error, setError] = useState<string | null>(null);
   /** 追跡（AI の判定）の失敗。整形の失敗（error）と分けて、やり直しのボタンを判定の所に出す */
   const [followError, setFollowError] = useState<string | null>(null);
+  /** 整形を待つ間に、サーバーから届いた進み具合 */
+  const [progress, setProgress] = useState<ProgressEvent | null>(null);
   const [retry, setRetry] = useState(0);
   const [verdict, setVerdict] = useState<FollowUpVerdict | null>(null);
   const [score, setScore] = useState("");
@@ -111,10 +115,9 @@ export default function Screen5() {
     setBusy(true);
     setError(null);
     setFollowError(null);
+    setProgress(null);
     try {
-      const r = await fetch("/api/step0", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ raw, kind }) });
-      const d = (await r.json()) as Step0Response & { error?: string };
-      if (!r.ok || d.error) throw new Error(d.error ?? `整形に失敗しました（${r.status}）`);
+      const d = await postWithProgress<Step0Response>("/api/step0", { raw, kind }, setProgress, "整形に失敗しました");
       started.current = false;
       updateSession((s) => ({ ...s, followUp: { ...(s.followUp ?? newFollowUp()), raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, result: null, selfVerdict: null, selfScore: null } }));
       void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: fn(s.followUp.transcript) } } : s)));
@@ -196,7 +199,9 @@ export default function Screen5() {
             サンプルの続きを選ぶ（Demo Mode）
           </button>
         </div>
-        {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
+        {busy && (
+          <WaitPanel className="mt-6" title="整形しています" estimate="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" steps={STEP0_STEPS} view={step0View(progress)} />
+        )}
         {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
       </section>
 
@@ -285,8 +290,12 @@ export default function Screen5() {
             </div>
           ) : !result ? (
             <section className="mt-16">
-              <p className="font-semibold">AI が面談を読んでいます…</p>
-              <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度読みます。自分の評価は残っています。" />
+              <WaitPanel
+                title="AI が面談を読んでいます"
+                estimate="1 分ほど"
+                reopen="この画面を開き直すと、もう一度読みます。自分の評価は残っています。"
+                view={{ current: 0, status: "前回決めた行動が、今回の面談でどう現れたかを読んでいます", ratio: null }}
+              />
             </section>
           ) : (
             <>
