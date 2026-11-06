@@ -37,7 +37,7 @@ export default function Screen3() {
     <main className={PAGE}>
       <section>
         <h1 className={H1}>問いに答える</h1>
-        <p className={LEAD}>場面を読んで受け取った問いに、自分の言葉で答えます。答えは、次に試す行動の候補を作る材料になります。全部に答えなくてもかまいません。AI の見立てと違うと思う所は、そのまま書いてください。</p>
+        <p className={LEAD}>場面を読んで受け取った問いに、自分の言葉で答えます。答えは、次に試す行動の候補を作る材料になります。全部に答えなくてもかまいません。AI の見立てと違うと思う所は、そのまま書いてかまいません。</p>
 
         <ol className="mt-8 space-y-9">
           {questions.map((q, i) => (

@@ -16,6 +16,7 @@ import type { Scene, Transcript } from "@/engine/types.mts";
 import { RUBRIC_ITEMS } from "@/engine/rubric.mts";
 import { findUtteranceRefs } from "@/engine/utterance-no.mts";
 import { Atlas } from "@/app/components/Atlas";
+import { Collapsible } from "@/app/components/Collapsible";
 import { RefText } from "@/app/components/RefText";
 import { SceneLines } from "@/app/components/SceneLines";
 import { ScoreTable } from "@/app/components/Scores";
@@ -291,6 +292,14 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
               </span>
             )}
           </p>
+          {/* 手順ごとの説明は、ここ 1 か所にまとめる（手順には見出しと入力だけを置く） */}
+          <Collapsible label="この画面の読み方" openLabel="この画面の読み方を閉じる" className="mt-2 text-[0.92rem]">
+            <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
+              <li>場面ごとに、1 から 4 の順に進みます。2 と 3 は、とばしても進めます。</li>
+              <li>2 で先に自分の見方を書いておくと、AI の見立てに引っぱられず、違いに気づきやすくなります。書いた言葉は AI に渡しません。AI の見立てを開くと、自分の見方と上下に並びます。</li>
+              <li>4 の問いには、次の画面「3 問いに答える」で答えます。その答えをもとに、次の面談で試す行動の候補を作ります。</li>
+            </ul>
+          </Collapsible>
 
           <section className="mt-12" aria-label="面談の地図">
             <Atlas t={t} spans={spans} sceneNames={scenes.map((sc) => sceneTypeLabel(sc.type))} current={current} chapters={chapters} onScene={(k) => showScene(k, false)} />
@@ -355,8 +364,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                   )}
                 </Step>
 
-                <Step n={2} title="AI の見立てを見る前に、自分の見方を一言" note="書かなくても進めます">
-                  <p className="mb-2 text-[0.86rem] text-ink-2">先に自分の見方を持っておくと、AI の見立てに引っぱられず、違いに気づきやすくなります。</p>
+                <Step n={2} title="自分の見方を一言">
                   <input
                     type="text"
                     value={own}
@@ -366,19 +374,16 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                     aria-label={`場面 ${current + 1} の自分の見方`}
                     className="block w-full border-0 border-b border-line-2 bg-transparent py-2 placeholder:text-ink-3 focus:border-accent focus:outline-none"
                   />
-                  <p className="mt-1.5 text-xs text-ink-3">書いた言葉は AI に渡しません。AI の見立てを読むときに、自分の見方と上下に並びます。</p>
+                  <p className="mt-1.5 text-xs text-ink-3">AI に渡しません。</p>
                 </Step>
 
-                <Step n={3} title="AI の見立てと比べる" note="読まなくても進めます">
+                <Step n={3} title="AI の見立て">
                   <AiView t={t} scene={scene} own={own.trim()} open={aiOpen.includes(current)} onToggle={() => setAiOpen((o) => (o.includes(current) ? o.filter((k) => k !== current) : [...o, current]))} />
                 </Step>
 
                 <Step n={4} title="この場面から持ち帰る問い" last>
                   <p className="text-[1.38rem] font-medium leading-[1.65] text-pretty">
                     <RefText t={t} text={scene.question} />
-                  </p>
-                  <p className="mt-3 text-[0.86rem] text-ink-2">
-                    次の画面「3 問いに答える」で、この問いに答えます。その答えをもとに、次の面談で試す行動の候補を作ります。AI の見立てと違うと思う所は、そのまま書いてかまいません。
                   </p>
                 </Step>
               </>
