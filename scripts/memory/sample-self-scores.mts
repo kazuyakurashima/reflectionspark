@@ -4,7 +4,7 @@
 
 import type { SelfEntry } from "../../engine/score-ledger.mts";
 
-export const SAMPLE_SELF_CONFIRMED = false;
+export const SAMPLE_SELF_CONFIRMED = true;
 
 export const SAMPLE_SELF: Record<string, SelfEntry> = {
   "student-seiseki": { selfScore: 6, selfNote: "「嫌いになりそう」の話は聞けた。最後の決め方は、こちらで急いだかも。", selfVerdict: null },
