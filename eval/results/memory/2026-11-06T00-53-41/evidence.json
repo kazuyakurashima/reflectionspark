@@ -1,0 +1,2723 @@
+{
+  "status": "検証用・暫定（ダミーの面談。本人は確かめていない）",
+  "files": [
+    {
+      "file": "actions.md",
+      "chars": 2994,
+      "evidence": {
+        "total": 17,
+        "byStatus": {
+          "全文一致": 17
+        },
+        "matched": 17,
+        "withQuote": 17,
+        "speakerMismatch": 0
+      },
+      "traitHits": [],
+      "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
+      "provisionalOnFirstLine": true
+    },
+    {
+      "file": "changes.md",
+      "chars": 5655,
+      "evidence": {
+        "total": 50,
+        "byStatus": {
+          "全文一致": 50
+        },
+        "matched": 50,
+        "withQuote": 50,
+        "speakerMismatch": 0
+      },
+      "traitHits": [],
+      "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
+      "provisionalOnFirstLine": true
+    },
+    {
+      "file": "index.md",
+      "chars": 1278,
+      "evidence": {
+        "total": 0,
+        "byStatus": {},
+        "matched": 0,
+        "withQuote": 0,
+        "speakerMismatch": 0
+      },
+      "traitHits": [],
+      "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
+      "provisionalOnFirstLine": true
+    },
+    {
+      "file": "recurring-scenes.md",
+      "chars": 9880,
+      "evidence": {
+        "total": 72,
+        "byStatus": {
+          "全文一致": 72
+        },
+        "matched": 72,
+        "withQuote": 72,
+        "speakerMismatch": 0
+      },
+      "traitHits": [],
+      "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
+      "provisionalOnFirstLine": true
+    }
+  ],
+  "evidence": {
+    "total": 139,
+    "byStatus": {
+      "全文一致": 139
+    },
+    "matched": 139,
+    "withQuote": 139,
+    "speakerMismatch": 0
+  },
+  "uniqueUtterances": 49,
+  "hypotheses": {
+    "total": 6,
+    "withCounterEvidence": 5,
+    "withCounterNoteOnly": 1,
+    "withoutCounter": 0,
+    "acrossInterviews": 4,
+    "byConfidence": {
+      "中": 3,
+      "低": 1,
+      "保留": 2
+    }
+  },
+  "hypothesisRows": [
+    {
+      "id": "H1",
+      "statement": "この 6 回のうち 3 回（student-shinro、student-seiseki、student-yaruki）で、相手が結果への受け止め・教科への気持ち・自分が取り組んでいることを話した直後に、講師が方法や説明に進まず、その言葉を受けた短い問い（または言葉の返し）を出し、その次の相手の発話に、相手が自分から足した内容があった。",
+      "confidence": "中",
+      "interviews": [
+        "student-shinro",
+        "student-seiseki",
+        "student-yaruki"
+      ],
+      "evidence": 9,
+      "evidenceMatched": 9,
+      "counter": 4,
+      "counterMatched": 4,
+      "counterNote": "相手が家での状況を話した直後で、講師が問いを出さず、励ましや説明に進んだ場面（形が近い）：",
+      "counterOverlaps": []
+    },
+    {
+      "id": "H2",
+      "statement": "この 6 回のうち 2 回（student-yaruki-2、student-seiseki-2）で、前回決めたことの様子を話題にした場面で、講師が、できなかった回の理由より先に、できた日の様子（どうやって・どんな日）を尋ね、その次の相手の発話に、その日の具体の動きや条件があった。",
+      "confidence": "低",
+      "interviews": [
+        "student-yaruki-2",
+        "student-seiseki-2"
+      ],
+      "evidence": 8,
+      "evidenceMatched": 8,
+      "counter": 0,
+      "counterMatched": 0,
+      "counterNote": "この記録の範囲には見当たらない（できなかった日の理由を尋ねる発話は、引用の行に無い。無いことは、尋ねなかったことの証明にはならない）。",
+      "counterOverlaps": []
+    },
+    {
+      "id": "H3",
+      "statement": "この 6 回のうち 4 回（student-shinro、student-shinro-2、student-yaruki、student-yaruki-2）で、相手が、家ではなかなかできない・できなさそうだという返事、または中身の無い短い返事を返した直後に、講師が励まし・説明・例・具体的な案を足し、その次の相手の発話は「はい」を含む短い返事だった。",
+      "confidence": "中",
+      "interviews": [
+        "student-shinro",
+        "student-shinro-2",
+        "student-yaruki",
+        "student-yaruki-2"
+      ],
+      "evidence": 12,
+      "evidenceMatched": 12,
+      "counter": 10,
+      "counterMatched": 10,
+      "counterNote": "説明：student-seiseki-2 の発話 49 の短い返事のあと、講師は説明や案を足さず、単元・問題・いつを聞き返している。student-shinro-2 の発話 48 の短い返事のあと、講師は差を返して問うている。どちらも後ろの面談（4 本目・6 本目）の場面。",
+      "counterOverlaps": []
+    },
+    {
+      "id": "H4",
+      "statement": "この 6 回のうち 4 回（student-seiseki、student-yaruki、student-yaruki-2、student-seiseki-2）で、講師が自分の発話で、いつ・どれだけ・何をのどれかを含む行動の案を示した直後の相手の発話は短く、「はい」（3 回）か、量への問い返し（1 回）だった。",
+      "confidence": "中",
+      "interviews": [
+        "student-seiseki",
+        "student-yaruki",
+        "student-yaruki-2",
+        "student-seiseki-2"
+      ],
+      "evidence": 10,
+      "evidenceMatched": 10,
+      "counter": 2,
+      "counterMatched": 2,
+      "counterNote": "同じ形の場面で「はい」でなかった発話：",
+      "counterOverlaps": [
+        "student-seiseki-2 発話 111",
+        "student-seiseki-2 発話 113"
+      ]
+    },
+    {
+      "id": "H5",
+      "statement": "この 6 回のうち 1 回（student-shinro-2）で、相手が望み（行きたい所）と今の行動（家での勉強がほぼゼロ）の両方を話した後、講師がその二つを並べて返し、どう思うかを尋ね、その次の相手の発話が長く続いた。",
+      "confidence": "保留",
+      "interviews": [
+        "student-shinro-2"
+      ],
+      "evidence": 3,
+      "evidenceMatched": 3,
+      "counter": 6,
+      "counterMatched": 6,
+      "counterNote": "前の面談の、家での勉強がほぼゼロという話の直後（望みの話は引用の行に無い）で、差を返さずに励ましと講習の説明に進んだ場面： 同じ面談の、家での状況の話の直後で、差を返さずに説明に進んだ場面：",
+      "counterOverlaps": []
+    },
+    {
+      "id": "H6",
+      "statement": "この 6 回のうち 1 回（student-yaruki-2）で、講師が、相手に自分でやりたいことを尋ねる文のすぐ後に、同じ発話の中でなければ講師が決めると言い、行動を決めて続けた。",
+      "confidence": "保留",
+      "interviews": [
+        "student-yaruki-2"
+      ],
+      "evidence": 3,
+      "evidenceMatched": 3,
+      "counter": 5,
+      "counterMatched": 5,
+      "counterNote": "講師が相手に自分の案を尋ねる発話で、その発話が問いで終わっていた場面：",
+      "counterOverlaps": []
+    }
+  ],
+  "checks": [
+    {
+      "interviewId": "student-shinro-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "講師",
+      "quote": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。",
+      "line": 20,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "講師",
+      "quote": "頑張るって具体的にはどの単元のどの問題をいつやる ？",
+      "line": 21,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "頑張るって具体的にはどの単元のどの問題をいつやる ？"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 102,
+      "lastIndex": 102,
+      "speaker": "講師",
+      "quote": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば",
+      "line": 22,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 48,
+      "lastIndex": 48,
+      "speaker": "生徒",
+      "quote": "いえ、",
+      "line": 27,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "いえ、"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "講師",
+      "quote": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。",
+      "line": 28,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "生徒",
+      "quote": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。",
+      "line": 29,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "生徒",
+      "quote": "頑張ります。",
+      "line": 33,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "頑張ります。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "講師",
+      "quote": "頑張るって具体的にはどの単元のどの問題をいつやる ？",
+      "line": 34,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "頑張るって具体的にはどの単元のどの問題をいつやる ？"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 51,
+      "lastIndex": 51,
+      "speaker": "生徒",
+      "quote": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。",
+      "line": 35,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 52,
+      "lastIndex": 52,
+      "speaker": "講師",
+      "quote": "うん、いつ",
+      "line": 36,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "うん、いつ"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 53,
+      "lastIndex": 53,
+      "speaker": "生徒",
+      "quote": "部活がテスト前で木曜から休みになるんで、木曜と金曜の夜と土日。",
+      "line": 37,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "部活がテスト前で木曜から休みになるんで、木曜と金曜の夜と土日。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 101,
+      "lastIndex": 101,
+      "speaker": "生徒",
+      "quote": "えっと",
+      "line": 42,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 102,
+      "lastIndex": 102,
+      "speaker": "講師",
+      "quote": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば",
+      "line": 43,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 103,
+      "lastIndex": 103,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 44,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 145,
+      "lastIndex": 145,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 45,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 146,
+      "lastIndex": 146,
+      "speaker": "講師",
+      "quote": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる",
+      "line": 46,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 147,
+      "lastIndex": 147,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 47,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "actions.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 91,
+      "lastIndex": 91,
+      "speaker": "生徒",
+      "quote": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。",
+      "line": 23,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 92,
+      "lastIndex": 92,
+      "speaker": "講師",
+      "quote": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。",
+      "line": 24,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 93,
+      "lastIndex": 93,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 25,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 44,
+      "lastIndex": 44,
+      "speaker": "生徒",
+      "quote": "はい、家だとなかなか。",
+      "line": 27,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい、家だとなかなか。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 45,
+      "lastIndex": 45,
+      "speaker": "講師",
+      "quote": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。",
+      "line": 28,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 46,
+      "lastIndex": 46,
+      "speaker": "生徒",
+      "quote": "はい。でも帰るとやっぱり動画見ちゃって。",
+      "line": 29,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。でも帰るとやっぱり動画見ちゃって。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 92,
+      "lastIndex": 92,
+      "speaker": "講師",
+      "quote": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。",
+      "line": 34,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 93,
+      "lastIndex": 93,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 35,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 48,
+      "lastIndex": 48,
+      "speaker": "生徒",
+      "quote": "いえ、",
+      "line": 37,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "いえ、"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "講師",
+      "quote": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。",
+      "line": 38,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "生徒",
+      "quote": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。",
+      "line": 39,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 27,
+      "lastIndex": 27,
+      "speaker": "生徒",
+      "quote": "もう嫌いになりそうです。",
+      "line": 47,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "もう嫌いになりそうです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 28,
+      "lastIndex": 28,
+      "speaker": "講師",
+      "quote": "嫌いになりそうか。",
+      "line": 48,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "嫌いになりそうか。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 29,
+      "lastIndex": 29,
+      "speaker": "生徒",
+      "quote": "前は割と好きだったんです。 1年の時は計算が得意で、クラスでも上の方だったし。でも 2年になって文字が 2つ出てきたあたりからなんか読んでも何してるかわからなくて、授業中、黒板写すだけになってます。",
+      "line": 49,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "前は割と好きだったんです。 1年の時は計算が得意で、クラスでも上の方だったし。でも 2年になって文字が 2つ出てきたあたりからなんか読んでも何してるかわからなくて、授業中、黒板写すだけになってます。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 21,
+      "lastIndex": 21,
+      "speaker": "生徒",
+      "quote": "でも、新人戦の前の週から練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。",
+      "line": 51,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "でも、新人戦の前の週から練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 22,
+      "lastIndex": 22,
+      "speaker": "講師",
+      "quote": "3日か正直に言ってくれてありがとう。",
+      "line": 52,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "3日か正直に言ってくれてありがとう。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 23,
+      "lastIndex": 23,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 53,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 24,
+      "lastIndex": 24,
+      "speaker": "講師",
+      "quote": "3日やった日はどんな日だった。",
+      "line": 54,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "3日やった日はどんな日だった。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 25,
+      "lastIndex": 25,
+      "speaker": "生徒",
+      "quote": "練習が早く終わった日休みの日です。帰ってすぐやればできました。",
+      "line": 55,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "練習が早く終わった日休みの日です。帰ってすぐやればできました。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 71,
+      "lastIndex": 71,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 60,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 72,
+      "lastIndex": 72,
+      "speaker": "講師",
+      "quote": "まずは冬期講習で 1学期の最初からもう 1回やり直そう。連立も関数も講習の中二のコースで全部やるから。それまでは学校のワークを答えを見ないで毎日やるできる。",
+      "line": 61,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "まずは冬期講習で 1学期の最初からもう 1回やり直そう。連立も関数も講習の中二のコースで全部やるから。それまでは学校のワークを答えを見ないで毎日やるできる。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 73,
+      "lastIndex": 73,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 62,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 109,
+      "lastIndex": 109,
+      "speaker": "生徒",
+      "quote": "時くらいです",
+      "line": 64,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "時くらいです"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 110,
+      "lastIndex": 110,
+      "speaker": "講師",
+      "quote": "じゃあ 4時に帰ってご飯の前に 1時間関数ご飯の後にもう 1時間。",
+      "line": 65,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "じゃあ 4時に帰ってご飯の前に 1時間関数ご飯の後にもう 1時間。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 111,
+      "lastIndex": 111,
+      "speaker": "生徒",
+      "quote": "2時間ですか",
+      "line": 66,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "2時間ですか"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 112,
+      "lastIndex": 112,
+      "speaker": "講師",
+      "quote": "できる",
+      "line": 67,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "できる"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 113,
+      "lastIndex": 113,
+      "speaker": "生徒",
+      "quote": "やってみます。",
+      "line": 68,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "やってみます。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 71,
+      "lastIndex": 71,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 73,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 73,
+      "lastIndex": 73,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 74,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "生徒",
+      "quote": "頑張ります。",
+      "line": 76,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "頑張ります。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "講師",
+      "quote": "頑張るって具体的にはどの単元のどの問題をいつやる ？",
+      "line": 77,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "頑張るって具体的にはどの単元のどの問題をいつやる ？"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 51,
+      "lastIndex": 51,
+      "speaker": "生徒",
+      "quote": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。",
+      "line": 78,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 52,
+      "lastIndex": 52,
+      "speaker": "講師",
+      "quote": "うん、いつ",
+      "line": 79,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "うん、いつ"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 53,
+      "lastIndex": 53,
+      "speaker": "生徒",
+      "quote": "部活がテスト前で木曜から休みになるんで、木曜と金曜の夜と土日。",
+      "line": 80,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "部活がテスト前で木曜から休みになるんで、木曜と金曜の夜と土日。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 105,
+      "lastIndex": 105,
+      "speaker": "生徒",
+      "quote": "そうかもしれないです。",
+      "line": 88,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "そうかもしれないです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 106,
+      "lastIndex": 106,
+      "speaker": "講師",
+      "quote": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で",
+      "line": 89,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 107,
+      "lastIndex": 107,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 90,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 101,
+      "lastIndex": 101,
+      "speaker": "生徒",
+      "quote": "えっと",
+      "line": 92,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 102,
+      "lastIndex": 102,
+      "speaker": "講師",
+      "quote": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば",
+      "line": 93,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 103,
+      "lastIndex": 103,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 94,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 61,
+      "lastIndex": 61,
+      "speaker": "生徒",
+      "quote": "回路みたいなのがあって、それを組むとスイッチとか信号とかが作れるんです。信号が赤になったら電車が止まって青になったら動くみたいな。",
+      "line": 99,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "回路みたいなのがあって、それを組むとスイッチとか信号とかが作れるんです。信号が赤になったら電車が止まって青になったら動くみたいな。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 62,
+      "lastIndex": 62,
+      "speaker": "講師",
+      "quote": "へえ、それ自分で考えて組んでるの。",
+      "line": 100,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "へえ、それ自分で考えて組んでるの。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 63,
+      "lastIndex": 63,
+      "speaker": "生徒",
+      "quote": "最初は動画見て真似してでも動画と同じだと自分の駅に合わないから途中から自分で変えてます。駅が 2つあるんで、 2つの信号を連動させないといけなくて、片方が青の時はもう片方は絶対に赤みたいに。それが先週やっとできました。",
+      "line": 101,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "最初は動画見て真似してでも動画と同じだと自分の駅に合わないから途中から自分で変えてます。駅が 2つあるんで、 2つの信号を連動させないといけなくて、片方が青の時はもう片方は絶対に赤みたいに。それが先週やっとできました。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 7,
+      "lastIndex": 7,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 103,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 8,
+      "lastIndex": 8,
+      "speaker": "講師",
+      "quote": "先々週の来た日はどうやって 30分前に出られたの。",
+      "line": 104,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "先々週の来た日はどうやって 30分前に出られたの。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 9,
+      "lastIndex": 9,
+      "speaker": "生徒",
+      "quote": "朝たまたま思い出して急いで出ました。ご飯半分残して。",
+      "line": 105,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "朝たまたま思い出して急いで出ました。ご飯半分残して。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 106,
+      "lastIndex": 106,
+      "speaker": "講師",
+      "quote": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で",
+      "line": 110,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 107,
+      "lastIndex": 107,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 111,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 146,
+      "lastIndex": 146,
+      "speaker": "講師",
+      "quote": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる",
+      "line": 113,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 147,
+      "lastIndex": 147,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 114,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "changes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 39,
+      "lastIndex": 39,
+      "speaker": "生徒",
+      "quote": "でしたかはいだから正直無理なのかなってちょっと思ってて。",
+      "line": 25,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "でしたかはいだから正直無理なのかなってちょっと思ってて。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 40,
+      "lastIndex": 40,
+      "speaker": "講師",
+      "quote": "そっか、ディーって書いてあったら無理かもって思うよね。見たときどんな感じだった。",
+      "line": 26,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "そっか、ディーって書いてあったら無理かもって思うよね。見たときどんな感じだった。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 41,
+      "lastIndex": 41,
+      "speaker": "生徒",
+      "quote": "なんかああ、やっぱりって数学が思ったより取れなかったんで。",
+      "line": 27,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "なんかああ、やっぱりって数学が思ったより取れなかったんで。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 27,
+      "lastIndex": 27,
+      "speaker": "生徒",
+      "quote": "もう嫌いになりそうです。",
+      "line": 28,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "もう嫌いになりそうです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 28,
+      "lastIndex": 28,
+      "speaker": "講師",
+      "quote": "嫌いになりそうか。",
+      "line": 29,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "嫌いになりそうか。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 29,
+      "lastIndex": 29,
+      "speaker": "生徒",
+      "quote": "前は割と好きだったんです。 1年の時は計算が得意で、クラスでも上の方だったし。でも 2年になって文字が 2つ出てきたあたりからなんか読んでも何してるかわからなくて、授業中、黒板写すだけになってます。",
+      "line": 30,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "前は割と好きだったんです。 1年の時は計算が得意で、クラスでも上の方だったし。でも 2年になって文字が 2つ出てきたあたりからなんか読んでも何してるかわからなくて、授業中、黒板写すだけになってます。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 61,
+      "lastIndex": 61,
+      "speaker": "生徒",
+      "quote": "回路みたいなのがあって、それを組むとスイッチとか信号とかが作れるんです。信号が赤になったら電車が止まって青になったら動くみたいな。",
+      "line": 31,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "回路みたいなのがあって、それを組むとスイッチとか信号とかが作れるんです。信号が赤になったら電車が止まって青になったら動くみたいな。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 62,
+      "lastIndex": 62,
+      "speaker": "講師",
+      "quote": "へえ、それ自分で考えて組んでるの。",
+      "line": 32,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "へえ、それ自分で考えて組んでるの。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 63,
+      "lastIndex": 63,
+      "speaker": "生徒",
+      "quote": "最初は動画見て真似してでも動画と同じだと自分の駅に合わないから途中から自分で変えてます。駅が 2つあるんで、 2つの信号を連動させないといけなくて、片方が青の時はもう片方は絶対に赤みたいに。それが先週やっとできました。",
+      "line": 33,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "最初は動画見て真似してでも動画と同じだと自分の駅に合わないから途中から自分で変えてます。駅が 2つあるんで、 2つの信号を連動させないといけなくて、片方が青の時はもう片方は絶対に赤みたいに。それが先週やっとできました。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 91,
+      "lastIndex": 91,
+      "speaker": "生徒",
+      "quote": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。",
+      "line": 37,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 92,
+      "lastIndex": 92,
+      "speaker": "講師",
+      "quote": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。",
+      "line": 38,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 44,
+      "lastIndex": 44,
+      "speaker": "生徒",
+      "quote": "はい、家だとなかなか。",
+      "line": 39,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい、家だとなかなか。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 45,
+      "lastIndex": 45,
+      "speaker": "講師",
+      "quote": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。",
+      "line": 40,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 7,
+      "lastIndex": 7,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 47,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 8,
+      "lastIndex": 8,
+      "speaker": "講師",
+      "quote": "先々週の来た日はどうやって 30分前に出られたの。",
+      "line": 48,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "先々週の来た日はどうやって 30分前に出られたの。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 9,
+      "lastIndex": 9,
+      "speaker": "生徒",
+      "quote": "朝たまたま思い出して急いで出ました。ご飯半分残して。",
+      "line": 49,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "朝たまたま思い出して急いで出ました。ご飯半分残して。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 21,
+      "lastIndex": 21,
+      "speaker": "生徒",
+      "quote": "でも、新人戦の前の週から練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。",
+      "line": 50,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "でも、新人戦の前の週から練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 22,
+      "lastIndex": 22,
+      "speaker": "講師",
+      "quote": "3日か正直に言ってくれてありがとう。",
+      "line": 51,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "3日か正直に言ってくれてありがとう。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 23,
+      "lastIndex": 23,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 52,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 24,
+      "lastIndex": 24,
+      "speaker": "講師",
+      "quote": "3日やった日はどんな日だった。",
+      "line": 53,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "3日やった日はどんな日だった。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 25,
+      "lastIndex": 25,
+      "speaker": "生徒",
+      "quote": "練習が早く終わった日休みの日です。帰ってすぐやればできました。",
+      "line": 54,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "練習が早く終わった日休みの日です。帰ってすぐやればできました。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 91,
+      "lastIndex": 91,
+      "speaker": "生徒",
+      "quote": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。",
+      "line": 63,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 92,
+      "lastIndex": 92,
+      "speaker": "講師",
+      "quote": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。",
+      "line": 64,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 93,
+      "lastIndex": 93,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 65,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 44,
+      "lastIndex": 44,
+      "speaker": "生徒",
+      "quote": "はい、家だとなかなか。",
+      "line": 66,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい、家だとなかなか。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 45,
+      "lastIndex": 45,
+      "speaker": "講師",
+      "quote": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。",
+      "line": 67,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 46,
+      "lastIndex": 46,
+      "speaker": "生徒",
+      "quote": "はい。でも帰るとやっぱり動画見ちゃって。",
+      "line": 68,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。でも帰るとやっぱり動画見ちゃって。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 105,
+      "lastIndex": 105,
+      "speaker": "生徒",
+      "quote": "そうかもしれないです。",
+      "line": 69,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "そうかもしれないです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 106,
+      "lastIndex": 106,
+      "speaker": "講師",
+      "quote": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で",
+      "line": 70,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 107,
+      "lastIndex": 107,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 71,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 101,
+      "lastIndex": 101,
+      "speaker": "生徒",
+      "quote": "えっと",
+      "line": 72,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 102,
+      "lastIndex": 102,
+      "speaker": "講師",
+      "quote": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば",
+      "line": 73,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "例えばテストで何点とかあの高校に行きたいとかなくてもいいんだけど、先生が思うのはね、中一のうちは好きなことがあるかどうかの方が大きいと思ってて。前に駅のゲームの話してくれたでしょ。あれを聞いて先生は一つのことを続けられるんだなって思ったの。だから勉強もやり方次第だと思うんだよね。続けられる形にできれば"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 103,
+      "lastIndex": 103,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 74,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "生徒",
+      "quote": "頑張ります。",
+      "line": 77,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "頑張ります。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "講師",
+      "quote": "頑張るって具体的にはどの単元のどの問題をいつやる ？",
+      "line": 78,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "頑張るって具体的にはどの単元のどの問題をいつやる ？"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 51,
+      "lastIndex": 51,
+      "speaker": "生徒",
+      "quote": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。",
+      "line": 79,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 52,
+      "lastIndex": 52,
+      "speaker": "講師",
+      "quote": "うん、いつ",
+      "line": 80,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "うん、いつ"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 48,
+      "lastIndex": 48,
+      "speaker": "生徒",
+      "quote": "いえ、",
+      "line": 81,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "いえ、"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "講師",
+      "quote": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。",
+      "line": 82,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "生徒",
+      "quote": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。",
+      "line": 83,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 21,
+      "lastIndex": 21,
+      "speaker": "生徒",
+      "quote": "でも、新人戦の前の週から練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。",
+      "line": 84,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "でも、新人戦の前の週から練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 22,
+      "lastIndex": 22,
+      "speaker": "講師",
+      "quote": "3日か正直に言ってくれてありがとう。",
+      "line": 85,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "3日か正直に言ってくれてありがとう。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 24,
+      "lastIndex": 24,
+      "speaker": "講師",
+      "quote": "3日やった日はどんな日だった。",
+      "line": 86,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "3日やった日はどんな日だった。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 72,
+      "lastIndex": 72,
+      "speaker": "講師",
+      "quote": "まずは冬期講習で 1学期の最初からもう 1回やり直そう。連立も関数も講習の中二のコースで全部やるから。それまでは学校のワークを答えを見ないで毎日やるできる。",
+      "line": 94,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "まずは冬期講習で 1学期の最初からもう 1回やり直そう。連立も関数も講習の中二のコースで全部やるから。それまでは学校のワークを答えを見ないで毎日やるできる。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki",
+      "index": 73,
+      "lastIndex": 73,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 95,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 106,
+      "lastIndex": 106,
+      "speaker": "講師",
+      "quote": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で",
+      "line": 96,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "じゃあさ、塾に来る前にここで 1ページだけやってくるっていうのはどう授業の 30分前に来て自習室で"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki",
+      "index": 107,
+      "lastIndex": 107,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 97,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 146,
+      "lastIndex": 146,
+      "speaker": "講師",
+      "quote": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる",
+      "line": 98,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 147,
+      "lastIndex": 147,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 99,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 110,
+      "lastIndex": 110,
+      "speaker": "講師",
+      "quote": "じゃあ 4時に帰ってご飯の前に 1時間関数ご飯の後にもう 1時間。",
+      "line": 100,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "じゃあ 4時に帰ってご飯の前に 1時間関数ご飯の後にもう 1時間。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 111,
+      "lastIndex": 111,
+      "speaker": "生徒",
+      "quote": "2時間ですか",
+      "line": 101,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "2時間ですか"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 112,
+      "lastIndex": 112,
+      "speaker": "講師",
+      "quote": "できる",
+      "line": 102,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "できる"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 113,
+      "lastIndex": 113,
+      "speaker": "生徒",
+      "quote": "やってみます。",
+      "line": 103,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "やってみます。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 111,
+      "lastIndex": 111,
+      "speaker": "生徒",
+      "quote": "2時間ですか",
+      "line": 107,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "2時間ですか"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 113,
+      "lastIndex": 113,
+      "speaker": "生徒",
+      "quote": "やってみます。",
+      "line": 108,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "やってみます。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 48,
+      "lastIndex": 48,
+      "speaker": "生徒",
+      "quote": "いえ、",
+      "line": 115,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "いえ、"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 49,
+      "lastIndex": 49,
+      "speaker": "講師",
+      "quote": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。",
+      "line": 116,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "行きたいんだよね。でも家での勉強はゼロこの差どう思う。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "生徒",
+      "quote": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。",
+      "line": 117,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "正直、このままじゃまずいとは思ってた。担任の先生に言われる前から思ってはいたんです。 3者面談の帰りにお母さんが黙ってたのも多分それで。でも帰ると疲れたっていうのを言い訳にしてスマホ見ちゃ自分でもわかってるんです。やりなさいって言われてやるのは多分続かないし。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 91,
+      "lastIndex": 91,
+      "speaker": "生徒",
+      "quote": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。",
+      "line": 121,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "土日は部活が午前中で午後は寝てるか友達と遊んでるかやばいですよね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 92,
+      "lastIndex": 92,
+      "speaker": "講師",
+      "quote": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。",
+      "line": 122,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "大丈夫。これからだよ。夏から頑張ろう。部活を引退したら時間もできるしね。夏はね、受験の中で一番まとまった時間が取れるところだから、ここで 1、2年の穴をどれだけ埋められるかなんだよ。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro",
+      "index": 93,
+      "lastIndex": 93,
+      "speaker": "生徒",
+      "quote": "はい。",
+      "line": 123,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 44,
+      "lastIndex": 44,
+      "speaker": "生徒",
+      "quote": "はい、家だとなかなか。",
+      "line": 125,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい、家だとなかなか。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 45,
+      "lastIndex": 45,
+      "speaker": "講師",
+      "quote": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。",
+      "line": 126,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "そうそうだからさっきの答えは昼じゃなくて夜なんだよ。講習でやったところをその日の夜に自分でもう一回やるかどうか。それで 8月の終わりの模試が本当に変わる。言い方を変えるとね。講習は材料をもらう時間で、夜はそれを自分のものにする時間材料だけもらって帰っても料理しないと食べられないでしょ。引退して気が抜けるのは当たり前だし、それ自体は全然悪くないんだけどね。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-shinro-2",
+      "index": 46,
+      "lastIndex": 46,
+      "speaker": "生徒",
+      "quote": "はい。でも帰るとやっぱり動画見ちゃって。",
+      "line": 127,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい。でも帰るとやっぱり動画見ちゃって。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 145,
+      "lastIndex": 145,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 134,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 146,
+      "lastIndex": 146,
+      "speaker": "講師",
+      "quote": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる",
+      "line": 135,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "それと小テストは全部見てから 1問は書く何か自分でやってみたいことある。なければ先生が決めるね。じゃあ英語の単語を授業の前に 5個だけ先生のところに来て言う。これも 30分前に来た時にやる"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-yaruki-2",
+      "index": 147,
+      "lastIndex": 147,
+      "speaker": "生徒",
+      "quote": "はい",
+      "line": 136,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "はい"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 113,
+      "lastIndex": 113,
+      "speaker": "生徒",
+      "quote": "やってみます。",
+      "line": 140,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "やってみます。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 114,
+      "lastIndex": 114,
+      "speaker": "講師",
+      "quote": "数学は水曜だったね。火曜の夜は何やる。",
+      "line": 141,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "数学は水曜だったね。火曜の夜は何やる。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 50,
+      "lastIndex": 50,
+      "speaker": "講師",
+      "quote": "頑張るって具体的にはどの単元のどの問題をいつやる ？",
+      "line": 142,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "頑張るって具体的にはどの単元のどの問題をいつやる ？"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 51,
+      "lastIndex": 51,
+      "speaker": "生徒",
+      "quote": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。",
+      "line": 143,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "生徒",
+          "text": "えっと、 1次関数の式を立てるところです。グラフから式を出すのと文章から出すのと。"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    },
+    {
+      "interviewId": "student-seiseki-2",
+      "index": 52,
+      "lastIndex": 52,
+      "speaker": "講師",
+      "quote": "うん、いつ",
+      "line": 144,
+      "speakerMatches": true,
+      "actual": [
+        {
+          "speaker": "講師",
+          "text": "うん、いつ"
+        }
+      ],
+      "foundAt": [],
+      "status": "全文一致",
+      "file": "recurring-scenes.md"
+    }
+  ]
+}
