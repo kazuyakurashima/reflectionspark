@@ -7,7 +7,7 @@
 import { scanText } from "./forbidden-words.mts";
 import type { Scene, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Utterance } from "./types.mts";
 
-export const WITHHELD_NOTICE = "表示を控えました（人物の性質を言い表す言葉が含まれていたため。記録には残しています）";
+export const WITHHELD_NOTICE = "表示を控えました（人を言い表す言葉が含まれていたため。記録には残しています）";
 
 export type WithheldText = {
   field: string;
