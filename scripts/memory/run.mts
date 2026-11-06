@@ -8,6 +8,7 @@
 //   node scripts/memory/run.mts record --state <file> --session-cap-minor <n> [--dry-run]
 //   node scripts/memory/run.mts dream  --state <file> --cap <入力トークン換算の上限>
 //   node scripts/memory/run.mts verify --state <file>
+//   node scripts/memory/run.mts summary --state <file>   時間・トークン数・失敗とやり直しの表
 // --state は、作ったリソースの ID を控えるファイル（リポジトリの外に置く。ID と金額はリポジトリに入れない）。
 // 出力：eval/results/memory/analysis/<面談>.json、eval/results/memory/<実行の印>/…
 
@@ -392,7 +393,7 @@ async function commandDream(): Promise<void> {
     out.recordsUnchanged = recordsUnchanged;
     out.expectedFilesPresent = Object.fromEntries(Object.entries(DREAM_FILES).map(([k, p]) => [k, files.some((f) => f.path === p)]));
   }
-  fs.writeFileSync(path.join(dir, "dream-instructions.md"), `${BANNER.replace("夢が作った出力", "夢への指示")}\n\n${instructions}\n`);
+  fs.writeFileSync(path.join(dir, "dream-instructions.md"), `> 検証用：この回の夢に渡した指示（engine/recorder.mts の dreamInstructions）。\n\n${instructions}\n`);
   saveJson(path.join(dir, "dream-run.json"), out);
   log(`夢 終わり：${run.status}、${run.ms} ms、入力トークン換算 ${run.inputEquivalent}（上限 ${cap}）`);
   console.log(JSON.stringify({ usage: tokensOf(run.usage), files: out.outputFiles, recordsUnchanged: out.recordsUnchanged }, null, 2));
@@ -495,12 +496,104 @@ ${allChecks
   log(`照合 終わり：${path.relative(process.cwd(), path.join(dir, "evidence.md"))}`);
 }
 
+/** 時間・トークン数・失敗とやり直しを、1 つの表にまとめる（金額は書かない） */
+function commandSummary(): void {
+  const state = loadState();
+  const dir = runDirOf(state);
+  const analyses = loadAnalyses();
+  type Row = { step: string; model: string; calls: number; ms: number; inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheWriteTokens: number; note: string };
+  const add = (row: Row, m: CallMeta) => {
+    row.calls++;
+    row.ms += m.ms;
+    row.inputTokens += m.inputTokens;
+    row.outputTokens += m.outputTokens;
+    row.cacheReadTokens += m.cacheReadTokens;
+    row.cacheWriteTokens += m.cacheWriteTokens;
+  };
+  const empty = (step: string, model: string, note: string): Row => ({ step, model, calls: 0, ms: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, note });
+  const rows: Row[] = [];
+  const analysisNote = "今回回した呼び出しだけ。6 本を同時に回したので、時間は呼び出しごとの合計";
+  const byStep: Record<string, Row> = {};
+  const perInterview = analyses.map((a) => {
+    const fresh: { step: string; meta: CallMeta }[] = [];
+    if (a.source.step0 === "今回") a.timing.step0.forEach((m, i) => fresh.push({ step: i === 0 ? "工程 0a" : "工程 0b", meta: m }));
+    if (a.source.step1 === "今回") fresh.push({ step: "工程 1", meta: a.timing.step1 });
+    if (a.source.step2 === "今回" && a.timing.step2) fresh.push({ step: "工程 2", meta: a.timing.step2 });
+    if (a.source.step4 === "今回" && a.timing.step4) fresh.push({ step: "工程 4", meta: a.timing.step4 });
+    for (const f of fresh) add((byStep[f.step] ??= empty(`分析：${f.step}`, f.meta.model, analysisNote)), f.meta);
+    return { id: a.id, source: a.source, utterances: a.transcript.utterances.length, scenes: a.step1.scenes.length, verdict: a.step4?.verdict ?? null, freshCalls: fresh.length, failures: a.failures };
+  });
+  rows.push(...Object.keys(byStep).sort().map((k) => byStep[k]));
+  const rec = loadJson<{ model: string; indexIdentical: boolean; runs: { id: string; ms: number; usage: Omit<CallMeta, "model" | "ms">; agentWroteIdentical: boolean; fixedByApp: boolean; errors: string[]; indexHasLine: boolean; toolUses: Record<string, number>; traitHitsAfterReadBack: unknown[] | null; nameHitsAfterReadBack: unknown[] | null }[] }>(path.join(dir, "record-run.json"));
+  if (rec) {
+    const row = empty("記録係（セッション 6 本。1 本ずつ順番に）", rec.model, "時間はセッションを作ってから止まるまで");
+    for (const r of rec.runs) add(row, { model: rec.model, ms: r.ms, ...r.usage });
+    rows.push(row);
+  }
+  const dream = loadJson<{ model: string; dreamStatus: string; ms: number; usage: Omit<CallMeta, "model" | "ms">; inputEquivalent: number; capInputEquivalent: number; canceledByCap: boolean; error: string | null; recordsUnchanged?: { path: string; unchanged: boolean }[]; expectedFilesPresent?: Record<string, boolean> }>(path.join(dir, "dream-run.json"));
+  if (dream) {
+    const row = empty("夢（1 回）", dream.model, `終わり方 ${dream.dreamStatus}。入力トークン換算 ${dream.inputEquivalent}（上限 ${dream.capInputEquivalent}）`);
+    add(row, { model: dream.model, ms: dream.ms, ...dream.usage });
+    rows.push(row);
+  }
+  const evidence = loadJson<{ evidence: unknown; hypotheses: unknown; files: { file: string; traitHits: unknown[]; growthHits: unknown[] }[] }>(path.join(dir, "evidence.json"));
+  const failures = {
+    analysisRetries: perInterview.flatMap((p) => p.failures),
+    recorderErrors: rec ? rec.runs.flatMap((r) => r.errors.map((e) => `${r.id}：${e}`)) : [],
+    recorderRewrittenByApp: rec ? rec.runs.filter((r) => r.fixedByApp).map((r) => r.id) : [],
+    recorderTraitOrNameHitsAfterReadBack: rec ? rec.runs.filter((r) => (r.traitHitsAfterReadBack?.length ?? 0) + (r.nameHitsAfterReadBack?.length ?? 0) > 0).map((r) => r.id) : [],
+    dreamCanceled: dream ? dream.canceledByCap || dream.dreamStatus !== "completed" : null,
+    dreamError: dream?.error ?? null,
+    dreamChangedRecords: dream?.recordsUnchanged ? dream.recordsUnchanged.filter((r) => !r.unchanged).map((r) => r.path) : null,
+  };
+  const summary = { status: STATUS, runId: state.runId, interviews: perInterview, steps: rows, recorder: rec ? { indexIdentical: rec.indexIdentical, runs: rec.runs.map((r) => ({ id: r.id, ms: r.ms, usage: r.usage, toolUses: r.toolUses, agentWroteIdentical: r.agentWroteIdentical, indexHasLine: r.indexHasLine })) } : null, dream, evidence: evidence ? { evidence: evidence.evidence, hypotheses: evidence.hypotheses, traitHits: evidence.files.reduce((n, f) => n + f.traitHits.length, 0), growthHits: evidence.files.reduce((n, f) => n + f.growthHits.length, 0) } : null, failures };
+  saveJson(path.join(dir, "summary.json"), summary);
+  const sec = (ms: number) => (ms / 1000).toFixed(1);
+  const md = `# 時間・トークン数・失敗とやり直し（${state.runId}）
+
+> 検証用・暫定：ダミーの面談 6 本で回した記録係と夢の実証の数字。金額は書かない（トークン数と時間だけ）。
+
+## 段ごと
+
+| 段 | モデル | 呼び出し | 時間（秒） | 入力 | 出力 | キャッシュ読み | キャッシュ書き | 備考 |
+|---|---|---|---|---|---|---|---|---|
+${rows.map((r) => `| ${r.step} | ${r.model} | ${r.calls} | ${sec(r.ms)} | ${r.inputTokens} | ${r.outputTokens} | ${r.cacheReadTokens} | ${r.cacheWriteTokens} | ${r.note} |`).join("\n")}
+
+## 面談ごと（分析）
+
+| 面談 | 発話 | 場面 | 追跡の判定 | 今回回した呼び出し | 整形 | 工程 1 | やり直し |
+|---|---|---|---|---|---|---|---|
+${perInterview.map((p) => `| ${p.id} | ${p.utterances} | ${p.scenes} | ${p.verdict ?? "—"} | ${p.freshCalls} | ${p.source.step0} | ${p.source.step1} | ${p.failures.length} |`).join("\n")}
+
+## 記録係（セッションごと）
+
+| 面談 | 時間（秒） | 入力 | 出力 | キャッシュ読み | キャッシュ書き | 道具 | 渡した文と同じに書けた | 索引に 1 行 |
+|---|---|---|---|---|---|---|---|---|
+${(rec?.runs ?? []).map((r) => `| ${r.id} | ${sec(r.ms)} | ${r.usage.inputTokens} | ${r.usage.outputTokens} | ${r.usage.cacheReadTokens} | ${r.usage.cacheWriteTokens} | ${Object.entries(r.toolUses).map(([k, v]) => `${k} ${v}`).join("、")} | ${r.agentWroteIdentical ? "はい" : "いいえ（アプリが書き直した）"} | ${r.indexHasLine ? "はい" : "いいえ"} |`).join("\n")}
+
+- 索引は、渡した 6 行と見出しだけか：${rec?.indexIdentical ? "はい" : "いいえ"}
+
+## 失敗とやり直し
+
+- 分析のやり直し：${failures.analysisRetries.length} 件${failures.analysisRetries.length > 0 ? `（${failures.analysisRetries.join("／")}）` : ""}
+- 記録係のセッションのエラー：${failures.recorderErrors.length} 件
+- 記録係が渡した文と違う文を書き、アプリが書き直した：${failures.recorderRewrittenByApp.length} 件
+- 読み返しで、性質の言葉か名前が見つかった記録：${failures.recorderTraitOrNameHitsAfterReadBack.length} 件
+- 夢の取り消し・失敗：${failures.dreamCanceled === null ? "（夢はまだ）" : failures.dreamCanceled ? "あり" : "なし"}${failures.dreamError ? `（${failures.dreamError}）` : ""}
+- 夢が書き換えた記録のファイル：${failures.dreamChangedRecords === null ? "（夢はまだ）" : `${failures.dreamChangedRecords.length} 件`}
+`;
+  fs.writeFileSync(path.join(dir, "summary.md"), md);
+  log(`まとめ：${path.relative(process.cwd(), path.join(dir, "summary.md"))}`);
+  console.log(md);
+}
+
 try {
   if (command === "analyze") await commandAnalyze();
+  else if (command === "summary") commandSummary();
   else if (command === "record") await commandRecord();
   else if (command === "dream") await commandDream();
   else if (command === "verify") commandVerify();
-  else throw new Error("使い方：node scripts/memory/run.mts analyze | record | dream | verify");
+  else throw new Error("使い方：node scripts/memory/run.mts analyze | record | dream | verify | summary");
 } catch (e) {
   console.error(`止まりました：${(e as Error).message}`);
   process.exit(1);

@@ -1,0 +1,350 @@
+{
+  "status": "検証用・暫定（ダミーの面談。本人は確かめていない）",
+  "model": "claude-sonnet-5-5",
+  "dreamStatus": "completed",
+  "ms": 526685,
+  "usage": {
+    "inputTokens": 158,
+    "outputTokens": 182951,
+    "cacheReadTokens": 2735941,
+    "cacheWriteTokens": 424923,
+    "activeSeconds": null
+  },
+  "inputEquivalent": 1719661,
+  "capInputEquivalent": 4000000,
+  "canceledByCap": false,
+  "error": null,
+  "samples": [
+    {
+      "sec": 11,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 22,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 32,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 42,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 53,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 63,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 74,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 84,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 94,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 104,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 115,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 125,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 135,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 146,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 156,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 166,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 177,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 187,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 197,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 207,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 218,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 228,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 238,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 249,
+      "status": "running",
+      "inputEquivalent": 82376
+    },
+    {
+      "sec": 259,
+      "status": "running",
+      "inputEquivalent": 277936
+    },
+    {
+      "sec": 269,
+      "status": "running",
+      "inputEquivalent": 277936
+    },
+    {
+      "sec": 280,
+      "status": "running",
+      "inputEquivalent": 277936
+    },
+    {
+      "sec": 290,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 300,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 311,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 321,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 331,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 341,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 352,
+      "status": "running",
+      "inputEquivalent": 742279
+    },
+    {
+      "sec": 362,
+      "status": "running",
+      "inputEquivalent": 1032394
+    },
+    {
+      "sec": 372,
+      "status": "running",
+      "inputEquivalent": 1032394
+    },
+    {
+      "sec": 383,
+      "status": "running",
+      "inputEquivalent": 1032394
+    },
+    {
+      "sec": 393,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 403,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 414,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 424,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 434,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 444,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 455,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 465,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 475,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 486,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 496,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 506,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 516,
+      "status": "running",
+      "inputEquivalent": 1325715
+    },
+    {
+      "sec": 527,
+      "status": "completed",
+      "inputEquivalent": 1719661
+    }
+  ],
+  "instructionsChars": 1574,
+  "sessions": 6,
+  "outputFiles": [
+    {
+      "path": "/actions.md",
+      "chars": 2934
+    },
+    {
+      "path": "/changes.md",
+      "chars": 5595
+    },
+    {
+      "path": "/index.md",
+      "chars": 1218
+    },
+    {
+      "path": "/records/student-seiseki-2.md",
+      "chars": 2494
+    },
+    {
+      "path": "/records/student-seiseki.md",
+      "chars": 1974
+    },
+    {
+      "path": "/records/student-shinro-2.md",
+      "chars": 2613
+    },
+    {
+      "path": "/records/student-shinro.md",
+      "chars": 1973
+    },
+    {
+      "path": "/records/student-yaruki-2.md",
+      "chars": 2492
+    },
+    {
+      "path": "/records/student-yaruki.md",
+      "chars": 1865
+    },
+    {
+      "path": "/recurring-scenes.md",
+      "chars": 9820
+    }
+  ],
+  "recordsUnchanged": [
+    {
+      "path": "/records/student-seiseki-2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-seiseki.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-shinro-2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-shinro.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-yaruki-2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-yaruki.md",
+      "unchanged": true
+    }
+  ],
+  "expectedFilesPresent": {
+    "index": true,
+    "recurring": true,
+    "changes": true,
+    "actions": true
+  }
+}
