@@ -3,9 +3,9 @@ import { describe, test } from "node:test";
 
 import { blockText } from "./citations.mts";
 import { WITHHELD_NOTICE } from "./guard.mts";
-import { ACTION_HEADING, AI_READING_HEADING, AI_WRITTEN_HEADING, applyCorrection, assertNoSelfEvaluation, buildFactRecord, checkMarkdown, checkRecord, indexLine, nameCheckLabel, ORIGINAL_HEADING, quoteLineText, recordPath, renderRecord, withoutQuoteLines } from "./memory-record.mts";
+import { ACTION_HEADING, AI_READING_HEADING, AI_WRITTEN_HEADING, applyCorrection, assertNoSelfEvaluation, buildFactRecord, checkMarkdown, checkRecord, FOLLOW_UP_HEADING, indexLine, nameCheckLabel, ORIGINAL_HEADING, quoteLineText, recordPath, renderRecord, scanScoreWords, withoutQuoteLines } from "./memory-record.mts";
 import type { FactRecordInput } from "./memory-record.mts";
-import type { ItemScore, Quote, Scene, Utterance } from "./types.mts";
+import type { Quote, Scene, Utterance } from "./types.mts";
 
 const texts = [
   "今日は何から話そうか。",
@@ -43,10 +43,9 @@ const scene = (over: Partial<Scene>): Scene => ({
   ...over,
 });
 
-const items = (scores: (number | null)[]): ItemScore[] => scores.map((s, i) => ({ item: (i + 1) as ItemScore["item"], score: s, reason: "理由の文", utterances: [] }));
-
 const baseInput = (over: Partial<FactRecordInput> = {}): FactRecordInput => ({
   interviewId: "student-a-1",
+  date: "2025-10-24",
   kind: "生徒",
   order: 1,
   otherTag: "相手 A",
@@ -60,7 +59,6 @@ const baseInput = (over: Partial<FactRecordInput> = {}): FactRecordInput => ({
     ],
     noScene: null,
   },
-  step2: { items: items([4, 3, 2, 3, null]) },
   chosenAction: { sentence: "もし相手が今の過ごし方を話したら、励ます前に一つ聞き返す。", criterion: "聞き返しの後に、相手が一文以上話している", origin: "検証用に置いた" },
   followUp: null,
   ...over,
@@ -110,13 +108,14 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     const r = buildFactRecord(baseInput());
     const md = renderRecord(r);
     const [head, afterOriginal] = md.split(ORIGINAL_HEADING);
-    assert.equal(head.includes("record_format: 2"), true);
+    assert.equal(head.includes("record_format: 3"), true);
+    assert.equal(head.includes("date: 2025-10-24"), true);
     const [original, afterAction] = afterOriginal.split(ACTION_HEADING);
     const [action, afterAiWritten] = afterAction.split(AI_WRITTEN_HEADING);
     const [aiWritten, reading] = afterAiWritten.split(AI_READING_HEADING);
-    // 原文の欄：「>」の行のほかに、AI の文（文脈・観察・反応・読み・点）が入らない
+    // 原文の欄：「>」の行のほかに、AI の文（文脈・観察・反応・読み）が入らない
     assert.equal(original.includes(`> 〔発話 2〕講師：${texts[2]}`), true);
-    for (const aiText of ["模試の判定の話。", "発話 1 の直後、講師は判定を見たときの様子を尋ねた。", "発話 3 で生徒は数学のことを続けた。", "受け止めを先に聞いたと読める。", "項目 1＝4"]) assert.equal(original.includes(aiText), false, aiText);
+    for (const aiText of ["模試の判定の話。", "発話 1 の直後、講師は判定を見たときの様子を尋ねた。", "発話 3 で生徒は数学のことを続けた。", "受け止めを先に聞いたと読める。"]) assert.equal(original.includes(aiText), false, aiText);
     // 行動の欄：決まり方を添える
     assert.equal(action.includes("行動：もし相手が今の過ごし方を話したら、励ます前に一つ聞き返す。"), true);
     assert.equal(action.includes("決まり方：検証用に置いた"), true);
@@ -128,58 +127,85 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     assert.equal(reading.includes("場面 1 の読み：受け止めを先に聞いたと読める。"), true);
   });
 
-  test("読みと点は「その回の AI の読み（仮説）」に分けて書き、読みごと外す・点だけ外す", () => {
+  test("読みは「その回の AI の読み（仮説）」に分けて書き、読みごと外せる", () => {
     const r = buildFactRecord(baseInput());
     const md = renderRecord(r);
     const [before, ai] = md.split(AI_READING_HEADING);
     assert.equal(before.includes("受け止めを先に聞いたと読める。"), false);
     assert.equal(ai.includes("場面 2 を意図した選択として見ると："), true);
-    assert.equal(ai.includes("項目 1＝4、項目 2＝3、項目 3＝2、項目 4＝3、項目 5＝判定しない"), true);
-    assert.equal(before.includes("項目 1＝4"), false);
     const noReading = renderRecord(r, { includeAiReading: false });
     assert.equal(noReading.includes(AI_READING_HEADING), false);
     assert.equal(noReading.includes("と読める"), false);
     assert.equal(noReading.includes("場面 1 の観察：発話 1 の直後、講師は判定を見たときの様子を尋ねた。"), true);
-    const noScores = renderRecord(r, { includeScores: false });
-    assert.equal(noScores.includes("項目 1＝4"), false);
-    assert.equal(noScores.includes("面談の点"), false);
-    assert.equal(noScores.includes("場面 1 の読み：受け止めを先に聞いたと読める。"), true);
   });
 
-  test("続きの面談：根拠の引用は原文の欄、前回の行動は決まり方つきで行動の欄、AI の判定は AI の欄、なぜの一文は読みに入る。点は工程 4 のもの", () => {
-    const r = buildFactRecord(
-      baseInput({
+  const followUpInput = (): FactRecordInput =>
+    baseInput({
         interviewId: "student-a-2",
+        date: "2025-11-21",
         order: 2,
         followsInterviewId: "student-a-1",
-        step2: null,
         chosenAction: null,
         followUp: {
           previousInterviewId: "student-a-1",
           previousAction: "もし相手が今の過ごし方を話したら、励ます前に一つ聞き返す。",
           previousActionOrigin: "検証用に置いた",
           criterion: null,
-          step4: { verdict: "まだ", quotes: [quote(6)], why: "発話 5 の直後に励ましへ移ったため。", items: items([3, 3, 2, 3, 2]), otherPersonLine: null },
+          quotes: [quote(6)],
+          otherPersonLine: null,
         },
-      }),
-    );
-    assert.equal(r.followUp?.verdict, "まだ");
+    });
+
+  test("続きの面談：次の回に現れた発言は原文の欄、前回の行動は決まり方つきで行動の欄に入る。索引の行に日付が入る", () => {
+    const r = buildFactRecord(followUpInput());
     assert.deepEqual(r.followUp?.quotes.map((l) => l.index), [6]);
-    assert.equal(r.aiReading.scoresFrom, "工程 4");
     const md = renderRecord(r);
-    const [rest, ai] = md.split(AI_READING_HEADING);
-    const [original, afterAction] = rest.split(ACTION_HEADING);
-    const [action, aiWritten] = afterAction.split(AI_WRITTEN_HEADING);
-    assert.equal(original.includes("### 前回の行動の追跡の根拠"), true);
+    const [original, afterAction] = md.split(AI_READING_HEADING)[0].split(ACTION_HEADING);
+    const [action] = afterAction.split(AI_WRITTEN_HEADING);
+    assert.equal(original.includes(FOLLOW_UP_HEADING), true);
     assert.equal(original.includes(`> 〔発話 6〕講師：${texts[6]}`), true);
-    assert.equal(original.includes("まだ"), false);
     assert.equal(action.includes("- 前回の面談：student-a-1"), true);
     assert.equal(action.includes("- 決まり方：検証用に置いた"), true);
     assert.equal(action.includes("行動：なし（この回の記録には、決めた行動が無い）"), true);
-    assert.equal(action.includes("判定"), false);
-    assert.equal(aiWritten.includes("- 追跡の判定（AI。本人の自己評価は記録に入れない）：まだ"), true);
-    assert.equal(ai.includes("追跡の判定のなぜ：発話 5 の直後に励ましへ移ったため。"), true);
-    assert.equal(indexLine(r), "- records/student-a-2.md｜2 本目｜生徒｜相手 A｜よく表れた所（発話 2）・次に試せる所（発話 6）｜追跡：student-a-1 の行動 → AI の判定 まだ｜決めた行動：なし｜検証用・暫定");
+    assert.equal(indexLine(r), "- records/2025-11-21-student-a-2.md｜2025-11-21｜2 本目｜生徒｜相手 A｜よく表れた所（発話 2）・次に試せる所（発話 6）｜追跡：student-a-1 の行動｜決めた行動：なし｜検証用・暫定");
+  });
+
+  test("決まり 10：点・判定・判定のなぜは、記録の入力に渡せない。記録の型にも欄が無い", () => {
+    const withVerdict = followUpInput();
+    assert.throws(() => buildFactRecord({ ...withVerdict, followUp: { ...withVerdict.followUp!, verdict: "まだ" } } as unknown as FactRecordInput), /記録係に渡せない欄/);
+    assert.throws(() => buildFactRecord({ ...withVerdict, followUp: { ...withVerdict.followUp!, why: "理由" } } as unknown as FactRecordInput), /記録係に渡せない欄/);
+    assert.throws(() => buildFactRecord({ ...baseInput(), step2: { items: [] } } as unknown as FactRecordInput), /記録係に渡せない欄/);
+    assert.throws(() => buildFactRecord({ ...baseInput(), scores: [] } as unknown as FactRecordInput), /記録係に渡せない欄/);
+    const r = buildFactRecord(withVerdict) as unknown as Record<string, unknown>;
+    assert.equal("verdict" in (r.followUp as object), false);
+    assert.equal("scores" in (r.aiReading as object), false);
+    assert.equal("followUpWhy" in (r.aiReading as object), false);
+  });
+
+  test("決まり 10：できた記録の文と索引の 1 行に、点の数字と判定の言葉が入らない", () => {
+    const input = followUpInput();
+    input.step1!.scenes[0].context = "家での勉強の話。";
+    input.step1!.scenes[0].observation = "発話 1 の直後、講師は様子を尋ねた。";
+    const r = buildFactRecord(input);
+    const md = renderRecord(r);
+    assert.deepEqual(scanScoreWords(md, "記録"), []);
+    assert.deepEqual(scanScoreWords(indexLine(r), "索引"), []);
+    assert.equal(checkMarkdown(md, "記録").ok, true);
+  });
+
+  test("決まり 10：点と判定の言葉を見つける。発話の本文の行と「」の中、ふつうの文の「できた日」「まだ」、模試の判定は数えない", () => {
+    const words = (s: string) => scanScoreWords(s, "x").map((h) => h.word);
+    assert.deepEqual(words("- 追跡の判定（AI）：まだ"), ["判定", "判定の言葉（欄の値）"]);
+    assert.deepEqual(words("- 面談の点（工程 2。人の点ではない）：項目 1＝4、項目 2＝判定しない"), ["判定", "項目ごとの点", "項目ごとの点", "面談の点"]);
+    assert.deepEqual(words("| 決めた面談 | 行動 | 一部 |"), ["判定の言葉（欄の値）"]);
+    assert.deepEqual(words("合計は 7／10。"), ["点の形"]);
+    assert.deepEqual(words("自己採点は使わない。"), ["面談の点"]);
+    assert.deepEqual(words("> 〔発話 2〕講師：判定はまだだよ。自己評価は 7/10 だね。"), []);
+    assert.deepEqual(words("相手が「判定、できた」と言った。"), []);
+    assert.deepEqual(words("できた日の様子を尋ねた。まだ分からないこと：なし。数学が 51 点に下がった。"), []);
+    assert.deepEqual(words("模試は D 判定だった。模試の判定の話。"), []);
+    // 検査は、読み返しの検査の「通らない」にもなる
+    assert.equal(checkMarkdown("- 追跡の判定：できた\n", "x").ok, false);
   });
 
   test("表示を控えた文（性質の言葉が入っていた文）は記録に入れず、欄の名前を残す", () => {
@@ -192,9 +218,14 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
   });
 
   test("書く前の検査：AI が書いた文の性質の言葉を見つける。引用の中の言葉は数えない（決まり 3）", () => {
-    const ok = buildFactRecord(baseInput());
-    assert.equal(checkRecord(ok).ok, true);
-    const input = baseInput();
+    const clean = () => {
+      const i = baseInput();
+      i.step1!.scenes[0].context = "受け止めの話。";
+      i.step1!.scenes[0].observation = "発話 1 の直後、講師は様子を尋ねた。";
+      return i;
+    };
+    assert.equal(checkRecord(buildFactRecord(clean())).ok, true);
+    const input = clean();
     input.step1!.scenes[0].observation = "説明を重ねる傾向が見られた。";
     const hit = checkRecord(buildFactRecord(input));
     assert.equal(hit.ok, false);
@@ -202,11 +233,11 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     // 発話の中に同じ言葉があっても数えない
     const spoken = utterances.map((u) => (u.index === 2 ? { ...u, text: "そういう性格なんだね。" } : u));
     const q: Quote = { citedText: blockText(spoken[2], 2), text: spoken[2].text as string, index: 2, endIndex: 3, verified: true };
-    const input2 = baseInput({ utterances: spoken });
+    const input2 = { ...clean(), utterances: spoken };
     input2.step1!.scenes[0].quotes = [q];
     assert.equal(checkRecord(buildFactRecord(input2)).ok, true);
     // 読みを外すと、読みの欄は検査しない
-    const input3 = baseInput();
+    const input3 = clean();
     input3.step1!.scenes[0].reading = "几帳面な人だと読める。";
     assert.equal(checkRecord(buildFactRecord(input3)).ok, false);
     assert.equal(checkRecord(buildFactRecord(input3), [], { includeAiReading: false }).ok, true);
@@ -216,6 +247,7 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     const named = utterances.map((u) => (u.index === 3 ? { ...u, text: "たなかは数学が取れなくて。" } : u));
     const r = buildFactRecord(baseInput({ utterances: named }));
     const c = checkRecord(r, ["たなか"]);
+    assert.equal(c.nameHits.length > 0, true);
     assert.equal(c.ok, false);
     assert.deepEqual(c.nameHits.map((h) => h.field), ["scenes[0].発話 3"]);
     assert.equal(c.nameListSize, 1);
@@ -251,9 +283,10 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     assert.equal(checkMarkdown(md, "records/x.md", ["記録"]).nameHits.length, 1);
   });
 
-  test("面談 ID とファイルの場所。ID は英小文字・数字・ハイフンだけ", () => {
-    assert.equal(recordPath("student-shinro-2"), "/records/student-shinro-2.md");
+  test("決まり 12：面談の日付を頭の欄とファイル名に入れる。面談 ID は英小文字・数字・ハイフンだけ", () => {
+    assert.equal(recordPath("student-a-2", "2025-11-21"), "/records/2025-11-21-student-a-2.md");
     assert.throws(() => buildFactRecord(baseInput({ interviewId: "面談 1" })), /面談 ID/);
+    assert.throws(() => buildFactRecord(baseInput({ date: "11 月 21 日" })), /面談の日付/);
     assert.equal(quoteLineText({ index: 40, speaker: "講師", text: "そっか。" }), "> 〔発話 40〕講師：そっか。");
   });
 

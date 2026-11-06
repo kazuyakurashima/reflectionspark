@@ -44,6 +44,7 @@ function fakeSessions(opts: { events?: unknown[]; hang?: boolean; interruptFails
     recordInterview(client as unknown as Anthropic, {
       resources: { environmentId: "e", agentId: "a", agentVersion: 1, storeId: "s" },
       interviewId: "a-1",
+      date: "2025-10-24",
       markdown: "# 記録\n",
       indexLineText: "- records/a-1.md｜1 本目",
       title: "テスト",

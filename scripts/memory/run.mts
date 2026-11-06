@@ -1,19 +1,20 @@
-// 記録係と夢の最小の実証（検証用・暫定）。docs/設計書.md「覚えていると整理」。
-// ダミーの面談 6 本（同じ講師の 3 組）を、今のエンジンで分析し、記録係に 1 回 1 ファイルで書かせ、夢を 1 回回し、
-// 夢の出力の根拠を発話の原文と照合する。本番のデータ（localStorage、Demo Mode）とは混ぜない。
-// どの出力も「検証用・暫定」。本人が確かめた分析として扱わない。
+// サンプルの講師の記録を作る。docs/設計書.md「覚えていると整理」。
+// ダミーの面談のうち過去 4 回（山場の 2 回は入れない）の分析を、記録係に 1 回 1 ファイルで書かせ（①）、夢を 1 回回し、
+// 夢の出力の根拠を発話の原文と照合する。点と判定と自己採点は、別のストア（②）にスクリプトが直接書く。
+// どの出力も暫定。本人が確かめた分析として扱わない。
 //
 // 使い方（API キーは環境変数。値はファイルに書かない）：
-//   node scripts/memory/run.mts analyze                 6 本の分析（保存した結果があれば使う。--fresh で回し直す）
-//   node scripts/memory/run.mts record --state <file> --session-cap-minor <n> [--dry-run] [--no-scores] [--no-reading] [--names-file <file>]
+//   node scripts/memory/run.mts analyze                 4 回の分析（保存した結果があれば使う。--fresh で回し直す）
+//   node scripts/memory/run.mts record --state <file> --session-cap-minor <n> [--dry-run] [--no-reading] [--names-file <file>]
 //   node scripts/memory/run.mts record --state <file> --verify-only [--names-file <file>]   ストアを読むだけで確かめる
+//   node scripts/memory/run.mts scores --state <file> [--dry-run]   点の控え（②）を書く。LLM は呼ばない
 //   node scripts/memory/run.mts dream  --state <file> --cap <入力トークン換算の上限> [--again]
 //   node scripts/memory/run.mts correct --state <file> --interview <面談> --old <直す文> --new <直した文>
 //   node scripts/memory/run.mts verify --state <file>
 //   node scripts/memory/run.mts summary --state <file>   時間・トークン数・失敗とやり直しの表
 // --state は、作ったリソースの ID を控えるファイル（リポジトリの外に置く。ID と金額はリポジトリに入れない）。
 // --names-file は、相手の名前の一覧（1 行 1 つ。リポジトリの外に置く）。渡さなければ、名前の検査は「未検査」になる。
-// 記録の形を変えて回すとき（--no-scores など）は、同じストアに混ぜないよう、新しい --state にする。
+// 記録の形を変えて回すときは、同じストアに混ぜないよう、新しい --state にする（形が違う --state では止まる）。
 // 出力：eval/results/memory/analysis/<面談>.json、eval/results/memory/<実行の印>/…
 
 import fs from "node:fs";
@@ -24,32 +25,34 @@ import { causalHits, counterOverlaps, parseEvidenceRefs, parseHypotheses, summar
 import type { EvidenceCheck, TextHit } from "../../engine/memory-evidence.mts";
 import { checkCorrectionKept, dreamBlockers, hasIndexLine, indexProblems, nextRecordStep, sessionIdsForDream, storedProblems } from "../../engine/memory-gate.mts";
 import type { SavedCorrection, SessionEntry } from "../../engine/memory-gate.mts";
-import { applyCorrection, buildFactRecord, checkMarkdown, checkRecord, indexLine, INDEX_PATH, nameCheckLabel, recordPath, renderRecord } from "../../engine/memory-record.mts";
+import { applyCorrection, buildFactRecord, checkMarkdown, checkRecord, indexLine, INDEX_PATH, nameCheckLabel, RECORD_FORMAT, recordPath, renderRecord } from "../../engine/memory-record.mts";
 import type { FactRecord, RenderOptions } from "../../engine/memory-record.mts";
 import { checkStoredRecord, createRecorderResources, DREAM_FILES, DREAM_MODEL, dreamInstructions, INDEX_HEADING, readStore, RECORDER_MODEL, recordInterview, runDream } from "../../engine/recorder.mts";
 import type { RecorderResources, RecordRun, SessionUsage, StoredFile } from "../../engine/recorder.mts";
+import { buildLedgerEntry, ledgerPath, ledgerTotal, renderLedgerEntry } from "../../engine/score-ledger.mts";
+import type { LedgerEntry } from "../../engine/score-ledger.mts";
 import { runStep0 } from "../../engine/step0.mts";
 import { runStep1 } from "../../engine/step1.mts";
 import { runStep2 } from "../../engine/step2.mts";
 import { runStep4 } from "../../engine/step4.mts";
 import type { CallMeta, Spark, Step1Result, Step2Result, Step4Result, Transcript } from "../../engine/types.mts";
 import { loadCase, loadJson, saveJson, stamp } from "../../eval/lib/cases.mts";
+import { SAMPLE_SELF, SAMPLE_SELF_CONFIRMED } from "./sample-self-scores.mts";
 
-const STATUS = "検証用・暫定（ダミーの面談。本人は確かめていない）";
+const STATUS = "サンプル・暫定（作ったダミーの面談。本人は確かめていない）";
 const OUT_DIR = path.resolve("eval/results/memory");
 const ANALYSIS_DIR = path.join(OUT_DIR, "analysis");
-/** 山場の 1 組は、11/5 の通しの結果（今の札つきのエンジン）から、整形と 1 回目の分析を使う */
-const E2E_FILE = path.resolve("eval/results/e2e/2026-11-05T16-24-28.json");
 
-type Plan = { id: string; order: number; other: string; follows: string | null; followedBy: string | null };
-/** 同じ講師の 6 本。並びは、1 回目の 3 本のあとに続きの 3 本（日付は台本に無いので、順番だけを書く） */
+type Plan = { id: string; date: string; order: number; other: string; follows: string | null; followedBy: string | null };
+/**
+ * サンプルの講師の過去 4 回。日付は台本の手がかりに合わせた作りもの。
+ * 山場の 2 回（2026-06-19、2026-07-28）は入れない。入れると、山場 1 回目の画面 4 に、あとの回の発言が出うる。
+ */
 const PLAN: Plan[] = [
-  { id: "student-shinro", order: 1, other: "相手 A", follows: null, followedBy: "student-shinro-2" },
-  { id: "student-seiseki", order: 2, other: "相手 B", follows: null, followedBy: "student-seiseki-2" },
-  { id: "student-yaruki", order: 3, other: "相手 C", follows: null, followedBy: "student-yaruki-2" },
-  { id: "student-shinro-2", order: 4, other: "相手 A", follows: "student-shinro", followedBy: null },
-  { id: "student-yaruki-2", order: 5, other: "相手 C", follows: "student-yaruki", followedBy: null },
-  { id: "student-seiseki-2", order: 6, other: "相手 B", follows: "student-seiseki", followedBy: null },
+  { id: "student-seiseki", date: "2025-10-24", order: 1, other: "相手 B", follows: null, followedBy: "student-seiseki-2" },
+  { id: "student-yaruki", date: "2025-10-28", order: 2, other: "相手 C", follows: null, followedBy: "student-yaruki-2" },
+  { id: "student-yaruki-2", date: "2025-11-18", order: 3, other: "相手 C", follows: "student-yaruki", followedBy: null },
+  { id: "student-seiseki-2", date: "2025-11-21", order: 4, other: "相手 B", follows: "student-seiseki", followedBy: null },
 ];
 
 type Analysis = {
@@ -69,6 +72,10 @@ type Analysis = {
 
 type State = {
   runId?: string;
+  /** この --state で書いている記録の形の版（engine/memory-record.mts の RECORD_FORMAT） */
+  recordFormat?: number;
+  /** 点の控え（②）のストア。セッションにも夢にも付けない */
+  scoresStoreId?: string;
   resources?: RecorderResources & { environmentName: string; agentName: string };
   sessions?: Record<string, SessionEntry>;
   /** 索引の全体が、見出しと渡した行だけと確かめたか */
@@ -93,8 +100,8 @@ function statePath(): string {
 const loadState = (): State => loadJson<State>(statePath()) ?? {};
 const saveState = (s: State) => saveJson(statePath(), s);
 
-/** 記録の中身の出し分け（比べる実験のため）。既定は読みも点も入れる */
-const renderOptions = (): RenderOptions => ({ includeAiReading: !flag("--no-reading"), includeScores: !flag("--no-scores") });
+/** 記録の中身の出し分け。既定は読みも入れる。点と判定は、どの形でも入らない */
+const renderOptions = (): RenderOptions => ({ includeAiReading: !flag("--no-reading") });
 
 /** 相手の名前の一覧。渡さなければ空で、名前の検査は「未検査」になる */
 function namesFromFile(): string[] {
@@ -103,8 +110,8 @@ function namesFromFile(): string[] {
   return fs.readFileSync(path.resolve(p), "utf8").split("\n").map((l) => l.trim()).filter((l) => l !== "");
 }
 
-/** 検証で置いた行動の決まり方。本人が選んだものとして残さない */
-const PLACED_ACTION_ORIGIN = "検証用に置いた（評価の正解にある「前回の一手」。本人が選んだものではない）";
+/** サンプルとして置いた行動の決まり方。本人が選んだものとして残さない */
+const PLACED_ACTION_ORIGIN = "サンプルとして置いた（評価の正解にある「前回の一手」。本人が選んだものではない）";
 
 async function retry<T>(label: string, failures: string[], f: () => Promise<T>): Promise<T> {
   try {
@@ -132,42 +139,22 @@ async function analyzeOne(p: Plan): Promise<Analysis> {
   }
   const failures: string[] = [];
   const c = loadCase(p.id);
-  const e2e = p.id.startsWith("student-shinro") ? loadJson<{ transcripts: { first: Transcript; second: Transcript }; step1: Step1Result; step2: Step2Result }>(E2E_FILE) : null;
-  const e2eName = path.relative(process.cwd(), E2E_FILE);
-
-  let transcript: Transcript;
-  let step0Source: string;
   const step0Meta: CallMeta[] = [];
-  if (e2e) {
-    transcript = p.follows ? e2e.transcripts.second : e2e.transcripts.first;
-    step0Source = `保存した結果（${e2eName}）`;
-  } else {
-    const r = await retry(`${p.id} 工程 0`, failures, () => runStep0(c.raw, c.kind, { log: (s) => log(`${p.id} ${s}`) }));
-    transcript = r.transcript;
-    step0Source = "今回";
-    step0Meta.push(r.timing.step0a, ...(r.timing.step0b ? [r.timing.step0b] : []));
-    log(`${p.id} 工程 0：${transcript.utterances.length} 発話、当て直せなかった所 ${r.unanchored}`);
-  }
+  const r = await retry(`${p.id} 工程 0`, failures, () => runStep0(c.raw, c.kind, { log: (s) => log(`${p.id} ${s}`) }));
+  const transcript: Transcript = r.transcript;
+  const step0Source = "今回";
+  step0Meta.push(r.timing.step0a, ...(r.timing.step0b ? [r.timing.step0b] : []));
+  log(`${p.id} 工程 0：${transcript.utterances.length} 発話、当て直せなかった所 ${r.unanchored}`);
 
-  let step1: Step1Result;
-  let step1Source: string;
+  const step1: Step1Result = await retry(`${p.id} 工程 1`, failures, () => runStep1(transcript));
+  const step1Source = "今回";
+  log(`${p.id} 工程 1：${step1.meta.ms} ms、場面 ${step1.scenes.length}、引用 生成 ${step1.quoteStats.generated}・捨てた ${step1.quoteStats.discarded}`);
   let step2: Step2Result | null = null;
   let step2Source: string | null = null;
-  if (e2e && !p.follows) {
-    step1 = e2e.step1;
-    step1Source = `保存した結果（${e2eName}）`;
-    step2 = e2e.step2;
-    step2Source = step1Source;
-  } else {
-    step1 = await retry(`${p.id} 工程 1`, failures, () => runStep1(transcript));
-    step1Source = "今回";
-    log(`${p.id} 工程 1：${step1.meta.ms} ms、場面 ${step1.scenes.length}、引用 生成 ${step1.quoteStats.generated}・捨てた ${step1.quoteStats.discarded}`);
-    if (!p.follows) {
-      const s1 = step1;
-      step2 = await retry(`${p.id} 工程 2`, failures, () => runStep2(transcript, s1.scenes, { firstMeeting: true }));
-      step2Source = "今回";
-      log(`${p.id} 工程 2：${step2.meta.ms} ms、${step2.items.map((i) => `${i.item}:${i.score ?? "判定しない"}`).join(" ")}`);
-    }
+  if (!p.follows) {
+    step2 = await retry(`${p.id} 工程 2`, failures, () => runStep2(transcript, step1.scenes, { firstMeeting: true }));
+    step2Source = "今回";
+    log(`${p.id} 工程 2：${step2.meta.ms} ms、${step2.items.map((i) => `${i.item}:${i.score ?? "判定しない"}`).join(" ")}`);
   }
 
   let step4: Step4Result | null = null;
@@ -204,13 +191,14 @@ function loadAnalyses(): Analysis[] {
   });
 }
 
-/** 分析の結果から、6 本の記録を作る。渡すのは分析の結果だけ（本人の自己採点・自己評価は、ここに来ない） */
+/** 分析の結果から、記録を作る。渡すのは日付と、場面・引用・行動だけ（自己採点・自己評価と、AI の点・判定は、ここに来ない。決まり 10） */
 function buildRecords(analyses: Analysis[]): { plan: Plan; record: FactRecord; markdown: string; index: string }[] {
   return PLAN.map((p) => {
     const a = analyses.find((x) => x.id === p.id) as Analysis;
     const next = p.followedBy ? sparkFor(p.followedBy) : null;
     const record = buildFactRecord({
       interviewId: p.id,
+      date: p.date,
       kind: a.transcript.kind,
       order: p.order,
       otherTag: p.other,
@@ -218,7 +206,6 @@ function buildRecords(analyses: Analysis[]): { plan: Plan; record: FactRecord; m
       status: STATUS,
       utterances: a.transcript.utterances,
       step1: { scenes: a.step1.scenes, noScene: a.step1.noScene },
-      step2: a.step2 ? { items: a.step2.items } : null,
       chosenAction: next ? { sentence: next.sentence, criterion: next.criterion, origin: PLACED_ACTION_ORIGIN } : null,
       followUp:
         p.follows && a.step4 && a.spark
@@ -227,7 +214,8 @@ function buildRecords(analyses: Analysis[]): { plan: Plan; record: FactRecord; m
               previousAction: a.spark.sentence,
               previousActionOrigin: PLACED_ACTION_ORIGIN,
               criterion: a.spark.criterion,
-              step4: { verdict: a.step4.verdict, quotes: a.step4.quotes, why: a.step4.why, items: a.step4.items, otherPersonLine: a.step4.otherPersonLine },
+              quotes: a.step4.quotes,
+              otherPersonLine: a.step4.otherPersonLine,
             }
           : null,
     });
@@ -262,6 +250,49 @@ async function writeStoreFile(client: ReturnType<typeof getClient>, storeId: str
 
 const indexOf = (files: StoredFile[]) => files.find((f) => f.path === INDEX_PATH)?.content ?? "";
 
+/** 前の形の --state（前のストア）に、続けて書かない。既存のストアを変えないための止め */
+function assertSameRecordFormat(state: State): void {
+  if (state.resources && state.recordFormat !== RECORD_FORMAT) throw new Error(`この --state は記録の形 ${state.recordFormat ?? "（記録なし）"} のストアです。今の形は ${RECORD_FORMAT}。新しい --state で回してください`);
+}
+
+/** 点の控え（②）の 1 回分を、分析と本人の自己採点から作る。AI の点は、続きの回は工程 4、それ以外は工程 2 のもの */
+function buildLedger(analyses: Analysis[]): LedgerEntry[] {
+  return PLAN.map((p) => {
+    const a = analyses.find((x) => x.id === p.id) as Analysis;
+    const self = SAMPLE_SELF[p.id];
+    if (!self) throw new Error(`${p.id} の自己採点の案が無い`);
+    return buildLedgerEntry({ interviewId: p.id, date: p.date, self, aiItems: (p.follows ? a.step4?.items : a.step2?.items) ?? [], aiVerdict: p.follows ? a.step4?.verdict ?? null : null });
+  });
+}
+
+/**
+ * 点の控え（②）を書く。スクリプトが直接書き、記録係のセッションを通さない（夢はセッションの中身も読むので、通すと点が夢に届く）。
+ * LLM は呼ばない。本人が自己採点の案を確かめるまで書かない。
+ */
+async function commandScores(): Promise<void> {
+  const entries = buildLedger(loadAnalyses());
+  console.table(entries.map((e) => ({ id: e.interviewId, 日付: e.date, 自分の点: e.selfScore, AI: ledgerTotal(e).scaled, 差: Math.round((e.selfScore - (ledgerTotal(e).scaled ?? 0)) * 10) / 10, 自己評価: e.selfVerdict ?? "—", "AI の判定": e.aiVerdict ?? "—", 一言: e.selfNote })));
+  if (flag("--dry-run")) return;
+  if (!SAMPLE_SELF_CONFIRMED) throw new Error("自己採点の案を本人が確かめていないので、書かない（scripts/memory/sample-self-scores.mts）");
+  const client = getClient();
+  const state = loadState();
+  assertSameRecordFormat(state);
+  if (!state.scoresStoreId) {
+    const tag = stamp().replace(/[^0-9]/g, "").slice(4, 12);
+    const store = await client.beta.memoryStores.create({ name: `reflectionspark-scores-sample-${tag}`, description: "ReflectionSpark のサンプルの講師の点の控え（自己採点と一言、自己評価、AI の点と判定）。作ったダミーの面談 4 回。アプリだけが読み書きする。セッションにも夢にも付けない。" });
+    state.scoresStoreId = store.id;
+    saveState(state);
+    log(`作ったもの：点の控えのメモリストア ${store.name}`);
+  }
+  if (state.scoresStoreId === state.resources?.storeId) throw new Error("記録のストアと点の控えのストアが同じ。止める（決まり 10）");
+  let files = await readStore(client, state.scoresStoreId);
+  for (const e of entries) await writeStoreFile(client, state.scoresStoreId, files, ledgerPath(e.interviewId, e.date), renderLedgerEntry(e));
+  files = await readStore(client, state.scoresStoreId);
+  const problems = entries.filter((e) => files.find((f) => f.path === ledgerPath(e.interviewId, e.date))?.content.trimEnd() !== renderLedgerEntry(e).trimEnd()).map((e) => e.interviewId);
+  if (problems.length > 0) throw new Error(`点の控えの読み返しが合わない：${problems.join("、")}`);
+  log(`点の控え 終わり：${files.length} ファイルを読み返して同じと確かめた`);
+}
+
 async function commandRecord(): Promise<void> {
   const names = namesFromFile();
   const analyses = loadAnalyses();
@@ -273,12 +304,12 @@ async function commandRecord(): Promise<void> {
     const text = checkMarkdown(b.markdown, b.plan.id, names);
     return { id: b.plan.id, check, text, dropped: b.record.dropped, chars: [...b.markdown].length };
   });
-  console.table(before.map((b) => ({ id: b.id, 字数: b.chars, 性質の言葉: b.check.traitHits.length + b.text.traitHits.length, 名前: nameCheckLabel(names.length, b.check.nameHits.length), 合わず捨てた引用: b.dropped.unverifiedQuotes, 控えた欄: b.dropped.withheldFields.length })));
+  console.table(before.map((b) => ({ id: b.id, 字数: b.chars, 性質の言葉: b.check.traitHits.length + b.text.traitHits.length, 点と判定: b.check.scoreHits.length + b.text.scoreHits.length, 名前: nameCheckLabel(names.length, b.check.nameHits.length), 合わず捨てた引用: b.dropped.unverifiedQuotes, 控えた欄: b.dropped.withheldFields.length })));
   if (flag("--dry-run")) {
     const dir = path.join(OUT_DIR, "dry-run");
     for (const b of built) {
       fs.mkdirSync(path.join(dir, "records"), { recursive: true });
-      fs.writeFileSync(path.join(dir, "records", `${b.plan.id}.md`), b.markdown);
+      fs.writeFileSync(path.join(dir, "records", `${b.plan.date}-${b.plan.id}.md`), b.markdown);
     }
     fs.writeFileSync(path.join(dir, "index.md"), `${INDEX_HEADING}\n${built.map((b) => b.index).join("\n")}\n`);
     log(`dry-run：記録の文を ${path.relative(process.cwd(), dir)} に書いた（API は呼んでいない）。札：${tags.join("、")}`);
@@ -294,12 +325,14 @@ async function commandRecord(): Promise<void> {
 
   const client = getClient();
   const state = loadState();
+  assertSameRecordFormat(state);
   state.runId ??= stamp();
+  state.recordFormat = RECORD_FORMAT;
   const dir = runDirOf(state);
   if (!state.resources) {
     const tag = state.runId.replace(/[^0-9]/g, "").slice(4, 12);
-    const resourceNames = { environment: `reflectionspark-kenshou-env-${tag}`, agent: `reflectionspark-recorder-kenshou-${tag}`, store: `reflectionspark-memory-kenshou-${tag}` };
-    const r = await createRecorderResources(client, { ...resourceNames, storeDescription: "ReflectionSpark の記録係と夢の実証（検証用・暫定）。ダミーの面談 6 本の記録。本番のデータではない。" });
+    const resourceNames = { environment: `reflectionspark-sample-env-${tag}`, agent: `reflectionspark-recorder-sample-${tag}`, store: `reflectionspark-memory-sample-${tag}` };
+    const r = await createRecorderResources(client, { ...resourceNames, storeDescription: "ReflectionSpark のサンプルの講師の記録（場面と行動）。作ったダミーの面談 4 回。実在の人物のデータではない。点と判定は入れない。" });
     state.resources = { ...r, environmentName: resourceNames.environment, agentName: resourceNames.agent };
     saveState(state);
     log(`作ったもの：環境 ${resourceNames.environment}、エージェント ${resourceNames.agent}、メモリストア ${resourceNames.store}`);
@@ -324,7 +357,7 @@ async function commandRecord(): Promise<void> {
       log(`${id}：本人が直した記録。書き直さない`);
       continue;
     }
-    const localFile = path.join(dir, "records", `${id}.md`);
+    const localFile = path.join(dir, "records", `${b.plan.date}-${id}.md`);
     const entry = sessions[id];
     // 前に渡した文を、違う形で上書きしない（同じストアに、形の違う記録を混ぜない）
     if (entry && fs.existsSync(localFile) && fs.readFileSync(localFile, "utf8") !== b.markdown) {
@@ -332,7 +365,7 @@ async function commandRecord(): Promise<void> {
     }
     fs.writeFileSync(localFile, b.markdown);
     let files = await readStore(client, resources.storeId);
-    const step = nextRecordStep(entry, files.some((f) => f.path === recordPath(id)));
+    const step = nextRecordStep(entry, files.some((f) => f.path === recordPath(id, b.plan.date)));
     if (step === "skip") {
       log(`${id}：保存を確かめてある。飛ばす`);
       continue;
@@ -342,9 +375,10 @@ async function commandRecord(): Promise<void> {
       run = await recordInterview(client, {
         resources,
         interviewId: id,
+        date: b.plan.date,
         markdown: b.markdown,
         indexLineText: b.index,
-        title: `reflectionspark 検証用 記録係 ${id}`,
+        title: `reflectionspark サンプル 記録係 ${id}`,
         budgetMinor,
         log,
         onCreated: (sessionId) => {
@@ -359,15 +393,15 @@ async function commandRecord(): Promise<void> {
       log(`${id}：セッションと記録のファイルがある。新しいセッションを増やさず、確かめ直す`);
     }
     // 読み返して確かめる。違っていればアプリが直し、もう一度確かめる
-    let stored = checkStoredRecord(files, id, b.markdown, names);
+    let stored = checkStoredRecord(files, id, b.plan.date, b.markdown, names);
     const firstDiff = stored.firstDiff;
     let fixedByApp = false;
     if (!stored.found || !stored.identical) {
       log(`${id}：読み返した文が渡した文と違う（${stored.found ? `最初の違いは ${stored.firstDiff?.line} 行目` : "ファイルが無い"}）。アプリが書き直す`);
-      await writeStoreFile(client, resources.storeId, files, recordPath(id), b.markdown);
+      await writeStoreFile(client, resources.storeId, files, recordPath(id, b.plan.date), b.markdown);
       fixedByApp = true;
       files = await readStore(client, resources.storeId);
-      stored = checkStoredRecord(files, id, b.markdown, names);
+      stored = checkStoredRecord(files, id, b.plan.date, b.markdown, names);
     }
     let indexFixedByApp = false;
     if (!hasIndexLine(indexOf(files), b.index)) {
@@ -397,6 +431,7 @@ async function commandRecord(): Promise<void> {
       firstDiff: fixedByApp ? firstDiff : null,
       storedIdentical: stored.identical,
       traitHitsAfterReadBack: stored.check?.traitHits ?? null,
+      scoreHitsAfterReadBack: stored.check?.scoreHits ?? null,
       nameHitsAfterReadBack: stored.check?.nameHits ?? null,
       indexHasLine,
       indexFixedByApp,
@@ -443,21 +478,22 @@ async function commandVerifyStore(): Promise<void> {
   const names = namesFromFile();
   const client = getClient();
   const state = loadState();
+  assertSameRecordFormat(state);
   const dir = runDirOf(state);
   if (!state.resources || !state.sessions) throw new Error("記録がまだ無い。先に record を回す");
   const files = await readStore(client, state.resources.storeId);
   const index = indexOf(files);
   const rows = PLAN.map((p) => {
-    const localFile = path.join(dir, "records", `${p.id}.md`);
+    const localFile = path.join(dir, "records", `${p.date}-${p.id}.md`);
     const expected = fs.existsSync(localFile) ? fs.readFileSync(localFile, "utf8") : null;
     const entry = state.sessions?.[p.id];
     if (expected === null) return { id: p.id, problems: ["手元に渡した文が無い"], sessionKnown: !!entry, identical: false };
-    const stored = checkStoredRecord(files, p.id, expected, names);
+    const stored = checkStoredRecord(files, p.id, p.date, expected, names);
     // 索引の行の文は記録の形の版で違うので、ここでは記録を指す行があるかを見る。全体は下で、控えた索引と比べる
-    const indexHasLine = index.split("\n").some((l) => l.startsWith(`- records/${p.id}.md｜`));
+    const indexHasLine = index.split("\n").some((l) => l.startsWith(`- ${recordPath(p.id, p.date).slice(1)}｜`));
     const problems = [...storedProblems(stored, indexHasLine), ...(entry ? [] : ["セッションが無い"])];
     if (entry) (state.sessions as Record<string, SessionEntry>)[p.id] = { ...entry, verified: problems.length === 0, problems };
-    return { id: p.id, problems, sessionKnown: !!entry, identical: stored.identical, traitHits: stored.check?.traitHits.length ?? null, nameCheck: nameCheckLabel(names.length, stored.check?.nameHits.length ?? 0) };
+    return { id: p.id, problems, sessionKnown: !!entry, identical: stored.identical, traitHits: stored.check?.traitHits.length ?? null, scoreHits: stored.check?.scoreHits.length ?? null, nameCheck: nameCheckLabel(names.length, stored.check?.nameHits.length ?? 0) };
   });
   const indexFile = path.join(dir, "index-after-recording.md");
   const savedIndex = fs.existsSync(indexFile) ? fs.readFileSync(indexFile, "utf8") : null;
@@ -467,7 +503,7 @@ async function commandVerifyStore(): Promise<void> {
   saveState(state);
   const ok = rows.every((r) => r.problems.length === 0) && iProblems.length === 0;
   saveJson(path.join(dir, "store-check.json"), { status: STATUS, checkedAt: new Date().toISOString(), what: "メモリストアを読み、手元に控えた記録・索引と比べた（書き換えていない）", ok, files: files.map((f) => f.path), records: rows, indexProblems: iProblems });
-  console.table(rows.map((r) => ({ id: r.id, 同じ: r.identical, 性質の言葉: r.traitHits, 名前: r.nameCheck, 問題: r.problems.join("、") })));
+  console.table(rows.map((r) => ({ id: r.id, 同じ: r.identical, 性質の言葉: r.traitHits, 点と判定: r.scoreHits, 名前: r.nameCheck, 問題: r.problems.join("、") })));
   log(`ストアの確かめ 終わり：${ok ? "すべて合った" : "合わない所がある"}（索引：${iProblems.join("、") || "合った"}）`);
   if (!ok) throw new Error("ストアが手元の控えと合わない。夢へ進めない");
 }
@@ -481,35 +517,40 @@ async function commandCorrect(): Promise<void> {
   const names = namesFromFile();
   const client = getClient();
   const state = loadState();
+  assertSameRecordFormat(state);
   const dir = runDirOf(state);
   if (!state.resources || !state.sessions?.[interviewId]) throw new Error(`${interviewId} の記録がまだ無い`);
+  const plan = PLAN.find((p) => p.id === interviewId);
+  if (!plan) throw new Error(`${interviewId} はサンプルの面談に無い`);
   const before = await readStore(client, state.resources.storeId);
-  const file = before.find((f) => f.path === recordPath(interviewId));
+  const file = before.find((f) => f.path === recordPath(interviewId, plan.date));
   if (!file) throw new Error(`${interviewId} の記録のファイルが無い`);
   const next = applyCorrection(file.content, { oldText, newText });
   await client.beta.memoryStores.memories.update(file.id, { memory_store_id: state.resources.storeId, content: next });
   const after = await readStore(client, state.resources.storeId);
-  const stored = checkStoredRecord(after, interviewId, next, names);
-  const problems = storedProblems(stored, indexOf(after).split("\n").some((l) => l.startsWith(`- records/${interviewId}.md｜`)));
+  const stored = checkStoredRecord(after, interviewId, plan.date, next, names);
+  const problems = storedProblems(stored, indexOf(after).split("\n").some((l) => l.startsWith(`- ${recordPath(interviewId, plan.date).slice(1)}｜`)));
   state.sessions[interviewId] = { ...state.sessions[interviewId], verified: problems.length === 0, problems };
   if (problems.length === 0) {
-    fs.writeFileSync(path.join(dir, "records", `${interviewId}.md`), next);
-    (state.corrections ??= []).push({ interviewId, oldText, newText });
+    fs.writeFileSync(path.join(dir, "records", `${plan.date}-${interviewId}.md`), next);
+    (state.corrections ??= []).push({ interviewId, date: plan.date, oldText, newText });
   }
   saveState(state);
   if (problems.length > 0) throw new Error(`${interviewId}：直したあとの検査に通らない（${problems.join("、")}）`);
   log(`${interviewId}：本人の訂正を当てた。夢には、この面談のセッションを渡さない`);
 }
 
-const BANNER = "> 暫定：検証用の記録（ダミーの面談 6 本）から夢が作った出力。本人は確かめていない。確かめた分析として扱わない。";
+const BANNER = `> 暫定：サンプルの記録（作ったダミーの面談 ${PLAN.length} 回）から夢が作った出力。本人は確かめていない。確かめた分析として扱わない。`;
 
 async function commandDream(): Promise<void> {
   const cap = Number(option("--cap"));
   if (!Number.isFinite(cap) || cap <= 0) throw new Error("--cap <入力トークン換算の上限> を付けてください");
   const client = getClient();
   const state = loadState();
+  assertSameRecordFormat(state);
   const dir = runDirOf(state);
   if (!state.resources || !state.sessions) throw new Error("記録がまだ無い。先に record を回す");
+  if (state.scoresStoreId === state.resources.storeId) throw new Error("記録のストアと点の控えのストアが同じ。夢に点が届くので止める（決まり 10）");
   if (state.dream && !flag("--again")) throw new Error(`夢はすでに回した（${state.dream.dreamId}）。回し直すなら --again`);
   // 開始条件：全部の面談の保存を確かめてあること。ID がそろっているだけでは始めない
   const planIds = PLAN.map((p) => p.id);
@@ -587,7 +628,7 @@ async function commandDream(): Promise<void> {
     out.expectedFilesPresent = Object.fromEntries(Object.entries(DREAM_FILES).map(([k, p]) => [k, files.some((f) => f.path === p)]));
     if (corrections.length > 0) out.correctionCheck = checkCorrectionKept(files, corrections);
   }
-  fs.writeFileSync(path.join(dir, "dream-instructions.md"), `> 検証用：この回の夢に渡した指示（engine/recorder.mts の dreamInstructions）。\n\n${instructions}\n`);
+  fs.writeFileSync(path.join(dir, "dream-instructions.md"), `> この回の夢に渡した指示（engine/recorder.mts の dreamInstructions）。\n\n${instructions}\n`);
   saveJson(path.join(dir, "dream-run.json"), out);
   log(`夢 終わり：${run.status}、${run.ms} ms、入力トークン換算 ${run.inputEquivalent}（上限 ${cap}）`);
   console.log(JSON.stringify({ usage: tokensOf(run.usage), files: out.outputFiles, recordsUnchanged: out.recordsUnchanged, correctionCheck: out.correctionCheck }, null, 2));
@@ -627,7 +668,7 @@ function commandVerify(): void {
     const checks = verifyEvidence(parseEvidenceRefs(md), transcripts).map((c) => ({ ...c, file: name }));
     allChecks.push(...checks);
     const trait = checkMarkdown(md, name);
-    perFile.push({ file: name, chars: [...md].length, evidence: summarizeEvidence(checks), traitHits: trait.traitHits, growthHits: growthHits(md), causalHits: causalHits(md), verificationClaims: verificationClaims(md), provisionalOnFirstLine: /暫定/.test(md.split("\n").filter((l) => l.trim() !== "" && !l.startsWith(">"))[0] ?? "") });
+    perFile.push({ file: name, chars: [...md].length, evidence: summarizeEvidence(checks), traitHits: trait.traitHits, scoreHits: trait.scoreHits, growthHits: growthHits(md), causalHits: causalHits(md), verificationClaims: verificationClaims(md), provisionalOnFirstLine: /暫定/.test(md.split("\n").filter((l) => l.trim() !== "" && !l.startsWith(">"))[0] ?? "") });
   }
   const recurringName = DREAM_FILES.recurring.slice(1);
   const recurring = names.includes(recurringName) ? fs.readFileSync(path.join(dreamDir, recurringName), "utf8") : "";
@@ -682,9 +723,9 @@ ${BANNER.replace("夢が作った出力", "夢の出力を、プログラムで�
 
 ## ファイルごと
 
-| ファイル | 字数 | 根拠 | 合った | 性質の言葉 | 変化を言い切る言葉 | 1 行目に暫定 |
-|---|---|---|---|---|---|---|
-${perFile.map((f) => `| ${f.file} | ${f.chars} | ${(f.evidence as { total: number }).total} | ${(f.evidence as { matched: number }).matched} | ${(f.traitHits as unknown[]).length} | ${(f.growthHits as unknown[]).length} | ${f.provisionalOnFirstLine ? "あり" : "なし"} |`).join("\n")}
+| ファイル | 字数 | 根拠 | 合った | 性質の言葉 | 点と判定の言葉 | 変化を言い切る言葉 | 1 行目に暫定 |
+|---|---|---|---|---|---|---|---|
+${perFile.map((f) => `| ${f.file} | ${f.chars} | ${(f.evidence as { total: number }).total} | ${(f.evidence as { matched: number }).matched} | ${(f.traitHits as unknown[]).length} | ${(f.scoreHits as unknown[]).length} | ${(f.growthHits as unknown[]).length} | ${f.provisionalOnFirstLine ? "あり" : "なし"} |`).join("\n")}
 
 ## 仮説ごと
 
@@ -701,7 +742,7 @@ ${allChecks
   .join("\n")}
 `;
   fs.writeFileSync(path.join(dir, "evidence.md"), md);
-  console.log(JSON.stringify({ evidence: result.evidence, hypotheses: result.hypotheses, files: perFile.map((f) => ({ file: f.file, trait: (f.traitHits as unknown[]).length, growth: (f.growthHits as unknown[]).length })) }, null, 2));
+  console.log(JSON.stringify({ evidence: result.evidence, hypotheses: result.hypotheses, files: perFile.map((f) => ({ file: f.file, trait: (f.traitHits as unknown[]).length, score: (f.scoreHits as unknown[]).length, growth: (f.growthHits as unknown[]).length })) }, null, 2));
   log(`照合 終わり：${path.relative(process.cwd(), path.join(dir, "evidence.md"))}`);
 }
 
@@ -721,7 +762,7 @@ function commandSummary(): void {
   };
   const empty = (step: string, model: string, note: string): Row => ({ step, model, calls: 0, ms: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, note });
   const rows: Row[] = [];
-  const analysisNote = "今回回した呼び出しだけ。6 本を同時に回したので、時間は呼び出しごとの合計";
+  const analysisNote = "今回回した呼び出しだけ。同時に回したので、時間は呼び出しごとの合計";
   const byStep: Record<string, Row> = {};
   const perInterview = analyses.map((a) => {
     const fresh: { step: string; meta: CallMeta }[] = [];
@@ -735,7 +776,7 @@ function commandSummary(): void {
   rows.push(...Object.keys(byStep).sort().map((k) => byStep[k]));
   const rec = loadJson<{ model: string; indexIdentical: boolean; nameCheck?: string; runs: { id: string; ms: number; usage: Omit<CallMeta, "model" | "ms">; agentWroteIdentical: boolean; fixedByApp: boolean; errors: string[]; indexHasLine: boolean; toolUses: Record<string, number>; traitHitsAfterReadBack: unknown[] | null; nameHitsAfterReadBack: unknown[] | null }[] }>(path.join(dir, "record-run.json"));
   if (rec) {
-    const row = empty("記録係（セッション 6 本。1 本ずつ順番に）", rec.model, "時間はセッションを作ってから止まるまで");
+    const row = empty(`記録係（セッション ${rec.runs.length} 本。1 本ずつ順番に）`, rec.model, "時間はセッションを作ってから止まるまで");
     for (const r of rec.runs) add(row, { model: rec.model, ms: r.ms, ...r.usage });
     rows.push(row);
   }
@@ -761,7 +802,7 @@ function commandSummary(): void {
   const sec = (ms: number) => (ms / 1000).toFixed(1);
   const md = `# 時間・トークン数・失敗とやり直し（${state.runId}）
 
-> 検証用・暫定：ダミーの面談 6 本で回した記録係と夢の実証の数字。金額は書かない（トークン数と時間だけ）。
+> 暫定：作ったダミーの面談 ${PLAN.length} 回で回した記録係と夢の数字。金額は書かない（トークン数と時間だけ）。
 
 ## 段ごと
 
@@ -781,7 +822,7 @@ ${perInterview.map((p) => `| ${p.id} | ${p.utterances} | ${p.scenes} | ${p.verdi
 |---|---|---|---|---|---|---|---|---|
 ${(rec?.runs ?? []).map((r) => `| ${r.id} | ${sec(r.ms)} | ${r.usage.inputTokens} | ${r.usage.outputTokens} | ${r.usage.cacheReadTokens} | ${r.usage.cacheWriteTokens} | ${Object.entries(r.toolUses).map(([k, v]) => `${k} ${v}`).join("、")} | ${r.agentWroteIdentical ? "はい" : "いいえ（アプリが書き直した）"} | ${r.indexHasLine ? "はい" : "いいえ"} |`).join("\n")}
 
-- 索引は、渡した 6 行と見出しだけか：${rec?.indexIdentical ? "はい" : "いいえ"}
+- 索引は、渡した ${PLAN.length} 行と見出しだけか：${rec?.indexIdentical ? "はい" : "いいえ"}
 
 ## 失敗とやり直し
 
@@ -803,10 +844,11 @@ try {
   if (command === "analyze") await commandAnalyze();
   else if (command === "summary") commandSummary();
   else if (command === "record") await (flag("--verify-only") ? commandVerifyStore() : commandRecord());
+  else if (command === "scores") await commandScores();
   else if (command === "correct") await commandCorrect();
   else if (command === "dream") await commandDream();
   else if (command === "verify") commandVerify();
-  else throw new Error("使い方：node scripts/memory/run.mts analyze | record | dream | correct | verify | summary");
+  else throw new Error("使い方：node scripts/memory/run.mts analyze | record | scores | dream | correct | verify | summary");
 } catch (e) {
   console.error(`止まりました：${(e as Error).message}`);
   process.exit(1);

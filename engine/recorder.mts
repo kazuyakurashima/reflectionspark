@@ -6,7 +6,7 @@
 //   見るのは定期的で、取り消しは超えたあとなので、厳密な上限にはならない。超えた量は実行の記録に残す。
 // - 記録係のセッションには API の budget を渡す。受信を時間切れで止めたときは、止める要求（user.interrupt）も送る。
 //   要求が受け付けられたかと、そこで実際に止まったかは別で、確かめるのは保存の検査のやり直し（engine/memory-gate.mts）。
-// 渡さないもの：本人の自己採点・自己評価、文字起こしの全文（記録の文に入っていない）。
+// 渡さないもの：本人の自己採点・自己評価、AI の点と判定、文字起こしの全文（記録の文に入っていない。決まり 10）。
 // 金額はリポジトリに書かない。上限は呼ぶ側が渡す。
 
 import type Anthropic from "@anthropic-ai/sdk";
@@ -45,10 +45,10 @@ export function storeInstructions(): string {
 }
 
 /** 記録係に送る文。記録の本文は <record> の間にそのまま入れる */
-export function recorderMessage(interviewId: string, markdown: string, indexLineText: string): string {
+export function recorderMessage(interviewId: string, date: string, markdown: string, indexLineText: string): string {
   return `次の面談の記録を書き留めてください。
 
-- 記録のファイル：メモリストアの ${recordPath(interviewId).slice(1)}
+- 記録のファイル：メモリストアの ${recordPath(interviewId, date).slice(1)}
 - 索引のファイル：メモリストアの ${INDEX_PATH.slice(1)}
 
 索引の 1 行（<index_line> の間。タグは書かない）：
@@ -83,7 +83,7 @@ export function dreamInstructions(interviewCount: number): string {
 
 記録の読み方（見出しが出所を示す）
 - 「## 原文」の「>」の行だけが発話の本文。場面に選んだのは AI で、面談全体ではない。
-- 「## 行動」は決まった行動と決まり方。「## AI が書いた説明と判定」と「## その回の AI の読み（仮説）」は AI の文で、事実ではない。追跡の判定も AI の判定。原文に照らし、合えば使い、合わなければ直すか保留にする。点の上下を根拠にしない。
+- 「## 行動」は決まった行動と決まり方。「## AI が書いた説明」と「## その回の AI の読み（仮説）」は AI の文で、事実ではない。原文に照らし、合えば使い、合わなければ直すか保留にする。
 - frontmatter に corrected がある記録は本人が直した。今の本文を正とし、セッションの内容やほかの記録から前の文を戻さない。
 
 守ること
@@ -103,7 +103,7 @@ export function dreamInstructions(interviewCount: number): string {
 9. どのファイルも 1 行目に「暫定（検証用の記録から作った。本人は確かめていない）」と書き、2 行目から本文にする。name などの欄を足さない。「照合済み」と書かない（照合はアプリがする）。
 
 書くファイル（名前を変えない。ほかのファイルは作らない）
-- index.md（索引）：作り直す。面談ごとに 1 行。面談 ID、何本目、相手の札、場面の発話番号、決めた行動、追跡の AI の判定。
+- index.md（索引）：作り直す。面談ごとに 1 行。面談 ID、何本目、相手の札、場面の発話番号、決めた行動。
 - recurring-scenes.md（繰り返す場面）：仮説を次の形で並べる。
   ## 仮説 H1：〈条件付きの行動仮説を一文で〉
   - 確からしさ：
@@ -114,7 +114,7 @@ export function dreamInstructions(interviewCount: number): string {
     - 〔面談ID｜発話 n〕話者：「引用」
   - まだ分からないこと：
 - changes.md（変化）：同じ相手との前と後の面談で、同じ形の場面の行動がどう違ったかを、前と後の引用（上の根拠の形）で並べる。違いが見当たらなければ、そう書く。
-- actions.md（一つの行動の表）：決めた行動ごとに 1 行の表。列は、決めた面談、行動、できたかの基準、追跡した面談、AI の判定、根拠（上の形）。`;
+- actions.md（一つの行動の表）：決めた行動ごとに 1 行の表。列は、決めた面談、行動、できたかの基準、追跡した面談、根拠（上の形）。`;
   if ([...text].length > 4096) throw new Error(`夢への指示が長すぎます：${[...text].length} 字（4,096 字まで）`);
   return text;
 }
@@ -209,6 +209,8 @@ export type RecordRun = {
 export type RecordInterviewParams = {
   resources: Pick<RecorderResources, "environmentId" | "agentId" | "agentVersion" | "storeId">;
   interviewId: string;
+  /** 面談の日付（ファイル名に入れる） */
+  date: string;
   markdown: string;
   indexLineText: string;
   title: string;
@@ -244,7 +246,7 @@ export async function recordInterview(client: Anthropic, p: RecordInterviewParam
   const stream = await client.beta.sessions.events.stream(session.id);
   try {
     await client.beta.sessions.events.send(session.id, {
-      events: [{ type: "user.message", content: [{ type: "text", text: recorderMessage(p.interviewId, p.markdown, p.indexLineText) }] }],
+      events: [{ type: "user.message", content: [{ type: "text", text: recorderMessage(p.interviewId, p.date, p.markdown, p.indexLineText) }] }],
     });
   } catch (e) {
     stream.controller.abort();
@@ -334,8 +336,8 @@ export type StoredRecordCheck = {
 };
 
 /** 読み返した記録が、渡した文と同じか、性質の言葉と名前が無いかを確かめる */
-export function checkStoredRecord(files: StoredFile[], interviewId: string, expectedMarkdown: string, names: string[] = []): StoredRecordCheck {
-  const path = recordPath(interviewId);
+export function checkStoredRecord(files: StoredFile[], interviewId: string, date: string, expectedMarkdown: string, names: string[] = []): StoredRecordCheck {
+  const path = recordPath(interviewId, date);
   const file = files.find((f) => f.path === path);
   if (!file) return { path, found: false, identical: false, firstDiff: null, check: null };
   const a = expectedMarkdown.trimEnd().split("\n");

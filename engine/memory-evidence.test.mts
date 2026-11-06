@@ -139,28 +139,34 @@ describe("記録係と夢の呼び出しの、純粋な部分", () => {
     for (const s of ["index.md", "recurring-scenes.md", "changes.md", "actions.md", "〔面談ID｜発話 n〕話者：「引用」", "例外・反例", "確からしさ", "保留", "暫定", "書き換えない"]) assert.equal(t.includes(s), true, s);
   });
 
-  test("夢への指示：出所ごとの読み方、順番だけ書くこと、反例の読み替えの禁止、本人の訂正、点を根拠にしないこと", () => {
+  test("決まり 10：夢への指示に、点と判定の言葉が無い", () => {
+    const t = dreamInstructions(4);
+    assert.equal(t.includes("判定"), false);
+    assert.equal(/面談の点|点の上下|自己採点|自己評価/.test(t), false);
+  });
+
+  test("夢への指示：出所ごとの読み方、順番だけ書くこと、反例の読み替えの禁止、本人の訂正", () => {
     const t = dreamInstructions(6);
-    for (const s of ["「>」の行だけが発話の本文", "AI の文で、事実ではない", "追跡の判定も AI の判定", "点の上下を根拠にしない", "起きた順番だけを書く", "原因を言い切らない", "形の違う場面を 1 つの仮説にまとめず", "書いたあとで条件や言葉を読み替えない", "根拠に挙げた発話を反例に挙げない", "測った数字ではない", "corrected", "前の文を戻さない", "「照合済み」と書かない"]) assert.equal(t.includes(s), true, s);
+    for (const s of ["「>」の行だけが発話の本文", "AI の文で、事実ではない", "起きた順番だけを書く", "原因を言い切らない", "形の違う場面を 1 つの仮説にまとめず", "書いたあとで条件や言葉を読み替えない", "根拠に挙げた発話を反例に挙げない", "測った数字ではない", "corrected", "前の文を戻さない", "「照合済み」と書かない"]) assert.equal(t.includes(s), true, s);
   });
 
   test("記録係に送る文には、記録の本文がそのまま入る", () => {
     const md = "# 面談の記録：student-a-1\n\n> 〔発話 2〕講師：大丈夫、これからだよ。\n";
-    const m = recorderMessage("student-a-1", md, "- records/student-a-1.md｜1 本目");
+    const m = recorderMessage("student-a-1", "2025-10-24", md, "- records/2025-10-24-student-a-1.md｜1 本目");
     assert.equal(m.includes(`<record>\n${md.trimEnd()}\n</record>`), true);
-    assert.equal(m.includes("メモリストアの records/student-a-1.md"), true);
-    assert.equal(m.includes("<index_line>\n- records/student-a-1.md｜1 本目\n</index_line>"), true);
+    assert.equal(m.includes("メモリストアの records/2025-10-24-student-a-1.md"), true);
+    assert.equal(m.includes("<index_line>\n- records/2025-10-24-student-a-1.md｜1 本目\n</index_line>"), true);
   });
 
   test("読み返した記録が渡した文と同じかを確かめ、違えば最初に違った行を返す", () => {
     const md = "# 記録\n- 観察：講師は様子を尋ねた。\n> 〔発話 2〕講師：そっか。\n";
-    const same = checkStoredRecord([{ id: "m1", path: "/records/student-a-1.md", content: md.trimEnd() }], "student-a-1", md);
+    const same = checkStoredRecord([{ id: "m1", path: "/records/2025-10-24-student-a-1.md", content: md.trimEnd() }], "student-a-1", "2025-10-24", md);
     assert.equal(same.identical, true);
     assert.equal(same.check?.ok, true);
-    const changed = checkStoredRecord([{ id: "m1", path: "/records/student-a-1.md", content: md.replace("そっか。", "そうか。") }], "student-a-1", md);
+    const changed = checkStoredRecord([{ id: "m1", path: "/records/2025-10-24-student-a-1.md", content: md.replace("そっか。", "そうか。") }], "student-a-1", "2025-10-24", md);
     assert.equal(changed.identical, false);
     assert.deepEqual(changed.firstDiff, { line: 3, expected: "> 〔発話 2〕講師：そっか。", actual: "> 〔発話 2〕講師：そうか。" });
-    assert.equal(checkStoredRecord([], "student-a-1", md).found, false);
+    assert.equal(checkStoredRecord([], "student-a-1", "2025-10-24", md).found, false);
   });
 
   test("使用量をそろえ、入力トークンの量に換算する", () => {

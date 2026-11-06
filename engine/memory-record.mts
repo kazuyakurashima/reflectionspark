@@ -1,19 +1,20 @@
 // 記録係に渡す「事実の記録」を作る（docs/設計書.md 工程 5 と「覚えていると整理」、決まり 3・10・12）。
 // ここは純粋な関数だけ。Managed Agents の呼び出しは engine/recorder.mts。
 //
-// 記録の形：1 回の面談につき 1 ファイル。場面と行動と結果だけ。回をまたいだ変化は書かない（夢で出す）。
+// 記録の形：1 回の面談につき 1 ファイル。面談の日付と、場面と行動だけ。回をまたいだ変化は書かない（夢で出す）。
 // 出所ごとに見出しを分ける（AI の文を事実として残さない）：
 // - 「原文」：照合済みの引用と、アプリが発話番号から取った前後の発話。発話の本文そのまま。
-// - 「行動」：決めた行動と前回の行動。どう決まったか（本人が選んだ／検証用に置いた）を添える。
-// - 「AI が書いた説明と判定」：文脈・観察・直後の反応・追跡の判定。原文と照合していない。
-// - 「その回の AI の読み（仮説）」：読み、意図した選択として見たとき、なぜの一文、項目ごとの点。外せる（includeAiReading・includeScores）。
-// 渡さないもの：本人の自己採点・自己評価・一言、文字起こしの全文。相手の名前と、人物の性質の言葉は書かない。
+// - 「行動」：決めた行動と前回の行動。どう決まったか（本人が選んだ／サンプルとして置いた）を添える。
+// - 「AI が書いた説明」：文脈・観察・直後の反応。原文と照合していない。
+// - 「その回の AI の読み（仮説）」：読み、意図した選択として見たとき。外せる（includeAiReading）。
+// 渡さないもの：本人の自己採点・自己評価・一言、AI の点と判定と判定のなぜ（点の控えに、engine/score-ledger.mts）、文字起こしの全文。
+// 相手の名前と、人物の性質の言葉は書かない。夢は記録と記録係のセッションを読むので、ここに点と判定を入れると次の回の AI に届く（決まり 10）。
 
 import { quoteMatchesTranscript } from "./citations.mts";
 import { scanText } from "./forbidden-words.mts";
 import type { ForbiddenHit } from "./forbidden-words.mts";
 import { WITHHELD_NOTICE } from "./guard.mts";
-import type { FollowUpVerdict, ItemNumber, ItemScore, MeetingKind, Quote, Scene, SceneType, Utterance } from "./types.mts";
+import type { MeetingKind, Quote, Scene, SceneType, Utterance } from "./types.mts";
 import { blockLabel, utteranceLabel } from "./utterance-no.mts";
 
 /** 記録に書く 1 発話（本文は発話の本文そのまま） */
@@ -46,23 +47,20 @@ export type RecordFollowUp = {
   /** 前回の行動がどう決まったか（本人が選んだ／直した、検証用に置いた、など） */
   previousActionOrigin: string;
   criterion: string | null;
-  /** AI の判定。本人の自己評価は記録に入れない */
-  verdict: FollowUpVerdict;
+  /** 次の回に現れた発言の引用。判定は入れない（決まり 10） */
   quotes: RecordLine[];
   neighbors: RecordLine[];
 };
 
 export type RecordAiReading = {
   scenes: { type: SceneType; reading: string; asChoice: string | null }[];
-  followUpWhy: string | null;
   otherPersonLine: string | null;
-  /** 面談の点（人の点ではない）。どの工程の点か */
-  scores: { item: ItemNumber; score: number | null }[];
-  scoresFrom: "工程 2" | "工程 4" | null;
 };
 
 export type FactRecord = {
   interviewId: string;
+  /** 面談の日付（YYYY-MM-DD）。メモリに付く日時は書いた日時なので、頭の欄とファイル名に入れる */
+  date: string;
   kind: MeetingKind;
   /** この人の記録の中で何本目か（1 始まり） */
   order: number;
@@ -84,6 +82,7 @@ export type FactRecord = {
 
 export type FactRecordInput = {
   interviewId: string;
+  date: string;
   kind: MeetingKind;
   order: number;
   otherTag: string | null;
@@ -92,24 +91,28 @@ export type FactRecordInput = {
   /** 整形後の発話の並び。引用の確かめ直しと、前後の発話を取るためだけに使う。記録には全文を書かない */
   utterances: Utterance[];
   step1: { scenes: Scene[]; noScene: string | null } | null;
-  step2: { items: ItemScore[] } | null;
   chosenAction: RecordAction | null;
   followUp: {
     previousInterviewId: string | null;
     previousAction: string;
     previousActionOrigin: string;
     criterion: string | null;
-    step4: { verdict: FollowUpVerdict; quotes: Quote[]; why: string; items: ItemScore[]; otherPersonLine: string | null };
+    /** 工程 4 の引用（次の回に現れた発言）。判定・なぜ・点は渡さない */
+    quotes: Quote[];
+    otherPersonLine: string | null;
   } | null;
 };
 
 /** 面談 ID に使える文字（メモリのパスと、夢の根拠の書き方に使うので、英数字とハイフンだけ） */
 const INTERVIEW_ID = /^[a-z0-9][a-z0-9-]{0,62}$/;
 
-/** 記録係に渡してはいけない欄の名前（本人の自己採点・自己評価・一言。決まり 10 と工程 5 の「渡さない」） */
-const SELF_KEYS = /^(self|demoSelf)|自己|本人の(点|一言|評価)/i;
+/** 面談の日付の形 */
+const INTERVIEW_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** 入力に、本人の自己採点・自己評価らしい欄が紛れていないかを確かめる。あれば投げる */
+/** 記録係に渡してはいけない欄の名前（本人の自己採点・自己評価・一言、AI の点と判定と判定のなぜ。決まり 10 と工程 5 の「渡さない」） */
+const SELF_KEYS = /^(self|demoSelf)|自己|本人の(点|一言|評価)|^(verdict|score|scores|total|why|step2|step4)$/i;
+
+/** 入力に、本人の自己採点・自己評価、AI の点と判定らしい欄が紛れていないかを確かめる。あれば投げる */
 export function assertNoSelfEvaluation(input: unknown, path = "input"): void {
   if (Array.isArray(input)) {
     input.forEach((v, i) => assertNoSelfEvaluation(v, `${path}[${i}]`));
@@ -117,7 +120,7 @@ export function assertNoSelfEvaluation(input: unknown, path = "input"): void {
   }
   if (!input || typeof input !== "object") return;
   for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
-    if (SELF_KEYS.test(k)) throw new Error(`記録係に渡せない欄があります：${path}.${k}（本人の自己採点・自己評価は記録に入れない）`);
+    if (SELF_KEYS.test(k)) throw new Error(`記録係に渡せない欄があります：${path}.${k}（自己採点・自己評価と、AI の点・判定は記録に入れない）`);
     assertNoSelfEvaluation(v, `${path}.${k}`);
   }
 }
@@ -171,13 +174,14 @@ function keep(text: string | null | undefined, field: string, withheld: string[]
 
 /**
  * 分析の結果から、1 回の面談の記録を作る。
- * 入れるのは、照合済みの引用・前後の発話・AI が書いた観察・選んだ行動・追跡の判定と根拠。読みと点は aiReading に分ける。
+ * 入れるのは、面談の日付・照合済みの引用・前後の発話・AI が書いた観察・選んだ行動・次の回に現れた発言。読みは aiReading に分ける。点と判定は入れない。
  * 出所ごとの分け方は renderRecord の見出し。
  */
 export function buildFactRecord(input: FactRecordInput): FactRecord {
   assertNoSelfEvaluation(input);
   if (!INTERVIEW_ID.test(input.interviewId)) throw new Error(`面談 ID は英小文字・数字・ハイフンだけにしてください：${input.interviewId}`);
   if (input.followsInterviewId !== null && !INTERVIEW_ID.test(input.followsInterviewId)) throw new Error(`前の面談の ID が読めません：${input.followsInterviewId}`);
+  if (!INTERVIEW_DATE.test(input.date)) throw new Error(`面談の日付は YYYY-MM-DD にしてください：${input.date}`);
   const withheld: string[] = [];
   let unverified = 0;
 
@@ -199,30 +203,24 @@ export function buildFactRecord(input: FactRecordInput): FactRecord {
   });
 
   let followUp: RecordFollowUp | null = null;
-  let followUpWhy: string | null = null;
   let otherPersonLine: string | null = null;
   if (input.followUp) {
-    const q = quoteLines(input.followUp.step4.quotes, input.utterances);
+    const q = quoteLines(input.followUp.quotes, input.utterances);
     unverified += q.droppedCount;
     followUp = {
       previousInterviewId: input.followUp.previousInterviewId,
       previousAction: input.followUp.previousAction.trim(),
       previousActionOrigin: input.followUp.previousActionOrigin,
       criterion: input.followUp.criterion?.trim() || null,
-      verdict: input.followUp.step4.verdict,
       quotes: q.lines,
       neighbors: neighborLines(q.lines, input.utterances),
     };
-    followUpWhy = keep(input.followUp.step4.why, "followUp.why", withheld) || null;
-    otherPersonLine = keep(input.followUp.step4.otherPersonLine, "followUp.otherPersonLine", withheld) || null;
+    otherPersonLine = keep(input.followUp.otherPersonLine, "followUp.otherPersonLine", withheld) || null;
   }
-
-  // 点は、続きの面談では工程 4、それ以外は工程 2 のもの
-  const scoreItems = input.followUp ? input.followUp.step4.items : input.step2?.items ?? [];
-  const scoresFrom = input.followUp ? "工程 4" : input.step2 ? "工程 2" : null;
 
   return {
     interviewId: input.interviewId,
+    date: input.date,
     kind: input.kind,
     order: input.order,
     otherTag: input.otherTag,
@@ -235,18 +233,15 @@ export function buildFactRecord(input: FactRecordInput): FactRecord {
     followUp,
     aiReading: {
       scenes: readings,
-      followUpWhy,
       otherPersonLine,
-      scores: scoreItems.map((it) => ({ item: it.item, score: it.score })),
-      scoresFrom,
     },
     dropped: { unverifiedQuotes: unverified, withheldFields: withheld },
   };
 }
 
-/** メモリストアの中の、記録のファイルの場所（1 回 1 ファイル） */
-export function recordPath(interviewId: string): string {
-  return `/records/${interviewId}.md`;
+/** メモリストアの中の、記録のファイルの場所（1 回 1 ファイル。面談の日付をファイル名に入れる） */
+export function recordPath(interviewId: string, date: string): string {
+  return `/records/${date}-${interviewId}.md`;
 }
 
 /** 索引のファイルの場所。記録係が毎回 1 行足し、夢が作り直す */
@@ -262,27 +257,27 @@ function linesBlock(lines: RecordLine[]): string {
 }
 
 /** 記録の形の版。形が変わったら上げる（前の形のメモリストアに、続けて書かない） */
-export const RECORD_FORMAT = 2;
+export const RECORD_FORMAT = 3;
 
 export const ORIGINAL_HEADING = "## 原文（発話の本文そのまま）";
 export const ACTION_HEADING = "## 行動（どう決まったかを添える）";
-export const AI_WRITTEN_HEADING = "## AI が書いた説明と判定（原文と照合していない。事実ではない）";
+export const AI_WRITTEN_HEADING = "## AI が書いた説明（原文と照合していない。事実ではない）";
 export const AI_READING_HEADING = "## その回の AI の読み（仮説）";
+export const FOLLOW_UP_HEADING = "### 前回の行動に対して、この回に現れた発言";
+const FOLLOW_UP_QUOTES_LABEL = "- この回に現れた発言（照合済み）";
 
 export type RenderOptions = {
   /** 「その回の AI の読み（仮説）」を入れるか。既定は入れる */
   includeAiReading?: boolean;
-  /** 読みの欄に、面談の点を入れるか。既定は入れる（比べる実験で外す） */
-  includeScores?: boolean;
 };
 
 /** 記録を Markdown にする。記録係はこの文をそのままファイルに書く */
 export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
   const includeAi = opts.includeAiReading !== false;
-  const includeScores = opts.includeScores !== false;
   const out: string[] = [];
   out.push("---");
   out.push(`interview: ${r.interviewId}`);
+  out.push(`date: ${r.date}`);
   out.push(`record_format: ${RECORD_FORMAT}`);
   out.push(`kind: ${r.kind}`);
   out.push(`order: ${r.order}`);
@@ -292,7 +287,7 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
   out.push(`utterances: ${r.utteranceCount}`);
   out.push("---");
   out.push("");
-  out.push(`# 面談の記録：${r.interviewId}`);
+  out.push(`# 面談の記録：${r.date} ${r.interviewId}`);
   out.push("");
   out.push(ORIGINAL_HEADING);
   out.push("");
@@ -322,15 +317,15 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
     out.push("");
   });
   if (r.followUp) {
-    out.push("### 前回の行動の追跡の根拠");
+    out.push(FOLLOW_UP_HEADING);
     out.push("");
     if (r.followUp.quotes.length > 0) {
-      out.push("- 根拠の引用（照合済み）：");
+      out.push(`${FOLLOW_UP_QUOTES_LABEL}：`);
       out.push("");
       out.push(linesBlock(r.followUp.quotes));
       out.push("");
     } else {
-      out.push("- 根拠の引用：なし");
+      out.push(`${FOLLOW_UP_QUOTES_LABEL.replace("（照合済み）", "")}：なし`);
     }
     if (r.followUp.neighbors.length > 0) {
       out.push("- 前後の発話：");
@@ -371,7 +366,6 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
     if (sc.observation) out.push(`- 場面 ${i + 1} の観察：${sc.observation}`);
     if (sc.reaction) out.push(`- 場面 ${i + 1} の直後の相手の反応：${sc.reaction}`);
   });
-  if (r.followUp) out.push(`- 追跡の判定（AI。本人の自己評価は記録に入れない）：${r.followUp.verdict}`);
   out.push("");
   if (includeAi) {
     out.push(AI_READING_HEADING);
@@ -382,12 +376,7 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
       if (s.reading) out.push(`- 場面 ${i + 1} の読み：${s.reading}`);
       if (s.asChoice) out.push(`- 場面 ${i + 1} を意図した選択として見ると：${s.asChoice}`);
     });
-    if (r.aiReading.followUpWhy) out.push(`- 追跡の判定のなぜ：${r.aiReading.followUpWhy}`);
     if (r.aiReading.otherPersonLine) out.push(`- 相手が前回決めたことの語られ方：${r.aiReading.otherPersonLine}`);
-    if (includeScores && r.aiReading.scoresFrom) {
-      const s = r.aiReading.scores.map((x) => `項目 ${x.item}＝${x.score ?? "判定しない"}`).join("、");
-      out.push(`- 面談の点（${r.aiReading.scoresFrom}。人の点ではない）：${s}`);
-    }
     out.push("");
   }
   return out.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
@@ -396,16 +385,20 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
 /** 索引に足す 1 行。記録係が毎回足す（夢が作り直す） */
 export function indexLine(r: FactRecord): string {
   const scenes = r.scenes.length === 0 ? "場面なし" : r.scenes.map((s) => `${s.type}（${s.quotes.length > 0 ? utteranceLabel(s.quotes[0].index) : "引用なし"}）`).join("・");
-  const follow = r.followUp ? `追跡：${r.followUp.previousInterviewId ?? "前回"} の行動 → AI の判定 ${r.followUp.verdict}` : "追跡：なし";
+  const follow = r.followUp ? `追跡：${r.followUp.previousInterviewId ?? "前回"} の行動` : "追跡：なし";
   const action = r.action ? "決めた行動：あり" : "決めた行動：なし";
-  return `- ${recordPath(r.interviewId).slice(1)}｜${r.order} 本目｜${r.kind}｜${r.otherTag ?? "札なし"}｜${scenes}｜${follow}｜${action}｜${r.status}`;
+  return `- ${recordPath(r.interviewId, r.date).slice(1)}｜${r.date}｜${r.order} 本目｜${r.kind}｜${r.otherTag ?? "札なし"}｜${scenes}｜${follow}｜${action}｜${r.status}`;
 }
 
 export type NameHit = { name: string; field: string; context: string };
 
+export type ScoreHit = { word: string; field: string; context: string };
+
 export type RecordCheck = {
   /** 人物の性質の言葉（決まり 3）。引用の行と「」の中は数えない */
   traitHits: ForbiddenHit[];
+  /** 点の数字と判定の言葉（決まり 10）。引用の行と「」の中は数えない */
+  scoreHits: ScoreHit[];
   /** 相手の名前（札にした呼び名など）。引用の中も数える */
   nameHits: NameHit[];
   /** 照らした名前の一覧の数。0 なら、名前の検査はしていない（0 件とは書かない） */
@@ -414,6 +407,32 @@ export type RecordCheck = {
 };
 
 const listSize = (names: string[]) => names.filter((n) => n.trim() !== "").length;
+
+/**
+ * 点の数字と判定の言葉の形（決まり 10）。ふつうの文の「できた日」「まだ分からない」「数学が 51 点」は当てない。
+ * 模試の判定（「D 判定」「模試の判定」）は面談の判定ではないので当てない。
+ */
+const SCORE_PATTERNS: { word: string; re: RegExp }[] = [
+  { word: "判定", re: /(?<![A-EＡ-Ｅ]\s?|模試の)判定/g },
+  { word: "項目ごとの点", re: /項目\s*[1-5１-５]\s*[＝=：:]\s*(?:[1-5１-５]|判定)/g },
+  { word: "面談の点", re: /(?:面談|AI|Ａ Ｉ|自分|本人)の点|自己採点|自己評価/g },
+  { word: "点の形", re: /\d+(?:\.\d+)?\s*[／/]\s*(?:10|20|25)(?![\d])/g },
+  { word: "判定の言葉（欄の値）", re: /[：:|｜]\s*(?:できた|一部|まだ|場面がなかった)\s*(?=$|[|｜\n。])/gm },
+];
+
+/** 点の数字と判定の言葉を探す。発話の本文の行（「>」）と「」の中は、言った言葉そのままなので数えない */
+export function scanScoreWords(markdown: string, field: string): ScoreHit[] {
+  const body = withoutQuoteLines(markdown).replace(/「[^」]*」/g, (m) => "　".repeat([...m].length));
+  const hits: ScoreHit[] = [];
+  for (const { word, re } of SCORE_PATTERNS) {
+    re.lastIndex = 0;
+    for (const m of body.matchAll(re)) {
+      const at = m.index ?? 0;
+      hits.push({ word, field, context: body.slice(Math.max(0, at - 12), at + m[0].length + 12).replace(/\n/g, " ") });
+    }
+  }
+  return hits;
+}
 
 /**
  * 名前の検査の結果を、言える範囲で書く。一覧との一致を探すだけなので、一覧に無い名前は見つけられない。
@@ -460,12 +479,13 @@ export function checkRecord(r: FactRecord, names: string[] = [], opts: RenderOpt
   }
   if (includeAi) {
     r.aiReading.scenes.forEach((s, i) => authored.push({ field: `aiReading.scenes[${i}].reading`, text: s.reading }, { field: `aiReading.scenes[${i}].asChoice`, text: s.asChoice ?? "" }));
-    authored.push({ field: "aiReading.followUpWhy", text: r.aiReading.followUpWhy ?? "" }, { field: "aiReading.otherPersonLine", text: r.aiReading.otherPersonLine ?? "" });
+    authored.push({ field: "aiReading.otherPersonLine", text: r.aiReading.otherPersonLine ?? "" });
   }
   authored.push({ field: "otherTag", text: r.otherTag ?? "" }, { field: "status", text: r.status });
   const traitHits = authored.flatMap((a) => scanText(a.text, a.field));
+  const scoreHits = authored.flatMap((a) => scanScoreWords(a.text, a.field));
   const nameHits = [...authored, ...spoken].flatMap((a) => findNames(a.text, a.field, names));
-  return { traitHits, nameHits, nameListSize: listSize(names), ok: traitHits.length === 0 && nameHits.length === 0 };
+  return { traitHits, scoreHits, nameHits, nameListSize: listSize(names), ok: traitHits.length === 0 && scoreHits.length === 0 && nameHits.length === 0 };
 }
 
 /** Markdown から、発話の本文そのままの行（「>」で始まる行）を除く */
@@ -478,12 +498,13 @@ export function withoutQuoteLines(markdown: string): string {
 
 /**
  * 読み返したファイル（メモリストアから読んだ文）の検査。記録にも、夢の出力にも使う。
- * 発話の本文そのままの行（「>」の行）と「」の中は、性質の言葉を数えない。名前は全文で数える。
+ * 発話の本文そのままの行（「>」の行）と「」の中は、性質の言葉と、点・判定の言葉を数えない。名前は全文で数える。
  */
 export function checkMarkdown(markdown: string, field: string, names: string[] = []): RecordCheck {
   const traitHits = scanText(withoutQuoteLines(markdown), field);
+  const scoreHits = scanScoreWords(markdown, field);
   const nameHits = findNames(markdown, field, names);
-  return { traitHits, nameHits, nameListSize: listSize(names), ok: traitHits.length === 0 && nameHits.length === 0 };
+  return { traitHits, scoreHits, nameHits, nameListSize: listSize(names), ok: traitHits.length === 0 && scoreHits.length === 0 && nameHits.length === 0 };
 }
 
 export type Correction = { oldText: string; newText: string };

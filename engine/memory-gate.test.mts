@@ -21,10 +21,10 @@ describe("保存の検査を、後ろの工程を止める条件にする（工�
 
   test("読み返しの結果から、済みにできない理由を並べる", () => {
     const md = "# 記録\n- 観察：講師は様子を尋ねた。\n";
-    assert.deepEqual(storedProblems(checkStoredRecord([{ id: "m", path: "/records/a-1.md", content: md }], "a-1", md), true), []);
-    assert.deepEqual(storedProblems(checkStoredRecord([], "a-1", md), true), ["記録のファイルが無い"]);
-    assert.deepEqual(storedProblems(checkStoredRecord([{ id: "m", path: "/records/a-1.md", content: "# 違う\n" }], "a-1", md), false), ["渡した文と違う（1 行目）", "索引に行が無い"]);
-    const named = checkStoredRecord([{ id: "m", path: "/records/a-1.md", content: `${md}- 話しすぎる癖がある。\n- たなかの話。\n` }], "a-1", `${md}- 話しすぎる癖がある。\n- たなかの話。\n`, ["たなか"]);
+    assert.deepEqual(storedProblems(checkStoredRecord([{ id: "m", path: "/records/2025-10-24-a-1.md", content: md }], "a-1", "2025-10-24", md), true), []);
+    assert.deepEqual(storedProblems(checkStoredRecord([], "a-1", "2025-10-24", md), true), ["記録のファイルが無い"]);
+    assert.deepEqual(storedProblems(checkStoredRecord([{ id: "m", path: "/records/2025-10-24-a-1.md", content: "# 違う\n" }], "a-1", "2025-10-24", md), false), ["渡した文と違う（1 行目）", "索引に行が無い"]);
+    const named = checkStoredRecord([{ id: "m", path: "/records/2025-10-24-a-1.md", content: `${md}- 話しすぎる癖がある。\n- たなかの話。\n` }], "a-1", "2025-10-24", `${md}- 話しすぎる癖がある。\n- たなかの話。\n`, ["たなか"]);
     assert.deepEqual(storedProblems(named, true), ["性質の言葉が 2 件", "名前が 1 件"]);
   });
 
@@ -58,20 +58,20 @@ describe("本人の訂正を守る（決まり 12）", () => {
   });
 
   test("夢の出力で、直した文が残り、前の文が戻っていないかを確かめる", () => {
-    const c = { interviewId: "a-1", oldText: "前の文。", newText: "直した文。" };
+    const c = { interviewId: "a-1", date: "2025-10-24", oldText: "前の文。", newText: "直した文。" };
     const kept = checkCorrectionKept(
       [
-        { id: "1", path: "/records/a-1.md", content: "- 観察：直した文。\n" },
+        { id: "1", path: "/records/2025-10-24-a-1.md", content: "- 観察：直した文。\n" },
         { id: "2", path: "/recurring-scenes.md", content: "> 〔発話 1〕講師：前の文。\n- 説明：別の文。\n" },
       ],
       [c],
     );
     assert.equal(kept[0].kept, true);
-    const revived = checkCorrectionKept([{ id: "1", path: "/records/a-1.md", content: "- 観察：前の文。\n" }], [c]);
+    const revived = checkCorrectionKept([{ id: "1", path: "/records/2025-10-24-a-1.md", content: "- 観察：前の文。\n" }], [c]);
     assert.deepEqual([revived[0].kept, revived[0].newTextInRecord, revived[0].oldTextInRecord], [false, false, true]);
     const elsewhere = checkCorrectionKept(
       [
-        { id: "1", path: "/records/a-1.md", content: "- 観察：直した文。\n" },
+        { id: "1", path: "/records/2025-10-24-a-1.md", content: "- 観察：直した文。\n" },
         { id: "2", path: "/recurring-scenes.md", content: "- 説明：前の文。\n" },
       ],
       [c],

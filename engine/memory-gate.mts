@@ -1,6 +1,6 @@
 // 記録の保存を確かめた結果を、後ろの工程（次の面談の記録、夢）を止める条件にする（docs/設計書.md 工程 5・6）。
 // ここは純粋な関数だけ。呼ぶのは scripts/memory/run.mts。
-// - 記録は、読み返して「渡した文と同じ」「性質の言葉と名前が無い」「索引に行がある」と確かめるまで、済みにしない。
+// - 記録は、読み返して「渡した文と同じ」「性質の言葉と点・判定と名前が無い」「索引に行がある」と確かめるまで、済みにしない。
 // - 夢は、全部の面談が済みで、索引も合っているときだけ始める。
 // - 本人が直した記録のセッションは、夢に渡さない（直す前の本文が残っているため）。
 
@@ -35,6 +35,7 @@ export function storedProblems(stored: StoredRecordCheck, indexHasLine: boolean)
   if (!stored.found) out.push("記録のファイルが無い");
   else if (!stored.identical) out.push(`渡した文と違う（${stored.firstDiff?.line} 行目）`);
   if (stored.check && stored.check.traitHits.length > 0) out.push(`性質の言葉が ${stored.check.traitHits.length} 件`);
+  if (stored.check && stored.check.scoreHits.length > 0) out.push(`点か判定の言葉が ${stored.check.scoreHits.length} 件`);
   if (stored.check && stored.check.nameHits.length > 0) out.push(`名前が ${stored.check.nameHits.length} 件`);
   if (!indexHasLine) out.push("索引に行が無い");
   return out;
@@ -77,7 +78,7 @@ export function sessionIdsForDream(interviewIds: string[], sessions: Record<stri
   return { sessionIds: kept.map((id) => sessions[id].sessionId), excluded };
 }
 
-export type SavedCorrection = { interviewId: string; oldText: string; newText: string };
+export type SavedCorrection = { interviewId: string; date: string; oldText: string; newText: string };
 
 export type CorrectionKept = SavedCorrection & {
   /** 夢の出力の記録に、直した後の文が残っているか */
@@ -92,7 +93,7 @@ export type CorrectionKept = SavedCorrection & {
 /** 夢の出力で、本人の訂正が守られたかを確かめる */
 export function checkCorrectionKept(outputFiles: StoredFile[], corrections: SavedCorrection[]): CorrectionKept[] {
   return corrections.map((c) => {
-    const target = recordPath(c.interviewId);
+    const target = recordPath(c.interviewId, c.date);
     const record = outputFiles.find((f) => f.path === target)?.content ?? "";
     const newTextInRecord = record.includes(c.newText);
     const oldTextInRecord = record.includes(c.oldText);
