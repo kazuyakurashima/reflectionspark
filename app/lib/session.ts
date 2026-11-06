@@ -20,18 +20,21 @@ export type SparkChoice = Spark & {
   keepAfterThird: boolean;
 };
 
-/** 画面 5（次の面談で）のデータ */
+/** 画面 5（前回のひとつを確かめる）のデータ。確かめるのは、この面談の発話（transcript）と、持ち越したひとつ（prev.spark） */
 export type FollowUpData = {
-  raw: string;
-  transcript: Transcript | null;
-  mock: boolean;
-  step0Ms: number | null;
-  /** 本人の自己評価。AI に渡さない */
+  /** 本人の判定。AI に渡さない */
   selfVerdict: FollowUpVerdict | null;
-  selfScore: number | null;
   result: { step4: Step4Result; mock: boolean } | null;
   /** この結果で追った回数を数えた Spark の id（二重に数えない） */
   countedSparkId: string | null;
+};
+
+/** 前の面談から持ち越したもの。「次の面談を始める」で入る（app/lib/next-meeting.mts） */
+export type PrevMeeting = {
+  /** 前の面談で決めたひとつ（見送ったなら null）。追った回数は、ここで数える */
+  spark: SparkChoice | null;
+  /** 前の面談そのもの。「前の面談に戻る」と、前回の発言を並べるために持つ。前の前は持たない（prev は null） */
+  session: SessionData;
 };
 
 export type SessionData = {
@@ -64,8 +67,10 @@ export type SessionData = {
   candidates: { step3: Step3Result; mock: boolean } | null;
   spark: SparkChoice | null;
   sparkSkipped: boolean;
-  /** 画面 5 */
+  /** 画面 5：持ち越したひとつを、この面談で確かめた結果 */
   followUp: FollowUpData | null;
+  /** 前の面談（あれば）。面談は 1 回ごとに「1 入力」から始め、決めたひとつだけを持ち越す */
+  prev: PrevMeeting | null;
 };
 
 const KEY = "reflectionspark:session";
@@ -92,16 +97,19 @@ export function newSession(kind: MeetingKind = "生徒", otherName = "", raw = "
     spark: null,
     sparkSkipped: false,
     followUp: null,
+    prev: null,
   };
 }
 
-export function newFollowUp(raw = ""): FollowUpData {
-  return { raw, transcript: null, mock: false, step0Ms: null, selfVerdict: null, selfScore: null, result: null, countedSparkId: null };
+export function newFollowUp(): FollowUpData {
+  return { selfVerdict: null, result: null, countedSparkId: null };
 }
 
-/** 古い保存に無い項目を埋める */
+/** 古い保存に無い項目を埋める。前の面談が無い保存の確かめ（古い形）は捨てる */
 function fill(s: Partial<SessionData>): SessionData {
-  return { ...newSession(), ...s, answers: s.answers ?? [], ownViews: s.ownViews ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true, demo: s.demo === true } as SessionData;
+  const prev = s.prev?.session ? { spark: s.prev.spark ?? null, session: fill({ ...s.prev.session, prev: null }) } : null;
+  const f = prev && s.followUp ? { selfVerdict: s.followUp.selfVerdict ?? null, result: s.followUp.result ?? null, countedSparkId: s.followUp.countedSparkId ?? null } : null;
+  return { ...newSession(), ...s, answers: s.answers ?? [], ownViews: s.ownViews ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true, demo: s.demo === true, followUp: f, prev } as SessionData;
 }
 
 function read(): string | null {
