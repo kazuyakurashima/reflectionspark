@@ -3,6 +3,8 @@
 // 画面 4：次に試すひとつ（Your Spark）。候補 2〜3 から選ぶ・直す・見送る。
 // 候補は「もし（場面）なら、（行動）する」の一文が見え、押すとセリフの例とできたかの基準が開く。
 // 選ぶ・直す・見送るのは本人（決まり 7）。選んだ一つだけを目立つ下地に置く。持ち帰るものは一つ。
+// 前の面談から持ち越したひとつがあれば、候補の下に「前回のひとつを続ける」を置く（続けるか変えるかも本人が決める）。
+// 終わりの「次の面談を始める」で、決めたひとつを持ち越して「1 入力」に戻る（app/lib/next-meeting.mts）。
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,7 +19,8 @@ import { PreviousWordsBlock, RepeatScenesBlock } from "@/app/components/RecordVi
 import { candidatesBody } from "@/app/lib/demo-flag.mts";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
-import { answerText, loadSession, makeSparkId, updateSession, useSession } from "@/app/lib/session";
+import { keptSpark, startNextMeeting } from "@/app/lib/next-meeting.mts";
+import { answerText, loadSession, makeSparkId, newSession, updateSession, useSession } from "@/app/lib/session";
 import { sameTranscript } from "@/app/lib/input-guard.mts";
 import type { SparkChoice } from "@/app/lib/session";
 
@@ -95,10 +98,24 @@ export default function Screen4() {
       timesFollowed: 0,
       keepAfterThird: false,
     };
-    updateSession((s) => ({ ...s, spark, sparkSkipped: false, followUp: null }));
+    updateSession((s) => ({ ...s, spark, sparkSkipped: false }));
     setEditing(null);
   };
-  const skip = () => updateSession((s) => ({ ...s, spark: null, sparkSkipped: true, followUp: null }));
+  const skip = () => updateSession((s) => ({ ...s, spark: null, sparkSkipped: true }));
+  /** 前の面談から持ち越したひとつと、この面談での確かめ */
+  const prevSpark = session.prev?.spark ?? null;
+  const check = session.followUp;
+  /** 前回のひとつを、次の面談でも続ける */
+  const keepPrev = () => {
+    if (!prevSpark) return;
+    updateSession((s) => ({ ...s, spark: keptSpark(prevSpark, new Date().toISOString()), sparkSkipped: false }));
+    setEditing(null);
+  };
+  /** 次の面談を始める。決めたひとつ（見送ったなら無し）を持ち越し、入力を空にして「1 入力」へ */
+  const startNext = () => {
+    updateSession((s) => startNextMeeting(s, newSession(s.kind)));
+    router.push("/");
+  };
   /** 失敗したとき、候補が一つも残らなかったときに、候補を作り直す */
   const recreate = () => {
     setError(null);
@@ -107,6 +124,7 @@ export default function Screen4() {
     setRetry((n) => n + 1);
   };
   const spark = session.spark;
+  const keptChosen = spark !== null && prevSpark !== null && spark.id === prevSpark.id;
   const cands = candidates?.step3.candidates ?? [];
   const repeats = candidates?.step3.repeats ?? [];
 
@@ -139,7 +157,7 @@ export default function Screen4() {
 
         {repeats.length > 0 && <RepeatScenesBlock items={repeats} className="mt-6" />}
 
-        {spark && (spark.edited || !cands.some((c) => c.sentence === spark.sentence)) && (
+        {spark && !keptChosen && (spark.edited || !cands.some((c) => c.sentence === spark.sentence)) && (
           <div className={`mt-6 ${SPARK_BOX}`}>
             <p className="text-xs font-semibold text-amber-900">持ち帰るひとつ{spark.edited ? "（直して使う）" : ""}</p>
             <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{spark.sentence}</p>
@@ -174,7 +192,7 @@ export default function Screen4() {
         )}
         <div className="mt-4 space-y-4">
           {cands.map((c, i) => {
-            const chosen = spark !== null && !spark.edited && spark.sentence === c.sentence;
+            const chosen = spark !== null && !keptChosen && !spark.edited && spark.sentence === c.sentence;
             return (
               <div key={i} className={`rounded-md border px-5 py-4 ${chosen ? "border-amber-300 bg-amber-50" : "border-line-2"}`}>
                 {chosen && <p className="mb-1 text-xs font-semibold text-amber-900">持ち帰るひとつ</p>}
@@ -237,18 +255,46 @@ export default function Screen4() {
             );
           })}
         </div>
+        {prevSpark && (
+          <div className={`mt-4 rounded-md border px-5 py-4 ${keptChosen ? "border-amber-300 bg-amber-50" : "border-line-2"}`}>
+            <p className={`text-xs font-semibold ${keptChosen ? "text-amber-900" : "text-ink-3"}`}>{keptChosen ? "持ち帰るひとつ（前回のひとつを続ける）" : "前回のひとつを続ける"}</p>
+            <p className="mt-1 text-[1.02rem] font-semibold leading-[1.7]">{prevSpark.sentence}</p>
+            {prevSpark.criterion && <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">できたかの基準：{prevSpark.criterion}</p>}
+            {/* AI の判定は、本人が自分の判定を付けた後にだけ出す */}
+            {check?.result && check.selfVerdict && (
+              <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">
+                今回の面談での判定：自分「{check.selfVerdict}」、AI「{check.result.step4.verdict}」
+              </p>
+            )}
+            {prevSpark.timesFollowed >= 3 && (
+              <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">
+                この行動を追ったのは {prevSpark.timesFollowed} 回です。同じ行動は 2〜3 回で身につくことが多く、それ以上は別の場面に向けたほうが伸びやすいためです。続けるか変えるかは、あなたが決めます。
+              </p>
+            )}
+            <div className="mt-4">
+              <button type="button" onClick={keepPrev} className={BTN_SMALL}>
+                {keptChosen ? "これを続けることにした" : "これを続ける"}
+              </button>
+            </div>
+          </div>
+        )}
         {/* 候補が無いとき・作れなかったときも、見送って先へ進める */}
         <button type="button" onClick={skip} className={`mt-4 block text-[0.92rem] ${QUIET_LINK}`}>
           今回は見送る（持ち帰らない）
         </button>
 
         <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <button type="button" onClick={() => router.push("/next")} disabled={!spark && !session.sparkSkipped} className={BTN_PRIMARY}>
-            次へ　次の面談で
+          <button type="button" onClick={startNext} disabled={!spark && !session.sparkSkipped} className={BTN_PRIMARY}>
+            次の面談を始める
           </button>
           {!spark && !session.sparkSkipped && <span className="text-[0.86rem] text-ink-3">選ぶか見送るかを決めると進めます。</span>}
         </div>
-        <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">今日の振り返りはここまでです。「5 次の面談で」は、次の面談が終わってから、その文字起こしを貼って使います。サンプルでは、続きの面談でそのまま試せます。</p>
+        <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">
+          今日の振り返りはここまでです。次の面談が終わったら「次の面談を始める」を押して、その文字起こしを「1 入力」に貼ります。
+          {spark && "決めたひとつは持ち越し、次の面談を読む前に確かめます。"}
+          {session.demo && "サンプルでは、続きの面談でそのまま試せます。"}
+          押したあとも、「前の面談に戻る」でこの面談に戻れます。
+        </p>
       </section>
     </main>
   );
