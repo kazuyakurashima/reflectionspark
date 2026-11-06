@@ -1,1 +1,39 @@
 @import "tailwindcss";
+
+/*
+ * 色の決まり（画面 2 から順に当てていく）。
+ * - 差し色は青緑の 1 つ。AI が引用した発言と、次へ進むボタンにだけ使う。
+ * - 話者の色分けは、ごく薄い 2 つの地（本人は寒色、相手は暖色）。色味を弱くして、引用した発言の差し色を埋もれさせない。
+ * - 琥珀色は「次に試すひとつ（Spark）」だけに使う（画面 4・5）。
+ * - 地図の棒は、本人が濃い灰緑、相手が砂色。
+ */
+@theme {
+  --color-paper: #f7f5f1;
+  --color-surface: #fdfcfa;
+  --color-ink: #1d1b18;
+  --color-ink-2: #56504a;
+  --color-ink-3: #766f65;
+  --color-line: #e6e1d9;
+  --color-line-2: #d3ccc1;
+  --color-accent: #27505a;
+  --color-accent-soft: #e4ecec;
+  --color-accent-mid: #cfe1e3;
+  --color-tint-self: #ebf0f0;
+  --color-tint-other: #f2ede4;
+  --color-bar-self: #47595c;
+  --color-bar-other: #b9ab93;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-feature-settings: "palt" 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0s !important;
+  }
+}

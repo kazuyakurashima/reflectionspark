@@ -53,6 +53,8 @@ export type SessionData = {
   /** 本人の自己採点（10 点満点）と一言。AI に渡さない */
   selfScore: number | null;
   selfNote: string;
+  /** 画面 2：場面ごとの自分の見立て（任意）。AI に渡さない */
+  ownViews: string[];
   analysis: { step1: Step1Result; step2: Step2Result; mock: boolean } | null;
   /** 画面 3：問いへの本人の答え */
   answers: { question: string; answer: string }[];
@@ -80,6 +82,7 @@ export function newSession(kind: MeetingKind = "生徒", otherName = "", raw = "
     step0Ms: null,
     selfScore: null,
     selfNote: "",
+    ownViews: [],
     analysis: null,
     answers: [],
     candidates: null,
@@ -95,7 +98,7 @@ export function newFollowUp(raw = ""): FollowUpData {
 
 /** 古い保存に無い項目を埋める */
 function fill(s: Partial<SessionData>): SessionData {
-  return { ...newSession(), ...s, answers: s.answers ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true } as SessionData;
+  return { ...newSession(), ...s, answers: s.answers ?? [], ownViews: s.ownViews ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true } as SessionData;
 }
 
 function read(): string | null {

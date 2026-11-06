@@ -24,10 +24,11 @@ const KINDS: { value: MeetingKind; label: string }[] = [
 ];
 
 /** 整形の結果が変わったときに消す、後の工程のデータ */
-const cleared: Pick<SessionData, "analysis" | "selfScore" | "selfNote" | "answers" | "candidates" | "spark" | "sparkSkipped" | "followUp"> = {
+const cleared: Pick<SessionData, "analysis" | "selfScore" | "selfNote" | "ownViews" | "answers" | "candidates" | "spark" | "sparkSkipped" | "followUp"> = {
   analysis: null,
   selfScore: null,
   selfNote: "",
+  ownViews: [],
   answers: [],
   candidates: null,
   spark: null,
