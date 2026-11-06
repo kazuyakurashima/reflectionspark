@@ -1,6 +1,9 @@
 // 保存した出力（eval/results/runs）から軸ごとの数字を計算し、Markdown の表にする。
 // 使い方：node eval/scripts/report.mts [--judge]   --judge で LLM 判定（軸 3・4・10・12 の推測の意味）も回す
 // 出力：eval/results/runs/report.md と、ケースごとの axes.json
+// 別の場所の出力や別の版の正解で計算し直すとき（LLM は呼ばない。--judge を付けなければ）：
+//   --runs <読む出力>  --truth <正解>  --out <書く場所>  --cases a,b  --keep-judge（--runs の axes.json の判定を引き継ぐ）
+//   --e2e <通しの ID か none>  --judge-e2e（軸 4 だけ判定する）
 // 1 行 1 ケースの表と合計。README にそのまま貼れる形。
 
 import fs from "node:fs";
@@ -12,10 +15,21 @@ import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, step0Variance
 import type { Axis1, Axis11, Axis12, Axis2, Axis5, Axis6, Axis8, Axis9, Step0Variance } from "../lib/axes.mts";
 import { loadCase, loadJson, RUNS_DIR, saveJson } from "../lib/cases.mts";
 import { judgeAction, judgeGuessMeaning, judgeQuestion, judgeQuoteSupport } from "../lib/judge.mts";
-import { listTruthCases } from "../lib/truth.mts";
+import { listTruthCases, loadTruth } from "../lib/truth.mts";
 import { EVAL_SCRIPT_VERSION, TRUTH_VERSION } from "../lib/version.mts";
 
 const withJudge = process.argv.includes("--judge");
+const keepJudge = process.argv.includes("--keep-judge");
+const judgeE2e = withJudge || process.argv.includes("--judge-e2e");
+const argOf = (name: string): string | null => {
+  const i = process.argv.indexOf(name);
+  return i >= 0 ? (process.argv[i + 1] ?? null) : null;
+};
+const runsDir = path.resolve(argOf("--runs") ?? RUNS_DIR);
+const truthDir = argOf("--truth") ? path.resolve(argOf("--truth")!) : undefined;
+const outDir = path.resolve(argOf("--out") ?? runsDir);
+const onlyCases = argOf("--cases")?.split(",") ?? null;
+const e2eArg = argOf("--e2e");
 type Step0File = { transcript: Transcript; timing: Step0Timing; unanchored: number };
 
 type CaseAxes = {
@@ -39,9 +53,13 @@ const pct = (n: number | null) => (n === null ? "—" : `${Math.round(n * 100)}%
 const yn = (b: boolean | null) => (b === null ? "—" : b ? "○" : "×");
 
 const rows: CaseAxes[] = [];
-for (const name of listTruthCases()) {
-  const dir = path.join(RUNS_DIR, name);
+const truthVersions = new Set<string>();
+for (const name of listTruthCases(truthDir).filter((n) => !onlyCases || onlyCases.includes(n))) {
+  const dir = path.join(runsDir, name);
   const c = loadCase(name);
+  const truth = truthDir ? loadTruth(name, truthDir) : c.truth;
+  if (truth) truthVersions.add(truth.version);
+  const prev = keepJudge ? loadJson<CaseAxes>(path.join(dir, "axes.json")) : null;
   const s0 = loadJson<Step0File>(path.join(dir, "step0.json"));
   const s1 = loadJson<Step1Result>(path.join(dir, "step1.json"));
   const s2 = loadJson<Step2Result>(path.join(dir, "step2.json"));
@@ -51,16 +69,16 @@ for (const name of listTruthCases()) {
   const ax: CaseAxes = {
     case: name,
     axis1: s1 && t ? axis1(s1, t) : null,
-    axis2: s1 && t && c.truth ? axis2(s1, c.truth, t, c.alignment) : null,
-    axis3: null,
+    axis2: s1 && t && truth ? axis2(s1, truth, t, c.alignment) : null,
+    axis3: prev?.axis3 ?? null,
     axis5: s1 || s2 || s4 ? axis5(s1, s2, null, s4) : null,
-    axis6: s4 && t && c.truth ? axis6(s4, c.truth, t, c.alignment) : null,
-    axis8: s2 && c.truth ? axis8(s1, s2, c.truth) : null,
-    axis9: s2 && c.truth ? axis9(s2.items, c.truth, c.alignment) : null,
-    axis10: null,
+    axis6: s4 && t && truth ? axis6(s4, truth, t, c.alignment) : null,
+    axis8: s2 && truth ? axis8(s1, s2, truth) : null,
+    axis9: s2 && truth ? axis9(s2.items, truth, c.alignment) : null,
+    axis10: prev?.axis10 ?? null,
     axis11: t ? axis11(t, c.alignment, c.script) : null,
     axis12: t ? axis12(t, c.alignment) : null,
-    guessMeaning: null,
+    guessMeaning: prev?.guessMeaning ?? null,
     variance: t && extra.length ? step0Variance([t, ...extra.map((x) => x.transcript)]) : null,
     timing: { step0: s0?.timing ?? null, step1Ms: s1?.meta.ms ?? null, firstCitationMs: s1?.firstCitationMs ?? null, step2Ms: s2?.meta.ms ?? null, step4Ms: s4?.meta.ms ?? null },
   };
@@ -84,13 +102,13 @@ for (const name of listTruthCases()) {
       ax.guessMeaning.push({ fragment: g.fragment, guess: g.guess, score: j.score, reason: j.reason });
     }
   }
-  saveJson(path.join(dir, "axes.json"), ax);
+  saveJson(path.join(outDir, name, "axes.json"), ax);
   rows.push(ax);
 }
 
 const has = rows.some((r) => r.axis1 || r.axis11);
 const lines: string[] = [];
-lines.push(`# 評価の結果（正解 ${TRUTH_VERSION}・評価スクリプト ${EVAL_SCRIPT_VERSION}）`, "");
+lines.push(`# 評価の結果（正解 ${[...truthVersions].join("・") || TRUTH_VERSION}・評価スクリプト ${EVAL_SCRIPT_VERSION}）`, "");
 if (!has) {
   lines.push("保存された出力がありません（eval/results/runs が空）。`node eval/scripts/run-cases.mts` で回してから作ります。", "");
 }
@@ -156,25 +174,28 @@ lines.push("", "軸 4（行動の具体性）は、本人の答えが要るの�
 // 軸 4：通し（eval/results/e2e）の最新の出力から、候補ごとに判定する
 type E2eFile = { id: string; answer: string; step1?: Step1Result; step3?: Step3Result };
 const e2eDir = path.resolve("eval/results/e2e");
-const e2eFiles = fs.existsSync(e2eDir) ? fs.readdirSync(e2eDir).filter((f) => f.endsWith(".json")).sort() : [];
-const e2e = e2eFiles.length ? loadJson<E2eFile>(path.join(e2eDir, e2eFiles[e2eFiles.length - 1])) : null;
+const e2eFiles = fs.existsSync(e2eDir) ? fs.readdirSync(e2eDir).filter((f) => f.endsWith(".json") && !f.endsWith(".axis4.json")).sort() : [];
+const e2eFile = e2eArg === "none" ? null : e2eArg ? `${e2eArg}.json` : (e2eFiles[e2eFiles.length - 1] ?? null);
+const e2e = e2eFile ? loadJson<E2eFile>(path.join(e2eDir, e2eFile)) : null;
 lines.push("## 軸 4：行動の具体性（通しの候補。LLM 判定、1〜5）", "");
-if (!e2e || !e2e.step3 || !e2e.step1) {
+if (e2eArg === "none") {
+  lines.push("（この表では軸 4 を出さない）", "");
+} else if (!e2e || !e2e.step3 || !e2e.step1) {
   lines.push("通しの出力（eval/results/e2e/*.json に step3）がありません。`node eval/scripts/e2e.mts` で通してから作ります。", "");
 } else {
   const nextScene = e2e.step1.scenes.find((sc) => sc.type === "次に試せる所");
   lines.push(`通し：${e2e.id}。本人の答え：${e2e.answer}`, "", "| 候補 | 一文 | 軸 4 | 理由 |", "|---|---|---|---|");
   const axis4: { sentence: string; score: number | null; reason: string }[] = [];
   for (const c of e2e.step3.candidates) {
-    if (withJudge && nextScene) {
+    if (judgeE2e && nextScene) {
       const j = await judgeAction(c, e2e.answer, nextScene);
       axis4.push({ sentence: c.sentence, score: j.score, reason: j.reason });
-    } else axis4.push({ sentence: c.sentence, score: null, reason: withJudge ? "次に試せる所が無い" : "（--judge で判定）" });
+    } else axis4.push({ sentence: c.sentence, score: null, reason: judgeE2e ? "次に試せる所が無い" : "（--judge で判定）" });
   }
   axis4.forEach((x, i) => lines.push(`| ${i + 1} | ${x.sentence} | ${x.score ?? "—"} | ${x.reason} |`));
   const scored = axis4.filter((x) => x.score !== null);
   if (scored.length) lines.push(`| **平均** | | ${(scored.reduce((s, x) => s + (x.score ?? 0), 0) / scored.length).toFixed(1)} | |`);
-  saveJson(path.join(e2eDir, `${e2e.id}.axis4.json`), axis4);
+  if (scored.length) saveJson(path.join(e2eDir, `${e2e.id}.axis4.json`), axis4);
   lines.push("");
 }
 
@@ -200,7 +221,7 @@ lines.push("## 軸 8・9：保留の正しさ、点の向き", "", "| ケース 
 for (const r of rows) {
   const a8 = r.axis8;
   const a9 = r.axis9;
-  const scores = loadJson<Step2Result>(path.join(RUNS_DIR, r.case, "step2.json"))?.items.map((i) => i.score ?? "—").join(" ") ?? "—";
+  const scores = loadJson<Step2Result>(path.join(runsDir, r.case, "step2.json"))?.items.map((i) => i.score ?? "—").join(" ") ?? "—";
   const agree = a8 ? a8.withheldAsTruth.filter((w) => w.truth).map((w) => `${w.item}:${yn(w.ai)}`).join(" ") || "（無い）" : "—";
   const noScene = a8 && a8.truthNoScene ? yn(a8.saidNoScene) : "—";
   lines.push(`| ${r.case} | ${a8 ? yn(a8.item5Withheld) : "—"} | ${agree} | ${noScene} | ${a9 ? `${a9.satisfied}／${a9.countable}` : "—"} | ${a9 ? a9.absentItems.join("、") || "—" : "—"} | ${scores} |`);
@@ -251,7 +272,7 @@ for (const r of rows) {
 }
 lines.push("");
 
-const out = path.join(RUNS_DIR, "report.md");
-fs.mkdirSync(RUNS_DIR, { recursive: true });
+const out = path.join(outDir, "report.md");
+fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(out, lines.join("\n"));
 console.log(lines.join("\n"));
