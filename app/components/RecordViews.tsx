@@ -7,13 +7,11 @@ import Link from "next/link";
 import { useState } from "react";
 
 import type { RecordEntry } from "@/engine/memory-read.mts";
-import { RUBRIC_ITEMS } from "@/engine/rubric.mts";
 import type { MeetingKind, PreviousWords } from "@/engine/types.mts";
 import { formatDate, kindLabel, kindOfSpeakers, linesTranscript, mergeLines, previousLines } from "@/app/lib/record-view.mts";
 import type { Line } from "@/app/lib/record-view.mts";
 import { useRecords } from "@/app/lib/records";
 import { sceneTypeLabel } from "@/app/lib/words.mts";
-import { Collapsible } from "./Collapsible";
 import { Island } from "./UtteranceView";
 import { H2, LINK, SPARK_BOX } from "./ui";
 
@@ -142,7 +140,7 @@ export function RecordEntryView({ r }: { r: RecordEntry }) {
   );
 }
 
-/** 点。引用の後ろに、数字だけを並べる（決まり 8）。合計はアプリが計算したもの */
+/** 点。引用の後ろに、自分の点と AI の合計を並べる（決まり 8。項目ごとの点はこの画面に出さない）。合計はアプリが計算したもの */
 function Scores({ s }: { s: NonNullable<RecordEntry["scores"]> }) {
   const num = "text-xl font-semibold tabular-nums";
   return (
@@ -177,23 +175,6 @@ function Scores({ s }: { s: NonNullable<RecordEntry["scores"]> }) {
         )}
       </dl>
       {s.selfNote && <p className="mt-2 text-[0.92rem] text-ink-2">自分の一言：{s.selfNote}</p>}
-      {s.aiItems.length > 0 && (
-        <Collapsible label="項目ごとの AI の点を開く" openLabel="項目ごとの AI の点を閉じる" className="mt-2">
-          <ul className="text-[0.92rem] leading-[1.8] text-ink-2">
-            {s.aiItems.map((i) => (
-              <li key={i.item} className="flex justify-between gap-4 border-b border-line py-1">
-                <span>
-                  {i.item}. {RUBRIC_ITEMS.find((x) => x.n === i.item)?.name}
-                </span>
-                <span className="tabular-nums">{i.score === null ? "判定しない" : i.score}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs leading-relaxed text-ink-3">
-            点は面談の点で、人の点ではありません。尺度は 1〜5（仮）。合計は、判定した {s.aiTotal.judgedCount} 項目の {s.aiTotal.sum}／{s.aiTotal.max} を 10 点に換算したものです（仮）。
-          </p>
-        </Collapsible>
-      )}
     </div>
   );
 }
