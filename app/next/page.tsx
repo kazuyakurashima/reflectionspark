@@ -3,6 +3,8 @@
 // 画面 5：次の面談で。続きの面談を貼る → 整形して確かめる → 先に「できた／一部／まだ／場面がなかった」と自分の点を付ける →
 // そのあと AI の判定・根拠の引用・なぜの一文・項目ごとの点。本人の自己評価は API に渡さない（決まり 10）。
 // 本人と AI の判定を並べ、ずれは確かめる点として出す。同じ行動を追うのが 3 回目なら、続けるか変えるかを聞く。
+// 判定の所に、前回（行動を決めた面談）の発言を今回の根拠の発言と並べる。前回の発言は保存してある照合済みの引用で、
+// 出す前に前回の発話の本文ともう一度照らす（app/lib/previous-quote.mts）。AI を呼び直さない。
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +17,7 @@ import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
+import { previousQuoteOf } from "@/app/lib/previous-quote.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { ScoreTable } from "@/app/components/Scores";
 import { UtteranceContext } from "@/app/components/UtteranceView";
@@ -139,6 +142,8 @@ export default function Screen5() {
   const toCheckCount = groups ? countToCheck(groups) : 0;
   const correctedCount = groups?.corrected.length ?? 0;
   const third = spark.timesFollowed >= 3 && !spark.keepAfterThird;
+  /** 前回（行動を決めた面談）の発言。session.transcript は、その面談の整形後の発話 */
+  const prevQuote = previousQuoteOf(spark.previousScene?.quoteText, session.transcript?.utterances);
   const keep = () => updateSession((s) => ({ ...s, spark: s.spark ? { ...s.spark, keepAfterThird: true } : s.spark }));
   const change = () => {
     // 今回の面談を新しい面談として画面 2 から始め、別の行動を選び直す
@@ -262,8 +267,21 @@ export default function Screen5() {
                 <p className="mt-3 text-sm">
                   <span className="font-semibold">なぜ</span>　{result.step4.why}
                 </p>
+                {prevQuote && (
+                  <div className="mt-3">
+                    <p className="text-xs text-stone-500">前回（この行動を決めた面談）の発言</p>
+                    <blockquote className="mt-1 border-l-4 border-amber-400 pl-3">
+                      <p className="whitespace-pre-wrap text-sm">「{prevQuote.text}」</p>
+                      <p className="mt-1 text-xs text-stone-500">
+                        {[prevQuote.speaker, prevQuote.index !== null ? utteranceLabel(prevQuote.index) : null].filter((x) => x !== null).join("・")}
+                        <span className="ml-2 rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">引用は原文と一致</span>
+                      </p>
+                    </blockquote>
+                  </div>
+                )}
+                {prevQuote && result.step4.quotes.length > 0 && <p className="mt-3 text-xs text-stone-500">今回の発言（判定の根拠）</p>}
                 {result.step4.quotes.length > 0 ? (
-                  <blockquote className="mt-3 border-l-4 border-stone-400 pl-3">
+                  <blockquote className={`${prevQuote ? "mt-1" : "mt-3"} border-l-4 border-stone-400 pl-3`}>
                     {result.step4.quotes.map((q) => (
                       <div key={q.index} className="mb-2">
                         <p className="text-sm">「{q.text}」</p>
