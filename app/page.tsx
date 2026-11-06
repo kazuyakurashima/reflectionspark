@@ -16,11 +16,12 @@ import { Collapsible } from "@/app/components/Collapsible";
 import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import { demoAfterInput } from "@/app/lib/demo-flag.mts";
+import { sameInput } from "@/app/lib/input-guard.mts";
 import { RecordsLink } from "@/app/components/RecordViews";
 import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, SEG, segItem } from "@/app/components/ui";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
-import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
+import { fetchStep0c, loadSession, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
 
 const KINDS: { value: MeetingKind; label: string }[] = [
@@ -46,6 +47,9 @@ export default function Screen1() {
   const router = useRouter();
   const session = useSession();
   const [busy, setBusy] = useState(false);
+  /** サンプルを取りに行っている間（整形と入力を止める。応答の順番で、貼った文に印が移らないように） */
+  const [loadingDemo, setLoadingDemo] = useState(false);
+  const [demoError, setDemoError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /** 整形を待つ間に、サーバーから届いた進み具合（いまの段階と、区切り終えた字数） */
   const [progress, setProgress] = useState<ProgressEvent | null>(null);
@@ -69,19 +73,32 @@ export default function Screen1() {
 
   const loadDemo = async () => {
     setError(null);
-    const r = await fetch("/api/demo");
-    const d = (await r.json()) as { kind: MeetingKind; otherName: string; raw: string };
-    // サンプルの印を立てる（画面 4 で、サンプルの講師の記録を添えてよい印）
-    updateSession(() => ({ ...newSession(d.kind, d.otherName, d.raw), demo: true }));
+    setDemoError(false);
+    setLoadingDemo(true);
+    try {
+      const r = await fetch("/api/demo");
+      if (!r.ok) throw new Error(String(r.status));
+      const d = (await r.json()) as { kind: MeetingKind; otherName: string; raw: string };
+      // サンプルの印を立てる（画面 4 で、サンプルの講師の記録を添えてよい印）。待つ間に貼る欄が変わっていたら、上書きしない
+      updateSession((s) => (s.raw === raw ? { ...newSession(d.kind, d.otherName, d.raw), demo: true } : s));
+    } catch {
+      setDemoError(true);
+    } finally {
+      setLoadingDemo(false);
+    }
   };
 
   const format = async () => {
     setBusy(true);
     setError(null);
     setProgress(null);
+    const stamp = { id: session?.id ?? "", raw, kind };
     try {
       const d = await postWithProgress<Step0Response>("/api/step0", { raw, kind }, setProgress, "整形に失敗しました");
-      updateSession((s) => ({ ...s, kind, otherName, raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, ...cleared }));
+      // 頼んだ時と同じ入力のときだけ保存する（待つ間にサンプルを選んだ・貼り直したときは、この結果を捨てる）
+      const now = loadSession();
+      if (!now || !sameInput(stamp, now)) return;
+      updateSession((s) => ({ ...s, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, ...cleared }));
       // 0c は別に回し、届いたら付ける（分析を待たせない）
       void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.transcript ? { ...s, transcript: fn(s.transcript) } : s)));
     } catch (e) {
@@ -140,7 +157,7 @@ export default function Screen1() {
             </p>
             <div className={`mt-1.5 ${SEG}`} role="group" aria-labelledby="kind-label">
               {KINDS.map((k) => (
-                <button key={k.value} type="button" onClick={() => kind !== k.value && setInput({ kind: k.value })} aria-pressed={kind === k.value} className={segItem(kind === k.value)}>
+                <button key={k.value} type="button" disabled={busy || loadingDemo} onClick={() => kind !== k.value && setInput({ kind: k.value })} aria-pressed={kind === k.value} className={segItem(kind === k.value)}>
                   {k.label}
                 </button>
               ))}
@@ -160,6 +177,7 @@ export default function Screen1() {
           <textarea
             value={raw}
             onChange={(e) => setInput({ raw: e.target.value })}
+            readOnly={busy || loadingDemo}
             rows={transcript ? 4 : 9}
             placeholder="ここに貼る。実在の人の名前が入っていないかを確かめてください。"
             className={`mt-1.5 block w-full ${FIELD}`}
@@ -167,10 +185,10 @@ export default function Screen1() {
         </label>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={format} disabled={busy || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
+          <button type="button" onClick={format} disabled={busy || loadingDemo || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
             {busy ? "整形しています…" : transcript ? "もう一度整形する" : "整形する"}
           </button>
-          <button type="button" onClick={loadDemo} disabled={busy} className={BTN_SECONDARY}>
+          <button type="button" onClick={loadDemo} disabled={busy || loadingDemo} className={BTN_SECONDARY}>
             サンプルを選ぶ（Demo Mode）
           </button>
         </div>
@@ -179,6 +197,7 @@ export default function Screen1() {
           <WaitPanel className="mt-6" title="整形しています" estimate="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" steps={STEP0_STEPS} view={step0View(progress)} />
         )}
         {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
+        {demoError && <p className="mt-3 text-[0.92rem] text-red-700">サンプルを読めませんでした。もう一度「サンプルを選ぶ」を押すと、やり直せます。</p>}
       </section>
 
       {transcript && groups && (

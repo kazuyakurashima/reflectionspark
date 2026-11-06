@@ -46,7 +46,12 @@ export function progressResponse<T>(run: (onProgress: OnProgress) => Promise<T>,
 /** 返事を読む。NDJSON なら進み具合を onProgress に渡し、結果を返す。JSON 1 つ（入力の誤りなど）もそのまま読む */
 export async function readProgress<T>(r: Response, onProgress: OnProgress, fallback: string): Promise<T> {
   if (!(r.headers.get("content-type") ?? "").includes(NDJSON) || !r.body) {
-    const d = (await r.json()) as T & { error?: string };
+    let d: T & { error?: string };
+    try {
+      d = (await r.json()) as T & { error?: string };
+    } catch {
+      throw new Error(`${fallback}（${r.status}。返事を読めませんでした）`);
+    }
     if (!r.ok || d.error) throw new Error(d.error ?? `${fallback}（${r.status}）`);
     return d;
   }
@@ -56,7 +61,12 @@ export async function readProgress<T>(r: Response, onProgress: OnProgress, fallb
   let result: { data: T } | null = null;
   const take = (text: string) => {
     if (text.trim() === "") return;
-    const line = JSON.parse(text) as Line<T>;
+    let line: Line<T>;
+    try {
+      line = JSON.parse(text) as Line<T>;
+    } catch {
+      throw new Error(`${fallback}（返事が途中で切れました）`);
+    }
     if (line.type === "error") throw new Error(line.error);
     if (line.type === "result") result = { data: line.data };
     else {

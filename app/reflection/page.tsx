@@ -27,7 +27,8 @@ import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, LINK, NOTE, PAGE } from "@/app/components/ui";
 import { chaptersOf, sceneSpan, spanWindow, wideWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
-import { updateSession, useSession } from "@/app/lib/session";
+import { loadSession, updateSession, useSession } from "@/app/lib/session";
+import { sameTranscript } from "@/app/lib/input-guard.mts";
 import type { SessionData } from "@/app/lib/session";
 import { countTranscript, ethicsMark } from "@/app/lib/view";
 import { refListLabel, refRangeLabel, sceneTypeLabel } from "@/app/lib/words.mts";
@@ -37,27 +38,39 @@ export default function Screen2() {
   const session = useSession();
   const [error, setError] = useState<string | null>(null);
   const started = useRef(false);
+  const run = useRef(0);
   const [retry, setRetry] = useState(0);
   /** 分析を待つ間に、サーバーから届いた進み具合（いまの段階と、書いている所） */
   const [progress, setProgress] = useState<ProgressEvent | null>(null);
   const transcript = session?.transcript ?? null;
   const analysis = session?.analysis ?? null;
   const firstMeeting = session?.firstMeeting ?? true;
+  const sessionId = session?.id ?? null;
 
   useEffect(() => {
     // 自己採点・一言・見立てはこの呼び出しに入れない（決まり 10）
     if (!transcript || analysis || started.current) return;
     started.current = true;
+    const thisRun = ++run.current;
     (async () => {
       try {
         const d = await postWithProgress<AnalyzeResponse>("/api/analyze", { transcript, firstMeeting }, setProgress, "分析に失敗しました");
+        // 待つ間に面談が変わっていたら、この結果を保存しない（別の面談の場面を出さないため）
+        const now = loadSession();
+        if (!now || now.id !== sessionId || !sameTranscript(now.transcript, transcript)) {
+          if (run.current === thisRun) {
+            started.current = false;
+            setRetry((n) => n + 1);
+          }
+          return;
+        }
         updateSession((s) => ({ ...s, analysis: { step1: d.step1, step2: d.step2, mock: d.mock } }));
       } catch (e) {
         setError((e as Error).message);
         started.current = false;
       }
     })();
-  }, [transcript, analysis, firstMeeting, retry]);
+  }, [transcript, analysis, firstMeeting, sessionId, retry]);
 
   if (session === undefined) return <main className={`${PAGE} text-sm text-ink-2`}>読み込んでいます…</main>;
   if (!session || !transcript) {
@@ -118,6 +131,7 @@ export default function Screen2() {
             type="button"
             onClick={() => {
               setError(null);
+              setProgress(null);
               setRetry((n) => n + 1);
             }}
             className={`mt-2 ${BTN_SMALL}`}

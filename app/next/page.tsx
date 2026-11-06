@@ -27,7 +27,8 @@ import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
 import { RecordsLink } from "@/app/components/RecordViews";
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import type { ProgressEvent } from "@/engine/progress.mts";
-import { fetchStep0c, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
+import { fetchStep0c, loadSession, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
+import { sameTranscript } from "@/app/lib/input-guard.mts";
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
 
@@ -44,7 +45,11 @@ export default function Screen5() {
   const [verdict, setVerdict] = useState<FollowUpVerdict | null>(null);
   const [score, setScore] = useState("");
   const [openQuote, setOpenQuote] = useState<number | null>(null);
+  const sessionId = session?.id;
   const started = useRef(false);
+  const run = useRef(0);
+  /** サンプルの続きを取りに行っている間（整形と入力を止める） */
+  const [loadingDemo, setLoadingDemo] = useState(false);
 
   const spark = session?.spark ?? null;
   const fu = session?.followUp ?? null;
@@ -55,12 +60,22 @@ export default function Screen5() {
     // 追跡は自己評価と並行して始める。自己評価はこの呼び出しに入れない（決まり 10）
     if (!spark || !transcript || result || started.current) return;
     started.current = true;
+    const thisRun = ++run.current;
     const payload = { transcript, spark: { sentence: spark.sentence, criterion: spark.criterion, previousScene: spark.previousScene } };
     (async () => {
       try {
         const r = await fetch("/api/followup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
         const d = (await r.json()) as FollowUpResponse & { error?: string };
         if (!r.ok || d.error) throw new Error(d.error ?? `追跡に失敗しました（${r.status}）`);
+        // 待つ間に面談や行動が変わっていたら、この判定を保存しない
+        const now = loadSession();
+        if (!now || now.id !== sessionId || now.spark?.id !== spark.id || !sameTranscript(now.followUp?.transcript, transcript)) {
+          if (run.current === thisRun) {
+            started.current = false;
+            setRetry((n) => n + 1);
+          }
+          return;
+        }
         updateSession((s) => {
           const f = s.followUp ?? newFollowUp();
           const counted = f.countedSparkId === spark.id;
@@ -75,7 +90,7 @@ export default function Screen5() {
         started.current = false;
       }
     })();
-  }, [spark, transcript, result, retry]);
+  }, [spark, transcript, result, sessionId, retry]);
 
   if (session === undefined) return <main className={`${PAGE} text-sm text-ink-2`}>読み込んでいます…</main>;
   if (!session || (!spark && !session.sparkSkipped)) {
@@ -108,9 +123,19 @@ export default function Screen5() {
   const kind = session.kind;
   const setRaw = (v: string) => updateSession((s) => ({ ...s, followUp: { ...(s.followUp ?? newFollowUp()), raw: v, transcript: null, result: null, selfVerdict: null, selfScore: null } }));
   const loadDemo = async () => {
-    const r = await fetch("/api/demo/2");
-    const d = (await r.json()) as { raw: string };
-    setRaw(d.raw);
+    setError(null);
+    setLoadingDemo(true);
+    try {
+      const r = await fetch("/api/demo/2");
+      if (!r.ok) throw new Error(String(r.status));
+      const d = (await r.json()) as { raw: string };
+      // 待つ間に貼る欄が変わっていたら、上書きしない
+      if ((loadSession()?.followUp?.raw ?? "") === raw) setRaw(d.raw);
+    } catch {
+      setError("サンプルの続きを読めませんでした。もう一度押すと、やり直せます。");
+    } finally {
+      setLoadingDemo(false);
+    }
   };
   const format = async () => {
     setBusy(true);
@@ -119,6 +144,9 @@ export default function Screen5() {
     setProgress(null);
     try {
       const d = await postWithProgress<Step0Response>("/api/step0", { raw, kind }, setProgress, "整形に失敗しました");
+      // 頼んだ時と同じ入力のときだけ保存する
+      const now = loadSession();
+      if (!now || now.id !== session.id || now.followUp?.raw !== raw) return;
       started.current = false;
       updateSession((s) => ({ ...s, followUp: { ...(s.followUp ?? newFollowUp()), raw, transcript: d.transcript, mock: d.mock, step0Ms: d.ms, result: null, selfVerdict: null, selfScore: null } }));
       void fetchStep0c(d.transcript, (fn) => updateSession((s) => (s.followUp?.transcript ? { ...s, followUp: { ...s.followUp, transcript: fn(s.followUp.transcript) } } : s)));
@@ -190,13 +218,13 @@ export default function Screen5() {
             <span className={LABEL}>次の面談の文字起こし</span>
             <span className="text-xs tabular-nums text-ink-3">{[...raw].length} 字</span>
           </span>
-          <textarea value={raw} onChange={(e) => setRaw(e.target.value)} rows={transcript ? 4 : 7} placeholder="ここに貼る。実在の人の名前が入っていないかを確かめてください。" className={`mt-1.5 block w-full ${FIELD}`} />
+          <textarea value={raw} onChange={(e) => setRaw(e.target.value)} readOnly={busy || loadingDemo} rows={transcript ? 4 : 7} placeholder="ここに貼る。実在の人の名前が入っていないかを確かめてください。" className={`mt-1.5 block w-full ${FIELD}`} />
         </label>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={format} disabled={busy || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
+          <button type="button" onClick={format} disabled={busy || loadingDemo || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
             {busy ? "整形しています…" : transcript ? "もう一度整形する" : "整形する"}
           </button>
-          <button type="button" onClick={loadDemo} disabled={busy} className={BTN_SECONDARY}>
+          <button type="button" onClick={loadDemo} disabled={busy || loadingDemo} className={BTN_SECONDARY}>
             サンプルの続きを選ぶ（Demo Mode）
           </button>
         </div>

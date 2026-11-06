@@ -38,6 +38,16 @@ describe("画面の言葉：発言の番号", () => {
     assert.deepEqual(splitRefs("発話 3 と 5 つの候補", 128), [{ text: "発言 3", index: 3 }, { text: " と 5 つの候補" }]);
   });
 
+  test("前回の面談の番号は、今回の発言の印にしない（面談ごとに番号が違うため）", () => {
+    assert.deepEqual(splitRefs("前回の面談の発話 2 と同じ形で", 10), [{ text: "前回の面談の" }, { text: "発言 2" }, { text: " と同じ形で" }]);
+    assert.deepEqual(splitRefs("前回の発話 2〜4 では", 10), [{ text: "前回の" }, { text: "発言 2" }, { text: "〜" }, { text: "4" }, { text: " では" }]);
+    assert.deepEqual(splitRefs("前の面談の 発話 2", 10), [{ text: "前の面談の " }, { text: "発言 2" }]);
+    // 今回の番号は、同じ文の中でも印にする
+    assert.deepEqual(splitRefs("前回の面談の発話 2 に近く、発話 3 で返した", 10), [{ text: "前回の面談の" }, { text: "発言 2" }, { text: " に近く、" }, { text: "発言 3", index: 3 }, { text: " で返した" }]);
+    // 「前の発話」は同じ面談の一つ前のことなので、前回の印にしない
+    assert.deepEqual(splitRefs("前の発話 2 を受けて", 10), [{ text: "前の" }, { text: "発言 2", index: 2 }, { text: " を受けて" }]);
+  });
+
   test("番号の無い「発話」と、ほかの文字には手を入れない", () => {
     assert.equal(sayRefs("生徒の発話が長くなった。「発話」という言葉。"), "生徒の発話が長くなった。「発話」という言葉。");
     assert.equal(sayRefs("家での過ごし方を聞く（発話 78〜114）"), "家での過ごし方を聞く（発言 78〜114）");

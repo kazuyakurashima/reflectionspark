@@ -191,6 +191,15 @@ export function makeSparkId(i: number): string {
   return `${Date.now().toString(36)}-${i}`;
 }
 
+/** 工程 3 に渡す、本人の答えの文。答えのある問いだけを並べる */
+export function answerText(s: SessionData): string {
+  return questionsOf(s)
+    .map((q) => ({ q, a: s.answers.find((x) => x.question === q)?.answer.trim() ?? "" }))
+    .filter((x) => x.a !== "")
+    .map((x) => `問い：${x.q}\n答え：${x.a}`)
+    .join("\n\n");
+}
+
 /** 画面 3 の問い（場面ごとの問いと、事情を尋ねる問い） */
 export function questionsOf(s: SessionData): string[] {
   const a = s.analysis;

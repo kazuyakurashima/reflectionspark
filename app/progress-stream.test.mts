@@ -34,6 +34,13 @@ describe("進み具合を流して読む", () => {
     assert.deepEqual(await readProgress(ok, () => {}, "失敗しました"), { v: 1 });
   });
 
+  it("途中で切れた行や、JSON でない返事は、生の構文エラーを出さない", async () => {
+    const cut = new Response('{"type":"progress","stage":"0a"}\n{"type":"res', { headers: { "content-type": "application/x-ndjson" } });
+    await assert.rejects(readProgress(cut, () => {}, "整形に失敗しました"), (e: Error) => e.message === "整形に失敗しました（返事が途中で切れました）");
+    const html = new Response("<html>Gateway Timeout</html>", { status: 504, headers: { "content-type": "text/html" } });
+    await assert.rejects(readProgress(html, () => {}, "整形に失敗しました"), (e: Error) => e.message === "整形に失敗しました（504。返事を読めませんでした）");
+  });
+
   it("画面が進み具合を求めたときだけ、この形で返す", () => {
     assert.equal(wantsProgress(new Request("http://x/", { headers: { accept: "application/x-ndjson" } })), true);
     assert.equal(wantsProgress(new Request("http://x/")), false);

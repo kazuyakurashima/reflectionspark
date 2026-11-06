@@ -32,6 +32,8 @@ const NOT_COUNT = "(?![0-9０-９]|\\s*(?:つ|個|件|回|人|割|分|秒|日|�
 const JOINER = "[〜～~\\-–—−ー・、,，とや→]";
 const GROUP = new RegExp(`発話\\s*${NUMBER}${NOT_COUNT}(?:\\s*${JOINER}\\s*(?:発話\\s*)?${NUMBER}${NOT_COUNT})*`, "gu");
 const ONE = new RegExp(`(発話\\s*)?(${NUMBER})`, "gu");
+// 前回の面談の番号の印（engine/utterance-no.mts と同じ考え方）。発話番号は面談ごとに 0 から振るので、今回の発言に結び付けない
+const PREVIOUS = /(?:前回(?:の面談)?の|前の面談の)\s*$/u;
 
 function toNumber(s: string): number {
   return Number(s.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)));
@@ -41,7 +43,7 @@ export type TextPart = { text: string; index?: undefined } | { text: string; ind
 
 /**
  * AI が書いた文を、ふつうの文と、発言の番号の印に分ける。印の text は画面に出す言葉（「発言 42」、続きの番号は「44」）。
- * 発話の並びの範囲に無い番号は印にせず、言葉だけ読み替える。
+ * 発話の並びの範囲に無い番号と、前回の面談の番号は印にせず、言葉だけ読み替える。
  */
 export function splitRefs(text: string, count: number): TextPart[] {
   const parts: TextPart[] = [];
@@ -51,12 +53,13 @@ export function splitRefs(text: string, count: number): TextPart[] {
   let last = 0;
   for (const g of (text ?? "").matchAll(GROUP)) {
     push(text.slice(last, g.index));
+    const previous = PREVIOUS.test(text.slice(0, g.index));
     let inner = 0;
     for (const m of g[0].matchAll(ONE)) {
       push(g[0].slice(inner, m.index));
       const n = toNumber(m[2]);
       const shown = m[1] ? refLabel(n) : String(n);
-      if (n >= 0 && n < count) parts.push({ text: shown, index: n });
+      if (!previous && n >= 0 && n < count) parts.push({ text: shown, index: n });
       else push(shown);
       inner = m.index + m[0].length;
     }

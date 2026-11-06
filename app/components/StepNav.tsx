@@ -26,7 +26,7 @@ export function StepNav() {
           return (
             <li key={s.href} className={`flex items-center gap-2 sm:gap-3 ${i > 0 ? "grow" : ""}`}>
               {i > 0 && <span aria-hidden="true" className={`h-0 min-w-3 grow border-t ${i === STEPS.length - 1 ? "border-dashed border-ink-3/60" : "border-line-2"}`} />}
-              <Link href={s.href} aria-current={current ? "step" : undefined} className="group flex shrink-0 items-center gap-2">
+              <Link href={s.href} aria-current={current ? "step" : undefined} aria-label={`${i + 1} ${s.label}${done ? "（済み）" : ""}`} className="group flex shrink-0 items-center gap-2">
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs tabular-nums ${
                     current ? "border-accent bg-accent font-semibold text-white" : done ? "border-accent text-accent" : "border-line-2 bg-surface text-ink-3 group-hover:border-ink-3"
@@ -41,7 +41,6 @@ export function StepNav() {
                   )}
                 </span>
                 <span className={`${current ? "font-semibold text-ink" : "hidden text-ink-2 group-hover:text-ink sm:inline"}`}>
-                  {done && <span className="sr-only">済み：</span>}
                   {s.label}
                 </span>
               </Link>

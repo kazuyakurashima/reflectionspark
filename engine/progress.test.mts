@@ -21,6 +21,19 @@ describe("待つ間の進み具合を数える", () => {
     assert.equal(copiedChars('{"utterances":[{"speaker":"講師","te'), 0);
   });
 
+  it("0a（copy）：途中で切れたエスケープは、完成するまで数えない。字数は減らない", () => {
+    const head = '{"text":"あ';
+    const seen = ["\\", "\\u", "\\u3", "\\u30", "\\u304", "\\u3042"].map((tail) => copiedChars(head + tail));
+    assert.deepEqual(seen, [1, 1, 1, 1, 1, 2]);
+    // サロゲートは 2 つで 1 字
+    assert.equal(copiedChars('{"text":"\\ud83d'), 0);
+    assert.equal(copiedChars('{"text":"\\ud83d\\ude00'), 1);
+    // 空白のエスケープは数えない。そのほかのエスケープは 1 字
+    assert.equal(copiedChars('{"text":"あ\\n\\u3000\\u0020い\\"う\\\\"'), 5);
+    // 「\\u30」は、エスケープされた \\ と u と 3 と 0 で、4 字
+    assert.equal(copiedChars('{"text":"\\\\u30'), 4);
+  });
+
   it("写し終えた字数を、元の文（空白を含む）の何字目かに直す", () => {
     const w = rawPositions("あい\nう えお");
     assert.equal(w.total, 7);

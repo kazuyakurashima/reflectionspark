@@ -11,19 +11,31 @@ export function countChars(s: string): number {
   return [...s.replace(/\s/g, "")].length;
 }
 
+/** JSON の文字列の中身（閉じる前のものも）から、完成した文字だけを数える（空白を除く）。途中で切れたエスケープは、まだ数えない */
+function countJsonChars(body: string): number {
+  let n = 0;
+  for (const m of body.matchAll(/\\u([0-9a-fA-F]{4})|\\u[0-9a-fA-F]{0,3}$|\\([\s\S])|([^\\])/gu)) {
+    if (m[1] !== undefined) {
+      const code = parseInt(m[1], 16);
+      // サロゲートは 2 つで 1 字。後ろの半分で数える
+      if (code >= 0xd800 && code <= 0xdbff) continue;
+      if (!/\s/.test(String.fromCharCode(code))) n += 1;
+    } else if (m[2] !== undefined) {
+      if (!"nrtf".includes(m[2])) n += 1;
+    } else if (m[3] !== undefined && !/\s/.test(m[3])) {
+      n += 1;
+    }
+  }
+  return n;
+}
+
 /**
  * 工程 0a（copy）の途中の出力から、写し終えた本文の字数を数える（空白を除く）。
  * 出力は JSON の途中までなので、"text" の値を、閉じていないものも含めて拾う。
  */
 export function copiedChars(partialJson: string): number {
   let n = 0;
-  for (const m of partialJson.matchAll(/"text"\s*:\s*"((?:[^"\\]|\\.)*)/g)) {
-    const body = m[1]
-      .replace(/\\u[0-9a-fA-F]{4}/g, "x")
-      .replace(/\\[nrt]/g, "")
-      .replace(/\\./g, "x");
-    n += countChars(body);
-  }
+  for (const m of partialJson.matchAll(/"text"\s*:\s*"((?:[^"\\]|\\.)*)/g)) n += countJsonChars(m[1]);
   return n;
 }
 

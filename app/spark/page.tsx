@@ -17,7 +17,8 @@ import { PreviousWordsBlock } from "@/app/components/RecordViews";
 import { candidatesBody } from "@/app/lib/demo-flag.mts";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
-import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
+import { answerText, loadSession, makeSparkId, updateSession, useSession } from "@/app/lib/session";
+import { sameTranscript } from "@/app/lib/input-guard.mts";
 import type { SparkChoice } from "@/app/lib/session";
 
 export default function Screen4() {
@@ -28,6 +29,7 @@ export default function Screen4() {
   const [draftSentence, setDraftSentence] = useState("");
   const [draftCriterion, setDraftCriterion] = useState("");
   const started = useRef(false);
+  const run = useRef(0);
   const [retry, setRetry] = useState(0);
 
   const analysis = session?.analysis ?? null;
@@ -38,12 +40,8 @@ export default function Screen4() {
   useEffect(() => {
     if (!session || !transcript || !nextScene || candidates || started.current) return;
     started.current = true;
-    const qs = questionsOf(session);
-    const answer = qs
-      .map((q) => ({ q, a: session.answers.find((x) => x.question === q)?.answer.trim() ?? "" }))
-      .filter((x) => x.a !== "")
-      .map((x) => `問い：${x.q}\n答え：${x.a}`)
-      .join("\n\n");
+    const thisRun = ++run.current;
+    const answer = answerText(session);
     (async () => {
       try {
         const r = await fetch("/api/candidates", {
@@ -54,6 +52,15 @@ export default function Screen4() {
         });
         const d = (await r.json()) as CandidatesResponse & { error?: string };
         if (!r.ok || d.error) throw new Error(d.error ?? `候補を作れませんでした（${r.status}）`);
+        // 待つ間に面談・印・答えが変わっていたら、この候補を保存しない（貼った面談に、サンプルの講師の言葉を出さないため）
+        const now = loadSession();
+        if (!now || now.id !== session.id || now.demo !== session.demo || !sameTranscript(now.transcript, transcript) || answerText(now) !== answer) {
+          if (run.current === thisRun) {
+            started.current = false;
+            setRetry((n) => n + 1);
+          }
+          return;
+        }
         updateSession((s) => ({ ...s, candidates: { step3: d.step3, mock: d.mock } }));
       } catch (e) {
         setError((e as Error).message);

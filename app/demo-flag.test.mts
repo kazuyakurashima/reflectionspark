@@ -6,6 +6,8 @@ import { describe, it } from "node:test";
 
 import type { PreviousWords } from "../engine/types.mts";
 import { candidatesBody, demoAfterInput } from "./lib/demo-flag.mts";
+import { sameInput, sameTranscript } from "./lib/input-guard.mts";
+import { tooltipPlace } from "./lib/tooltip-place.mts";
 import { formatDate, kindOfSpeakers, linesTranscript, mergeLines, previousLines } from "./lib/record-view.mts";
 
 describe("サンプルの印", () => {
@@ -51,6 +53,65 @@ describe("サンプルの印", () => {
     const session = fs.readFileSync("app/lib/session.ts", "utf8");
     assert.match(session, /demo: false,/);
     assert.match(session, /demo: s\.demo === true/);
+  });
+});
+
+describe("遅れて届いた応答で、貼った面談に印が移らない", () => {
+  type S = { id: string; raw: string; kind: string; demo: boolean; transcript: { raw: string; utterances: { speaker: string; text: string | null }[] } | null };
+  const pasted = (): S => ({ id: "A", raw: "貼った文", kind: "生徒", demo: false, transcript: null });
+  const sample = (): S => ({ id: "B", raw: "サンプルの文", kind: "生徒", demo: true, transcript: null });
+  const formatted = { raw: "貼った文", utterances: [{ speaker: "講師", text: "貼った文" }] };
+  /** 画面 1 と同じ判定：頼んだ時と同じ入力のときだけ整形の結果を保存する */
+  const saveFormat = (stamp: { id: string; raw: string; kind: string }, s: S): S => (sameInput(stamp, s) ? { ...s, transcript: formatted } : s);
+
+  it("サンプル → 整形の順に届いても、貼った文の整形結果はサンプルのセッションに入らない", () => {
+    const start = pasted();
+    const stamp = { id: start.id, raw: start.raw, kind: start.kind };
+    const after = saveFormat(stamp, sample());
+    assert.equal(after.transcript, null);
+    assert.equal(after.raw, "サンプルの文");
+    assert.equal(after.demo, true);
+  });
+
+  it("整形 → サンプルの順なら、サンプルが残る。待つ間に貼り直したら結果を捨てる", () => {
+    const start = pasted();
+    const stamp = { id: start.id, raw: start.raw, kind: start.kind };
+    assert.equal(saveFormat(stamp, start).transcript, formatted);
+    assert.equal(saveFormat(stamp, { ...start, raw: "貼り直した文" }).transcript, null);
+    assert.equal(saveFormat(stamp, { ...start, kind: "保護者" }).transcript, null);
+  });
+
+  it("候補や分析は、同じ発言の並びのときだけ保存する。0c の有無は問わない", () => {
+    assert.equal(sameTranscript(formatted, { ...formatted, step0c: {} } as typeof formatted), true);
+    assert.equal(sameTranscript(formatted, { raw: "別の文", utterances: formatted.utterances }), false);
+    assert.equal(sameTranscript(formatted, { raw: formatted.raw, utterances: [{ speaker: "生徒", text: "貼った文" }] }), false);
+    assert.equal(sameTranscript(formatted, { raw: formatted.raw, utterances: [{ speaker: "講師", text: "直した文" }] }), false);
+    assert.equal(sameTranscript(formatted, null), false);
+  });
+
+  it("画面のつなぎ：応答の保存の前に照合している", () => {
+    const page1 = fs.readFileSync("app/page.tsx", "utf8");
+    assert.match(page1, /if \(!now \|\| !sameInput\(stamp, now\)\) return;/);
+    assert.match(page1, /s\.raw === raw \? \{ \.\.\.newSession\(d\.kind, d\.otherName, d\.raw\), demo: true \} : s/);
+    assert.match(page1, /disabled=\{busy \|\| loadingDemo \|\| raw\.trim\(\) === ""\}/);
+    for (const f of ["app/reflection/page.tsx", "app/spark/page.tsx", "app/next/page.tsx"]) assert.match(fs.readFileSync(f, "utf8"), /sameTranscript\(/, f);
+    assert.match(fs.readFileSync("app/spark/page.tsx", "utf8"), /now\.demo !== session\.demo/);
+  });
+});
+
+describe("発言の説明の位置", () => {
+  it("画面の端に 16px の余白を残して収める", () => {
+    // 390px の画面：幅は 320、右に寄った番号では左へずらす
+    assert.deepEqual(tooltipPlace(200, 390), { width: 320, shift: -146 });
+    assert.deepEqual(tooltipPlace(20, 390), { width: 320, shift: 0 });
+    // 画面より説明が広くなるときは、幅を縮める
+    assert.deepEqual(tooltipPlace(100, 300), { width: 268, shift: -84 });
+    // 広い画面では番号にそろえる
+    assert.deepEqual(tooltipPlace(600, 1456), { width: 320, shift: 0 });
+    for (const [left, vw] of [[0, 390], [389, 390], [120, 320], [1400, 1456]]) {
+      const p = tooltipPlace(left, vw);
+      assert.ok(left + p.shift >= 16 && left + p.shift + p.width <= vw - 16, `${left}/${vw}`);
+    }
   });
 });
 
