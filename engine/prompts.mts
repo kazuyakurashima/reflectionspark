@@ -427,7 +427,14 @@ ${sceneText || "（根拠のある場面は無いとされた）"}
 
 // ---------- 工程 3：行動の候補 ----------
 
-export function step3System(kind: MeetingKind): string {
+/** 工程 3 の決まりに足す文（前の面談の記録を渡すときだけ）。出すための指示は入れない。合うものが無ければ空でよい */
+function step3PastScenesRules(self: string): string {
+  return `
+- 「前の面談の記録から」は、この本人の前の面談を AI が整理した仮説と、その根拠の発話。確かめられていない仮説なので、候補の材料にしてもよいし、使わなくてもよい。候補は今回の場面と本人の答えから作る。仮説の文を候補の文に持ち込まない。前の面談の相手の話題を持ち込まない。
+- 候補ごとに、その行動に近いことを本人が前の面談で実際に言っている発話が、根拠や例外の行にあれば、その札を previous_ref に写す（例の形：student-a｜発話 12）。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合う発話が無ければ空にする。引用文や評価の言葉は書かない。`;
+}
+
+export function step3System(kind: MeetingKind, withPastScenes = false): string {
   const { self, other } = labels(kind);
   return `${COMMON}
 
@@ -442,7 +449,7 @@ export function step3System(kind: MeetingKind): string {
 - 一つの候補に、行動は一つ。「〜し、〜し、〜する」と束ねない。
 - 候補ごとに、セリフの例を 2〜3 と、できたかの基準（次の面談で何が言葉に表れたら「できた」と言えるかの一行）を添える。
 - 塾やコーチ側の都合（講座の追加、志望校やコースへの誘導）に寄った行動を入れない。
-- 選ぶ・直す・見送るのは本人。あなたは一つに決めない。
+- 選ぶ・直す・見送るのは本人。あなたは一つに決めない。${withPastScenes ? step3PastScenesRules(self) : ""}
 
 出力は JSON だけ。`;
 }
@@ -470,13 +477,31 @@ export const STEP3_SCHEMA = {
   },
 };
 
-export function step3User(scene: Scene, answer: string, neighbors: { before: Utterance | null; after: Utterance | null }, memoryNotes: string[] = []): string {
+/** 前の面談の記録を渡すときの形。候補ごとに、前の面談の発話の札を返す欄を足す */
+export const STEP3_PAST_SCENES_SCHEMA = {
+  ...STEP3_SCHEMA,
+  properties: {
+    candidates: {
+      type: "array",
+      items: {
+        ...STEP3_SCHEMA.properties.candidates.items,
+        required: [...STEP3_SCHEMA.properties.candidates.items.required, "previous_ref"],
+        properties: {
+          ...STEP3_SCHEMA.properties.candidates.items.properties,
+          previous_ref: { type: "string", description: "前の面談の本人の発話の札（例の形：student-a｜発話 12）。合う発話が無ければ空" },
+        },
+      },
+    },
+  },
+};
+
+export function step3User(scene: Scene, answer: string, neighbors: { before: Utterance | null; after: Utterance | null }, pastScenes: string | null = null): string {
   const quotes = scene.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join("\n");
   const around = [neighbors.before, neighbors.after]
     .filter((u): u is Utterance => u !== null)
     .map((u) => `〔${utteranceLabel(u.index)}・${u.speaker}〕${u.text ?? ""}`)
     .join("\n");
-  const memory = memoryNotes.length ? `\n記録から（似た場面でうまくいった本人の発言）：\n${memoryNotes.map((m) => `- ${m}`).join("\n")}\n` : "";
+  const memory = pastScenes ? `\n前の面談の記録から（AI が整理した仮説と根拠の発話。本人は確かめていない）：\n${pastScenes}\n` : "";
   return `次に試せる所：
 文脈の一行：${scene.context}
 引用：

@@ -1,0 +1,304 @@
+{
+  "status": "検証用・暫定（ダミーの面談。本人は確かめていない）",
+  "model": "claude-sonnet-5-5",
+  "dreamStatus": "completed",
+  "ms": 412664,
+  "usage": {
+    "inputTokens": 148,
+    "outputTokens": 187855,
+    "cacheReadTokens": 2251955,
+    "cacheWriteTokens": 454572,
+    "activeSeconds": null
+  },
+  "inputEquivalent": 1732834,
+  "capInputEquivalent": 4000000,
+  "canceledByCap": false,
+  "stoppedBy": null,
+  "cancelRequested": false,
+  "cancelError": null,
+  "monitorErrors": 0,
+  "lastMonitorError": null,
+  "watchEndedBeforeTerminal": false,
+  "overCapBy": 0,
+  "capIsStrict": false,
+  "error": null,
+  "samples": [
+    {
+      "sec": 11,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 21,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 31,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 42,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 52,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 62,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 72,
+      "status": "running",
+      "inputEquivalent": 0
+    },
+    {
+      "sec": 83,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 93,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 103,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 114,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 124,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 134,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 145,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 155,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 165,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 176,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 186,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 196,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 206,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 217,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 227,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 237,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 247,
+      "status": "running",
+      "inputEquivalent": 94904
+    },
+    {
+      "sec": 258,
+      "status": "running",
+      "inputEquivalent": 317966
+    },
+    {
+      "sec": 268,
+      "status": "running",
+      "inputEquivalent": 317966
+    },
+    {
+      "sec": 278,
+      "status": "running",
+      "inputEquivalent": 317966
+    },
+    {
+      "sec": 289,
+      "status": "running",
+      "inputEquivalent": 583712
+    },
+    {
+      "sec": 299,
+      "status": "running",
+      "inputEquivalent": 583712
+    },
+    {
+      "sec": 309,
+      "status": "running",
+      "inputEquivalent": 583712
+    },
+    {
+      "sec": 320,
+      "status": "running",
+      "inputEquivalent": 583712
+    },
+    {
+      "sec": 330,
+      "status": "running",
+      "inputEquivalent": 1075256
+    },
+    {
+      "sec": 340,
+      "status": "running",
+      "inputEquivalent": 1075256
+    },
+    {
+      "sec": 351,
+      "status": "running",
+      "inputEquivalent": 1075256
+    },
+    {
+      "sec": 361,
+      "status": "running",
+      "inputEquivalent": 1374296
+    },
+    {
+      "sec": 371,
+      "status": "running",
+      "inputEquivalent": 1374296
+    },
+    {
+      "sec": 381,
+      "status": "running",
+      "inputEquivalent": 1374296
+    },
+    {
+      "sec": 392,
+      "status": "running",
+      "inputEquivalent": 1374296
+    },
+    {
+      "sec": 402,
+      "status": "running",
+      "inputEquivalent": 1374296
+    },
+    {
+      "sec": 412,
+      "status": "completed",
+      "inputEquivalent": 1732834
+    }
+  ],
+  "instructionsChars": 1941,
+  "sessions": 6,
+  "sessionsExcludedForCorrection": [],
+  "outputFiles": [
+    {
+      "path": "/actions.md",
+      "chars": 2492
+    },
+    {
+      "path": "/changes.md",
+      "chars": 4654
+    },
+    {
+      "path": "/index.md",
+      "chars": 924
+    },
+    {
+      "path": "/records/student-seiseki-2.md",
+      "chars": 2716
+    },
+    {
+      "path": "/records/student-seiseki.md",
+      "chars": 2136
+    },
+    {
+      "path": "/records/student-shinro-2.md",
+      "chars": 2835
+    },
+    {
+      "path": "/records/student-shinro.md",
+      "chars": 2135
+    },
+    {
+      "path": "/records/student-yaruki-2.md",
+      "chars": 2714
+    },
+    {
+      "path": "/records/student-yaruki.md",
+      "chars": 2027
+    },
+    {
+      "path": "/recurring-scenes.md",
+      "chars": 9404
+    }
+  ],
+  "recordsUnchanged": [
+    {
+      "path": "/records/student-seiseki-2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-seiseki.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-shinro-2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-shinro.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-yaruki-2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/records/student-yaruki.md",
+      "unchanged": true
+    }
+  ],
+  "expectedFilesPresent": {
+    "index": true,
+    "recurring": true,
+    "changes": true,
+    "actions": true
+  }
+}
