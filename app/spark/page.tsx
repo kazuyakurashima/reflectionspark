@@ -13,7 +13,7 @@ import type { Candidate } from "@/engine/types.mts";
 import { Collapsible } from "@/app/components/Collapsible";
 import { RefChip, RefText } from "@/app/components/RefText";
 import { WaitNote } from "@/app/components/WaitNote";
-import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, CARD, FIELD, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
+import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, CARD, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { refLabel, sceneTypeLabel } from "@/app/lib/words.mts";
 import { makeSparkId, questionsOf, updateSession, useSession } from "@/app/lib/session";
 import type { SparkChoice } from "@/app/lib/session";
@@ -110,7 +110,7 @@ export default function Screen4() {
         <p className={LEAD}>次の面談で試す行動を、一つだけ持ち帰ります。候補から選ぶ、直して使う、見送る、はあなたが決めます。</p>
 
         {nextScene && (
-          <div className="mt-6 rounded-md bg-paper px-5 py-4">
+          <div className={`mt-6 ${INSET}`}>
             <p className="text-xs font-semibold text-ink-3">{sceneTypeLabel(nextScene.type)}</p>
             <p className="mt-1 text-[0.98rem]">
               <RefText t={transcript} text={nextScene.context} />

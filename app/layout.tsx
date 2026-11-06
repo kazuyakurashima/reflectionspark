@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { LookSwitch } from "@/app/components/LookSwitch";
 import { Mark } from "@/app/components/Mark";
 import { StepNav } from "@/app/components/StepNav";
 
@@ -17,10 +18,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="ja">
       <body className="min-h-screen bg-paper text-ink">
         <header className="mx-auto max-w-3xl px-4 pb-7 pt-4">
-          <Link href="/" className="inline-flex items-center gap-2.5 text-[1.3rem] font-bold tracking-tight">
-            <Mark className="h-7 w-7" />
-            ReflectionSpark
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+            <Link href="/" className="inline-flex items-center gap-2.5 text-[1.3rem] font-bold tracking-tight">
+              <Mark className="h-7 w-7" />
+              ReflectionSpark
+            </Link>
+            <LookSwitch />
+          </div>
           <div className="mt-5">
             <Suspense fallback={null}>
               <StepNav />

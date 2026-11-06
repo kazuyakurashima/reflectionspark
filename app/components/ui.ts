@@ -4,7 +4,7 @@
 // - 琥珀色は「次に試すひとつ（Spark）」だけ（app/globals.css の色の決まり）。
 
 export const PAGE = "mx-auto max-w-3xl px-4 pb-12 text-base leading-[1.85] md:text-[1.0625rem]";
-export const CARD = "rounded-lg border border-line bg-surface px-5 py-6 shadow-[0_1px_2px_rgba(29,27,24,0.05)] sm:px-8 sm:py-8";
+export const CARD = "rs-card rounded-lg border border-line bg-surface px-5 py-6 shadow-[0_1px_2px_rgba(29,27,24,0.05)] sm:px-8 sm:py-8";
 export const H1 = "text-[1.6rem] font-semibold leading-snug";
 export const H2 = "text-[1.15rem] font-semibold leading-snug";
 export const LEAD = "mt-2 text-[0.95rem] leading-[1.8] text-ink-2";
@@ -27,6 +27,9 @@ export const NOTE = "rounded-md border border-line-2 bg-paper px-4 py-3 text-[0.
 export const SEG = "inline-flex flex-wrap gap-1 rounded-md border border-line-2 bg-white p-1";
 export const segItem = (on: boolean, small = false) =>
   `rounded-[4px] ${small ? "min-h-8 px-3 text-[0.86rem]" : "min-h-10 px-4 text-[0.92rem]"} ${on ? "bg-accent font-semibold text-white" : "text-ink-2 hover:bg-accent-soft hover:text-ink"}`;
+
+/** カードの中の、少し下がった地（場面の文脈など） */
+export const INSET = "rs-inset rounded-md px-5 py-4";
 
 /** 次に試すひとつ（Spark）の地 */
 export const SPARK_BOX = "rounded-md border border-amber-300 bg-amber-50 px-5 py-4";
