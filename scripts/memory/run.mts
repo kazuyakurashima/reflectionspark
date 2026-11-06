@@ -5,23 +5,29 @@
 //
 // 使い方（API キーは環境変数。値はファイルに書かない）：
 //   node scripts/memory/run.mts analyze                 6 本の分析（保存した結果があれば使う。--fresh で回し直す）
-//   node scripts/memory/run.mts record --state <file> --session-cap-minor <n> [--dry-run]
-//   node scripts/memory/run.mts dream  --state <file> --cap <入力トークン換算の上限>
+//   node scripts/memory/run.mts record --state <file> --session-cap-minor <n> [--dry-run] [--no-scores] [--no-reading] [--names-file <file>]
+//   node scripts/memory/run.mts record --state <file> --verify-only [--names-file <file>]   ストアを読むだけで確かめる
+//   node scripts/memory/run.mts dream  --state <file> --cap <入力トークン換算の上限> [--again]
+//   node scripts/memory/run.mts correct --state <file> --interview <面談> --old <直す文> --new <直した文>
 //   node scripts/memory/run.mts verify --state <file>
 //   node scripts/memory/run.mts summary --state <file>   時間・トークン数・失敗とやり直しの表
 // --state は、作ったリソースの ID を控えるファイル（リポジトリの外に置く。ID と金額はリポジトリに入れない）。
+// --names-file は、相手の名前の一覧（1 行 1 つ。リポジトリの外に置く）。渡さなければ、名前の検査は「未検査」になる。
+// 記録の形を変えて回すとき（--no-scores など）は、同じストアに混ぜないよう、新しい --state にする。
 // 出力：eval/results/memory/analysis/<面談>.json、eval/results/memory/<実行の印>/…
 
 import fs from "node:fs";
 import path from "node:path";
 
 import { getClient } from "../../engine/claude.mts";
-import { parseEvidenceRefs, parseHypotheses, summarizeEvidence, summarizeHypotheses, verifyEvidence } from "../../engine/memory-evidence.mts";
-import type { EvidenceCheck } from "../../engine/memory-evidence.mts";
-import { buildFactRecord, checkMarkdown, checkRecord, indexLine, INDEX_PATH, recordPath, renderRecord } from "../../engine/memory-record.mts";
-import type { FactRecord } from "../../engine/memory-record.mts";
+import { causalHits, counterOverlaps, parseEvidenceRefs, parseHypotheses, summarizeEvidence, summarizeHypotheses, uniqueUtterances, verificationClaims, verifyEvidence } from "../../engine/memory-evidence.mts";
+import type { EvidenceCheck, TextHit } from "../../engine/memory-evidence.mts";
+import { checkCorrectionKept, dreamBlockers, hasIndexLine, indexProblems, nextRecordStep, sessionIdsForDream, storedProblems } from "../../engine/memory-gate.mts";
+import type { SavedCorrection, SessionEntry } from "../../engine/memory-gate.mts";
+import { applyCorrection, buildFactRecord, checkMarkdown, checkRecord, indexLine, INDEX_PATH, nameCheckLabel, recordPath, renderRecord } from "../../engine/memory-record.mts";
+import type { FactRecord, RenderOptions } from "../../engine/memory-record.mts";
 import { checkStoredRecord, createRecorderResources, DREAM_FILES, DREAM_MODEL, dreamInstructions, INDEX_HEADING, readStore, RECORDER_MODEL, recordInterview, runDream } from "../../engine/recorder.mts";
-import type { RecorderResources, SessionUsage } from "../../engine/recorder.mts";
+import type { RecorderResources, RecordRun, SessionUsage, StoredFile } from "../../engine/recorder.mts";
 import { runStep0 } from "../../engine/step0.mts";
 import { runStep1 } from "../../engine/step1.mts";
 import { runStep2 } from "../../engine/step2.mts";
@@ -64,7 +70,12 @@ type Analysis = {
 type State = {
   runId?: string;
   resources?: RecorderResources & { environmentName: string; agentName: string };
-  sessions?: Record<string, { sessionId: string; listCostMinor: string | null }>;
+  sessions?: Record<string, SessionEntry>;
+  /** 索引の全体が、見出しと渡した行だけと確かめたか */
+  indexVerified?: boolean;
+  indexProblems?: string[];
+  /** 本人が直した記録（夢に渡すセッションから外す。夢のあとで守られたかを確かめる） */
+  corrections?: SavedCorrection[];
   dream?: { dreamId: string; outputStoreId: string | null; sessionId: string | null; listCostMinor?: string | null };
 };
 
@@ -81,6 +92,19 @@ function statePath(): string {
 }
 const loadState = (): State => loadJson<State>(statePath()) ?? {};
 const saveState = (s: State) => saveJson(statePath(), s);
+
+/** 記録の中身の出し分け（比べる実験のため）。既定は読みも点も入れる */
+const renderOptions = (): RenderOptions => ({ includeAiReading: !flag("--no-reading"), includeScores: !flag("--no-scores") });
+
+/** 相手の名前の一覧。渡さなければ空で、名前の検査は「未検査」になる */
+function namesFromFile(): string[] {
+  const p = option("--names-file");
+  if (!p) return [];
+  return fs.readFileSync(path.resolve(p), "utf8").split("\n").map((l) => l.trim()).filter((l) => l !== "");
+}
+
+/** 検証で置いた行動の決まり方。本人が選んだものとして残さない */
+const PLACED_ACTION_ORIGIN = "検証用に置いた（評価の正解にある「前回の一手」。本人が選んだものではない）";
 
 async function retry<T>(label: string, failures: string[], f: () => Promise<T>): Promise<T> {
   try {
@@ -195,18 +219,19 @@ function buildRecords(analyses: Analysis[]): { plan: Plan; record: FactRecord; m
       utterances: a.transcript.utterances,
       step1: { scenes: a.step1.scenes, noScene: a.step1.noScene },
       step2: a.step2 ? { items: a.step2.items } : null,
-      chosenAction: next ? { sentence: next.sentence, criterion: next.criterion, origin: "検証用に置いた（評価の正解にある「前回の一手」。本人が選んだものではない）" } : null,
+      chosenAction: next ? { sentence: next.sentence, criterion: next.criterion, origin: PLACED_ACTION_ORIGIN } : null,
       followUp:
         p.follows && a.step4 && a.spark
           ? {
               previousInterviewId: p.follows,
               previousAction: a.spark.sentence,
+              previousActionOrigin: PLACED_ACTION_ORIGIN,
               criterion: a.spark.criterion,
               step4: { verdict: a.step4.verdict, quotes: a.step4.quotes, why: a.step4.why, items: a.step4.items, otherPersonLine: a.step4.otherPersonLine },
             }
           : null,
     });
-    return { plan: p, record, markdown: renderRecord(record), index: indexLine(record) };
+    return { plan: p, record, markdown: renderRecord(record, renderOptions()), index: indexLine(record) };
   });
 }
 
@@ -228,13 +253,27 @@ async function commandAnalyze(): Promise<void> {
   log(`分析 終わり（${Date.now() - t0} ms）`);
 }
 
+/** ストアのファイルを、あれば書き換え、無ければ作る（アプリが直すとき） */
+async function writeStoreFile(client: ReturnType<typeof getClient>, storeId: string, files: StoredFile[], filePath: string, content: string): Promise<void> {
+  const existing = files.find((f) => f.path === filePath);
+  if (existing) await client.beta.memoryStores.memories.update(existing.id, { memory_store_id: storeId, content });
+  else await client.beta.memoryStores.memories.create(storeId, { path: filePath, content });
+}
+
+const indexOf = (files: StoredFile[]) => files.find((f) => f.path === INDEX_PATH)?.content ?? "";
+
 async function commandRecord(): Promise<void> {
+  const names = namesFromFile();
   const analyses = loadAnalyses();
   const built = buildRecords(analyses);
   const tags = [...new Set(PLAN.map((p) => p.other))];
   // 書く前の検査：性質の言葉と名前。札（相手 A など）は名前ではないので、名前の一覧には入れない
-  const before = built.map((b) => ({ id: b.plan.id, check: checkRecord(b.record), dropped: b.record.dropped, chars: [...b.markdown].length }));
-  console.table(before.map((b) => ({ id: b.id, 字数: b.chars, 性質の言葉: b.check.traitHits.length, 名前: b.check.nameHits.length, 合わず捨てた引用: b.dropped.unverifiedQuotes, 控えた欄: b.dropped.withheldFields.length })));
+  const before = built.map((b) => {
+    const check = checkRecord(b.record, names, renderOptions());
+    const text = checkMarkdown(b.markdown, b.plan.id, names);
+    return { id: b.plan.id, check, text, dropped: b.record.dropped, chars: [...b.markdown].length };
+  });
+  console.table(before.map((b) => ({ id: b.id, 字数: b.chars, 性質の言葉: b.check.traitHits.length + b.text.traitHits.length, 名前: nameCheckLabel(names.length, b.check.nameHits.length), 合わず捨てた引用: b.dropped.unverifiedQuotes, 控えた欄: b.dropped.withheldFields.length })));
   if (flag("--dry-run")) {
     const dir = path.join(OUT_DIR, "dry-run");
     for (const b of built) {
@@ -245,7 +284,7 @@ async function commandRecord(): Promise<void> {
     log(`dry-run：記録の文を ${path.relative(process.cwd(), dir)} に書いた（API は呼んでいない）。札：${tags.join("、")}`);
     return;
   }
-  const blocked = before.filter((b) => !b.check.ok);
+  const blocked = before.filter((b) => !b.check.ok || !b.text.ok);
   if (blocked.length > 0) {
     console.error(JSON.stringify(blocked, null, 2));
     throw new Error("書く前の検査に通らない記録がある。書かずに止める");
@@ -259,74 +298,207 @@ async function commandRecord(): Promise<void> {
   const dir = runDirOf(state);
   if (!state.resources) {
     const tag = state.runId.replace(/[^0-9]/g, "").slice(4, 12);
-    const names = { environment: `reflectionspark-kenshou-env-${tag}`, agent: `reflectionspark-recorder-kenshou-${tag}`, store: `reflectionspark-memory-kenshou-${tag}` };
-    const r = await createRecorderResources(client, { ...names, storeDescription: "ReflectionSpark の記録係と夢の実証（検証用・暫定）。ダミーの面談 6 本の記録。本番のデータではない。" });
-    state.resources = { ...r, environmentName: names.environment, agentName: names.agent };
+    const resourceNames = { environment: `reflectionspark-kenshou-env-${tag}`, agent: `reflectionspark-recorder-kenshou-${tag}`, store: `reflectionspark-memory-kenshou-${tag}` };
+    const r = await createRecorderResources(client, { ...resourceNames, storeDescription: "ReflectionSpark の記録係と夢の実証（検証用・暫定）。ダミーの面談 6 本の記録。本番のデータではない。" });
+    state.resources = { ...r, environmentName: resourceNames.environment, agentName: resourceNames.agent };
     saveState(state);
-    log(`作ったもの：環境 ${names.environment}、エージェント ${names.agent}、メモリストア ${names.store}`);
+    log(`作ったもの：環境 ${resourceNames.environment}、エージェント ${resourceNames.agent}、メモリストア ${resourceNames.store}`);
   }
   state.sessions ??= {};
+  const sessions = state.sessions;
   const resources = state.resources;
-  const runs: Record<string, unknown>[] = [];
+  const runFile = path.join(dir, "record-run.json");
+  // 前に止まった回の記録を消さない。同じ面談は、新しい結果で置き換える
+  const runs: Record<string, unknown>[] = loadJson<{ runs: Record<string, unknown>[] }>(runFile)?.runs ?? [];
+  const putRun = (row: Record<string, unknown>) => {
+    const i = runs.findIndex((r) => r.id === row.id);
+    if (i >= 0) runs[i] = row;
+    else runs.push(row);
+    saveJson(runFile, { status: STATUS, model: RECORDER_MODEL, nameCheck: nameCheckLabel(names.length, 0), runs });
+  };
+  const corrected = new Set((state.corrections ?? []).map((c) => c.interviewId));
+  fs.mkdirSync(path.join(dir, "records"), { recursive: true });
   for (const b of built) {
-    fs.mkdirSync(path.join(dir, "records"), { recursive: true });
-    fs.writeFileSync(path.join(dir, "records", `${b.plan.id}.md`), b.markdown);
-    if (state.sessions[b.plan.id]) {
-      log(`${b.plan.id}：すでに書かせた（セッションあり）。飛ばす`);
+    const id = b.plan.id;
+    if (corrected.has(id)) {
+      log(`${id}：本人が直した記録。書き直さない`);
       continue;
     }
-    const run = await recordInterview(client, { resources, interviewId: b.plan.id, markdown: b.markdown, indexLineText: b.index, title: `reflectionspark 検証用 記録係 ${b.plan.id}`, budgetMinor, log });
-    state.sessions[b.plan.id] = { sessionId: run.sessionId, listCostMinor: run.usage.listCostMinor };
-    saveState(state);
-    // 読み返して確かめる
+    const localFile = path.join(dir, "records", `${id}.md`);
+    const entry = sessions[id];
+    // 前に渡した文を、違う形で上書きしない（同じストアに、形の違う記録を混ぜない）
+    if (entry && fs.existsSync(localFile) && fs.readFileSync(localFile, "utf8") !== b.markdown) {
+      throw new Error(`${id}：記録の文が、前に渡した時と違う。同じストアに混ぜないよう、新しい --state で回す`);
+    }
+    fs.writeFileSync(localFile, b.markdown);
     let files = await readStore(client, resources.storeId);
-    let stored = checkStoredRecord(files, b.plan.id, b.markdown);
+    const step = nextRecordStep(entry, files.some((f) => f.path === recordPath(id)));
+    if (step === "skip") {
+      log(`${id}：保存を確かめてある。飛ばす`);
+      continue;
+    }
+    let run: RecordRun | null = null;
+    if (step === "session") {
+      run = await recordInterview(client, {
+        resources,
+        interviewId: id,
+        markdown: b.markdown,
+        indexLineText: b.index,
+        title: `reflectionspark 検証用 記録係 ${id}`,
+        budgetMinor,
+        log,
+        onCreated: (sessionId) => {
+          sessions[id] = { sessionId, listCostMinor: null, verified: false, problems: ["まだ確かめていない"] };
+          saveState(state);
+        },
+      });
+      sessions[id] = { sessionId: run.sessionId, listCostMinor: run.usage.listCostMinor, verified: false, problems: ["まだ確かめていない"] };
+      saveState(state);
+      files = await readStore(client, resources.storeId);
+    } else {
+      log(`${id}：セッションと記録のファイルがある。新しいセッションを増やさず、確かめ直す`);
+    }
+    // 読み返して確かめる。違っていればアプリが直し、もう一度確かめる
+    let stored = checkStoredRecord(files, id, b.markdown, names);
+    const firstDiff = stored.firstDiff;
     let fixedByApp = false;
     if (!stored.found || !stored.identical) {
-      log(`${b.plan.id}：読み返した文が渡した文と違う（${stored.found ? `最初の違いは ${stored.firstDiff?.line} 行目` : "ファイルが無い"}）。アプリが書き直す`);
-      const existing = files.find((f) => f.path === recordPath(b.plan.id));
-      if (existing) await client.beta.memoryStores.memories.update(existing.id, { memory_store_id: resources.storeId, content: b.markdown });
-      else await client.beta.memoryStores.memories.create(resources.storeId, { path: recordPath(b.plan.id), content: b.markdown });
+      log(`${id}：読み返した文が渡した文と違う（${stored.found ? `最初の違いは ${stored.firstDiff?.line} 行目` : "ファイルが無い"}）。アプリが書き直す`);
+      await writeStoreFile(client, resources.storeId, files, recordPath(id), b.markdown);
       fixedByApp = true;
       files = await readStore(client, resources.storeId);
-      stored = { ...checkStoredRecord(files, b.plan.id, b.markdown), firstDiff: stored.firstDiff };
+      stored = checkStoredRecord(files, id, b.markdown, names);
     }
-    const index = files.find((f) => f.path === INDEX_PATH)?.content ?? "";
-    runs.push({
-      id: b.plan.id,
-      ms: run.ms,
-      usage: tokensOf(run.usage),
-      toolUses: run.toolUses,
-      stopReason: run.stopReason,
-      errors: run.errors,
-      report: run.report,
+    let indexFixedByApp = false;
+    if (!hasIndexLine(indexOf(files), b.index)) {
+      log(`${id}：索引に行が無い。アプリが足す`);
+      const current = indexOf(files).trimEnd();
+      await writeStoreFile(client, resources.storeId, files, INDEX_PATH, `${current === "" ? INDEX_HEADING : current}\n${b.index}\n`);
+      indexFixedByApp = true;
+      files = await readStore(client, resources.storeId);
+    }
+    const indexHasLine = hasIndexLine(indexOf(files), b.index);
+    const sessionErrors = run?.errors ?? [];
+    const problems = [...storedProblems(stored, indexHasLine), ...sessionErrors.map((e) => `セッションのエラー：${e.slice(0, 120)}`)];
+    sessions[id] = { ...sessions[id], verified: problems.length === 0, problems };
+    saveState(state);
+    putRun({
+      id,
+      ms: run?.ms ?? null,
+      usage: run ? tokensOf(run.usage) : null,
+      toolUses: run?.toolUses ?? {},
+      stopReason: run?.stopReason ?? null,
+      errors: run?.errors ?? [],
+      interruptRequested: run?.interruptRequested ?? false,
+      report: run?.report ?? "",
       chars: [...b.markdown].length,
       agentWroteIdentical: !fixedByApp,
       fixedByApp,
-      firstDiff: fixedByApp ? stored.firstDiff : null,
+      firstDiff: fixedByApp ? firstDiff : null,
       storedIdentical: stored.identical,
       traitHitsAfterReadBack: stored.check?.traitHits ?? null,
       nameHitsAfterReadBack: stored.check?.nameHits ?? null,
-      indexHasLine: index.split("\n").includes(b.index),
+      indexHasLine,
+      indexFixedByApp,
+      verified: problems.length === 0,
+      problems,
     });
-    saveJson(path.join(dir, "record-run.json"), { status: STATUS, model: RECORDER_MODEL, runs });
+    if (problems.length > 0) throw new Error(`${id}：保存の検査に通らない（${problems.join("、")}）。ここで止める。直してから同じコマンドで続きを回す`);
   }
-  const files = await readStore(client, resources.storeId);
-  const index = files.find((f) => f.path === INDEX_PATH)?.content ?? "";
+  let files = await readStore(client, resources.storeId);
+  const expectedLines = built.map((b) => b.index);
+  let iProblems = indexProblems(indexOf(files), INDEX_HEADING, expectedLines);
+  let indexRewrittenByApp = false;
+  if (iProblems.length > 0) {
+    log(`索引が渡した行と合わない（${iProblems.join("、")}）。アプリが書き直す`);
+    await writeStoreFile(client, resources.storeId, files, INDEX_PATH, `${[INDEX_HEADING, ...expectedLines].join("\n")}\n`);
+    indexRewrittenByApp = true;
+    files = await readStore(client, resources.storeId);
+    iProblems = indexProblems(indexOf(files), INDEX_HEADING, expectedLines);
+  }
+  state.indexVerified = iProblems.length === 0;
+  state.indexProblems = iProblems;
+  saveState(state);
+  const index = indexOf(files);
   fs.writeFileSync(path.join(dir, "index-after-recording.md"), index.endsWith("\n") ? index : `${index}\n`);
-  const expectedIndex = [INDEX_HEADING, ...built.map((b) => b.index)];
   const indexLines = index.trimEnd().split("\n").filter((l) => l.trim() !== "");
   const summary = {
     status: STATUS,
     model: RECORDER_MODEL,
+    nameCheck: nameCheckLabel(names.length, runs.reduce((n, r) => n + ((r.nameHitsAfterReadBack as unknown[] | null)?.length ?? 0), 0)),
     files: files.map((f) => f.path),
-    indexIdentical: JSON.stringify(indexLines) === JSON.stringify(expectedIndex),
+    indexIdentical: iProblems.length === 0,
+    indexRewrittenByApp,
     indexLines: indexLines.length,
     runs,
   };
-  saveJson(path.join(dir, "record-run.json"), summary);
-  console.table(runs.map((r) => ({ id: r.id, ms: r.ms, 同じ文で書けた: r.agentWroteIdentical, 索引に行: r.indexHasLine, 止まり方: r.stopReason })));
-  log(`記録 終わり。ストアのファイル：${summary.files.join("、")}。索引は渡した行と同じ：${summary.indexIdentical}`);
+  saveJson(runFile, summary);
+  console.table(runs.map((r) => ({ id: r.id, ms: r.ms, 同じ文で書けた: r.agentWroteIdentical, 索引に行: r.indexHasLine, 止まり方: r.stopReason, 確かめた: r.verified })));
+  if (iProblems.length > 0) throw new Error(`索引が渡した行と合わない（${iProblems.join("、")}）。夢へ進めない`);
+  log(`記録 終わり。ストアのファイル：${summary.files.join("、")}。${summary.nameCheck === "未検査（名前の一覧を渡していない）" ? "名前の検査は未検査。" : ""}`);
+}
+
+/** ストアを読むだけで、前に渡した記録が残っているかを確かめる（書き換えない）。結果は store-check.json と --state に残す */
+async function commandVerifyStore(): Promise<void> {
+  const names = namesFromFile();
+  const client = getClient();
+  const state = loadState();
+  const dir = runDirOf(state);
+  if (!state.resources || !state.sessions) throw new Error("記録がまだ無い。先に record を回す");
+  const files = await readStore(client, state.resources.storeId);
+  const index = indexOf(files);
+  const rows = PLAN.map((p) => {
+    const localFile = path.join(dir, "records", `${p.id}.md`);
+    const expected = fs.existsSync(localFile) ? fs.readFileSync(localFile, "utf8") : null;
+    const entry = state.sessions?.[p.id];
+    if (expected === null) return { id: p.id, problems: ["手元に渡した文が無い"], sessionKnown: !!entry, identical: false };
+    const stored = checkStoredRecord(files, p.id, expected, names);
+    // 索引の行の文は記録の形の版で違うので、ここでは記録を指す行があるかを見る。全体は下で、控えた索引と比べる
+    const indexHasLine = index.split("\n").some((l) => l.startsWith(`- records/${p.id}.md｜`));
+    const problems = [...storedProblems(stored, indexHasLine), ...(entry ? [] : ["セッションが無い"])];
+    if (entry) (state.sessions as Record<string, SessionEntry>)[p.id] = { ...entry, verified: problems.length === 0, problems };
+    return { id: p.id, problems, sessionKnown: !!entry, identical: stored.identical, traitHits: stored.check?.traitHits.length ?? null, nameCheck: nameCheckLabel(names.length, stored.check?.nameHits.length ?? 0) };
+  });
+  const indexFile = path.join(dir, "index-after-recording.md");
+  const savedIndex = fs.existsSync(indexFile) ? fs.readFileSync(indexFile, "utf8") : null;
+  const iProblems = savedIndex === null ? ["手元に控えた索引が無い"] : savedIndex.trimEnd() === index.trimEnd() ? [] : ["控えた索引と違う"];
+  state.indexVerified = iProblems.length === 0;
+  state.indexProblems = iProblems;
+  saveState(state);
+  const ok = rows.every((r) => r.problems.length === 0) && iProblems.length === 0;
+  saveJson(path.join(dir, "store-check.json"), { status: STATUS, checkedAt: new Date().toISOString(), what: "メモリストアを読み、手元に控えた記録・索引と比べた（書き換えていない）", ok, files: files.map((f) => f.path), records: rows, indexProblems: iProblems });
+  console.table(rows.map((r) => ({ id: r.id, 同じ: r.identical, 性質の言葉: r.traitHits, 名前: r.nameCheck, 問題: r.problems.join("、") })));
+  log(`ストアの確かめ 終わり：${ok ? "すべて合った" : "合わない所がある"}（索引：${iProblems.join("、") || "合った"}）`);
+  if (!ok) throw new Error("ストアが手元の控えと合わない。夢へ進めない");
+}
+
+/** 本人の訂正を、ストアの記録と手元の控えに当てる。夢に渡すセッションから、この面談を外す印を残す */
+async function commandCorrect(): Promise<void> {
+  const interviewId = option("--interview");
+  const oldText = option("--old");
+  const newText = option("--new");
+  if (!interviewId || !oldText || !newText) throw new Error("--interview <面談> --old <直す文> --new <直した文> を付けてください");
+  const names = namesFromFile();
+  const client = getClient();
+  const state = loadState();
+  const dir = runDirOf(state);
+  if (!state.resources || !state.sessions?.[interviewId]) throw new Error(`${interviewId} の記録がまだ無い`);
+  const before = await readStore(client, state.resources.storeId);
+  const file = before.find((f) => f.path === recordPath(interviewId));
+  if (!file) throw new Error(`${interviewId} の記録のファイルが無い`);
+  const next = applyCorrection(file.content, { oldText, newText });
+  await client.beta.memoryStores.memories.update(file.id, { memory_store_id: state.resources.storeId, content: next });
+  const after = await readStore(client, state.resources.storeId);
+  const stored = checkStoredRecord(after, interviewId, next, names);
+  const problems = storedProblems(stored, indexOf(after).split("\n").some((l) => l.startsWith(`- records/${interviewId}.md｜`)));
+  state.sessions[interviewId] = { ...state.sessions[interviewId], verified: problems.length === 0, problems };
+  if (problems.length === 0) {
+    fs.writeFileSync(path.join(dir, "records", `${interviewId}.md`), next);
+    (state.corrections ??= []).push({ interviewId, oldText, newText });
+  }
+  saveState(state);
+  if (problems.length > 0) throw new Error(`${interviewId}：直したあとの検査に通らない（${problems.join("、")}）`);
+  log(`${interviewId}：本人の訂正を当てた。夢には、この面談のセッションを渡さない`);
 }
 
 const BANNER = "> 暫定：検証用の記録（ダミーの面談 6 本）から夢が作った出力。本人は確かめていない。確かめた分析として扱わない。";
@@ -339,8 +511,20 @@ async function commandDream(): Promise<void> {
   const dir = runDirOf(state);
   if (!state.resources || !state.sessions) throw new Error("記録がまだ無い。先に record を回す");
   if (state.dream && !flag("--again")) throw new Error(`夢はすでに回した（${state.dream.dreamId}）。回し直すなら --again`);
-  const sessionIds = PLAN.map((p) => state.sessions?.[p.id]?.sessionId).filter((s): s is string => !!s);
-  if (sessionIds.length !== PLAN.length) throw new Error("記録係のセッションが 6 本そろっていない");
+  // 開始条件：全部の面談の保存を確かめてあること。ID がそろっているだけでは始めない
+  const planIds = PLAN.map((p) => p.id);
+  const blockers = dreamBlockers(planIds, state.sessions, state.indexVerified === true);
+  if (blockers.length > 0) throw new Error(`保存を確かめていないので、夢を始めない：\n- ${blockers.join("\n- ")}\nrecord か record --verify-only を回す`);
+  const corrections = state.corrections ?? [];
+  const { sessionIds, excluded } = sessionIdsForDream(planIds, state.sessions, corrections.map((c) => c.interviewId));
+  if (excluded.length > 0) log(`本人が直した記録のセッションは渡さない：${excluded.join("、")}`);
+  if (state.dream && flag("--again") && fs.existsSync(path.join(dir, "dream"))) {
+    // 前の回の出力を残す
+    const keep = path.join(dir, `dream-before-${stamp()}`);
+    fs.mkdirSync(keep, { recursive: true });
+    fs.renameSync(path.join(dir, "dream"), path.join(keep, "dream"));
+    for (const name of ["dream-run.json", "dream-instructions.md", "evidence.json", "evidence.md"]) if (fs.existsSync(path.join(dir, name))) fs.renameSync(path.join(dir, name), path.join(keep, name));
+  }
   const instructions = dreamInstructions(PLAN.length);
   const run = await runDream(client, {
     storeId: state.resources.storeId,
@@ -373,10 +557,19 @@ async function commandDream(): Promise<void> {
     inputEquivalent: run.inputEquivalent,
     capInputEquivalent: run.capInputEquivalent,
     canceledByCap: run.canceledByCap,
+    stoppedBy: run.stoppedBy,
+    cancelRequested: run.cancelRequested,
+    cancelError: run.cancelError,
+    monitorErrors: run.monitorErrors,
+    lastMonitorError: run.lastMonitorError,
+    watchEndedBeforeTerminal: run.watchEndedBeforeTerminal,
+    overCapBy: Math.max(0, run.inputEquivalent - run.capInputEquivalent),
+    capIsStrict: false,
     error: run.error,
     samples: run.samples,
     instructionsChars: [...instructions].length,
     sessions: sessionIds.length,
+    sessionsExcludedForCorrection: excluded,
   };
   if (run.status === "completed" && run.outputStoreId) {
     const files = await readStore(client, run.outputStoreId);
@@ -392,11 +585,14 @@ async function commandDream(): Promise<void> {
     out.outputFiles = files.map((f) => ({ path: f.path, chars: [...f.content].length }));
     out.recordsUnchanged = recordsUnchanged;
     out.expectedFilesPresent = Object.fromEntries(Object.entries(DREAM_FILES).map(([k, p]) => [k, files.some((f) => f.path === p)]));
+    if (corrections.length > 0) out.correctionCheck = checkCorrectionKept(files, corrections);
   }
   fs.writeFileSync(path.join(dir, "dream-instructions.md"), `> 検証用：この回の夢に渡した指示（engine/recorder.mts の dreamInstructions）。\n\n${instructions}\n`);
   saveJson(path.join(dir, "dream-run.json"), out);
   log(`夢 終わり：${run.status}、${run.ms} ms、入力トークン換算 ${run.inputEquivalent}（上限 ${cap}）`);
-  console.log(JSON.stringify({ usage: tokensOf(run.usage), files: out.outputFiles, recordsUnchanged: out.recordsUnchanged }, null, 2));
+  console.log(JSON.stringify({ usage: tokensOf(run.usage), files: out.outputFiles, recordsUnchanged: out.recordsUnchanged, correctionCheck: out.correctionCheck }, null, 2));
+  if (run.watchEndedBeforeTerminal) throw new Error(`夢が終わったのを確かめないまま見張りをやめた（${run.stoppedBy}）。まだ動いているかもしれない。コンソールで確かめる`);
+  if (run.status !== "completed") throw new Error(`夢が完了しなかった（${run.status}）`);
 }
 
 /** 短い期間から変化を言い切る言葉（夢への指示の 7）。「」の中と、発話の本文の行は数えない */
@@ -409,6 +605,11 @@ function growthHits(markdown: string): string[] {
     .join("\n")
     .replace(/「[^」]*」/g, "");
   return [...body.matchAll(GROWTH)].map((m) => body.slice(Math.max(0, (m.index ?? 0) - 20), (m.index ?? 0) + 24).replace(/\n/g, " "));
+}
+
+function listHits(perFile: Record<string, unknown>[], key: string): string {
+  const parts = perFile.flatMap((f) => (f[key] as TextHit[]).map((h) => `${f.file} ${h.line} 行目「${h.word}」`));
+  return parts.length > 0 ? parts.join("、") : "なし";
 }
 
 function commandVerify(): void {
@@ -426,7 +627,7 @@ function commandVerify(): void {
     const checks = verifyEvidence(parseEvidenceRefs(md), transcripts).map((c) => ({ ...c, file: name }));
     allChecks.push(...checks);
     const trait = checkMarkdown(md, name);
-    perFile.push({ file: name, chars: [...md].length, evidence: summarizeEvidence(checks), traitHits: trait.traitHits, growthHits: growthHits(md), provisionalOnFirstLine: /暫定/.test(md.split("\n").filter((l) => l.trim() !== "" && !l.startsWith(">"))[0] ?? "") });
+    perFile.push({ file: name, chars: [...md].length, evidence: summarizeEvidence(checks), traitHits: trait.traitHits, growthHits: growthHits(md), causalHits: causalHits(md), verificationClaims: verificationClaims(md), provisionalOnFirstLine: /暫定/.test(md.split("\n").filter((l) => l.trim() !== "" && !l.startsWith(">"))[0] ?? "") });
   }
   const recurringName = DREAM_FILES.recurring.slice(1);
   const recurring = names.includes(recurringName) ? fs.readFileSync(path.join(dreamDir, recurringName), "utf8") : "";
@@ -444,12 +645,14 @@ function commandVerify(): void {
       counter: co.length,
       counterMatched: co.filter((c) => c.status === "全文一致" || c.status === "一部一致").length,
       counterNote: h.counterNote,
+      counterOverlaps: counterOverlaps(h),
     };
   });
   const result = {
     status: STATUS,
     files: perFile,
     evidence: summarizeEvidence(allChecks),
+    uniqueUtterances: uniqueUtterances(allChecks),
     hypotheses: summarizeHypotheses(hypotheses),
     hypothesisRows,
     checks: allChecks,
@@ -460,16 +663,22 @@ function commandVerify(): void {
 
 ${BANNER.replace("夢が作った出力", "夢の出力を、プログラムで原文と照合した結果")}
 
-照合で分かるのは「その面談のその番号の発話に、その言葉がある」ことまで。その発話が仮説を支えるかは、この表では分からない。
+照合で分かるのは「その面談のその番号の発話に、その言葉がある」ことまで。その発話が仮説を支えるかは、この表では分からない。根拠の数は、独立した証拠の数ではない（同じ発話を別の仮説でも挙げている）。
 
 ## 数
 
-- 根拠の数：${result.evidence.total}（引用つき ${result.evidence.withQuote}）
+- 根拠の数：${result.evidence.total}（引用つき ${result.evidence.withQuote}）。重なりを除くと ${result.uniqueUtterances} 発話
 - 番号も言葉も原文と合った：${result.evidence.matched}
 - 内訳：${Object.entries(result.evidence.byStatus).map(([k, v]) => `${k} ${v}`).join("、")}
 - 話者が違った：${result.evidence.speakerMismatch}
 - 仮説：${result.hypotheses.total}（根拠が 2 回以上の面談にまたがる ${result.hypotheses.acrossInterviews}、反例を発話つきで挙げた ${result.hypotheses.withCounterEvidence}、反例の欄が文だけ ${result.hypotheses.withCounterNoteOnly}、反例の欄が空 ${result.hypotheses.withoutCounter}）
-- 確からしさ：${Object.entries(result.hypotheses.byConfidence).map(([k, v]) => `${k} ${v}`).join("、")}
+- 確からしさ（夢自身の見立て。測った数字ではなく、引用の一致とは別のもの）：${Object.entries(result.hypotheses.byConfidence).map(([k, v]) => `${k} ${v}`).join("、")}
+
+## 確かめが要る所（プログラムで見つけた候補。当たらなくても、問題が無いとは限らない）
+
+- 根拠と反例の両方に挙げた発話：${hypothesisRows.filter((h) => h.counterOverlaps.length > 0).map((h) => `${h.id}（${h.counterOverlaps.join("、")}）`).join("／") || "なし"}
+- 原因を言い切る言い方の候補：${listHits(perFile, "causalHits")}
+- 夢が「照合した」と自分で書いた所（照合したのはアプリ）：${listHits(perFile, "verificationClaims")}
 
 ## ファイルごと
 
@@ -479,7 +688,7 @@ ${perFile.map((f) => `| ${f.file} | ${f.chars} | ${(f.evidence as { total: numbe
 
 ## 仮説ごと
 
-| 仮説 | 確からしさ | 根拠の面談 | 根拠（合った／数） | 反例（合った／数） | 反例の欄の文 |
+| 仮説 | 確からしさ（夢の見立て） | 根拠の面談 | 根拠（合った／数） | 反例（合った／数） | 反例の欄の文 |
 |---|---|---|---|---|---|
 ${hypothesisRows.map((h) => `| ${h.id}：${cell(h.statement)} | ${h.confidence ?? "（読めない）"} | ${h.interviews.join("、")} | ${h.evidenceMatched}／${h.evidence} | ${h.counterMatched}／${h.counter} | ${cell(h.counterNote)} |`).join("\n")}
 
@@ -524,7 +733,7 @@ function commandSummary(): void {
     return { id: a.id, source: a.source, utterances: a.transcript.utterances.length, scenes: a.step1.scenes.length, verdict: a.step4?.verdict ?? null, freshCalls: fresh.length, failures: a.failures };
   });
   rows.push(...Object.keys(byStep).sort().map((k) => byStep[k]));
-  const rec = loadJson<{ model: string; indexIdentical: boolean; runs: { id: string; ms: number; usage: Omit<CallMeta, "model" | "ms">; agentWroteIdentical: boolean; fixedByApp: boolean; errors: string[]; indexHasLine: boolean; toolUses: Record<string, number>; traitHitsAfterReadBack: unknown[] | null; nameHitsAfterReadBack: unknown[] | null }[] }>(path.join(dir, "record-run.json"));
+  const rec = loadJson<{ model: string; indexIdentical: boolean; nameCheck?: string; runs: { id: string; ms: number; usage: Omit<CallMeta, "model" | "ms">; agentWroteIdentical: boolean; fixedByApp: boolean; errors: string[]; indexHasLine: boolean; toolUses: Record<string, number>; traitHitsAfterReadBack: unknown[] | null; nameHitsAfterReadBack: unknown[] | null }[] }>(path.join(dir, "record-run.json"));
   if (rec) {
     const row = empty("記録係（セッション 6 本。1 本ずつ順番に）", rec.model, "時間はセッションを作ってから止まるまで");
     for (const r of rec.runs) add(row, { model: rec.model, ms: r.ms, ...r.usage });
@@ -541,7 +750,8 @@ function commandSummary(): void {
     analysisRetries: perInterview.flatMap((p) => p.failures),
     recorderErrors: rec ? rec.runs.flatMap((r) => r.errors.map((e) => `${r.id}：${e}`)) : [],
     recorderRewrittenByApp: rec ? rec.runs.filter((r) => r.fixedByApp).map((r) => r.id) : [],
-    recorderTraitOrNameHitsAfterReadBack: rec ? rec.runs.filter((r) => (r.traitHitsAfterReadBack?.length ?? 0) + (r.nameHitsAfterReadBack?.length ?? 0) > 0).map((r) => r.id) : [],
+    recorderTraitHitsAfterReadBack: rec ? rec.runs.filter((r) => (r.traitHitsAfterReadBack?.length ?? 0) > 0).map((r) => r.id) : [],
+    recorderNameCheck: rec?.nameCheck ?? nameCheckLabel(0, 0),
     dreamCanceled: dream ? dream.canceledByCap || dream.dreamStatus !== "completed" : null,
     dreamError: dream?.error ?? null,
     dreamChangedRecords: dream?.recordsUnchanged ? dream.recordsUnchanged.filter((r) => !r.unchanged).map((r) => r.path) : null,
@@ -578,7 +788,9 @@ ${(rec?.runs ?? []).map((r) => `| ${r.id} | ${sec(r.ms)} | ${r.usage.inputTokens
 - 分析のやり直し：${failures.analysisRetries.length} 件${failures.analysisRetries.length > 0 ? `（${failures.analysisRetries.join("／")}）` : ""}
 - 記録係のセッションのエラー：${failures.recorderErrors.length} 件
 - 記録係が渡した文と違う文を書き、アプリが書き直した：${failures.recorderRewrittenByApp.length} 件
-- 読み返しで、性質の言葉か名前が見つかった記録：${failures.recorderTraitOrNameHitsAfterReadBack.length} 件
+- 読み返しで、性質の言葉が見つかった記録：${failures.recorderTraitHitsAfterReadBack.length} 件（AI が書いた文を、言葉の一覧と照らした。発話の本文は数えない）
+- 名前の検査：${failures.recorderNameCheck}
+- 夢の上限：入力トークン換算で見張り、超えたら取り消す作り。見るのは定期的なので、厳密な上限ではない
 - 夢の取り消し・失敗：${failures.dreamCanceled === null ? "（夢はまだ）" : failures.dreamCanceled ? "あり" : "なし"}${failures.dreamError ? `（${failures.dreamError}）` : ""}
 - 夢が書き換えた記録のファイル：${failures.dreamChangedRecords === null ? "（夢はまだ）" : `${failures.dreamChangedRecords.length} 件`}
 `;
@@ -590,10 +802,11 @@ ${(rec?.runs ?? []).map((r) => `| ${r.id} | ${sec(r.ms)} | ${r.usage.inputTokens
 try {
   if (command === "analyze") await commandAnalyze();
   else if (command === "summary") commandSummary();
-  else if (command === "record") await commandRecord();
+  else if (command === "record") await (flag("--verify-only") ? commandVerifyStore() : commandRecord());
+  else if (command === "correct") await commandCorrect();
   else if (command === "dream") await commandDream();
   else if (command === "verify") commandVerify();
-  else throw new Error("使い方：node scripts/memory/run.mts analyze | record | dream | verify | summary");
+  else throw new Error("使い方：node scripts/memory/run.mts analyze | record | dream | correct | verify | summary");
 } catch (e) {
   console.error(`止まりました：${(e as Error).message}`);
   process.exit(1);

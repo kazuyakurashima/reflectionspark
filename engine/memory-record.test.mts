@@ -3,7 +3,7 @@ import { describe, test } from "node:test";
 
 import { blockText } from "./citations.mts";
 import { WITHHELD_NOTICE } from "./guard.mts";
-import { AI_READING_HEADING, assertNoSelfEvaluation, buildFactRecord, checkMarkdown, checkRecord, indexLine, quoteLineText, recordPath, renderRecord, withoutQuoteLines } from "./memory-record.mts";
+import { ACTION_HEADING, AI_READING_HEADING, AI_WRITTEN_HEADING, applyCorrection, assertNoSelfEvaluation, buildFactRecord, checkMarkdown, checkRecord, indexLine, nameCheckLabel, ORIGINAL_HEADING, quoteLineText, recordPath, renderRecord, withoutQuoteLines } from "./memory-record.mts";
 import type { FactRecordInput } from "./memory-record.mts";
 import type { ItemScore, Quote, Scene, Utterance } from "./types.mts";
 
@@ -106,22 +106,47 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     assert.doesNotThrow(() => assertNoSelfEvaluation(baseInput()));
   });
 
-  test("読みと点は「その回の AI の読み（仮説）」に分けて書き、外せる", () => {
+  test("見出しを出所で分ける：原文の欄には発話の本文だけ、AI の文は AI の欄に入る", () => {
     const r = buildFactRecord(baseInput());
     const md = renderRecord(r);
-    const [facts, ai] = md.split(AI_READING_HEADING);
-    assert.equal(facts.includes("受け止めを先に聞いたと読める。"), false);
-    assert.equal(ai.includes("場面 1 の読み：受け止めを先に聞いたと読める。"), true);
-    assert.equal(ai.includes("場面 2 を意図した選択として見ると："), true);
-    assert.equal(ai.includes("項目 1＝4、項目 2＝3、項目 3＝2、項目 4＝3、項目 5＝判定しない"), true);
-    assert.equal(facts.includes("項目 1＝4"), false);
-    const factsOnly = renderRecord(r, { includeAiReading: false });
-    assert.equal(factsOnly.includes(AI_READING_HEADING), false);
-    assert.equal(factsOnly.includes("と読める"), false);
-    assert.equal(factsOnly.includes("観察：発話 1 の直後、講師は判定を見たときの様子を尋ねた。"), true);
+    const [head, afterOriginal] = md.split(ORIGINAL_HEADING);
+    assert.equal(head.includes("record_format: 2"), true);
+    const [original, afterAction] = afterOriginal.split(ACTION_HEADING);
+    const [action, afterAiWritten] = afterAction.split(AI_WRITTEN_HEADING);
+    const [aiWritten, reading] = afterAiWritten.split(AI_READING_HEADING);
+    // 原文の欄：「>」の行のほかに、AI の文（文脈・観察・反応・読み・点）が入らない
+    assert.equal(original.includes(`> 〔発話 2〕講師：${texts[2]}`), true);
+    for (const aiText of ["模試の判定の話。", "発話 1 の直後、講師は判定を見たときの様子を尋ねた。", "発話 3 で生徒は数学のことを続けた。", "受け止めを先に聞いたと読める。", "項目 1＝4"]) assert.equal(original.includes(aiText), false, aiText);
+    // 行動の欄：決まり方を添える
+    assert.equal(action.includes("行動：もし相手が今の過ごし方を話したら、励ます前に一つ聞き返す。"), true);
+    assert.equal(action.includes("決まり方：検証用に置いた"), true);
+    // AI の欄：照合していないと断り、文脈・観察・反応が入る
+    assert.equal(AI_WRITTEN_HEADING.includes("原文と照合していない"), true);
+    assert.equal(aiWritten.includes("場面 1 の文脈：模試の判定の話。"), true);
+    assert.equal(aiWritten.includes("場面 1 の観察：発話 1 の直後、講師は判定を見たときの様子を尋ねた。"), true);
+    assert.equal(aiWritten.includes("場面 1 の直後の相手の反応：発話 3 で生徒は数学のことを続けた。"), true);
+    assert.equal(reading.includes("場面 1 の読み：受け止めを先に聞いたと読める。"), true);
   });
 
-  test("続きの面談：前回の行動、AI の判定、根拠の引用が事実に、なぜの一文は読みに入る。点は工程 4 のもの", () => {
+  test("読みと点は「その回の AI の読み（仮説）」に分けて書き、読みごと外す・点だけ外す", () => {
+    const r = buildFactRecord(baseInput());
+    const md = renderRecord(r);
+    const [before, ai] = md.split(AI_READING_HEADING);
+    assert.equal(before.includes("受け止めを先に聞いたと読める。"), false);
+    assert.equal(ai.includes("場面 2 を意図した選択として見ると："), true);
+    assert.equal(ai.includes("項目 1＝4、項目 2＝3、項目 3＝2、項目 4＝3、項目 5＝判定しない"), true);
+    assert.equal(before.includes("項目 1＝4"), false);
+    const noReading = renderRecord(r, { includeAiReading: false });
+    assert.equal(noReading.includes(AI_READING_HEADING), false);
+    assert.equal(noReading.includes("と読める"), false);
+    assert.equal(noReading.includes("場面 1 の観察：発話 1 の直後、講師は判定を見たときの様子を尋ねた。"), true);
+    const noScores = renderRecord(r, { includeScores: false });
+    assert.equal(noScores.includes("項目 1＝4"), false);
+    assert.equal(noScores.includes("面談の点"), false);
+    assert.equal(noScores.includes("場面 1 の読み：受け止めを先に聞いたと読める。"), true);
+  });
+
+  test("続きの面談：根拠の引用は原文の欄、前回の行動は決まり方つきで行動の欄、AI の判定は AI の欄、なぜの一文は読みに入る。点は工程 4 のもの", () => {
     const r = buildFactRecord(
       baseInput({
         interviewId: "student-a-2",
@@ -132,6 +157,7 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
         followUp: {
           previousInterviewId: "student-a-1",
           previousAction: "もし相手が今の過ごし方を話したら、励ます前に一つ聞き返す。",
+          previousActionOrigin: "検証用に置いた",
           criterion: null,
           step4: { verdict: "まだ", quotes: [quote(6)], why: "発話 5 の直後に励ましへ移ったため。", items: items([3, 3, 2, 3, 2]), otherPersonLine: null },
         },
@@ -141,12 +167,19 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     assert.deepEqual(r.followUp?.quotes.map((l) => l.index), [6]);
     assert.equal(r.aiReading.scoresFrom, "工程 4");
     const md = renderRecord(r);
-    const [facts, ai] = md.split(AI_READING_HEADING);
-    assert.equal(facts.includes("- 判定（AI。本人の自己評価は記録に入れない）：まだ"), true);
-    assert.equal(facts.includes("- 前回の面談：student-a-1"), true);
-    assert.equal(facts.includes("行動：なし（この回の記録には、決めた行動が無い）"), true);
+    const [rest, ai] = md.split(AI_READING_HEADING);
+    const [original, afterAction] = rest.split(ACTION_HEADING);
+    const [action, aiWritten] = afterAction.split(AI_WRITTEN_HEADING);
+    assert.equal(original.includes("### 前回の行動の追跡の根拠"), true);
+    assert.equal(original.includes(`> 〔発話 6〕講師：${texts[6]}`), true);
+    assert.equal(original.includes("まだ"), false);
+    assert.equal(action.includes("- 前回の面談：student-a-1"), true);
+    assert.equal(action.includes("- 決まり方：検証用に置いた"), true);
+    assert.equal(action.includes("行動：なし（この回の記録には、決めた行動が無い）"), true);
+    assert.equal(action.includes("判定"), false);
+    assert.equal(aiWritten.includes("- 追跡の判定（AI。本人の自己評価は記録に入れない）：まだ"), true);
     assert.equal(ai.includes("追跡の判定のなぜ：発話 5 の直後に励ましへ移ったため。"), true);
-    assert.equal(indexLine(r), "- records/student-a-2.md｜2 本目｜生徒｜相手 A｜よく表れた所（発話 2）・次に試せる所（発話 6）｜追跡：student-a-1 の行動 → まだ｜決めた行動：なし｜検証用・暫定");
+    assert.equal(indexLine(r), "- records/student-a-2.md｜2 本目｜生徒｜相手 A｜よく表れた所（発話 2）・次に試せる所（発話 6）｜追跡：student-a-1 の行動 → AI の判定 まだ｜決めた行動：なし｜検証用・暫定");
   });
 
   test("表示を控えた文（性質の言葉が入っていた文）は記録に入れず、欄の名前を残す", () => {
@@ -185,7 +218,28 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
     const c = checkRecord(r, ["たなか"]);
     assert.equal(c.ok, false);
     assert.deepEqual(c.nameHits.map((h) => h.field), ["scenes[0].発話 3"]);
-    assert.equal(checkRecord(r, []).ok, true);
+    assert.equal(c.nameListSize, 1);
+    // 一覧を渡さなければ、名前があっても見つからない。これを「0 件」と書かない
+    const unchecked = checkRecord(r, []);
+    assert.equal(unchecked.nameHits.length, 0);
+    assert.equal(unchecked.nameListSize, 0);
+    assert.equal(nameCheckLabel(unchecked.nameListSize, unchecked.nameHits.length).startsWith("未検査"), true);
+    assert.equal(nameCheckLabel(1, 1), "1 件（一覧の 1 件と照らした。一覧に無い名前は見つけられない）");
+  });
+
+  test("本人の訂正：直す文がちょうど 1 か所のときだけ当て、発話の本文は直さない", () => {
+    const md = renderRecord(buildFactRecord(baseInput()));
+    const fixed = applyCorrection(md, { oldText: "発話 1 の直後、講師は判定を見たときの様子を尋ねた。", newText: "発話 1 の直後、講師は判定の受け止めを尋ねた。" });
+    assert.equal(fixed.includes("判定の受け止めを尋ねた。"), true);
+    assert.equal(fixed.includes("判定を見たときの様子を尋ねた。"), false);
+    assert.equal(fixed.includes("corrected: 本人が直した"), true);
+    // 2 回目の訂正でも、印は 1 つ
+    const twice = applyCorrection(fixed, { oldText: "発話 3 で生徒は数学のことを続けた。", newText: "発話 3 で生徒は数学の話を続けた。" });
+    assert.equal(twice.split("corrected:").length - 1, 1);
+    assert.throws(() => applyCorrection(md, { oldText: texts[2], newText: "別の文" }), /発話の本文/);
+    assert.throws(() => applyCorrection(md, { oldText: "無い文", newText: "別の文" }), /0 か所/);
+    assert.throws(() => applyCorrection(md, { oldText: "場面", newText: "別の文" }), /か所/);
+    assert.throws(() => applyCorrection(md, { oldText: "", newText: "別の文" }), /入れてください/);
   });
 
   test("読み返した文の検査：「>」の行（発話の本文）は性質の言葉を数えず、ほかの行は数える", () => {
@@ -206,7 +260,8 @@ describe("記録係に渡す事実の記録（工程 5、決まり 3・10・12�
   test("場面が無い面談は、無いと書く（決まり 4）", () => {
     const r = buildFactRecord(baseInput({ step1: { scenes: [], noScene: "根拠のある場面が見当たらない。" }, chosenAction: null }));
     const md = renderRecord(r);
-    assert.equal(md.includes("- 場面：なし（根拠のある場面が見当たらない。）"), true);
+    assert.equal(md.includes("- 場面：なし"), true);
+    assert.equal(md.includes("- 場面が無い理由：根拠のある場面が見当たらない。"), true);
     assert.equal(indexLine(r).includes("場面なし"), true);
   });
 });

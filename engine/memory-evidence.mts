@@ -219,3 +219,45 @@ export function summarizeHypotheses(hs: Hypothesis[]): HypothesisSummary {
     byConfidence,
   };
 }
+
+/** 根拠が指す発話の数（重なりを除く）。根拠の数は、独立した証拠の数ではない */
+export function uniqueUtterances(refs: EvidenceRef[]): number {
+  const seen = new Set<string>();
+  for (const r of refs) for (let i = r.index; i <= r.lastIndex; i++) seen.add(`${r.interviewId}#${i}`);
+  return seen.size;
+}
+
+/** 根拠と反例の両方に挙げられた発話。同じ発話は、その仮説の反例にならない */
+export function counterOverlaps(h: Pick<Hypothesis, "evidence" | "counter">): string[] {
+  const inEvidence = new Set<string>();
+  for (const r of h.evidence) for (let i = r.index; i <= r.lastIndex; i++) inEvidence.add(`${r.interviewId} 発話 ${i}`);
+  const out = new Set<string>();
+  for (const r of h.counter) for (let i = r.index; i <= r.lastIndex; i++) if (inEvidence.has(`${r.interviewId} 発話 ${i}`)) out.add(`${r.interviewId} 発話 ${i}`);
+  return [...out];
+}
+
+/** 発話の本文の行（「>」と根拠の行）と「」の中を除いた、夢自身の文 */
+function ownWords(markdown: string): { line: number; text: string }[] {
+  return markdown
+    .split("\n")
+    .map((l, i) => ({ line: i + 1, text: l }))
+    .filter((l) => !/^\s*>/.test(l.text))
+    .map((l) => ({ line: l.line, text: l.text.replace(/〔[^〕]*〕[^「]*「.*」/g, "").replace(/「[^」]*」/g, "") }));
+}
+
+const CAUSAL = /したから|すると|したことで|効いた|効果|有効|につながっ|引き出し/gu;
+const VERIFICATION_CLAIM = /照合済|一字照合|検証済|確認済/gu;
+
+export type TextHit = { line: number; word: string; text: string };
+
+function findHits(markdown: string, re: RegExp): TextHit[] {
+  const out: TextHit[] = [];
+  for (const l of ownWords(markdown)) for (const m of l.text.matchAll(re)) out.push({ line: l.line, word: m[0], text: l.text.trim().slice(0, 80) });
+  return out;
+}
+
+/** 発話が続いたという観察から、原因を言い切る言い方の候補。当たれば人が読む（当たらなくても、因果を言っていないとは限らない） */
+export const causalHits = (markdown: string): TextHit[] => findHits(markdown, CAUSAL);
+
+/** 夢が「照合した」と自分で書いた所。照合したのはアプリなので、この言葉は信じない */
+export const verificationClaims = (markdown: string): TextHit[] => findHits(markdown, VERIFICATION_CLAIM);

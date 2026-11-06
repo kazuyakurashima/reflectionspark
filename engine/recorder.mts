@@ -2,7 +2,10 @@
 // - 記録係：Managed Agents のセッションに、engine/memory-record.mts で作った記録の文を渡し、メモリストアに 1 回 1 ファイルで書かせる。
 //   書いたあと、アプリがメモリストアから読み返し、渡した文と同じか、性質の言葉と名前が無いかを確かめる。
 // - 夢：メモリストアと記録係のセッションを渡して整理させる。出力の形は instructions で決める。
-//   夢には費用の上限が無いので、使用量を見張り、上限（入力トークン換算）を超えたら取り消す。
+//   夢には費用の上限が無いので、使用量を定期的に見て、上限（入力トークン換算）を超えたら取り消す。
+//   見るのは定期的で、取り消しは超えたあとなので、厳密な上限にはならない。超えた量は実行の記録に残す。
+// - 記録係のセッションには API の budget を渡す。受信を時間切れで止めたときは、止める要求（user.interrupt）も送る。
+//   要求が受け付けられたかと、そこで実際に止まったかは別で、確かめるのは保存の検査のやり直し（engine/memory-gate.mts）。
 // 渡さないもの：本人の自己採点・自己評価、文字起こしの全文（記録の文に入っていない）。
 // 金額はリポジトリに書かない。上限は呼ぶ側が渡す。
 
@@ -78,25 +81,29 @@ export function dreamInstructions(interviewCount: number): string {
 
 あなたの仕事：記録を読み、回をまたいで繰り返し現れる場面と行動、前後の違いを、根拠つきの「条件付きの行動仮説」として整理し、下の 4 つのファイルに書く。
 
+記録の読み方（見出しが出所を示す）
+- 「## 原文」の「>」の行だけが発話の本文。場面に選んだのは AI で、面談全体ではない。
+- 「## 行動」は決まった行動と決まり方。「## AI が書いた説明と判定」と「## その回の AI の読み（仮説）」は AI の文で、事実ではない。追跡の判定も AI の判定。原文に照らし、合えば使い、合わなければ直すか保留にする。点の上下を根拠にしない。
+- frontmatter に corrected がある記録は本人が直した。今の本文を正とし、セッションの内容やほかの記録から前の文を戻さない。
+
 守ること
 1. 人ではなく、場面と行動を書く。人物の性質を言い表す言葉（「〜な人」「〜する人」「癖」「性格」「タイプ」「傾向」「〜しがち」「性質」「人柄」など）、優劣、「〜すべき」を使わない。
    ×「説明しすぎる人」 ○「${interviewCount} 回のうち 3 回で、相手が自分の状況を話した直後に、説明へ進む場面があった」
-2. 仮説は「〈どんな場面〉で、〈どんな行動〉があった」の形にし、回数を限る（「この ${interviewCount} 回のうち n 回で」）。
+2. 仮説は「〈どんな場面〉で、〈どんな行動〉があった」の形にし、回数を限る（「この ${interviewCount} 回のうち n 回で」）。起きた順番だけを書く。「〜したから」「〜すると」「効いた」「有効」のように原因を言い切らない。
 3. 仮説ごとに、根拠、例外・反例、確からしさを書く。
-   - 根拠：面談 ID と発話番号と引用。2 回以上の面談から挙げる。1 回の面談にしか無いものは、確からしさを「保留」にする。
-   - 例外・反例：同じ形の場面で、違う行動があった所を記録から探して挙げる。無ければ「この記録の範囲には見当たらない」と書く。反例があれば言い切らない。
-   - 確からしさ：高・中・低・保留のどれか。迷えば保留。
+   - 根拠：面談 ID と発話番号と引用。2 回以上の面談から挙げる。1 回の面談にしか無いものは、確からしさを「保留」にする。仮説の文の条件をすべて満たす場面だけを挙げる。形の違う場面を 1 つの仮説にまとめず、分ける。
+   - 例外・反例：同じ形の場面で、仮説の文のとおりに読んで合わない所だけを挙げる。書いたあとで条件や言葉を読み替えない。根拠に挙げた発話を反例に挙げない。無ければ「この記録の範囲には見当たらない」と書く。反例があれば言い切らない。
+   - 確からしさ：高・中・低・保留のどれか。あなたの見立てで、測った数字ではない。迷えば保留。
 4. 引用は、記録の「>」で始まる行（発話の本文）から、一字も変えずに写す。縮めない。言い換えない。発話番号は行の札〔発話 n〕の番号をそのまま使い、自分で数えない。記録に無い発話を根拠にしない。
 5. 根拠は 1 行に 1 つ、次の形で書く（この形の行を、アプリが原文と照合する）。説明は別の行に書く。
    - 〔面談ID｜発話 n〕話者：「引用」
-6. 記録の「その回の AI の読み（仮説）」は、その回だけの読みで、事実ではない。そのまま強めない。「事実」の引用と発話に照らし、合えば使い、合わなければ直すか保留にする。点の上下だけを根拠にしない。
-7. 短い期間の記録から「成長した」「身についた」「できるようになった」と言い切らない。違いは「どの面談の、どの場面の、どの発話が、前とどう違ったか」を引用で示すだけにする。
-8. 相手を評価しない。タイプ分けしない。名前を書かない。相手の発話は、講師の関わりの直後に何が続いたかの証拠としてだけ使う。
-9. records/ のファイルは書き換えない。消さない。本人が直した所は変えない。
-10. どのファイルも 1 行目に「暫定（検証用の記録から作った。本人は確かめていない）」と書く。
+6. 短い期間の記録から「成長した」「身についた」「できるようになった」と言い切らない。違いは「どの面談の、どの場面の、どの発話が、前とどう違ったか」を引用で示すだけにする。
+7. 相手を評価しない。タイプ分けしない。名前を書かない。相手の発話は、講師の関わりの直後に何が続いたかの証拠としてだけ使う。
+8. records/ のファイルは書き換えない。消さない。
+9. どのファイルも 1 行目に「暫定（検証用の記録から作った。本人は確かめていない）」と書き、2 行目から本文にする。name などの欄を足さない。「照合済み」と書かない（照合はアプリがする）。
 
 書くファイル（名前を変えない。ほかのファイルは作らない）
-- index.md（索引）：作り直す。面談ごとに 1 行。面談 ID、何本目、相手の札、場面の発話番号、決めた行動、追跡の判定。
+- index.md（索引）：作り直す。面談ごとに 1 行。面談 ID、何本目、相手の札、場面の発話番号、決めた行動、追跡の AI の判定。
 - recurring-scenes.md（繰り返す場面）：仮説を次の形で並べる。
   ## 仮説 H1：〈条件付きの行動仮説を一文で〉
   - 確からしさ：
@@ -107,7 +114,7 @@ export function dreamInstructions(interviewCount: number): string {
     - 〔面談ID｜発話 n〕話者：「引用」
   - まだ分からないこと：
 - changes.md（変化）：同じ相手との前と後の面談で、同じ形の場面の行動がどう違ったかを、前と後の引用（上の根拠の形）で並べる。違いが見当たらなければ、そう書く。
-- actions.md（一つの行動の表）：決めた行動ごとに 1 行の表。列は、決めた面談、行動、できたかの基準、追跡した面談、判定、根拠（上の形）。`;
+- actions.md（一つの行動の表）：決めた行動ごとに 1 行の表。列は、決めた面談、行動、できたかの基準、追跡した面談、AI の判定、根拠（上の形）。`;
   if ([...text].length > 4096) throw new Error(`夢への指示が長すぎます：${[...text].length} 字（4,096 字まで）`);
   return text;
 }
@@ -195,6 +202,8 @@ export type RecordRun = {
   /** セッションの終わり方（end_turn など）。エラーがあればその文 */
   stopReason: string | null;
   errors: string[];
+  /** 止まるのを見ずに受信を終えたので、止める要求を送ったか（実際に止まったかは別） */
+  interruptRequested: boolean;
 };
 
 export type RecordInterviewParams = {
@@ -207,11 +216,14 @@ export type RecordInterviewParams = {
   budgetMinor: string;
   timeoutMs?: number;
   log?: (s: string) => void;
+  /** セッションの ID が決まったらすぐ呼ぶ（途中で失敗しても、ID を控えられるように） */
+  onCreated?: (sessionId: string) => void;
 };
 
 /**
  * 1 回の面談の記録を、記録係のセッションに書かせる。
  * 先に流れを開いてから文を送り、セッションが止まるまで待つ。
+ * 受信を止めるだけでは、サーバー側のセッションは止まらない。止まるのを見ずに抜けたら、止める要求を送る。
  */
 export async function recordInterview(client: Anthropic, p: RecordInterviewParams): Promise<RecordRun> {
   const t0 = Date.now();
@@ -222,15 +234,26 @@ export async function recordInterview(client: Anthropic, p: RecordInterviewParam
     resources: [{ type: "memory_store", memory_store_id: p.resources.storeId, access: "read_write", instructions: storeInstructions() }],
     budget: { type: "limit", max_list_cost: { amount: p.budgetMinor, currency: "USD" } },
   });
+  p.onCreated?.(session.id);
   const toolUses: Record<string, number> = {};
   const errors: string[] = [];
   let report = "";
   let stopReason: string | null = null;
+  let finished = false;
+  let timedOut = false;
   const stream = await client.beta.sessions.events.stream(session.id);
-  await client.beta.sessions.events.send(session.id, {
-    events: [{ type: "user.message", content: [{ type: "text", text: recorderMessage(p.interviewId, p.markdown, p.indexLineText) }] }],
-  });
-  const timeout = setTimeout(() => stream.controller.abort(), p.timeoutMs ?? 300000);
+  try {
+    await client.beta.sessions.events.send(session.id, {
+      events: [{ type: "user.message", content: [{ type: "text", text: recorderMessage(p.interviewId, p.markdown, p.indexLineText) }] }],
+    });
+  } catch (e) {
+    stream.controller.abort();
+    throw e;
+  }
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    stream.controller.abort();
+  }, p.timeoutMs ?? 300000);
   try {
     loop: for await (const event of stream) {
       switch (event.type) {
@@ -248,10 +271,14 @@ export async function recordInterview(client: Anthropic, p: RecordInterviewParam
           break;
         case "session.status_idle":
           stopReason = event.stop_reason.type;
-          if (event.stop_reason.type !== "requires_action") break loop;
+          if (event.stop_reason.type !== "requires_action") {
+            finished = true;
+            break loop;
+          }
           break;
         case "session.status_terminated":
           stopReason = "terminated";
+          finished = true;
           break loop;
       }
     }
@@ -260,8 +287,26 @@ export async function recordInterview(client: Anthropic, p: RecordInterviewParam
   } finally {
     clearTimeout(timeout);
   }
-  const done = await client.beta.sessions.retrieve(session.id);
-  const run: RecordRun = { sessionId: session.id, ms: Date.now() - t0, usage: usageOf(done.usage as UsageLike), toolUses, report, stopReason: stopReason ?? done.status, errors };
+  let interruptRequested = false;
+  if (!finished) {
+    if (timedOut) errors.push("時間切れで受信を止めました");
+    try {
+      await client.beta.sessions.events.send(session.id, { events: [{ type: "user.interrupt" }] });
+      interruptRequested = true;
+    } catch (e) {
+      errors.push(`止める要求を送れませんでした：${(e as Error).message}`);
+    }
+  }
+  let usage = usageOf(null);
+  let status: string | null = null;
+  try {
+    const done = await client.beta.sessions.retrieve(session.id);
+    usage = usageOf(done.usage as UsageLike);
+    status = done.status;
+  } catch (e) {
+    errors.push(`セッションの状態を読めませんでした：${(e as Error).message}`);
+  }
+  const run: RecordRun = { sessionId: session.id, ms: Date.now() - t0, usage, toolUses, report, stopReason: stopReason ?? status, errors, interruptRequested };
   p.log?.(`記録係 ${p.interviewId}：${run.ms} ms、止まり方 ${run.stopReason}、道具 ${JSON.stringify(toolUses)}`);
   return run;
 }
@@ -306,6 +351,7 @@ export function checkStoredRecord(files: StoredFile[], interviewId: string, expe
 }
 
 export type DreamStatus = "pending" | "running" | "completed" | "failed" | "canceled";
+export type DreamStop = "cap" | "time" | "monitor-error" | null;
 
 export type DreamRun = {
   dreamId: string;
@@ -317,6 +363,16 @@ export type DreamRun = {
   capInputEquivalent: number;
   /** 上限を超えたので取り消したか */
   canceledByCap: boolean;
+  /** 何で止めようとしたか（上限、時間、見張りの失敗）。止めようとしなければ null */
+  stoppedBy: DreamStop;
+  /** 取り消しの要求が受け付けられたか（実際に止まったかは status で見る） */
+  cancelRequested: boolean;
+  cancelError: string | null;
+  /** 続けて状態を読めなかった回数の最大と、最後の失敗 */
+  monitorErrors: number;
+  lastMonitorError: string | null;
+  /** 夢が終わった（完了・失敗・取り消し）のを見ないまま、見張りをやめたか。true なら、まだ動いているかもしれない */
+  watchEndedBeforeTerminal: boolean;
   outputStoreId: string | null;
   sessionId: string | null;
   error: string | null;
@@ -334,12 +390,19 @@ export type DreamParams = {
   pollMs?: number;
   /** これより長くかかったら取り消す */
   timeoutMs?: number;
+  /** 状態を続けてこの回数読めなかったら、取り消しを頼んで見張りをやめる（既定 3） */
+  maxMonitorErrors?: number;
+  /** 取り消しを頼んでから、終わるのを待つ長さ（既定 2 分） */
+  cancelGraceMs?: number;
   log?: (s: string) => void;
   /** 夢の ID が決まったらすぐ呼ぶ（途中で止まっても、あとで取り消せるように控える） */
   onCreated?: (dreamId: string) => void;
 };
 
-/** 夢を 1 回回す。出力は新しいメモリストア（入力のストアは変わらない）。使用量を見張り、上限を超えたら取り消す */
+/**
+ * 夢を 1 回回す。出力は新しいメモリストア（入力のストアは変わらない）。使用量を定期的に見て、上限を超えたら取り消す。
+ * 上限は目安で、見る間隔と取り消しにかかる時間の分は超える。
+ */
 export async function runDream(client: Anthropic, p: DreamParams): Promise<DreamRun> {
   const t0 = Date.now();
   const created = await client.beta.dreams.create({
@@ -353,22 +416,61 @@ export async function runDream(client: Anthropic, p: DreamParams): Promise<Dream
   p.onCreated?.(created.id);
   p.log?.(`夢 ${created.id}：始めた（${created.status}）`);
   const samples: DreamRun["samples"] = [];
-  let canceledByCap = false;
+  const isTerminal = (status: string) => status === "completed" || status === "failed" || status === "canceled";
+  const maxMonitorErrors = p.maxMonitorErrors ?? 3;
+  const graceMs = p.cancelGraceMs ?? 120000;
+  let stoppedBy: DreamStop = null;
+  let cancelRequested = false;
+  let cancelError: string | null = null;
+  let cancelStartedAt: number | null = null;
+  let monitorErrors = 0;
+  let monitorErrorsMax = 0;
+  let lastMonitorError: string | null = null;
   let dream = created;
-  for (;;) {
+  const requestCancel = async (why: Exclude<DreamStop, null>) => {
+    stoppedBy ??= why;
+    cancelStartedAt ??= Date.now();
+    if (cancelRequested) return;
+    try {
+      await client.beta.dreams.cancel(created.id);
+      cancelRequested = true;
+      cancelError = null;
+    } catch (e) {
+      cancelError = (e as Error).message;
+      p.log?.(`夢の取り消しの要求が失敗：${cancelError}`);
+    }
+  };
+  while (!isTerminal(dream.status)) {
     await new Promise((r) => setTimeout(r, p.pollMs ?? 10000));
-    dream = await client.beta.dreams.retrieve(created.id);
-    const eq = inputEquivalentTokens(usageOf(dream.usage as UsageLike));
     const sec = Math.round((Date.now() - t0) / 1000);
+    try {
+      dream = await client.beta.dreams.retrieve(created.id);
+      monitorErrors = 0;
+    } catch (e) {
+      monitorErrors++;
+      monitorErrorsMax = Math.max(monitorErrorsMax, monitorErrors);
+      lastMonitorError = (e as Error).message;
+      p.log?.(`夢 ${sec} 秒：状態を読めない（${monitorErrors} 回続けて）`);
+      if (monitorErrors >= maxMonitorErrors) {
+        // 使用量が見えないまま走らせ続けない
+        await requestCancel("monitor-error");
+        break;
+      }
+      continue;
+    }
+    const eq = inputEquivalentTokens(usageOf(dream.usage as UsageLike));
     samples.push({ sec, status: dream.status, inputEquivalent: eq });
     p.log?.(`夢 ${sec} 秒：${dream.status}、入力トークン換算 ${eq}`);
-    if (dream.status === "completed" || dream.status === "failed" || dream.status === "canceled") break;
+    if (isTerminal(dream.status)) break;
     const overCap = eq > p.capInputEquivalent;
     const overTime = Date.now() - t0 > (p.timeoutMs ?? 1800000);
     if (overCap || overTime) {
-      canceledByCap = overCap;
-      p.log?.(overCap ? "上限を超えたので取り消す" : "時間がかかりすぎたので取り消す");
-      await client.beta.dreams.cancel(created.id);
+      if (stoppedBy === null) p.log?.(overCap ? "上限を超えたので取り消す" : "時間がかかりすぎたので取り消す");
+      await requestCancel(overCap ? "cap" : "time");
+    }
+    if (cancelStartedAt !== null && Date.now() - cancelStartedAt > graceMs) {
+      p.log?.("取り消しを頼んだが、終わるのを見られないまま待つのをやめる");
+      break;
     }
   }
   const usage = usageOf(dream.usage as UsageLike);
@@ -379,7 +481,13 @@ export async function runDream(client: Anthropic, p: DreamParams): Promise<Dream
     usage,
     inputEquivalent: inputEquivalentTokens(usage),
     capInputEquivalent: p.capInputEquivalent,
-    canceledByCap,
+    canceledByCap: stoppedBy === "cap",
+    stoppedBy,
+    cancelRequested,
+    cancelError,
+    monitorErrors: monitorErrorsMax,
+    lastMonitorError,
+    watchEndedBeforeTerminal: !isTerminal(dream.status),
     outputStoreId: dream.outputs[0]?.memory_store_id ?? null,
     sessionId: dream.session_id,
     error: dream.error ? JSON.stringify(dream.error) : null,

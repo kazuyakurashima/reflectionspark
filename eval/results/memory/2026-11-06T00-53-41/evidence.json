@@ -15,6 +15,14 @@
       },
       "traitHits": [],
       "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
       "provisionalOnFirstLine": true
     },
     {
@@ -31,6 +39,14 @@
       },
       "traitHits": [],
       "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
       "provisionalOnFirstLine": true
     },
     {
@@ -45,6 +61,14 @@
       },
       "traitHits": [],
       "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
       "provisionalOnFirstLine": true
     },
     {
@@ -61,6 +85,14 @@
       },
       "traitHits": [],
       "growthHits": [],
+      "causalHits": [],
+      "verificationClaims": [
+        {
+          "line": 7,
+          "word": "一字照合",
+          "text": "metadata: 検証用・暫定。records/ の 6 本（student-shinro, student-seiseki, student-yaruki "
+        }
+      ],
       "provisionalOnFirstLine": true
     }
   ],
@@ -73,6 +105,7 @@
     "withQuote": 139,
     "speakerMismatch": 0
   },
+  "uniqueUtterances": 49,
   "hypotheses": {
     "total": 6,
     "withCounterEvidence": 5,
@@ -99,7 +132,8 @@
       "evidenceMatched": 9,
       "counter": 4,
       "counterMatched": 4,
-      "counterNote": "相手が家での状況を話した直後で、講師が問いを出さず、励ましや説明に進んだ場面（形が近い）："
+      "counterNote": "相手が家での状況を話した直後で、講師が問いを出さず、励ましや説明に進んだ場面（形が近い）：",
+      "counterOverlaps": []
     },
     {
       "id": "H2",
@@ -113,7 +147,8 @@
       "evidenceMatched": 8,
       "counter": 0,
       "counterMatched": 0,
-      "counterNote": "この記録の範囲には見当たらない（できなかった日の理由を尋ねる発話は、引用の行に無い。無いことは、尋ねなかったことの証明にはならない）。"
+      "counterNote": "この記録の範囲には見当たらない（できなかった日の理由を尋ねる発話は、引用の行に無い。無いことは、尋ねなかったことの証明にはならない）。",
+      "counterOverlaps": []
     },
     {
       "id": "H3",
@@ -129,7 +164,8 @@
       "evidenceMatched": 12,
       "counter": 10,
       "counterMatched": 10,
-      "counterNote": "説明：student-seiseki-2 の発話 49 の短い返事のあと、講師は説明や案を足さず、単元・問題・いつを聞き返している。student-shinro-2 の発話 48 の短い返事のあと、講師は差を返して問うている。どちらも後ろの面談（4 本目・6 本目）の場面。"
+      "counterNote": "説明：student-seiseki-2 の発話 49 の短い返事のあと、講師は説明や案を足さず、単元・問題・いつを聞き返している。student-shinro-2 の発話 48 の短い返事のあと、講師は差を返して問うている。どちらも後ろの面談（4 本目・6 本目）の場面。",
+      "counterOverlaps": []
     },
     {
       "id": "H4",
@@ -145,7 +181,11 @@
       "evidenceMatched": 10,
       "counter": 2,
       "counterMatched": 2,
-      "counterNote": "同じ形の場面で「はい」でなかった発話："
+      "counterNote": "同じ形の場面で「はい」でなかった発話：",
+      "counterOverlaps": [
+        "student-seiseki-2 発話 111",
+        "student-seiseki-2 発話 113"
+      ]
     },
     {
       "id": "H5",
@@ -158,7 +198,8 @@
       "evidenceMatched": 3,
       "counter": 6,
       "counterMatched": 6,
-      "counterNote": "前の面談の、家での勉強がほぼゼロという話の直後（望みの話は引用の行に無い）で、差を返さずに励ましと講習の説明に進んだ場面： 同じ面談の、家での状況の話の直後で、差を返さずに説明に進んだ場面："
+      "counterNote": "前の面談の、家での勉強がほぼゼロという話の直後（望みの話は引用の行に無い）で、差を返さずに励ましと講習の説明に進んだ場面： 同じ面談の、家での状況の話の直後で、差を返さずに説明に進んだ場面：",
+      "counterOverlaps": []
     },
     {
       "id": "H6",
@@ -171,7 +212,8 @@
       "evidenceMatched": 3,
       "counter": 5,
       "counterMatched": 5,
-      "counterNote": "講師が相手に自分の案を尋ねる発話で、その発話が問いで終わっていた場面："
+      "counterNote": "講師が相手に自分の案を尋ねる発話で、その発話が問いで終わっていた場面：",
+      "counterOverlaps": []
     }
   ],
   "checks": [

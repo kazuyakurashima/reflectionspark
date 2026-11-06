@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { parseEvidenceRefs, parseHypotheses, summarizeEvidence, summarizeHypotheses, verifyEvidence } from "./memory-evidence.mts";
+import { causalHits, counterOverlaps, parseEvidenceRefs, parseHypotheses, summarizeEvidence, summarizeHypotheses, uniqueUtterances, verificationClaims, verifyEvidence } from "./memory-evidence.mts";
 import { checkStoredRecord, dreamInstructions, inputEquivalentTokens, recorderMessage, usageOf } from "./recorder.mts";
 import type { Utterance } from "./types.mts";
 
@@ -98,6 +98,38 @@ describe("夢の出力の根拠を原文と照合する（決まり 1）", () =>
     assert.equal(hs[1].counterNote, "この記録の範囲には見当たらない");
     assert.deepEqual(summarizeHypotheses(hs), { total: 3, withCounterEvidence: 1, withCounterNoteOnly: 1, withoutCounter: 1, acrossInterviews: 1, byConfidence: { 中: 1, 保留: 1, 低: 1 } });
   });
+
+  test("根拠の数と発話の数を分ける。同じ発話を重ねて数えない。範囲は 1 発話ずつ数える", () => {
+    const refs = parseEvidenceRefs(["〔student-a-1｜発話 2〕講師：「a」", "〔student-a-1｜発話 2〕講師：「b」", "〔student-a-1｜発話 2〜3〕「c」", "〔student-b-1｜発話 2〕講師：「d」"].join("\n"));
+    assert.equal(refs.length, 4);
+    assert.equal(uniqueUtterances(refs), 3);
+  });
+
+  test("根拠と反例の両方に挙げた発話を見つける（同じ発話は反例にならない）", () => {
+    const [h] = parseHypotheses(`## 仮説 H4：案を示した直後の発話は短い
+- 根拠：
+  - 〔student-a-1｜発話 1〕生徒：「正直、ほぼゼロです。」
+  - 〔student-a-1｜発話 3〕生徒：「……はい。」
+- 例外・反例：
+  - 〔student-a-1｜発話 3〕生徒：「……はい。」
+  - 〔student-b-1｜発話 1〕生徒：「上げたいです。」
+`);
+    assert.deepEqual(counterOverlaps(h), ["student-a-1 発話 3"]);
+  });
+
+  test("夢自身の文から、原因を言い切る言い方と「照合した」という言葉の候補を探す。発話の本文と「」の中は数えない", () => {
+    const md = [
+      "- 説明：受け止めを確認すると、相手の話が続いた。",
+      "- 説明：受け止めが効いた。",
+      "- 説明：発話 40 の次に、発話 41 があった。",
+      "> 〔発話 1〕講師：そうすると、どうなる。",
+      "- 〔student-a-1｜発話 0〕講師：「やってみると効いたよ。」",
+      "- 説明：「すると」は発話の言葉。",
+      "metadata: 引用は一字照合済み",
+    ].join("\n");
+    assert.deepEqual(causalHits(md).map((h) => [h.line, h.word]), [[1, "すると"], [2, "効いた"]]);
+    assert.deepEqual(verificationClaims(md).map((h) => [h.line, h.word]), [[7, "一字照合"]]);
+  });
 });
 
 describe("記録係と夢の呼び出しの、純粋な部分", () => {
@@ -105,6 +137,11 @@ describe("記録係と夢の呼び出しの、純粋な部分", () => {
     const t = dreamInstructions(6);
     assert.equal([...t].length <= 4096, true);
     for (const s of ["index.md", "recurring-scenes.md", "changes.md", "actions.md", "〔面談ID｜発話 n〕話者：「引用」", "例外・反例", "確からしさ", "保留", "暫定", "書き換えない"]) assert.equal(t.includes(s), true, s);
+  });
+
+  test("夢への指示：出所ごとの読み方、順番だけ書くこと、反例の読み替えの禁止、本人の訂正、点を根拠にしないこと", () => {
+    const t = dreamInstructions(6);
+    for (const s of ["「>」の行だけが発話の本文", "AI の文で、事実ではない", "追跡の判定も AI の判定", "点の上下を根拠にしない", "起きた順番だけを書く", "原因を言い切らない", "形の違う場面を 1 つの仮説にまとめず", "書いたあとで条件や言葉を読み替えない", "根拠に挙げた発話を反例に挙げない", "測った数字ではない", "corrected", "前の文を戻さない", "「照合済み」と書かない"]) assert.equal(t.includes(s), true, s);
   });
 
   test("記録係に送る文には、記録の本文がそのまま入る", () => {

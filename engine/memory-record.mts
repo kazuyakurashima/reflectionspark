@@ -2,8 +2,11 @@
 // ここは純粋な関数だけ。Managed Agents の呼び出しは engine/recorder.mts。
 //
 // 記録の形：1 回の面談につき 1 ファイル。場面と行動と結果だけ。回をまたいだ変化は書かない（夢で出す）。
-// - 「事実」：照合済みの引用（発話番号つき）、前後の発話（アプリが発話番号から取る）、AI が書いた観察、選んだ行動、追跡の判定と根拠の引用。
-// - 「その回の AI の読み（仮説）」：読み、意図した選択として見たとき、なぜの一文、項目ごとの点。事実と分けて書き、外せる（includeAiReading）。
+// 出所ごとに見出しを分ける（AI の文を事実として残さない）：
+// - 「原文」：照合済みの引用と、アプリが発話番号から取った前後の発話。発話の本文そのまま。
+// - 「行動」：決めた行動と前回の行動。どう決まったか（本人が選んだ／検証用に置いた）を添える。
+// - 「AI が書いた説明と判定」：文脈・観察・直後の反応・追跡の判定。原文と照合していない。
+// - 「その回の AI の読み（仮説）」：読み、意図した選択として見たとき、なぜの一文、項目ごとの点。外せる（includeAiReading・includeScores）。
 // 渡さないもの：本人の自己採点・自己評価・一言、文字起こしの全文。相手の名前と、人物の性質の言葉は書かない。
 
 import { quoteMatchesTranscript } from "./citations.mts";
@@ -40,6 +43,8 @@ export type RecordAction = {
 export type RecordFollowUp = {
   previousInterviewId: string | null;
   previousAction: string;
+  /** 前回の行動がどう決まったか（本人が選んだ／直した、検証用に置いた、など） */
+  previousActionOrigin: string;
   criterion: string | null;
   /** AI の判定。本人の自己評価は記録に入れない */
   verdict: FollowUpVerdict;
@@ -92,6 +97,7 @@ export type FactRecordInput = {
   followUp: {
     previousInterviewId: string | null;
     previousAction: string;
+    previousActionOrigin: string;
     criterion: string | null;
     step4: { verdict: FollowUpVerdict; quotes: Quote[]; why: string; items: ItemScore[]; otherPersonLine: string | null };
   } | null;
@@ -166,6 +172,7 @@ function keep(text: string | null | undefined, field: string, withheld: string[]
 /**
  * 分析の結果から、1 回の面談の記録を作る。
  * 入れるのは、照合済みの引用・前後の発話・AI が書いた観察・選んだ行動・追跡の判定と根拠。読みと点は aiReading に分ける。
+ * 出所ごとの分け方は renderRecord の見出し。
  */
 export function buildFactRecord(input: FactRecordInput): FactRecord {
   assertNoSelfEvaluation(input);
@@ -200,6 +207,7 @@ export function buildFactRecord(input: FactRecordInput): FactRecord {
     followUp = {
       previousInterviewId: input.followUp.previousInterviewId,
       previousAction: input.followUp.previousAction.trim(),
+      previousActionOrigin: input.followUp.previousActionOrigin,
       criterion: input.followUp.criterion?.trim() || null,
       verdict: input.followUp.step4.verdict,
       quotes: q.lines,
@@ -253,20 +261,29 @@ function linesBlock(lines: RecordLine[]): string {
   return lines.map(quoteLineText).join("\n");
 }
 
-export const FACT_HEADING = "## 事実";
+/** 記録の形の版。形が変わったら上げる（前の形のメモリストアに、続けて書かない） */
+export const RECORD_FORMAT = 2;
+
+export const ORIGINAL_HEADING = "## 原文（発話の本文そのまま）";
+export const ACTION_HEADING = "## 行動（どう決まったかを添える）";
+export const AI_WRITTEN_HEADING = "## AI が書いた説明と判定（原文と照合していない。事実ではない）";
 export const AI_READING_HEADING = "## その回の AI の読み（仮説）";
 
 export type RenderOptions = {
   /** 「その回の AI の読み（仮説）」を入れるか。既定は入れる */
   includeAiReading?: boolean;
+  /** 読みの欄に、面談の点を入れるか。既定は入れる（比べる実験で外す） */
+  includeScores?: boolean;
 };
 
 /** 記録を Markdown にする。記録係はこの文をそのままファイルに書く */
 export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
   const includeAi = opts.includeAiReading !== false;
+  const includeScores = opts.includeScores !== false;
   const out: string[] = [];
   out.push("---");
   out.push(`interview: ${r.interviewId}`);
+  out.push(`record_format: ${RECORD_FORMAT}`);
   out.push(`kind: ${r.kind}`);
   out.push(`order: ${r.order}`);
   out.push(`other: ${r.otherTag ?? "（札なし）"}`);
@@ -277,18 +294,17 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
   out.push("");
   out.push(`# 面談の記録：${r.interviewId}`);
   out.push("");
-  out.push(FACT_HEADING);
+  out.push(ORIGINAL_HEADING);
   out.push("");
-  out.push("「>」で始まる行は、発話の本文そのまま（原文と一致を確かめた引用と、その前後の発話）。観察は AI が書いた文で、原文との照合はしていない。");
+  out.push("「>」で始まる行だけが、発話の本文そのまま（原文と一致を確かめた引用と、アプリが発話番号から取った前後の発話）。どの発話を場面に選んだかは、AI の選択。");
   out.push("");
   if (r.scenes.length === 0) {
-    out.push(`- 場面：なし${r.noScene ? `（${r.noScene}）` : ""}`);
+    out.push("- 場面：なし");
     out.push("");
   }
   r.scenes.forEach((sc, i) => {
     out.push(`### 場面 ${i + 1}：${sc.type}`);
     out.push("");
-    if (sc.context) out.push(`- 文脈：${sc.context}`);
     if (sc.quotes.length > 0) {
       out.push("- 引用（照合済み）：");
       out.push("");
@@ -303,17 +319,11 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
       out.push(linesBlock(sc.neighbors));
       out.push("");
     }
-    if (sc.observation) out.push(`- 観察：${sc.observation}`);
-    if (sc.reaction) out.push(`- 直後の相手の反応：${sc.reaction}`);
     out.push("");
   });
   if (r.followUp) {
-    out.push("### 前回の行動の追跡");
+    out.push("### 前回の行動の追跡の根拠");
     out.push("");
-    out.push(`- 前回の面談：${r.followUp.previousInterviewId ?? "（記録なし）"}`);
-    out.push(`- 前回の行動：${r.followUp.previousAction}`);
-    out.push(`- できたかの基準：${r.followUp.criterion ?? "（決めていない）"}`);
-    out.push(`- 判定（AI。本人の自己評価は記録に入れない）：${r.followUp.verdict}`);
     if (r.followUp.quotes.length > 0) {
       out.push("- 根拠の引用（照合済み）：");
       out.push("");
@@ -330,6 +340,17 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
     }
     out.push("");
   }
+  out.push(ACTION_HEADING);
+  out.push("");
+  if (r.followUp) {
+    out.push("### 前回の行動");
+    out.push("");
+    out.push(`- 前回の面談：${r.followUp.previousInterviewId ?? "（記録なし）"}`);
+    out.push(`- 行動：${r.followUp.previousAction}`);
+    out.push(`- できたかの基準：${r.followUp.criterion ?? "（決めていない）"}`);
+    out.push(`- 決まり方：${r.followUp.previousActionOrigin}`);
+    out.push("");
+  }
   out.push("### この回に決めた行動");
   out.push("");
   if (r.action) {
@@ -340,10 +361,22 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
     out.push("- 行動：なし（この回の記録には、決めた行動が無い）");
   }
   out.push("");
+  out.push(AI_WRITTEN_HEADING);
+  out.push("");
+  out.push("AI が書いた文で、確かめていない。発話の本文は上の「原文」を見る。");
+  out.push("");
+  if (r.scenes.length === 0 && r.noScene) out.push(`- 場面が無い理由：${r.noScene}`);
+  r.scenes.forEach((sc, i) => {
+    if (sc.context) out.push(`- 場面 ${i + 1} の文脈：${sc.context}`);
+    if (sc.observation) out.push(`- 場面 ${i + 1} の観察：${sc.observation}`);
+    if (sc.reaction) out.push(`- 場面 ${i + 1} の直後の相手の反応：${sc.reaction}`);
+  });
+  if (r.followUp) out.push(`- 追跡の判定（AI。本人の自己評価は記録に入れない）：${r.followUp.verdict}`);
+  out.push("");
   if (includeAi) {
     out.push(AI_READING_HEADING);
     out.push("");
-    out.push("その回の AI の読みで、事実ではない。本人は確かめていない。あとの面談の事実で、直すことも保留にすることもある。");
+    out.push("その回の AI の読みで、事実ではない。本人は確かめていない。あとの面談の原文で、直すことも保留にすることもある。");
     out.push("");
     r.aiReading.scenes.forEach((s, i) => {
       if (s.reading) out.push(`- 場面 ${i + 1} の読み：${s.reading}`);
@@ -351,7 +384,7 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
     });
     if (r.aiReading.followUpWhy) out.push(`- 追跡の判定のなぜ：${r.aiReading.followUpWhy}`);
     if (r.aiReading.otherPersonLine) out.push(`- 相手が前回決めたことの語られ方：${r.aiReading.otherPersonLine}`);
-    if (r.aiReading.scoresFrom) {
+    if (includeScores && r.aiReading.scoresFrom) {
       const s = r.aiReading.scores.map((x) => `項目 ${x.item}＝${x.score ?? "判定しない"}`).join("、");
       out.push(`- 面談の点（${r.aiReading.scoresFrom}。人の点ではない）：${s}`);
     }
@@ -363,7 +396,7 @@ export function renderRecord(r: FactRecord, opts: RenderOptions = {}): string {
 /** 索引に足す 1 行。記録係が毎回足す（夢が作り直す） */
 export function indexLine(r: FactRecord): string {
   const scenes = r.scenes.length === 0 ? "場面なし" : r.scenes.map((s) => `${s.type}（${s.quotes.length > 0 ? utteranceLabel(s.quotes[0].index) : "引用なし"}）`).join("・");
-  const follow = r.followUp ? `追跡：${r.followUp.previousInterviewId ?? "前回"} の行動 → ${r.followUp.verdict}` : "追跡：なし";
+  const follow = r.followUp ? `追跡：${r.followUp.previousInterviewId ?? "前回"} の行動 → AI の判定 ${r.followUp.verdict}` : "追跡：なし";
   const action = r.action ? "決めた行動：あり" : "決めた行動：なし";
   return `- ${recordPath(r.interviewId).slice(1)}｜${r.order} 本目｜${r.kind}｜${r.otherTag ?? "札なし"}｜${scenes}｜${follow}｜${action}｜${r.status}`;
 }
@@ -375,8 +408,21 @@ export type RecordCheck = {
   traitHits: ForbiddenHit[];
   /** 相手の名前（札にした呼び名など）。引用の中も数える */
   nameHits: NameHit[];
+  /** 照らした名前の一覧の数。0 なら、名前の検査はしていない（0 件とは書かない） */
+  nameListSize: number;
   ok: boolean;
 };
+
+const listSize = (names: string[]) => names.filter((n) => n.trim() !== "").length;
+
+/**
+ * 名前の検査の結果を、言える範囲で書く。一覧との一致を探すだけなので、一覧に無い名前は見つけられない。
+ * 一覧を渡していないときは「0 件」と書かない。
+ */
+export function nameCheckLabel(nameListSize: number, hits: number): string {
+  if (nameListSize === 0) return "未検査（名前の一覧を渡していない）";
+  return `${hits} 件（一覧の ${nameListSize} 件と照らした。一覧に無い名前は見つけられない）`;
+}
 
 function findNames(text: string, field: string, names: string[]): NameHit[] {
   const hits: NameHit[] = [];
@@ -419,7 +465,7 @@ export function checkRecord(r: FactRecord, names: string[] = [], opts: RenderOpt
   authored.push({ field: "otherTag", text: r.otherTag ?? "" }, { field: "status", text: r.status });
   const traitHits = authored.flatMap((a) => scanText(a.text, a.field));
   const nameHits = [...authored, ...spoken].flatMap((a) => findNames(a.text, a.field, names));
-  return { traitHits, nameHits, ok: traitHits.length === 0 && nameHits.length === 0 };
+  return { traitHits, nameHits, nameListSize: listSize(names), ok: traitHits.length === 0 && nameHits.length === 0 };
 }
 
 /** Markdown から、発話の本文そのままの行（「>」で始まる行）を除く */
@@ -437,5 +483,24 @@ export function withoutQuoteLines(markdown: string): string {
 export function checkMarkdown(markdown: string, field: string, names: string[] = []): RecordCheck {
   const traitHits = scanText(withoutQuoteLines(markdown), field);
   const nameHits = findNames(markdown, field, names);
-  return { traitHits, nameHits, ok: traitHits.length === 0 && nameHits.length === 0 };
+  return { traitHits, nameHits, nameListSize: listSize(names), ok: traitHits.length === 0 && nameHits.length === 0 };
+}
+
+export type Correction = { oldText: string; newText: string };
+
+/**
+ * 本人の訂正を、記録の文に当てる。直す文がちょうど 1 か所のときだけ当てる。
+ * 「>」の行は発話の本文なので直せない（直すなら画面 1 で文字起こしを直す）。
+ * 訂正した記録には frontmatter に印を付ける。夢に渡すセッションから、この記録のセッションを外す印になる。
+ */
+export function applyCorrection(markdown: string, c: Correction): string {
+  const oldText = c.oldText.trim();
+  if (oldText === "" || c.newText.trim() === "") throw new Error("訂正の前の文と後の文を入れてください");
+  const lines = markdown.split("\n");
+  if (lines.some((l) => /^\s*>/.test(l) && l.includes(oldText))) throw new Error("「>」の行は発話の本文なので、ここでは直せません");
+  const count = markdown.split(oldText).length - 1;
+  if (count !== 1) throw new Error(`直す文は、ちょうど 1 か所にしてください（${count} か所）`);
+  const replaced = markdown.replace(oldText, () => c.newText.trim());
+  if (/^corrected: /m.test(replaced)) return replaced;
+  return replaced.replace(/^status: .*$/m, (m) => `${m}\ncorrected: 本人が直した`);
 }

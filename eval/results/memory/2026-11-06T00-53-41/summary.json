@@ -663,7 +663,8 @@
     "analysisRetries": [],
     "recorderErrors": [],
     "recorderRewrittenByApp": [],
-    "recorderTraitOrNameHitsAfterReadBack": [],
+    "recorderTraitHitsAfterReadBack": [],
+    "recorderNameCheck": "未検査（名前の一覧を渡していない）",
     "dreamCanceled": false,
     "dreamError": null,
     "dreamChangedRecords": []
