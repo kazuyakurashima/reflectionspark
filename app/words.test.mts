@@ -58,6 +58,6 @@ describe("画面の言葉：発言の番号", () => {
 describe("画面の言葉：場面の種別（決まり 3）", () => {
   test("場面についての言葉で出す", () => {
     assert.equal(sceneTypeLabel("よく表れた所"), "うまくいった場面");
-    assert.equal(sceneTypeLabel("次に試せる所"), "次に試せる場面");
+    assert.equal(sceneTypeLabel("次に試せる所"), "課題が見えた場面");
   });
 });

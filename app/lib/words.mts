@@ -23,7 +23,7 @@ export function refListLabel(indices: number[]): string {
 
 /** 場面の種別を、画面に出す言葉にする。場面についての言葉で、人についての言葉にしない（決まり 3） */
 export function sceneTypeLabel(type: SceneType): string {
-  return type === "よく表れた所" ? "うまくいった場面" : "次に試せる場面";
+  return type === "よく表れた所" ? "うまくいった場面" : "課題が見えた場面";
 }
 
 const NUMBER = "[0-9０-９]+";

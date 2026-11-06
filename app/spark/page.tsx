@@ -148,7 +148,7 @@ export default function Screen4() {
         <h2 className={`mt-10 ${H2}`}>候補</h2>
         {candidates?.mock && <p className={`mt-3 ${NOTE}`}>API キーが無いので、仮の出力です。候補の文は仮です。</p>}
         {!nextScene && (
-          <p className={`mt-3 ${NOTE}`}>この面談では「次に試せる場面」が挙がっていないので、候補はありません。候補は、その場面とあなたの答えから作るためです。今回は見送って、先へ進めます。</p>
+          <p className={`mt-3 ${NOTE}`}>この面談では「課題が見えた場面」が挙がっていないので、候補はありません。候補は、その場面とあなたの答えから作るためです。今回は見送って、先へ進めます。</p>
         )}
         {error && (
           <div className={`mt-3 ${NOTE}`}>

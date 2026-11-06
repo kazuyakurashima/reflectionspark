@@ -86,7 +86,7 @@ export function RecordsLink({ className = "" }: { className?: string }) {
   );
 }
 
-/** 1 回分。日付 → 前回のひとつと今回の発言 → うまくいった場面 → 次に試せる場面 → 選んだひとつ → 点 */
+/** 1 回分。日付 → 前回のひとつと今回の発言 → うまくいった場面 → 課題が見えた場面 → 選んだひとつ → 点 */
 export function RecordEntryView({ r }: { r: RecordEntry }) {
   return (
     <article>
