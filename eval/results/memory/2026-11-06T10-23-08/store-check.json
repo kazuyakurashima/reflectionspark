@@ -1,0 +1,66 @@
+{
+  "status": "検証用・暫定（ダミーの面談。本人は確かめていない）",
+  "checkedAt": "2026-11-06T10:37:17.437Z",
+  "what": "メモリストアを読み、手元に控えた記録・索引と比べた（書き換えていない）",
+  "ok": true,
+  "files": [
+    "/index.md",
+    "/records/student-seiseki-2.md",
+    "/records/student-seiseki.md",
+    "/records/student-shinro-2.md",
+    "/records/student-shinro.md",
+    "/records/student-yaruki-2.md",
+    "/records/student-yaruki.md"
+  ],
+  "records": [
+    {
+      "id": "student-shinro",
+      "problems": [],
+      "sessionKnown": true,
+      "identical": true,
+      "traitHits": 0,
+      "nameCheck": "未検査（名前の一覧を渡していない）"
+    },
+    {
+      "id": "student-seiseki",
+      "problems": [],
+      "sessionKnown": true,
+      "identical": true,
+      "traitHits": 0,
+      "nameCheck": "未検査（名前の一覧を渡していない）"
+    },
+    {
+      "id": "student-yaruki",
+      "problems": [],
+      "sessionKnown": true,
+      "identical": true,
+      "traitHits": 0,
+      "nameCheck": "未検査（名前の一覧を渡していない）"
+    },
+    {
+      "id": "student-shinro-2",
+      "problems": [],
+      "sessionKnown": true,
+      "identical": true,
+      "traitHits": 0,
+      "nameCheck": "未検査（名前の一覧を渡していない）"
+    },
+    {
+      "id": "student-yaruki-2",
+      "problems": [],
+      "sessionKnown": true,
+      "identical": true,
+      "traitHits": 0,
+      "nameCheck": "未検査（名前の一覧を渡していない）"
+    },
+    {
+      "id": "student-seiseki-2",
+      "problems": [],
+      "sessionKnown": true,
+      "identical": true,
+      "traitHits": 0,
+      "nameCheck": "未検査（名前の一覧を渡していない）"
+    }
+  ],
+  "indexProblems": []
+}

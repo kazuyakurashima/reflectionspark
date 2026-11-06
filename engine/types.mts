@@ -204,6 +204,23 @@ export type Step2Result = {
   unverifiedQuotes: { field: string; text: string }[];
 };
 
+/** 画面 4：候補に添える、前の面談での本人の言葉。すべて記録（メモリ）の原文から引く。AI が書いた文は入らない（決まり 1） */
+export type PreviousWords = {
+  /** 面談の日付（YYYY-MM-DD） */
+  date: string;
+  /** 相手の札 */
+  otherTag: string | null;
+  /** 直前の発話（記録に無ければ null） */
+  before: { index: number; speaker: string; text: string } | null;
+  /** 本人の発言 */
+  own: { index: number; speaker: string; text: string };
+  /** 直後の発話（記録に無ければ null） */
+  after: { index: number; speaker: string; text: string } | null;
+  interviewId: string;
+  /** 発話番号 */
+  utterance: number;
+};
+
 export type Candidate = {
   /** もし（場面）なら */
   condition: string;
@@ -217,10 +234,16 @@ export type Candidate = {
   criterion: string;
   /** どこから作ったか（本人の答えのどの言葉から。答えが空なら場面と読みから）。持ち帰る一文には入れない */
   basis?: string;
+  /** 工程 3 が返した、前の面談の発話の札。engine/memory-read.mts で原文を引いたら消す */
+  previousRef?: string;
+  /** 前の面談での本人の言葉（記録に合うものがあるときだけ。候補ごとに 0 か 1 つ） */
+  previous?: PreviousWords;
 };
 
 export type Step3Result = {
   candidates: Candidate[];
+  /** 今回の「次に試せる所」と同じ形の、前の面談の場面（記録に合うものがあるときだけ。2 つまで、古い順） */
+  repeats?: PreviousWords[];
   /** 言葉に表れない行動として落とした候補 */
   dropped: { candidate: Candidate; reason: string }[];
   meta: CallMeta;

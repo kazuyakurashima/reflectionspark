@@ -5,6 +5,7 @@
 import { callStructured, STEP0_EFFORT, STEP0_MODEL } from "./claude.mts";
 import type { Effort } from "./claude.mts";
 import { guardStep0c } from "./guard.mts";
+import { copiedChars, labeledSentences, rawPositions } from "./progress.mts";
 import type { CallMeta } from "./types.mts";
 import {
   STEP0A_LABEL_SCHEMA,
@@ -408,19 +409,31 @@ export type Step0aOptions = {
   mode?: Step0aMode;
   model?: string;
   effort?: Effort;
+  /** 0a の途中の出力から数えた進み具合（copy は写し終えた字数、label は話者を付けた文の数）。待つ間の画面用 */
+  onProgress?: (done: number, total: number, unit: string) => void;
 };
 
 export type Step0Options = Step0aOptions & {
   /** 0b を回すか */
   with0b?: boolean;
   log?: (line: string) => void;
+  /** 工程が始まるたびに呼ぶ（待つ間の画面用） */
+  onStage?: (stage: "0a" | "0b") => void;
 };
 
 export type Step0Timing = { step0a: CallMeta; step0b: CallMeta | null; step0c: CallMeta | null };
 
 /** 0a（copy。今の作り方）：モデルに本文を写させる。失敗したら投げる（発話の並びが無いと先へ進めない）。 */
 export async function step0a(raw: string, kind: MeetingKind, opts: Step0aOptions = {}): Promise<{ parsed: Step0aRaw; meta: CallMeta }> {
+  const where = rawPositions(raw);
+  let partial = "";
   const r = await callStructured<{ utterances: Step0aRaw["utterances"]; multiple_others: boolean; multiple_others_reason: string }>({
+    onText: opts.onProgress
+      ? (delta) => {
+          partial += delta;
+          opts.onProgress?.(where.at(copiedChars(partial)), where.total, "字");
+        }
+      : undefined,
     system: step0aSystem(kind),
     user: step0aUser(raw),
     schema: STEP0A_SCHEMA,
@@ -438,6 +451,7 @@ export async function step0a(raw: string, kind: MeetingKind, opts: Step0aOptions
 
 /** 0a（label。速い作り方）：アプリが切った文に、番号ごとの話者だけを返させる。失敗したら投げる。 */
 export async function step0aLabel(sentences: Sentence[], kind: MeetingKind, opts: Step0aOptions = {}): Promise<{ parsed: Step0aLabelRaw; meta: CallMeta }> {
+  let partial = "";
   const r = await callStructured<{
     sentences: Step0aLabelRaw["sentences"];
     reasons: Step0aLabelRaw["reasons"];
@@ -445,6 +459,12 @@ export async function step0aLabel(sentences: Sentence[], kind: MeetingKind, opts
     multiple_others: boolean;
     multiple_others_reason: string;
   }>({
+    onText: opts.onProgress
+      ? (delta) => {
+          partial += delta;
+          opts.onProgress?.(Math.min(sentences.length, labeledSentences(partial)), sentences.length, "文");
+        }
+      : undefined,
     system: step0aLabelSystem(kind),
     user: step0aLabelUser(sentences),
     schema: STEP0A_LABEL_SCHEMA,
@@ -527,6 +547,7 @@ export async function step0c(utterances: Utterance[], kind: MeetingKind): Promis
 /** 工程 0 を通しで回す。 */
 export async function runStep0(raw: string, kind: MeetingKind, opts: Step0Options = {}): Promise<{ transcript: Transcript; timing: Step0Timing; unanchored: number }> {
   const log = opts.log ?? (() => {});
+  opts.onStage?.("0a");
   const a = await runStep0a(raw, kind, opts);
   log(`0a（${a.mode}、${a.meta.model}、${opts.effort ?? STEP0_EFFORT}）${a.meta.ms} ms、出力 ${a.meta.outputTokens} トークン${a.sentences !== null ? `、文 ${a.sentences}` : ""}`);
   const utterances = a.utterances;
@@ -534,6 +555,7 @@ export async function runStep0(raw: string, kind: MeetingKind, opts: Step0Option
   let step0bResult: Step0bResult = { proposed: [], applied: [], discarded: [] };
   let bMeta: CallMeta | null = null;
   if (opts.with0b !== false) {
+    opts.onStage?.("0b");
     const b = await step0b(utterances, kind);
     step0bResult = b.result;
     bMeta = b.meta;

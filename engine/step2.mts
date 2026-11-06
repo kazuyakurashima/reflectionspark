@@ -43,13 +43,14 @@ export function parseStep2(raw: Raw, utteranceCount: number): Omit<Step2Result, 
   };
 }
 
-export async function runStep2(t: Transcript, scenes: Scene[], opts: { firstMeeting?: boolean } = {}): Promise<Step2Result> {
+export async function runStep2(t: Transcript, scenes: Scene[], opts: { firstMeeting?: boolean; onText?: (delta: string) => void } = {}): Promise<Step2Result> {
   const r = await callStructured<Raw>({
     system: step2System(t.kind),
     user: step2User(t.utterances, scenes, opts.firstMeeting ?? true),
     schema: STEP2_SCHEMA,
     effort: "high",
     label: "工程 2",
+    onText: opts.onText,
   });
   return { ...guardStep2(parseStep2(r.data, t.utterances.length), t.utterances), meta: r.meta };
 }

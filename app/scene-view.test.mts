@@ -1,0 +1,74 @@
+// 画面 2 の場面と地図の計算（app/lib/scene-view.mts）。
+// 画面で目立たせる発話と「引用」の印は、照合済みの引用だけから決める（決まり 1）。地図の区切りは、読めないときは出さない。
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
+
+import { chapterIndexOf, chaptersOf, sceneSpan, spanWindow, wideWindow } from "./lib/scene-view.mts";
+
+const q = (index: number, verified = true, endIndex = index + 1) => ({ index, endIndex, verified });
+
+describe("画面 2：場面に並べる発話の範囲（決まり 1）", () => {
+  test("引用が 1 つなら、その発話だけが範囲で、いちばん目立たせる発話になる", () => {
+    assert.deepEqual(sceneSpan([q(40)], 132), { from: 40, to: 40, focal: 40, quoted: [40] });
+  });
+
+  test("最初の引用とつながった引用をひと続きにし、離れた引用は範囲に入れない", () => {
+    const span = sceneSpan([q(40), q(39), q(42), q(44), q(46), q(41), q(43)], 132);
+    assert.deepEqual(span, { from: 39, to: 44, focal: 40, quoted: [39, 40, 41, 42, 43, 44, 46] });
+  });
+
+  test("原文と一致しなかった引用は使わない。一致した引用が無ければ null", () => {
+    assert.deepEqual(sceneSpan([q(10, false), q(12)], 50), { from: 12, to: 12, focal: 12, quoted: [12] });
+    assert.equal(sceneSpan([q(10, false)], 50), null);
+    assert.equal(sceneSpan([], 50), null);
+  });
+
+  test("発話の並びの外を指す引用は使わない", () => {
+    assert.equal(sceneSpan([q(50)], 50), null);
+  });
+
+  test("いくつかの発話にまたがる引用は、その全部を範囲に入れる", () => {
+    assert.deepEqual(sceneSpan([q(5, true, 8)], 20), { from: 5, to: 7, focal: 5, quoted: [5, 6, 7] });
+  });
+
+  test("前後の発話は、並びの端で止める", () => {
+    assert.deepEqual(spanWindow({ from: 40, to: 40 }, 132, 1), { from: 39, to: 41 });
+    assert.deepEqual(spanWindow({ from: 0, to: 1 }, 3, 3), { from: 0, to: 2 });
+  });
+
+  test("広げた範囲は、前後 3 発話と、AI が文で触れた近くの発話までを入れる。遠い発話と範囲の外の番号は入れない", () => {
+    assert.deepEqual(wideWindow({ from: 40, to: 40 }, [], 128), { from: 37, to: 43 });
+    assert.deepEqual(wideWindow({ from: 40, to: 40 }, [42, 44, 46, 41, 120, -1, 500], 128), { from: 37, to: 46 });
+    assert.deepEqual(wideWindow({ from: 92, to: 92 }, [84, 75], 128), { from: 84, to: 95 });
+    assert.deepEqual(wideWindow({ from: 1, to: 1 }, [0], 3), { from: 0, to: 2 });
+  });
+});
+
+describe("画面 2：地図の区切り", () => {
+  const flow = ["部活とコンクールの話から始まる（発話 0〜11）", "進路の話（発話 12〜35）", "締めくくる（発話 36〜49）"];
+
+  test("文の末尾の発話番号の範囲を読み、文からは外す", () => {
+    assert.deepEqual(chaptersOf(flow, 50), [
+      { from: 0, to: 11, text: "部活とコンクールの話から始まる" },
+      { from: 12, to: 35, text: "進路の話" },
+      { from: 36, to: 49, text: "締めくくる" },
+    ]);
+  });
+
+  test("番号が読めない文が一つでもあれば、区切りを出さない", () => {
+    assert.deepEqual(chaptersOf(["部活の話", "進路の話（発話 12〜35）"], 50), []);
+    assert.deepEqual(chaptersOf(["部活の話（1-1〜1-12）"], 50), []);
+  });
+
+  test("範囲の外や、順番が前後する番号があれば、区切りを出さない", () => {
+    assert.deepEqual(chaptersOf(["部活の話（発話 0〜60）"], 50), []);
+    assert.deepEqual(chaptersOf(["部活の話（発話 0〜11）", "進路の話（発話 10〜35）"], 50), []);
+  });
+
+  test("発話が入っている区切りを返す", () => {
+    const c = chaptersOf(flow, 50);
+    assert.equal(chapterIndexOf(c, 40), 2);
+    assert.equal(chapterIndexOf(c, 11), 0);
+    assert.equal(chapterIndexOf([], 3), -1);
+  });
+});

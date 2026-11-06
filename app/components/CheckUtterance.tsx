@@ -1,17 +1,26 @@
 "use client";
 
-// 画面 1・5：発話を確かめて直す。話者を入れ替える、本文を直す、元の文に戻す、カーソルの位置で分ける。元の文はいつも残す。
-// 確かめる所では、Claude の直しと推測を先に目立たせ、前後の会話（話者つき）を並べる。前後が無いと直すかどうかを決められないため。
+// 画面 1・5：発言を確かめて直す。話者を入れ替える、本文を直す、元の文に戻す、カーソルの位置で分ける。元の文はいつも残す。
+// 見せ方は画面 2 と同じ「島」（相手は左、本人は右）。確かめる所では、前後の会話を一度だけ並べ、確かめる発言を差し色にする。
+// 前後が無いと直すかどうかを決められないため。直す前の言葉は、同じ島の中に小さく添える（二つの表を見比べさせない）。
+// 印は 2 つ。太字の下線＝Claude が直した後の言葉。波線＝直す前の言葉と、意味が通らないと Claude が見た所。
 
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
-import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { CHECK_EDITED_BY_USER } from "@/app/lib/view";
-import { guessViews } from "@/app/lib/check-groups.mts";
+import { MARK_CORRECTED, guessViews } from "@/app/lib/check-groups.mts";
+import { refLabel } from "@/app/lib/words.mts";
+import { BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, QUIET_LINK, SEG, segItem } from "./ui";
 import { correctionsOf } from "./UtteranceView";
+
+/** 前後に並べる発言の数（前と後それぞれ） */
+const CONTEXT = 2;
+const MARK_BEFORE = "bg-transparent text-inherit underline decoration-ink-3 decoration-wavy decoration-1 underline-offset-[5px]";
+const MARK_AFTER = "bg-transparent font-semibold text-inherit underline decoration-accent decoration-2 underline-offset-[5px]";
+const QUIET = QUIET_LINK;
 
 export function CheckUtterance({
   t,
@@ -26,9 +35,9 @@ export function CheckUtterance({
   onChange: (next: Utterance) => void;
   /** カーソルの位置（コードポイント）で 2 つに分ける */
   onSplit?: (u: Utterance, pos: number) => void;
-  /** 前後の発話を並べる（確かめる所で使う。全文では並びがそのまま見えるので要らない） */
+  /** 前後の発言を並べる（確かめる所で使う。全文では並びがそのまま見えるので要らない） */
   showContext?: boolean;
-  /** この発話で本人に確かめてほしいこと（話者、区切り）。カードの先頭に一行で出す */
+  /** この発言で本人に確かめてほしいこと（話者、区切り）。カードの先頭に出す */
   ask?: "speaker" | "split";
 }) {
   const { self, other } = SPEAKER_LABELS[t.kind];
@@ -47,7 +56,8 @@ export function CheckUtterance({
   const guesses = guessViews(t, u);
   const corrections = correctionsOf(t, u.index);
   const corrected = corrections.length > 0 && u.text !== u.original;
-  const flags = u.check.filter((c) => !c.startsWith("話者の確からしさが中"));
+  /** 島の上に小さく添える印。話者の確からしさは問いの文で、聞き違いの直しは島の中の「直す前」で伝えるので、ここには出さない */
+  const flags = u.check.filter((c) => !c.startsWith("話者の確からしさ") && c !== MARK_CORRECTED);
   const setSpeaker = (speaker: string) => {
     if (speaker === u.speaker) return;
     onChange({ ...u, speaker, confidence: "高", check: [...u.check.filter((c) => !c.startsWith("話者の確からしさ")), CHECK_EDITED_BY_USER] });
@@ -59,44 +69,50 @@ export function CheckUtterance({
   };
   const before = showContext ? t.utterances.slice(Math.max(0, u.index - CONTEXT), u.index) : [];
   const after = showContext ? t.utterances.slice(u.index + 1, u.index + 1 + CONTEXT) : [];
-  const text = u.text ?? `（${utteranceLabel(u.index)} の本文は出せません）`;
+  const text = u.text ?? `（${refLabel(u.index)} の本文は出せません）`;
   const commitText = () => {
     setEditing(false);
     if (draft === (u.text ?? "")) return;
     onChange({ ...u, text: draft, check: [...u.check.filter((c) => c !== CHECK_EDITED_BY_USER), CHECK_EDITED_BY_USER] });
   };
-  /** 前後の発話にも Claude の直しがあれば、同じ色を付ける（直す前と直した後で見比べられるように） */
-  const nb = (n: Utterance) => (n.text !== n.original ? correctionsOf(t, n.index) : []);
+  const applyGuess = (applied: string) => {
+    setEditing(false);
+    setDraft(applied);
+    onChange({ ...u, text: applied, check: [...u.check.filter((c) => c !== CHECK_EDITED_BY_USER), CHECK_EDITED_BY_USER] });
+  };
+  /** 前後の発言にも Claude の直しがあれば、同じ印を付ける */
+  const fixes = (n: Utterance) => (n.text !== n.original ? correctionsOf(t, n.index) : []);
   const beforeMarks = [...(corrected ? corrections.map((c) => c.before) : []), ...guesses.map((g) => g.fragment)];
   const guessTargets = guesses.flatMap((g) => (g.target ? [g.target] : []));
+
   const actions = (
-    <span className="flex shrink-0 flex-col items-end gap-0.5 text-xs">
-      <button type="button" onClick={() => setEditing(true)} className="text-sky-800 hover:underline">
+    <>
+      <button type="button" onClick={() => setEditing(true)} className={QUIET}>
         本文を直す
       </button>
       {u.text !== u.original && (
-        <button type="button" onClick={revertToOriginal} className="text-sky-800 hover:underline">
+        <button type="button" onClick={revertToOriginal} className={QUIET}>
           元の文に戻す
         </button>
       )}
-    </span>
+    </>
   );
   const editor = (
-    <div className="px-2">
+    <div className="rounded-md border border-line-2 bg-paper p-3">
       <textarea
         ref={areaRef}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
-        className="w-full rounded border border-stone-300 bg-white p-2 text-sm"
-        aria-label={`${utteranceLabel(u.index)} の本文`}
+        className={`block w-full ${FIELD}`}
+        aria-label={`${refLabel(u.index)} の本文`}
       />
-      <div className="mt-1 flex flex-wrap gap-2 text-sm">
-        <button type="button" onClick={commitText} className="rounded bg-stone-800 px-3 py-1 text-white">
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={commitText} className={BTN_SMALL_PRIMARY}>
           この文にする
         </button>
         {onSplit && (
-          <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className="rounded border border-stone-300 bg-white px-3 py-1 disabled:opacity-40" title="本文の中でカーソルを置いた所で、2 つの発話に分けます">
+          <button type="button" onClick={splitHere} disabled={draft !== (u.text ?? "")} className={BTN_SMALL} title="本文の中でカーソルを置いた所で、2 つの発言に分けます">
             カーソルの位置で分ける
           </button>
         )}
@@ -106,158 +122,198 @@ export function CheckUtterance({
             setDraft(u.text ?? "");
             setEditing(false);
           }}
-          className="rounded border border-stone-300 bg-white px-3 py-1"
+          className={BTN_SMALL}
         >
           やめる
         </button>
       </div>
     </div>
   );
-  const applyGuess = (applied: string) => {
-    setEditing(false);
-    setDraft(applied);
-    onChange({ ...u, text: applied, check: [...u.check.filter((c) => c !== CHECK_EDITED_BY_USER), CHECK_EDITED_BY_USER] });
-  };
   const guessBox = guesses.length > 0 && (
-    <div className="mt-1 space-y-2 rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-2 text-sm">
+    <div className="space-y-3 rounded-md bg-accent-soft px-4 py-3 text-[0.92rem] leading-[1.7]">
       {guesses.map((g, i) => (
         <div key={i}>
-          <div>
-            <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.target ?? g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
-            <span className="ml-1 text-xs text-stone-600">（手がかり：{g.clue}）</span>
-          </div>
+          <p>
+            <span className="font-semibold">Claude の推測　</span>「<mark className={MARK_BEFORE}>{g.target ?? g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
+            <span className="ml-1 text-xs text-ink-2">（手がかり：{g.clue}）</span>
+          </p>
           {g.applied !== null ? (
-            <div className="mt-1 flex items-start gap-2">
-              <span className="shrink-0 text-xs text-stone-600">推測で直すと：</span>
-              <span className="grow">{marked(g.applied, [g.guess], MARK_AFTER)}</span>
-              <button type="button" onClick={() => applyGuess(g.applied as string)} className="shrink-0 rounded bg-amber-700 px-2 py-0.5 text-xs text-white hover:bg-amber-800">
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <p className="min-w-0 grow basis-60">
+                <span className="text-xs text-ink-2">直すと　</span>
+                {marked(g.applied, [g.guess], MARK_AFTER)}
+              </p>
+              <button type="button" onClick={() => applyGuess(g.applied as string)} className={BTN_SMALL}>
                 この推測で直す
               </button>
             </div>
           ) : (
-            <div className="mt-1 text-xs text-stone-600">本文の中で置き換える場所が見つかりません。直すときは「本文を直す」で。</div>
+            <p className="mt-1 text-xs text-ink-2">本文の中で置き換える場所が見つかりません。直すときは「本文を直す」で。</p>
           )}
         </div>
       ))}
-      <div className="text-xs text-stone-600">推測は、「この推測で直す」を押したときだけ本文に入り、分析に使います。押さなければ今の本文のままです。</div>
+      <p className="text-xs text-ink-2">推測は、「この推測で直す」を押したときだけ本文に入り、分析に使います。押さなければ今の本文のままです。</p>
     </div>
   );
+
+  // 全文の中の一つ。並びがそのまま会話なので、島を一つだけ出す
+  if (!showContext) {
+    return (
+      <div className="space-y-2">
+        {editing ? (
+          <>
+            <Meta n={u} flags={flags} self={self} />
+            {editor}
+          </>
+        ) : (
+          <Bubble
+            n={u}
+            self={self}
+            flags={flags}
+            original={u.text !== u.original ? marked(u.original, beforeMarks, MARK_BEFORE) : null}
+            actions={
+              // 全文では、載せた発言にだけ操作を出す（128 行に並ぶと読む邪魔になる）。指で使う画面ではいつも出す
+              <span className="flex gap-x-2.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                <button type="button" onClick={() => setSpeaker(u.speaker === self ? other : self)} className={QUIET}>
+                  話者を替える
+                </button>
+                {actions}
+              </span>
+            }
+          >
+            {corrected ? marked(text, corrections.map((c) => c.after), MARK_AFTER) : marked(text, guessTargets, MARK_BEFORE)}
+          </Bubble>
+        )}
+        {guessBox}
+      </div>
+    );
+  }
+
   return (
-    <div className={`rounded border px-3 py-2 ${u.confidence === "低" ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white"}`}>
-      <div className="flex flex-wrap items-center gap-2 text-xs text-stone-600">
-        <span className="font-mono">{u.index}</span>
-        <span className="inline-flex overflow-hidden rounded border border-stone-300">
+    <div className="rounded-md border border-line-2 px-4 py-4 sm:px-5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="font-semibold tabular-nums">{refLabel(u.index)}</span>
+        <span className={SEG} role="group" aria-label={`${refLabel(u.index)} の話者`}>
           {[self, other].map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setSpeaker(s)}
               aria-pressed={u.speaker === s}
-              className={`px-2 py-0.5 ${u.speaker === s ? "bg-stone-800 text-white" : "bg-white text-stone-700 hover:bg-stone-100"}`}
+              className={segItem(u.speaker === s, true)}
             >
               {s}
             </button>
           ))}
         </span>
-        <span>確からしさ：{u.confidence}</span>
-        {u.confidenceReason && <span className="text-stone-500">（{u.confidenceReason}）</span>}
-        {flags.map((f) => (
-          <span key={f} className="rounded bg-stone-200 px-1.5 py-0.5 text-stone-700">
-            {f}
-          </span>
-        ))}
+        {flags.length > 0 && <span className="text-xs text-ink-3">{flags.join("・")}</span>}
       </div>
       {ask && (
-        <p className="mt-2 rounded bg-sky-50 px-2 py-1 text-sm text-sky-900">
-          <span className="font-bold">確かめること：</span>
-          {ask === "speaker"
-            ? corrected
-              ? `「${u.speaker}が『${corrections.map((c) => c.after).join("…")}』と言った」で合っていますか。話者が違えば上の［${self}｜${other}］で入れ替え、言葉が違えば「元の文に戻す」か「本文を直す」。合っていれば何もしなくてかまいません。`
-              : `${utteranceLabel(u.index)} を言ったのは「${u.speaker}」で合っていますか。違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
-            : `${utteranceLabel(u.index)} に二人の言葉が混ざっていないか。混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。`}
-          {ask === "speaker" && u.confidenceReason && <span className="text-xs text-sky-800">（Claude が迷った理由：{u.confidenceReason}）</span>}
-        </p>
+        <div className="mt-3">
+          <p className="font-semibold leading-[1.7]">
+            {ask === "speaker"
+              ? corrected
+                ? `「${u.speaker}が『${corrections.map((c) => c.after).join("…")}』と言った」で合っていますか。`
+                : `${refLabel(u.index)} を言ったのは「${u.speaker}」で合っていますか。`
+              : `${refLabel(u.index)} に、二人の言葉が混ざっていませんか。`}
+          </p>
+          <p className="mt-0.5 text-[0.86rem] leading-[1.7] text-ink-2">
+            {ask === "speaker"
+              ? corrected
+                ? `話者が違えば上の［${self}｜${other}］で入れ替え、言葉が違えば「元の文に戻す」か「本文を直す」。合っていれば何もしなくてかまいません。`
+                : `違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
+              : "混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。"}
+            {ask === "speaker" && u.confidenceReason && <span className="text-ink-3">（Claude が迷った理由：{u.confidenceReason}）</span>}
+          </p>
+        </div>
       )}
-      {showContext ? (
-        <div className="mt-2 space-y-3">
-          {corrected ? (
+      <ol className="mt-4 space-y-2.5">
+        {before.map((n) => (
+          <li key={n.index}>
+            <Bubble n={n} self={self} quiet original={n.text !== n.original ? marked(n.original, fixes(n).map((c) => c.before), MARK_BEFORE) : null}>
+              {marked(n.text ?? n.original, fixes(n).map((c) => c.after), MARK_AFTER)}
+            </Bubble>
+          </li>
+        ))}
+        <li>
+          {editing ? (
             <>
-              <Block title="直す前（元の文字起こし）" hint="色の付いた所が、聞き違いと思われる所です（前後の発話も）。">
-                {before.map((n) => (
-                  <Line key={n.index} n={n} text={n.original} marks={nb(n).map((c) => c.before)} markClass={MARK_BEFORE} />
-                ))}
-                <Line n={u} text={u.original} target marks={beforeMarks} markClass={MARK_BEFORE} />
-                {after.map((n) => (
-                  <Line key={n.index} n={n} text={n.original} marks={nb(n).map((c) => c.before)} markClass={MARK_BEFORE} />
-                ))}
-              </Block>
-              <Block title="直した後（Claude の直し）" hint={`色の付いた所が、Claude が直した所です（前後の発話も。${utteranceLabel(u.index)} は${[...new Set(corrections.map((c) => c.kind))].join("、")}）。違っていたら「元の文に戻す」か「本文を直す」。`}>
-                {before.map((n) => (
-                  <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
-                ))}
-                {editing ? editor : <Line n={u} text={text} target marks={corrections.map((c) => c.after)} markClass={MARK_AFTER} actions={actions} />}
-                {after.map((n) => (
-                  <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
-                ))}
-              </Block>
+              <Meta n={u} flags={[]} self={self} />
+              {editor}
             </>
           ) : (
-            <Block title="会話" hint={guesses.length > 0 ? "色の付いた所が、意味が通らないと Claude が見た所です。" : ""}>
-              {before.map((n) => (
-                <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
-              ))}
-              {editing ? editor : <Line n={u} text={text} target marks={guessTargets} markClass={MARK_BEFORE} actions={actions} />}
-              {after.map((n) => (
-                <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
-              ))}
-            </Block>
+            <Bubble n={u} self={self} target original={u.text !== u.original ? marked(u.original, beforeMarks, MARK_BEFORE) : null} actions={actions}>
+              {corrected ? marked(text, corrections.map((c) => c.after), MARK_AFTER) : marked(text, guessTargets, MARK_BEFORE)}
+            </Bubble>
           )}
-          {guessBox}
-        </div>
-      ) : (
-        <>
-          {editing ? (
-            <div className="mt-2">{editor}</div>
-          ) : (
-            <div className="mt-1 flex items-start gap-2">
-              <p className="grow whitespace-pre-wrap text-sm">{corrected ? marked(text, corrections.map((c) => c.after), MARK_AFTER) : text}</p>
-              {actions}
-            </div>
-          )}
-          {guessBox}
-          {u.text !== u.original && <div className="mt-1 text-xs text-stone-500">元の文字起こし：{marked(u.original, beforeMarks, MARK_BEFORE)}</div>}
-        </>
-      )}
+        </li>
+        {after.map((n) => (
+          <li key={n.index}>
+            <Bubble n={n} self={self} quiet original={n.text !== n.original ? marked(n.original, fixes(n).map((c) => c.before), MARK_BEFORE) : null}>
+              {marked(n.text ?? n.original, fixes(n).map((c) => c.after), MARK_AFTER)}
+            </Bubble>
+          </li>
+        ))}
+      </ol>
+      {corrected && <p className="mt-3 text-xs text-ink-3">直しの種類：{[...new Set(corrections.map((c) => c.kind))].join("、")}</p>}
+      {guessBox && <div className="mt-4">{guessBox}</div>}
     </div>
   );
 }
 
-function Block({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
+/** 島の上の一行（話者・番号・印・操作） */
+function Meta({ n, flags, self, actions }: { n: Utterance; flags: string[]; self: string; actions?: ReactNode }) {
+  const isSelf = n.speaker === self;
   return (
-    <div>
-      <div className="text-xs font-bold text-stone-700">{title}</div>
-      {hint && <div className="text-xs text-stone-500">{hint}</div>}
-      <div className="mt-1 space-y-0.5 rounded border border-stone-200 bg-stone-50 py-1">{children}</div>
-    </div>
-  );
-}
-
-/** 会話の一行。target は確かめる発話 */
-function Line({ n, text, target = false, marks = [], markClass = "", actions }: { n: Utterance; text: string; target?: boolean; marks?: string[]; markClass?: string; actions?: ReactNode }) {
-  return (
-    <div className={`flex items-start gap-2 px-2 py-0.5 text-sm ${target ? "mx-1 rounded bg-white ring-1 ring-stone-400" : "text-stone-500"}`}>
-      <span className="w-7 shrink-0 pt-0.5 text-right font-mono text-xs">{n.index}</span>
-      <span className={`w-12 shrink-0 font-semibold ${target ? "text-stone-900" : ""}`}>{n.speaker}</span>
-      <span className="grow whitespace-pre-wrap">{marked(text, marks, markClass)}</span>
+    <p className={`mb-1 flex flex-wrap items-baseline gap-x-2.5 px-1 text-xs text-ink-3 ${isSelf ? "justify-end" : ""}`}>
+      <span className="font-semibold text-ink-2">{n.speaker}</span>
+      <span className="tabular-nums">{refLabel(n.index)}</span>
+      {flags.length > 0 && <span>{flags.join("・")}</span>}
       {actions}
-    </div>
+    </p>
   );
 }
 
-/** 前後に並べる発話の数（前と後それぞれ） */
-const CONTEXT = 2;
-const MARK_BEFORE = "rounded bg-orange-200 px-0.5 font-semibold text-stone-900";
-const MARK_AFTER = "rounded bg-emerald-200 px-0.5 font-semibold text-stone-900";
+/** 発言の島。target は確かめる発言（差し色）。quiet は前後の発言（小さめ） */
+function Bubble({
+  n,
+  self,
+  target = false,
+  quiet = false,
+  flags = [],
+  original,
+  actions,
+  children,
+}: {
+  n: Utterance;
+  self: string;
+  target?: boolean;
+  quiet?: boolean;
+  flags?: string[];
+  /** 直す前の文（直しがあるときだけ） */
+  original: ReactNode | null;
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
+  const isSelf = n.speaker === self;
+  const shape = isSelf ? "rounded-2xl rounded-tr-md" : "rounded-2xl rounded-tl-md";
+  const tone = target ? "bg-accent-mid text-ink shadow-[inset_4px_0_0_var(--color-accent)]" : `${isSelf ? "bg-tint-self" : "bg-tint-other"} ${quiet ? "text-ink-2" : "text-ink"}`;
+  const size = target ? "px-4 py-3 text-[1.02rem] leading-[1.75]" : quiet ? "px-3.5 py-2 text-[0.92rem] leading-[1.7]" : "px-4 py-2.5 text-[0.98rem] leading-[1.75]";
+  return (
+    <div className={`group flex flex-col ${isSelf ? "items-end" : "items-start"}`}>
+      <Meta n={n} flags={flags} self={self} actions={actions} />
+      <div className={`max-w-[92%] sm:max-w-[84%] ${shape} ${tone} ${size}`}>
+        <p className="whitespace-pre-wrap">{children}</p>
+        {original && (
+          <p className="mt-1.5 whitespace-pre-wrap border-t border-black/5 pt-1.5 text-xs leading-relaxed text-ink-2">
+            <span className="text-ink-3">直す前　</span>
+            {original}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 /** 文の中の needles に印を付ける（最初に見つかった所から順に。長いものを先に当てる） */
 function marked(text: string, needles: string[], className: string): ReactNode {
