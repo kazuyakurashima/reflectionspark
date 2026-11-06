@@ -1,0 +1,708 @@
+{
+  "case": "parent",
+  "axis1": {
+    "generated": 11,
+    "discarded": 0,
+    "displayed": 11,
+    "displayedVerified": 11,
+    "displayedMatchRate": 1,
+    "scenesWithoutQuote": 0,
+    "contextWithJudgement": [],
+    "neighborsMissing": 0
+  },
+  "axis2": {
+    "aiScenes": [
+      {
+        "type": "よく表れた所",
+        "items": [
+          2
+        ],
+        "utterances": [
+          46,
+          44,
+          47,
+          51,
+          53
+        ],
+        "lines": [
+          45,
+          47,
+          48,
+          52,
+          54
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "items": [
+          1
+        ],
+        "utterances": [
+          28,
+          27,
+          29,
+          31,
+          66,
+          67
+        ],
+        "lines": [
+          28,
+          29,
+          30,
+          32,
+          67,
+          68
+        ]
+      }
+    ],
+    "scenes": [
+      {
+        "truthName": "強み・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          45,
+          47,
+          51,
+          53,
+          55
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": true
+      },
+      {
+        "truthName": "強み・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          67
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・いちばん",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          21,
+          23
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      },
+      {
+        "truthName": "課題・次点",
+        "source": "作り手",
+        "verified": true,
+        "truthLines": [
+          31,
+          33
+        ],
+        "droppedLines": [],
+        "absent": false,
+        "matched": false
+      }
+    ],
+    "climax": null,
+    "items": [
+      {
+        "item": 1,
+        "mark": "×",
+        "good": null,
+        "bad": {
+          "truthName": "項目 1 まずく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            21,
+            23
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        }
+      },
+      {
+        "item": 2,
+        "mark": "○×",
+        "good": {
+          "truthName": "項目 2 よく",
+          "source": "決め",
+          "verified": true,
+          "truthLines": [
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": true
+        },
+        "bad": {
+          "truthName": "項目 2 まずく",
+          "source": "作り手",
+          "verified": true,
+          "truthLines": [
+            31,
+            33
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        }
+      },
+      {
+        "item": 3,
+        "mark": "○×",
+        "good": {
+          "truthName": "項目 3 よく",
+          "source": "決め",
+          "verified": true,
+          "truthLines": [
+            58
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        },
+        "bad": {
+          "truthName": "項目 3 まずく",
+          "source": "決め",
+          "verified": true,
+          "truthLines": [
+            55
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        }
+      },
+      {
+        "item": 4,
+        "mark": "×",
+        "good": null,
+        "bad": {
+          "truthName": "項目 4 まずく",
+          "source": "決め",
+          "verified": true,
+          "truthLines": [
+            34,
+            35,
+            36,
+            37,
+            38
+          ],
+          "droppedLines": [],
+          "absent": false,
+          "matched": false
+        }
+      },
+      {
+        "item": 5,
+        "mark": "判定しない",
+        "good": null,
+        "bad": null
+      }
+    ]
+  },
+  "axis3": [
+    {
+      "scene": "よく表れた所",
+      "score": 3,
+      "reason": "開かれた一つの問いだが、発話番号がずれていて（許可を求めたのは44、見立ては46、47は保護者の発話）引用との対応が不正確なうえ、「順番を組み立てていた」と意図を前提にしており、軽い誘導がある。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 5,
+      "reason": "答えを示さずに開いた形で問うており、発話27の言葉とその直後の一言という場面に即し、聞いていることも一つに絞れているため、四つの観点をすべて満たす。"
+    }
+  ],
+  "axis5": {
+    "hits": [],
+    "scoresInStep1": false,
+    "scoresPerItem": true
+  },
+  "axis6": null,
+  "axis8": {
+    "firstMeeting": true,
+    "item5Withheld": true,
+    "withheldAsTruth": [
+      {
+        "item": 1,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 2,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 3,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 4,
+        "truth": false,
+        "ai": false
+      },
+      {
+        "item": 5,
+        "truth": true,
+        "ai": true
+      }
+    ],
+    "saidNoScene": false
+  },
+  "axis9": {
+    "pairs": [],
+    "satisfied": 0,
+    "countable": 0,
+    "pairsIncludingDraft": 0
+  },
+  "axis10": [
+    {
+      "scene": "よく表れた所",
+      "score": 3,
+      "reason": "観察の前半（発話44で許可を求め、45の承諾後に46で落とした問題を分けて伝えた流れ）と直後の反応（47・51・53）は引用と前後の発話に合っています。一方で、観察の「家で勉強していない」「言うと喧嘩になる」と、読みの起点である「どうしようもない」は、示された引用にも前後の発話にも無く、読みが引用から離れています。なお、問いの発話番号（1-45、1-47）は、許可を求めた発話44と見立てを伝えた発話46とずれています。"
+    },
+    {
+      "scene": "次に試せる所",
+      "score": 4,
+      "reason": "観察（発話27の後に発話28で講師が家での声かけを依頼）と直後の反応（発話29）は前後の発話と一致し、「どう言えばいいのかわからない」（発話31）から気持ちの話が続いていたという読みも引用から導けます。ただし、「喧嘩の話を繰り返した」は引用外の文脈の一行に頼っています。また、発話31は講師の発話30を挟んでいるため「続けて」はやや不正確で、4とします。"
+    }
+  ],
+  "axis11": {
+    "utterances": 86,
+    "aligned": 86,
+    "correct": 86,
+    "accuracy": 1,
+    "byConfidence": [
+      {
+        "confidence": "高",
+        "count": 73,
+        "wrong": 0
+      },
+      {
+        "confidence": "中",
+        "count": 13,
+        "wrong": 0
+      },
+      {
+        "confidence": "低",
+        "count": 0,
+        "wrong": 0
+      }
+    ],
+    "spanningSpeakers": 1,
+    "multipleOthers": false,
+    "wrong": []
+  },
+  "axis12": {
+    "corrections": [
+      {
+        "index": 22,
+        "kind": "同音の取り違え",
+        "before": "同名詞",
+        "after": "動名詞",
+        "verdict": "拾えた",
+        "scriptWindow": "定詞と動名詞の問題"
+      },
+      {
+        "index": 27,
+        "kind": "同音の取り違え",
+        "before": "私が行っても",
+        "after": "私が言っても",
+        "verdict": "拾えた",
+        "scriptWindow": "なので私が言っても仕方な"
+      },
+      {
+        "index": 65,
+        "kind": "語の区切り",
+        "before": "言わ。ずに",
+        "after": "言わずに",
+        "verdict": "拾えた",
+        "scriptWindow": "るさく言わずに見てい"
+      },
+      {
+        "index": 72,
+        "kind": "近い音の聞き違え",
+        "before": "登記講習",
+        "after": "冬期講習",
+        "verdict": "拾えた",
+        "scriptWindow": "すあと冬期講習の案内"
+      },
+      {
+        "index": 72,
+        "kind": "数字や英字の表記",
+        "before": "12学期",
+        "after": "1、2学期",
+        "verdict": "言った言葉と違う",
+        "scriptWindow": "中二は一二学期の復習"
+      }
+    ],
+    "applied": 5,
+    "discarded": 0,
+    "picked": 4,
+    "overfixedOriginalCorrect": 0,
+    "overfixedWrongWord": 1,
+    "unaligned": 0,
+    "pickedByKind": {
+      "同音の取り違え": 2,
+      "語の区切り": 1,
+      "近い音の聞き違え": 1
+    },
+    "mismatchSpots": 49,
+    "mismatchTouched": 4,
+    "missed": [
+      {
+        "line": 3,
+        "memoText": "3ヶ"
+      },
+      {
+        "line": 5,
+        "memoText": "家"
+      },
+      {
+        "line": 9,
+        "memoText": "わ"
+      },
+      {
+        "line": 9,
+        "memoText": "後"
+      },
+      {
+        "line": 12,
+        "memoText": "2"
+      },
+      {
+        "line": 14,
+        "memoText": "他"
+      },
+      {
+        "line": 14,
+        "memoText": "6"
+      },
+      {
+        "line": 14,
+        "memoText": "時"
+      },
+      {
+        "line": 17,
+        "memoText": "0"
+      },
+      {
+        "line": 19,
+        "memoText": "82"
+      },
+      {
+        "line": 19,
+        "memoText": "75"
+      },
+      {
+        "line": 19,
+        "memoText": "70"
+      },
+      {
+        "line": 19,
+        "memoText": "80"
+      },
+      {
+        "line": 19,
+        "memoText": "61"
+      },
+      {
+        "line": 21,
+        "memoText": "9"
+      },
+      {
+        "line": 21,
+        "memoText": "78"
+      },
+      {
+        "line": 22,
+        "memoText": "17"
+      },
+      {
+        "line": 24,
+        "memoText": "わ"
+      },
+      {
+        "line": 26,
+        "memoText": "7"
+      },
+      {
+        "line": 29,
+        "memoText": "家"
+      },
+      {
+        "line": 32,
+        "memoText": "時"
+      },
+      {
+        "line": 32,
+        "memoText": "わ"
+      },
+      {
+        "line": 39,
+        "memoText": "他"
+      },
+      {
+        "line": 40,
+        "memoText": "時"
+      },
+      {
+        "line": 47,
+        "memoText": "わ"
+      },
+      {
+        "line": 49,
+        "memoText": "1ヶ"
+      },
+      {
+        "line": 53,
+        "memoText": "一番"
+      },
+      {
+        "line": 54,
+        "memoText": "ん"
+      },
+      {
+        "line": 55,
+        "memoText": "15"
+      },
+      {
+        "line": 55,
+        "memoText": "後 7"
+      },
+      {
+        "line": 55,
+        "memoText": "7時 15"
+      },
+      {
+        "line": 58,
+        "memoText": "6"
+      },
+      {
+        "line": 59,
+        "memoText": "わ"
+      },
+      {
+        "line": 59,
+        "memoText": "7"
+      },
+      {
+        "line": 59,
+        "memoText": "15"
+      },
+      {
+        "line": 59,
+        "memoText": "時"
+      },
+      {
+        "line": 62,
+        "memoText": "7"
+      },
+      {
+        "line": 64,
+        "memoText": "の時"
+      },
+      {
+        "line": 69,
+        "memoText": "11"
+      },
+      {
+        "line": 69,
+        "memoText": "8"
+      },
+      {
+        "line": 70,
+        "memoText": "70"
+      },
+      {
+        "line": 73,
+        "memoText": "11"
+      },
+      {
+        "line": 75,
+        "memoText": "他"
+      },
+      {
+        "line": 79,
+        "memoText": "家"
+      },
+      {
+        "line": 81,
+        "memoText": "1"
+      }
+    ],
+    "guesses": [
+      {
+        "index": 22,
+        "kind": "崩れ",
+        "fragment": "同名詞",
+        "guess": "動名詞",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "定詞と動名詞の問題"
+      },
+      {
+        "index": 25,
+        "kind": "崩れ",
+        "fragment": "思ってたってで",
+        "guess": "思ってたって言って",
+        "reallyBroken": false,
+        "guessMatchesScript": false,
+        "changedCorrect": true,
+        "scriptWindow": "ろうと思ってたってで結局や"
+      },
+      {
+        "index": 27,
+        "kind": "崩れ",
+        "fragment": "私が行っても",
+        "guess": "私が言っても",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "なので私が言っても仕方な"
+      },
+      {
+        "index": 63,
+        "kind": "崩れ",
+        "fragment": "お兄ちゃんのの時",
+        "guess": "お兄ちゃんの時",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "心ですお兄ちゃんのときはそう"
+      },
+      {
+        "index": 65,
+        "kind": "崩れ",
+        "fragment": "言わ。ずに",
+        "guess": "言わずに",
+        "reallyBroken": false,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "るさく言わずに見てい"
+      },
+      {
+        "index": 72,
+        "kind": "崩れ",
+        "fragment": "登記講習",
+        "guess": "冬期講習",
+        "reallyBroken": true,
+        "guessMatchesScript": true,
+        "changedCorrect": false,
+        "scriptWindow": "すあと冬期講習の案内"
+      },
+      {
+        "index": 72,
+        "kind": "崩れ",
+        "fragment": "12学期",
+        "guess": "1、2学期",
+        "reallyBroken": true,
+        "guessMatchesScript": false,
+        "changedCorrect": false,
+        "scriptWindow": "中二は一二学期の復習"
+      }
+    ],
+    "guessStats": {
+      "total": 7,
+      "reallyBroken": 5,
+      "guessMatchesScript": 4,
+      "changedCorrect": 1,
+      "unaligned": 0
+    }
+  },
+  "guessMeaning": [
+    {
+      "fragment": "同名詞",
+      "guess": "動名詞",
+      "score": 4,
+      "reason": "推測の「動名詞」は、断片に当たる台本の語「動名詞」と一致し、台本に無い意味も足していないが、台本の「定詞と」「問題」の部分までは含んでいないため4とした。"
+    },
+    {
+      "fragment": "思ってたってで",
+      "guess": "思ってたって言って",
+      "score": 3,
+      "reason": "「思ってた」は台本と合いますが、台本は「思ってたってで結局」と次へつながる形です。推測の「言って」は台本に無い語で、発話したという意味が足されている可能性があるため、半分ほどの一致です。"
+    },
+    {
+      "fragment": "私が行っても",
+      "guess": "私が言っても",
+      "score": 5,
+      "reason": "推測「私が言っても」は、台本のうち断片に当たる部分「私が言っても」と意味が同じです。台本に無い意味も足していません。「なので」「仕方な」は断片の範囲外なので評価に含めていません。"
+    },
+    {
+      "fragment": "お兄ちゃんのの時",
+      "guess": "お兄ちゃんの時",
+      "score": 5,
+      "reason": "推測「お兄ちゃんの時」は、断片に当たる台本の「お兄ちゃんのとき」と意味が同じで、台本に無い意味も足していない。前後の「心です」「はそう」は断片の外の語と見た。"
+    },
+    {
+      "fragment": "言わ。ずに",
+      "guess": "言わずに",
+      "score": 4,
+      "reason": "推測「言わずに」は台本の該当部分と一致し、余分な意味も足していないが、台本にある「うるさく」という限定が含まれず、意味がやや広くなっている。"
+    },
+    {
+      "fragment": "登記講習",
+      "guess": "冬期講習",
+      "score": 5,
+      "reason": "断片「登記講習」にあたる台本の語は「冬期講習」で、推測と意味が同じであり、台本に無い意味も足していない。"
+    },
+    {
+      "fragment": "12学期",
+      "guess": "1、2学期",
+      "score": 5,
+      "reason": "推測「1、2学期」は台本の「一二学期」と同じく1学期と2学期を指しており、表記が違うだけで意味は一致し、台本に無い意味も足していない。"
+    }
+  ],
+  "variance": null,
+  "timing": {
+    "step0": {
+      "step0a": {
+        "model": "claude-opus-5-5",
+        "ms": 64252,
+        "inputTokens": 2677,
+        "outputTokens": 9022,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1153
+      },
+      "step0b": {
+        "model": "claude-opus-5-5",
+        "ms": 6490,
+        "inputTokens": 3427,
+        "outputTokens": 459,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1220
+      },
+      "step0c": {
+        "model": "claude-opus-5-5",
+        "ms": 11896,
+        "inputTokens": 3431,
+        "outputTokens": 926,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 1166
+      }
+    },
+    "step1Ms": 38177,
+    "firstCitationMs": 21031,
+    "step2Ms": 28133,
+    "step4Ms": null
+  }
+}
