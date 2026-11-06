@@ -117,6 +117,7 @@ export function guardStep3<T extends Omit<Step3Result, "meta" | "withheld" | "un
       sentence: guardText(c.sentence, `candidates[${i}].sentence`, utterances, log, no),
       lines: c.lines.map((l, j) => guardText(l, `candidates[${i}].lines[${j}]`, utterances, log, no)),
       criterion: guardText(c.criterion, `candidates[${i}].criterion`, utterances, log, no),
+      ...(c.basis ? { basis: guardText(c.basis, `candidates[${i}].basis`, utterances, log, no) } : {}),
     })),
     ...log,
   };
