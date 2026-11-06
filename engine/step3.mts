@@ -1,7 +1,7 @@
 // 工程 3：行動の候補（画面 4）。Messages API、構造化出力。
 // 受け取る：次に試せる場面（引用・読み・問い）、本人の答え。（あれば）夢で整理した「繰り返す場面」と根拠の発話。渡さない：本人の自己採点、点の控え。
 // 返す：候補 2〜3。「もし（場面）なら、（行動）する」、セリフの例 2〜3、できたかの基準。言葉に表れない行動は落とす。
-// 記録を渡したときは、候補ごとに前の面談の発話の札も返させ、アプリが札から記録の原文を引く（AI が書いた引用文は出さない。決まり 1）。
+// 記録を渡したときは、候補ごとの前の面談の発話の札と、今回の場面と同じ形の発話の札も返させ、アプリが札から記録の原文を引く（AI が書いた引用文は出さない。決まり 1）。
 
 import { callStructured } from "./claude.mts";
 import { neighborsOf } from "./citations.mts";
@@ -9,9 +9,12 @@ import { guardStep3 } from "./guard.mts";
 import { resolvePreviousWords } from "./memory-read.mts";
 import type { ParsedRecord, Step3Memory } from "./memory-read.mts";
 import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
-import type { Candidate, Scene, Step3Result, Transcript } from "./types.mts";
+import type { Candidate, PreviousWords, Scene, Step3Result, Transcript } from "./types.mts";
 
-type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string; previous_ref?: string }[] };
+type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string; previous_ref?: string }[]; repeat_refs?: string[] };
+
+/** 今回の場面と同じ形として出す、前の面談の場面の上限 */
+const MAX_REPEATS = 2;
 
 /** 言葉に表れない行動の目印。セリフや発話の動詞があれば残す。 */
 const NON_VERBAL = /(待つ|待って|黙る|黙って|沈黙|表情|うなず|頷|目を見|視線|身を乗り出|笑顔|姿勢|深呼吸)/;
@@ -82,6 +85,24 @@ export function attachPreviousWords(candidates: Candidate[], records: ParsedReco
   });
 }
 
+/**
+ * 工程 3 が返した「同じ形の場面」の札を、記録の原文に置き換える。札が記録に無ければ出さない（決まり 1）。
+ * 同じ発話は 1 回だけ。候補に添えた発話は出さない（できた言葉と同じ形の場面に、同じ発話を並べない）。古い順に 2 つまで。
+ */
+export function resolveRepeats(refs: string[] | null | undefined, candidates: Candidate[], records: ParsedRecord[]): PreviousWords[] {
+  const key = (p: PreviousWords) => `${p.interviewId}｜${p.utterance}`;
+  const seen = new Set(candidates.flatMap((c) => (c.previous ? [key(c.previous)] : [])));
+  const out: PreviousWords[] = [];
+  for (const ref of refs ?? []) {
+    const p = resolvePreviousWords(ref, records);
+    if (!p || seen.has(key(p))) continue;
+    seen.add(key(p));
+    out.push(p);
+    if (out.length === MAX_REPEATS) break;
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date) || a.utterance - b.utterance);
+}
+
 export async function runStep3(t: Transcript, scene: Scene, answer: string, memory: Step3Memory | null = null): Promise<Step3Result> {
   const anchor = scene.quotes[0]?.index;
   const neighbors = anchor === undefined ? { before: null, after: null } : neighborsOf(anchor, t.utterances);
@@ -93,5 +114,7 @@ export async function runStep3(t: Transcript, scene: Scene, answer: string, memo
     label: "工程 3",
   });
   const guarded = guardStep3(parseStep3(r.data), t.utterances);
-  return { ...guarded, candidates: attachPreviousWords(guarded.candidates, memory?.records ?? []), meta: r.meta };
+  const candidates = attachPreviousWords(guarded.candidates, memory?.records ?? []);
+  const repeats = resolveRepeats(r.data.repeat_refs, candidates, memory?.records ?? []);
+  return { ...guarded, candidates, ...(repeats.length > 0 ? { repeats } : {}), meta: r.meta };
 }

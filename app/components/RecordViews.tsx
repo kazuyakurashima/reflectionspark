@@ -18,8 +18,8 @@ import { H2, LINK, SPARK_BOX } from "./ui";
 const SUB = "text-[0.86rem] font-semibold text-ink-2";
 const BOX = "space-y-2.5 rounded-md border border-line bg-surface px-3 py-3.5 text-ink sm:px-4";
 
-/** 画面 4：候補に添える、前の面談での本人の言葉。直前 → 本人 → 直後。本人の発言を目立たせる */
-export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; className?: string }) {
+/** 前の面談の発話。直前 → 本人 → 直後。本人の発言を目立たせる */
+function PreviousLines({ p }: { p: PreviousWords }) {
   const lines = previousLines(p);
   const t = linesTranscript(
     kindOfSpeakers(
@@ -28,6 +28,19 @@ export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; cl
     ),
     lines,
   );
+  return (
+    <ol className={BOX}>
+      {t.utterances.map((u) => (
+        <li key={u.index}>
+          <Island t={t} u={u} compact role={u.index === p.own.index ? "focal" : "plain"} tag={p.before?.index === u.index ? "直前" : p.after?.index === u.index ? "直後" : undefined} />
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** 画面 4：候補に添える、前の面談での本人の言葉 */
+export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; className?: string }) {
   return (
     <div className={className}>
       <p className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
@@ -40,13 +53,32 @@ export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; cl
         </span>
         <span className="text-xs text-ink-3">記録（Memory）から</span>
       </p>
-      <ol className={`mt-2 ${BOX}`}>
-        {t.utterances.map((u) => (
-          <li key={u.index}>
-            <Island t={t} u={u} compact role={u.index === p.own.index ? "focal" : "plain"} tag={p.before?.index === u.index ? "直前" : p.after?.index === u.index ? "直後" : undefined} />
-          </li>
+      <div className="mt-2">
+        <PreviousLines p={p} />
+      </div>
+    </div>
+  );
+}
+
+/** 画面 4：今回の「次に試せる所」と同じ形の、前の面談の場面。評価の言葉は付けない */
+export function RepeatScenesBlock({ items, className = "" }: { items: PreviousWords[]; className?: string }) {
+  return (
+    <div className={className}>
+      <p className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+        <span className="text-[0.86rem] font-semibold text-ink-2">前にも、近い場面がありました</span>
+        <span className="text-xs text-ink-3">記録（Memory）から</span>
+      </p>
+      <div className="mt-2 space-y-3">
+        {items.map((p) => (
+          <div key={`${p.interviewId}｜${p.utterance}`}>
+            <p className="mb-1 text-[0.86rem] tabular-nums text-ink-3">
+              {formatDate(p.date)}
+              {p.otherTag ? `　${p.otherTag} との面談` : ""}
+            </p>
+            <PreviousLines p={p} />
+          </div>
         ))}
-      </ol>
+      </div>
     </div>
   );
 }

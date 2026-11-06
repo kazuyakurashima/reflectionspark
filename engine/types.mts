@@ -242,6 +242,8 @@ export type Candidate = {
 
 export type Step3Result = {
   candidates: Candidate[];
+  /** 今回の「次に試せる所」と同じ形の、前の面談の場面（記録に合うものがあるときだけ。2 つまで、古い順） */
+  repeats?: PreviousWords[];
   /** 言葉に表れない行動として落とした候補 */
   dropped: { candidate: Candidate; reason: string }[];
   meta: CallMeta;
