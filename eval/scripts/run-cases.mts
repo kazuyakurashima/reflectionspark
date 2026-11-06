@@ -25,6 +25,7 @@ import { listTruthCases } from "../lib/truth.mts";
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const fresh = args.includes("--fresh");
+const noStep4 = args.includes("--no-step4"); // 工程 1・2 の直しを測るとき、工程 4 を回さない
 const caseArg = args.includes("--case") ? args[args.indexOf("--case") + 1] : null;
 const stabilityCase = args.includes("--stability") ? args[args.indexOf("--stability") + 1] : null;
 const stabilityRuns = stabilityCase ? Number(args[args.indexOf("--stability") + 2] ?? "2") : 0;
@@ -86,7 +87,7 @@ for (const name of cases) {
     saveJson(path.join(dir, "step2.json"), s2);
     log(`工程 2：${s2.meta.ms} ms、${s2.items.map((i) => `${i.item}:${i.score ?? "判定しない"}`).join(" ")}、倫理 ${s2.ethics.level}`);
 
-    if (c.truth.followUp) {
+    if (c.truth.followUp && !noStep4) {
       const spark: Spark = {
         sentence: c.truth.followUp.previousAction.text,
         criterion: c.truth.followUp.criterion, // 正解に無いので null（空で渡す）
