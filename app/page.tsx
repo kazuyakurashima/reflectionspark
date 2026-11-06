@@ -12,6 +12,7 @@ import type { Step0Response } from "@/engine/server.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { Collapsible } from "@/app/components/Collapsible";
+import { WaitNote } from "@/app/components/WaitNote";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
 import { fetchStep0c, newSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
@@ -158,7 +159,8 @@ export default function Screen1() {
             </span>
           )}
         </div>
-        {error && <p className="text-sm text-red-700">{error}</p>}
+        {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
+        {error && <p className="text-sm text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
       </section>
 
       {transcript && (

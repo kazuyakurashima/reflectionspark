@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { blockText, blockTexts, legacyBlockText, quoteMatchesTranscript, verifyCitation } from "./citations.mts";
+import { STEP3_SCHEMA, step3System, step4System } from "./prompts.mts";
 import { parseStep1 } from "./step1.mts";
 import { makeSentence, parseStep3 } from "./step3.mts";
 import { parseStep4 } from "./step4.mts";
@@ -184,6 +185,41 @@ describe("工程 2・3・4 の読み取り", () => {
     assert.equal(r.candidates.length, 1);
     assert.equal(r.dropped.length, 2);
     assert.match(r.dropped[0].reason, /言葉に表れない/);
+  });
+
+  test("工程 3：どこから作ったかの注記は持ち帰る一文に入れず、basis に回す（「なら」を重ねない）", () => {
+    const cond = "もし相手が「家ではほとんどやっていない」のように、自分の今の過ごし方を自分で評価する言葉を口にしたなら（本人の答え「家での時間がほぼないと聞いたら」から）";
+    assert.equal(
+      makeSentence(cond, "先の予定の説明に入る前に、今週何から始めてみるかを相手に聞く"),
+      "もし相手が「家ではほとんどやっていない」のように、自分の今の過ごし方を自分で評価する言葉を口にしたなら、先の予定の説明に入る前に、今週何から始めてみるかを相手に聞く。",
+    );
+    const r = parseStep3({
+      candidates: [
+        { condition: cond, action: "今週何から始めてみるかを相手に聞く", lines: ["今週、何からやってみる？"], criterion: "x" },
+        { condition: "相手が黙ったら", action: "「それで？」と聞く（場面と読みから）", lines: ["それで？"], criterion: "x", basis: "本人の答えが空だったので、場面と読みから" },
+        { condition: "相手が目標を口にしたら（前の面談でも出た話題）", action: "いつやるかを聞く", lines: ["いつやる？"], criterion: "x" },
+      ],
+    });
+    assert.equal(r.candidates.length, 3);
+    assert.equal(r.candidates[0].basis, "本人の答え「家での時間がほぼないと聞いたら」から");
+    assert.doesNotMatch(r.candidates[0].sentence, /本人の答え|ならなら|なら）|）なら/);
+    assert.ok(r.candidates[0].condition.endsWith("口にしたなら"));
+    assert.equal(makeSentence("相手が心配を口にしたときなら、", "何が心配かを尋ねる"), "もし相手が心配を口にしたとき、何が心配かを尋ねる。");
+    // AI が basis に書いたものを優先し、文に混ざった注記は外す
+    assert.equal(r.candidates[1].basis, "本人の答えが空だったので、場面と読みから");
+    assert.equal(r.candidates[1].action, "「それで？」と聞く");
+    assert.equal(r.candidates[1].sentence, "もし相手が黙ったら、「それで？」と聞く。");
+    // どこから作ったかの注記ではない括弧書きは残し、その後ろに「なら」を足さない
+    assert.equal(r.candidates[2].basis, undefined);
+    assert.equal(r.candidates[2].sentence, "もし相手が目標を口にしたら（前の面談でも出た話題）、いつやるかを聞く。");
+  });
+
+  test("工程 3・4 のプロンプト：注記は basis に書かせ、工程 4 の文には発話の言葉を写させない", () => {
+    assert.match(step3System("生徒"), /basis に一行で書く/);
+    assert.match(step3System("生徒"), /注記や括弧書きを入れない/);
+    assert.ok((STEP3_SCHEMA.properties.candidates.items.required as string[]).includes("basis"));
+    assert.match(step4System("生徒"), /発話の言葉をそのまま写さない/);
+    assert.match(step4System("生徒"), /「」を付けずに文の中へ埋め込むこともしない/);
   });
 
   test("工程 4：判定・引用・なぜ・項目を読む", () => {

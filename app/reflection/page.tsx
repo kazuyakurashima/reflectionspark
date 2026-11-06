@@ -15,6 +15,7 @@ import { utteranceListLabel, utteranceRangeLabel, utterancesAround } from "@/eng
 import { Collapsible } from "@/app/components/Collapsible";
 import { ScoreTable } from "@/app/components/Scores";
 import { UtteranceLine } from "@/app/components/UtteranceView";
+import { WaitNote } from "@/app/components/WaitNote";
 import { updateSession, useSession } from "@/app/lib/session";
 import { countTranscript, ethicsMark } from "@/app/lib/view";
 
@@ -24,6 +25,7 @@ export default function Screen2() {
   const [score, setScore] = useState<string>("");
   const [note, setNote] = useState("");
   const started = useRef(false);
+  const [retry, setRetry] = useState(0);
   const transcript = session?.transcript ?? null;
   const analysis = session?.analysis ?? null;
   const firstMeeting = session?.firstMeeting ?? true;
@@ -47,7 +49,7 @@ export default function Screen2() {
         started.current = false;
       }
     })();
-  }, [transcript, analysis, firstMeeting]);
+  }, [transcript, analysis, firstMeeting, retry]);
 
   if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
   if (!session || !transcript) {
@@ -103,11 +105,26 @@ export default function Screen2() {
       </section>
 
       {!selfDone ? (
-        <p className="mt-4 text-sm text-stone-500">自分の点を付けると、AI のフィードバックが開きます。{analysis ? "（分析は届いています）" : "（分析しています…）"}</p>
+        <p className="mt-4 text-sm text-stone-500">自分の点を付けると、AI のフィードバックが開きます。{analysis ? "（分析は届いています）" : error ? "（分析に失敗しました。点を付けると、やり直せます）" : "（分析しています。1 分ほどかかります）"}</p>
       ) : error ? (
-        <p className="mt-4 text-sm text-red-700">{error}</p>
+        <div className="mt-4 rounded border border-red-200 bg-white px-3 py-2 text-sm">
+          <p className="text-red-700">分析できませんでした：{error}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setRetry((n) => n + 1);
+            }}
+            className="mt-2 rounded border border-stone-300 px-3 py-1"
+          >
+            もう一度分析する
+          </button>
+        </div>
       ) : !analysis ? (
-        <p className="mt-4 text-sm text-stone-500">分析しています…</p>
+        <div className="mt-4">
+          <p className="text-sm text-stone-500">分析しています…</p>
+          <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度最初から分析します。" />
+        </div>
       ) : (
         <Feedback t={t} a={analysis} selfScore={session.selfScore} sparkSentence={session.spark?.sentence ?? null} />
       )}

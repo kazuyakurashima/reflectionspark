@@ -215,6 +215,8 @@ export type Candidate = {
   lines: string[];
   /** できたかの基準（次の面談で何が言葉に表れたら「できた」か） */
   criterion: string;
+  /** どこから作ったか（本人の答えのどの言葉から。答えが空なら場面と読みから）。持ち帰る一文には入れない */
+  basis?: string;
 };
 
 export type Step3Result = {

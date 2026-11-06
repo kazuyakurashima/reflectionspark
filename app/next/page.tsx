@@ -18,6 +18,7 @@ import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.m
 import { Collapsible } from "@/app/components/Collapsible";
 import { ScoreTable } from "@/app/components/Scores";
 import { UtteranceContext } from "@/app/components/UtteranceView";
+import { WaitNote } from "@/app/components/WaitNote";
 import { fetchStep0c, newFollowUp, newSession, updateSession, useSession } from "@/app/lib/session";
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
@@ -27,6 +28,9 @@ export default function Screen5() {
   const session = useSession();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** 追跡（AI の判定）の失敗。整形の失敗（error）と分けて、やり直しのボタンを判定の所に出す */
+  const [followError, setFollowError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
   const [verdict, setVerdict] = useState<FollowUpVerdict | null>(null);
   const [score, setScore] = useState("");
   const [openQuote, setOpenQuote] = useState<number | null>(null);
@@ -57,11 +61,11 @@ export default function Screen5() {
           };
         });
       } catch (e) {
-        setError((e as Error).message);
+        setFollowError((e as Error).message);
         started.current = false;
       }
     })();
-  }, [spark, transcript, result]);
+  }, [spark, transcript, result, retry]);
 
   if (session === undefined) return <main className="mx-auto max-w-3xl px-4 py-6 text-sm text-stone-600">読み込んでいます…</main>;
   if (!session || (!spark && !session.sparkSkipped)) {
@@ -97,6 +101,7 @@ export default function Screen5() {
   const format = async () => {
     setBusy(true);
     setError(null);
+    setFollowError(null);
     try {
       const r = await fetch("/api/step0", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ raw, kind }) });
       const d = (await r.json()) as Step0Response & { error?: string };
@@ -167,7 +172,8 @@ export default function Screen5() {
           </button>
           <span className="text-xs text-stone-500">{[...raw].length} 字</span>
         </div>
-        {error && <p className="text-sm text-red-700">{error}</p>}
+        {busy && <WaitNote time="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" />}
+        {error && <p className="text-sm text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
       </section>
 
       {transcript && (
@@ -217,9 +223,28 @@ export default function Screen5() {
           </section>
 
           {!selfDone ? (
-            <p className="mt-4 text-sm text-stone-500">自分の評価を付けると、AI の判定が開きます。{result ? "（判定は届いています）" : "（読んでいます…）"}</p>
+            <p className="mt-4 text-sm text-stone-500">
+              自分の評価を付けると、AI の判定が開きます。{result ? "（判定は届いています）" : followError ? "（AI の読みに失敗しました。評価を付けると、やり直せます）" : "（読んでいます。1 分ほどかかります）"}
+            </p>
+          ) : followError && !result ? (
+            <div className="mt-4 rounded border border-red-200 bg-white px-3 py-2 text-sm">
+              <p className="text-red-700">AI が読めませんでした：{followError}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFollowError(null);
+                  setRetry((n) => n + 1);
+                }}
+                className="mt-2 rounded border border-stone-300 px-3 py-1"
+              >
+                もう一度読む
+              </button>
+            </div>
           ) : !result ? (
-            <p className="mt-4 text-sm text-stone-500">読んでいます…</p>
+            <div className="mt-4">
+              <p className="text-sm text-stone-500">読んでいます…</p>
+              <WaitNote time="1 分ほど" reopen="この画面を開き直すと、もう一度読みます。自分の評価は残っています。" />
+            </div>
           ) : (
             <div className="mt-6 space-y-6">
               {result.mock && <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">API キーが無いので、仮の出力です。引用は本文の発話ですが、判定と点は仮です。</p>}
