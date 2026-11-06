@@ -1,0 +1,24 @@
+{
+  "condition": "厳しい",
+  "verdict": "できた",
+  "quoteIndices": [
+    49
+  ],
+  "scores": [
+    4,
+    4,
+    5,
+    5,
+    5
+  ],
+  "why": "発話 49 で、講師は志望校への望みと家での学習の現状との差を生徒に返して考えを聞き、発話 50 で生徒がその差について自分の言葉で長く話し続けたため、前回の行動が今回の面談に現れたと読めます。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 28307,
+    "inputTokens": 284,
+    "outputTokens": 2531,
+    "cacheReadTokens": 9085,
+    "cacheWriteTokens": 0
+  },
+  "stopReason": "end_turn"
+}

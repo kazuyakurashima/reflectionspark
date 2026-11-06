@@ -1,0 +1,25 @@
+{
+  "condition": "厳しい",
+  "verdict": "できた",
+  "quoteIndices": [
+    48,
+    50
+  ],
+  "scores": [
+    3,
+    3,
+    3,
+    3,
+    5
+  ],
+  "why": "発話 47 で生徒が短く答えた場面で、講師は発話 48 で単元・問題・時期を聞き返し、発話 50 で時期を重ねて聞いたので前回の行動が現れており、生徒は発話 49・51・53 で中身を具体にした（同じ形の発話 59 の場面では聞き返しは出ていない）。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 41210,
+    "inputTokens": 301,
+    "outputTokens": 3931,
+    "cacheReadTokens": 10029,
+    "cacheWriteTokens": 0
+  },
+  "stopReason": "end_turn"
+}

@@ -1,0 +1,26 @@
+{
+  "condition": "甘い",
+  "verdict": "まだ",
+  "quoteIndices": [
+    100,
+    101,
+    102
+  ],
+  "scores": [
+    4,
+    3,
+    2,
+    2,
+    4
+  ],
+  "why": "発話 100 の講師の問いに対して、生徒は発話 101 でまだ答えを出していない段階でしたが、講師は次の発話 102 で例と自分の考えを足しており、待つ行動も、短い一言だけを返す行動も本文には見えません。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 43711,
+    "inputTokens": 304,
+    "outputTokens": 4113,
+    "cacheReadTokens": 11153,
+    "cacheWriteTokens": 0
+  },
+  "stopReason": "end_turn"
+}

@@ -1,0 +1,25 @@
+{
+  "condition": "なし",
+  "verdict": "できた",
+  "quoteIndices": [
+    48,
+    50
+  ],
+  "scores": [
+    3,
+    3,
+    3,
+    3,
+    5
+  ],
+  "why": "発話 47 で生徒が短く答えた直後に、講師が発話 48 で単元・問題・時期を聞き返しました。生徒は発話 49・51・53 で、単元、曜日、使う教材を自分で挙げて話を続けています（ただし英語の場面では、発話 59 の短い答えに対して、発話 60 で聞き返しは見えませんでした）。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 46405,
+    "inputTokens": 238,
+    "outputTokens": 4424,
+    "cacheReadTokens": 0,
+    "cacheWriteTokens": 10029
+  },
+  "stopReason": "end_turn"
+}

@@ -1,0 +1,24 @@
+{
+  "condition": "甘い",
+  "verdict": "できた",
+  "quoteIndices": [
+    49
+  ],
+  "scores": [
+    4,
+    4,
+    5,
+    4,
+    5
+  ],
+  "why": "発話 49 で、講師は志望校へ行きたい気持ちと家で勉強が進んでいない現状の差を生徒に返して考えを聞きました。生徒は発話 50 と発話 52 で、自分の受け止めと次の一歩を自分の言葉で続けました。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 40933,
+    "inputTokens": 286,
+    "outputTokens": 3805,
+    "cacheReadTokens": 9085,
+    "cacheWriteTokens": 0
+  },
+  "stopReason": "end_turn"
+}

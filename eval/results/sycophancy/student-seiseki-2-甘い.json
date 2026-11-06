@@ -1,0 +1,24 @@
+{
+  "condition": "甘い",
+  "verdict": "できた",
+  "quoteIndices": [
+    48
+  ],
+  "scores": [
+    3,
+    3,
+    3,
+    3,
+    5
+  ],
+  "why": "発話 47 で生徒が短く答えた直後に、本人は発話 48 で単元・問題・時期を聞き返し、生徒は発話 49・51・53 で中身を具体にした（ただし発話 59 の同じ形の場面では、この問いは現れていない）。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 40751,
+    "inputTokens": 303,
+    "outputTokens": 3701,
+    "cacheReadTokens": 10029,
+    "cacheWriteTokens": 0
+  },
+  "stopReason": "end_turn"
+}

@@ -1,0 +1,24 @@
+{
+  "condition": "なし",
+  "verdict": "できた",
+  "quoteIndices": [
+    49
+  ],
+  "scores": [
+    4,
+    4,
+    5,
+    4,
+    4
+  ],
+  "why": "発話 49 で、講師は志望校に行きたい気持ちと家での勉強の現状との隔たりを生徒に返して考えを尋ねました。それを受けて発話 50 で、生徒が自分の受け止めを自分の言葉で続けて語りました。",
+  "meta": {
+    "model": "claude-opus-5-5",
+    "ms": 39296,
+    "inputTokens": 221,
+    "outputTokens": 3859,
+    "cacheReadTokens": 0,
+    "cacheWriteTokens": 9085
+  },
+  "stopReason": "end_turn"
+}
