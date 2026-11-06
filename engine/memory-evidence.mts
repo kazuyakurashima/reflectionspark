@@ -144,6 +144,8 @@ export type Hypothesis = {
   statement: string;
   /** 確からしさ（高・中・低・保留。読めなければ null） */
   confidence: string | null;
+  /** 場面の形（読めなければ空） */
+  sceneShape: string;
   evidence: EvidenceRef[];
   counter: EvidenceRef[];
   /** 例外・反例の欄に書いてあった、根拠の形でない文（「見当たらない」など） */
@@ -166,7 +168,7 @@ export function parseHypotheses(markdown: string): Hypothesis[] {
     const lineText = lines[i];
     const h = HYPOTHESIS_HEADING.exec(lineText);
     if (h) {
-      cur = { id: h[1].replace(/\s/g, "").replace("Ｈ", "H"), statement: h[2].trim(), confidence: null, evidence: [], counter: [], counterNote: "", interviews: [], startLine: i + 1 };
+      cur = { id: h[1].replace(/\s/g, "").replace("Ｈ", "H"), statement: h[2].trim(), confidence: null, sceneShape: "", evidence: [], counter: [], counterNote: "", interviews: [], startLine: i + 1 };
       out.push(cur);
       field = null;
       continue;
@@ -183,6 +185,7 @@ export function parseHypotheses(markdown: string): Hypothesis[] {
       field = f[1] === "例外" || f[1] === "反例" ? "例外・反例" : f[1];
       rest = f[2];
       if (field === "確からしさ") cur.confidence = (/(高|中|低|保留)/u.exec(rest)?.[1] ?? rest.trim()) || null;
+      if (field === "場面の形") cur.sceneShape = rest.trim();
     }
     if (field !== "根拠" && field !== "例外・反例") continue;
     const refs = parseEvidenceRefs(rest).map((r) => ({ ...r, line: i + 1 }));

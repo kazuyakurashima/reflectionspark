@@ -1,14 +1,17 @@
 // 工程 3：行動の候補（画面 4）。Messages API、構造化出力。
-// 受け取る：次に試せる場面（引用・読み・問い）、本人の答え。（あれば）記録から似た場面の本人の発言。渡さない：本人の自己採点。
+// 受け取る：次に試せる場面（引用・読み・問い）、本人の答え。（あれば）夢で整理した「繰り返す場面」と根拠の発話。渡さない：本人の自己採点、点の控え。
 // 返す：候補 2〜3。「もし（場面）なら、（行動）する」、セリフの例 2〜3、できたかの基準。言葉に表れない行動は落とす。
+// 記録を渡したときは、候補ごとに前の面談の発話の札も返させ、アプリが札から記録の原文を引く（AI が書いた引用文は出さない。決まり 1）。
 
 import { callStructured } from "./claude.mts";
 import { neighborsOf } from "./citations.mts";
 import { guardStep3 } from "./guard.mts";
-import { STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
+import { resolvePreviousWords } from "./memory-read.mts";
+import type { ParsedRecord, Step3Memory } from "./memory-read.mts";
+import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
 import type { Candidate, Scene, Step3Result, Transcript } from "./types.mts";
 
-type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string }[] };
+type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string; previous_ref?: string }[] };
 
 /** 言葉に表れない行動の目印。セリフや発話の動詞があれば残す。 */
 const NON_VERBAL = /(待つ|待って|黙る|黙って|沈黙|表情|うなず|頷|目を見|視線|身を乗り出|笑顔|姿勢|深呼吸)/;
@@ -56,6 +59,7 @@ export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "u
       lines: (c.lines ?? []).map((l) => l.trim()).filter((l) => l !== ""),
       criterion: (c.criterion ?? "").trim(),
       ...(basis ? { basis } : {}),
+      ...(c.previous_ref?.trim() ? { previousRef: c.previous_ref.trim() } : {}),
     };
     if (NON_VERBAL.test(cand.action) && !VERBAL.test(cand.action)) {
       dropped.push({ candidate: cand, reason: "言葉に表れない行動（次の面談の文字起こしで確かめられない）" });
@@ -70,15 +74,24 @@ export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "u
   return { candidates, dropped };
 }
 
-export async function runStep3(t: Transcript, scene: Scene, answer: string, memoryNotes: string[] = []): Promise<Step3Result> {
+/** 工程 3 が返した札を、記録の原文に置き換える。札が記録に無ければ添えない（決まり 1） */
+export function attachPreviousWords(candidates: Candidate[], records: ParsedRecord[]): Candidate[] {
+  return candidates.map(({ previousRef, ...c }) => {
+    const previous = resolvePreviousWords(previousRef, records);
+    return previous ? { ...c, previous } : c;
+  });
+}
+
+export async function runStep3(t: Transcript, scene: Scene, answer: string, memory: Step3Memory | null = null): Promise<Step3Result> {
   const anchor = scene.quotes[0]?.index;
   const neighbors = anchor === undefined ? { before: null, after: null } : neighborsOf(anchor, t.utterances);
   const r = await callStructured<Raw>({
-    system: step3System(t.kind),
-    user: step3User(scene, answer, neighbors, memoryNotes),
-    schema: STEP3_SCHEMA,
+    system: step3System(t.kind, memory !== null),
+    user: step3User(scene, answer, neighbors, memory?.pastScenes ?? null),
+    schema: memory ? STEP3_PAST_SCENES_SCHEMA : STEP3_SCHEMA,
     effort: "high",
     label: "工程 3",
   });
-  return { ...guardStep3(parseStep3(r.data), t.utterances), meta: r.meta };
+  const guarded = guardStep3(parseStep3(r.data), t.utterances);
+  return { ...guarded, candidates: attachPreviousWords(guarded.candidates, memory?.records ?? []), meta: r.meta };
 }

@@ -5,7 +5,7 @@ import { candidatesOrMock } from "@/engine/server.mts";
 import type { Scene, Transcript } from "@/engine/types.mts";
 
 export async function POST(req: Request) {
-  let body: { transcript?: Transcript; scene?: Scene; answer?: unknown; selfScore?: unknown; selfNote?: unknown };
+  let body: { transcript?: Transcript; scene?: Scene; answer?: unknown; selfScore?: unknown; selfNote?: unknown; demo?: unknown };
   try {
     body = (await req.json()) as typeof body;
   } catch {
@@ -24,7 +24,8 @@ export async function POST(req: Request) {
   }
   const answer = typeof body.answer === "string" ? body.answer : "";
   try {
-    return NextResponse.json(await candidatesOrMock(t, scene, answer));
+    // demo：Demo Mode のサンプルを通したとき。サンプルの講師の記録を添えるのは、このときだけ
+    return NextResponse.json(await candidatesOrMock(t, scene, answer, { demo: body.demo === true }));
   } catch (e) {
     return NextResponse.json({ error: `候補を作れませんでした：${(e as Error).message}` }, { status: 502 });
   }
