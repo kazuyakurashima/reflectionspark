@@ -231,7 +231,8 @@ export default function Screen1() {
             value={raw}
             onChange={(e) => setInput({ raw: e.target.value })}
             readOnly={busy || loadingDemo}
-            rows={transcript ? 4 : 9}
+            // 整形している間（読み取り専用）と整形の後は、整形の後と同じ高さに縮め、待つ間の進み具合と結果を上に寄せる
+            rows={transcript || busy ? 4 : 9}
             placeholder="ここに貼る。実在の人の名前が入っていないかを確かめてください。"
             className={`mt-1.5 block w-full ${FIELD}`}
           />
