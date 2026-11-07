@@ -51,7 +51,7 @@ describe("上の帯の段", () => {
   });
 });
 
-describe("次の面談を始める", () => {
+describe("次の面談へ持ち越す（画面 4 の「今日はここまでにする」）", () => {
   it("決めたひとつと前の面談を持ち越し、入力は空、サンプルの印は外れ、初回として読む", () => {
     const s1 = session({ demo: true });
     const s2 = startNextMeeting(s1, fresh());
@@ -174,7 +174,7 @@ describe("画面のつなぎ", () => {
     assert.doesNotMatch(cleared, /prev/);
   });
 
-  it("画面 4：選ぶ・見送るでこの面談の確かめを消さない。終わりは「次の面談を始める」", () => {
+  it("画面 4：選ぶ・見送るでこの面談の確かめを消さない。終わりは「今日はここまでにする」", () => {
     const page4 = code("app/spark/page.tsx");
     assert.doesNotMatch(page4, /followUp: null/);
     assert.match(page4, /startNextMeeting\(s, newSession\(s\.kind\)\)/);

@@ -38,7 +38,7 @@ export function withOtherName(s: SessionData, name: string): SessionData {
   return s.prev ? withFirstMeeting(next, !isContinuation(s.prev.session.otherName, name)) : next;
 }
 
-/** 次の面談を始める。fresh は新しい空のセッション。決めたひとつ（見送ったなら null）と、前の面談そのものを持ち越す */
+/** 次の面談へ持ち越す（画面 4 の「今日はここまでにする」）。fresh は新しい空のセッション。決めたひとつ（見送ったなら null）と、前の面談そのものを持ち越す */
 export function startNextMeeting(s: SessionData, fresh: SessionData): SessionData {
   return { ...fresh, kind: s.kind, firstMeeting: true, prev: { spark: s.spark, session: { ...s, prev: null } } };
 }

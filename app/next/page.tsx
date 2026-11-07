@@ -90,7 +90,7 @@ export default function Screen5() {
       <main className={PAGE}>
         <section>
           <h1 className={H1}>前回のひとつを確かめる</h1>
-          <p className={LEAD}>確かめるひとつがありません。前の面談で行動をひとつ決め、「次の面談を始める」を押すと、次の面談でここを通ります。</p>
+          <p className={LEAD}>確かめるひとつがありません。前の面談で行動をひとつ決め、「今日はここまでにする」を押すと、次の面談でここを通ります。</p>
           <Link href={session?.transcript ? "/reflection" : "/"} className={`mt-3 inline-block ${LINK}`}>
             {session?.transcript ? "2 読む へ" : "1 入力 へ"}
           </Link>

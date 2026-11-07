@@ -4,7 +4,8 @@
 // 候補は「もし（場面）なら、（行動）する」の一文が見え、押すとセリフの例とできたかの基準が開く。
 // 選ぶ・直す・見送るのは本人（決まり 7）。選んだ一つだけを目立つ下地に置く。持ち帰るものは一つ。
 // 前の面談から持ち越したひとつがあれば、候補の下に「前回のひとつを続ける」を置く（続けるか変えるかも本人が決める）。
-// 終わりの「次の面談を始める」で、決めたひとつを持ち越して「1 入力」に戻る（app/lib/next-meeting.mts）。
+// 終わりの「今日はここまでにする」で、決めたひとつを持ち越して「1 入力」に戻る（app/lib/next-meeting.mts）。面談はまだ始めない。
+// 画面 1 は次の面談を待つ形になり、次の面談が終わったらそこに貼る。ボタンは一つだけにする（同じ働きのボタンを並べない）。
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -114,7 +115,7 @@ export default function Screen4() {
     updateSession((s) => ({ ...s, spark: keptSpark(prevSpark, new Date().toISOString()), sparkSkipped: false }));
     setEditing(null);
   };
-  /** 次の面談を始める。決めたひとつ（見送ったなら無し）を持ち越し、入力を空にして「1 入力」へ */
+  /** 今日はここまでにする。決めたひとつ（見送ったなら無し）を持ち越し、入力を空にして「1 入力」へ（次の面談を待つ形） */
   const startNext = () => {
     updateSession((s) => startNextMeeting(s, newSession(s.kind)));
     router.push("/");
@@ -288,14 +289,14 @@ export default function Screen4() {
 
         <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2">
           <button type="button" onClick={startNext} disabled={!spark && !session.sparkSkipped} className={BTN_PRIMARY}>
-            次の面談を始める
+            今日はここまでにする
           </button>
           {!spark && !session.sparkSkipped && <span className="text-[0.86rem] text-ink-3">選ぶか見送るかを決めると進めます。</span>}
         </div>
         <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">
-          今日の振り返りはここまでです。次の面談が終わったら「次の面談を始める」を押して、その文字起こしを「1 入力」に貼ります。
-          {spark && "決めたひとつは持ち越し、次の面談を読む前に確かめます。"}
-          {session.demo && "サンプルでは、続きの面談でそのまま試せます。"}
+          {spark ? "決めたひとつは、次の面談に持ち越します。" : ""}次の面談が終わったら、その文字起こしを「1 入力」に貼ります。
+          {spark && "読む前に、このひとつが次の面談でどう現れたかを確かめます。"}
+          {session.demo && "サンプルでは、続きの面談をそのまま選べます。"}
           押したあとも、「前の面談に戻る」でこの面談に戻れます。
         </p>
       </section>
