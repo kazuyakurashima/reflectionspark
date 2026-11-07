@@ -10,7 +10,8 @@ export const H2 = "text-[1.15rem] font-semibold leading-snug";
 export const LEAD = "mt-2 text-[0.95rem] leading-[1.8] text-ink-2";
 export const LABEL = "block text-[0.86rem] font-semibold text-ink-2";
 
-const BTN = "inline-flex shrink-0 items-center justify-center rounded-md font-semibold transition-colors disabled:cursor-not-allowed";
+// 幅いっぱいを超えない（文字を大きくした端末や狭い画面では、はみ出さずに 2 行に折る）
+const BTN = "inline-flex max-w-full shrink-0 items-center justify-center rounded-md py-1.5 text-center font-semibold leading-snug transition-colors disabled:cursor-not-allowed";
 export const BTN_PRIMARY = `${BTN} min-h-12 bg-accent px-6 text-white hover:bg-accent/90 disabled:bg-line disabled:text-ink-3`;
 export const BTN_SECONDARY = `${BTN} min-h-12 border border-accent bg-surface px-6 text-accent hover:bg-accent-soft disabled:border-line-2 disabled:text-ink-3 disabled:hover:bg-surface`;
 export const BTN_SMALL_PRIMARY = `${BTN} min-h-10 bg-accent px-4 text-[0.92rem] text-white hover:bg-accent/90 disabled:bg-line disabled:text-ink-3`;
