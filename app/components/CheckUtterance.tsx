@@ -4,6 +4,7 @@
 // 見せ方は画面 2 と同じ「島」（相手は左、本人は右）。確かめる所では、前後の会話を一度だけ並べ、確かめる発言を差し色にする。
 // 前後が無いと直すかどうかを決められないため。直す前の言葉は、同じ島の中に小さく添える（二つの表を見比べさせない）。
 // 印は 2 つ。太字の下線＝Claude が直した後の言葉。波線＝直す前の言葉と、意味が通らないと Claude が見た所。
+// 話者を確かめる所では、話者だけを確かめる（言葉の直しと推測は、それぞれの所に出す）。押しても欄から消えず、何度でも選び直せる。
 
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -11,7 +12,7 @@ import type { ReactNode } from "react";
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import { CHECK_EDITED_BY_USER } from "@/app/lib/view";
-import { MARK_CORRECTED, guessViews } from "@/app/lib/check-groups.mts";
+import { MARK_CORRECTED, MARK_SPEAKER_CHECKED, MARK_SPEAKER_LABEL, asksSpeaker, guessViews, speakerChecked, withSpeaker } from "@/app/lib/check-groups.mts";
 import { refLabel } from "@/app/lib/words.mts";
 import { BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, QUIET_LINK, SEG, segItem } from "./ui";
 import { correctionsOf } from "./UtteranceView";
@@ -56,11 +57,24 @@ export function CheckUtterance({
   const guesses = guessViews(t, u);
   const corrections = correctionsOf(t, u.index);
   const corrected = corrections.length > 0 && u.text !== u.original;
-  /** 島の上に小さく添える印。話者の確からしさは問いの文で、聞き違いの直しは島の中の「直す前」で伝えるので、ここには出さない */
-  const flags = u.check.filter((c) => !c.startsWith("話者の確からしさ") && c !== MARK_CORRECTED);
+  /** 話者だけを確かめるカード（言葉の直しと推測は出さない） */
+  const speakerOnly = ask === "speaker";
+  /** 言葉を確かめるカードで、話者は「話者を確かめる所」で確かめる発言（ここでは話者を選ばせない） */
+  const speakerAbove = showContext && !ask && asksSpeaker(u);
+  const checked = speakerChecked(u);
+  /**
+   * 島の上に小さく添える印。話者の確からしさは問いの文で、聞き違いの直しは島の中の「直す前」で、本人が確かめたことは確かめた印で伝えるので、ここには出さない。
+   * 話者を確かめるカードでは「話者ラベルが読めなかった」だけを迷った理由として残し、言葉を確かめるカードでは話者の印を出さない。
+   */
+  const flags = u.check.filter((c) => {
+    if (c.startsWith("話者の確からしさ") || c === MARK_CORRECTED || c === MARK_SPEAKER_CHECKED) return false;
+    if (speakerOnly) return c.startsWith(MARK_SPEAKER_LABEL);
+    return !(speakerAbove && c.startsWith(MARK_SPEAKER_LABEL));
+  });
+  /** 本人が話者を選ぶ。同じ話者を押せば「合っている」と同じ。何度でも押し直せる */
   const setSpeaker = (speaker: string) => {
-    if (speaker === u.speaker) return;
-    onChange({ ...u, speaker, confidence: "高", check: [...u.check.filter((c) => !c.startsWith("話者の確からしさ")), CHECK_EDITED_BY_USER] });
+    if (speaker === u.speaker && checked) return;
+    onChange(withSpeaker(u, speaker));
   };
   const revertToOriginal = () => {
     setEditing(false);
@@ -189,50 +203,92 @@ export function CheckUtterance({
     );
   }
 
-  return (
-    <div className="rounded-md border border-line-2 px-4 py-4 sm:px-5">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+  /** 前後の発言。話者を確かめるカードでは言葉の直しの印を付けない（話者だけを見る） */
+  const neighbor = (n: Utterance) =>
+    speakerOnly ? (
+      <Bubble n={n} self={self} quiet original={null}>
+        {n.text ?? n.original}
+      </Bubble>
+    ) : (
+      <Bubble n={n} self={self} quiet original={n.text !== n.original ? marked(n.original, fixes(n).map((c) => c.before), MARK_BEFORE) : null}>
+        {marked(n.text ?? n.original, fixes(n).map((c) => c.after), MARK_AFTER)}
+      </Bubble>
+    );
+
+  /** 話者を確かめるカードの頭。問い → 迷った理由 → 選ぶ所。押した後も同じ所に残り、選び直せる */
+  const speakerHead = (
+    <>
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-semibold tabular-nums">{refLabel(u.index)}</span>
-        <span className={SEG} role="group" aria-label={`${refLabel(u.index)} の話者`}>
+        {checked && (
+          <span className="inline-flex items-center gap-1 text-[0.86rem] font-semibold text-accent">
+            <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2.5 6.5 5 9l4.5-5.5" />
+            </svg>
+            確かめました
+          </span>
+        )}
+      </div>
+      <p className="mt-2 font-semibold leading-[1.7]">{checked ? `言ったのは「${u.speaker}」。` : `${refLabel(u.index)} を言ったのは「${u.speaker}」で合っていますか。`}</p>
+      {!checked && (u.confidenceReason || flags.length > 0) && (
+        <p className="mt-0.5 text-[0.86rem] leading-[1.7] text-ink-3">Claude が迷った理由：{u.confidenceReason || flags.join("・")}</p>
+      )}
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className={SEG} role="group" aria-label={`${refLabel(u.index)} を言った人`}>
           {[self, other].map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setSpeaker(s)}
               aria-pressed={u.speaker === s}
-              className={segItem(u.speaker === s, true)}
+              // 確かめる前の Claude の案は淡く、本人が確かめた後は塗る
+              className={checked || u.speaker !== s ? segItem(checked && u.speaker === s) : `rounded-[4px] min-h-10 px-4 text-[0.92rem] bg-accent-soft font-semibold text-ink ring-1 ring-inset ring-accent/40`}
             >
               {s}
             </button>
           ))}
         </span>
-        {flags.length > 0 && <span className="text-xs text-ink-3">{flags.join("・")}</span>}
+        {!checked && (
+          <button type="button" onClick={() => setSpeaker(u.speaker)} className={BTN_SMALL}>
+            合っている
+          </button>
+        )}
+        <span className="text-[0.86rem] leading-[1.7] text-ink-2">{checked ? "違っていたら、押し直せます。" : `違えば［${self}｜${other}］で選び直してください。`}</span>
       </div>
-      {ask && (
+    </>
+  );
+
+  return (
+    <div className="rounded-md border border-line-2 px-4 py-4 sm:px-5">
+      {speakerOnly ? (
+        speakerHead
+      ) : (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="font-semibold tabular-nums">{refLabel(u.index)}</span>
+          {speakerAbove ? (
+            <span className="text-[0.86rem] text-ink-3">話者は「話者を確かめる所」で確かめます</span>
+          ) : (
+            <span className={SEG} role="group" aria-label={`${refLabel(u.index)} の話者`}>
+              {[self, other].map((s) => (
+                <button key={s} type="button" onClick={() => setSpeaker(s)} aria-pressed={u.speaker === s} className={segItem(u.speaker === s, true)}>
+                  {s}
+                </button>
+              ))}
+            </span>
+          )}
+          {flags.length > 0 && <span className="text-xs text-ink-3">{flags.join("・")}</span>}
+        </div>
+      )}
+      {ask === "split" && (
         <div className="mt-3">
-          <p className="font-semibold leading-[1.7]">
-            {ask === "speaker"
-              ? corrected
-                ? `「${u.speaker}が『${corrections.map((c) => c.after).join("…")}』と言った」で合っていますか。`
-                : `${refLabel(u.index)} を言ったのは「${u.speaker}」で合っていますか。`
-              : `${refLabel(u.index)} に、二人の言葉が混ざっていませんか。`}
-          </p>
-          <p className="mt-0.5 text-[0.86rem] leading-[1.7] text-ink-2">
-            {ask === "speaker"
-              ? corrected
-                ? `話者が違えば上の［${self}｜${other}］で入れ替え、言葉が違えば「元の文に戻す」か「本文を直す」。合っていれば何もしなくてかまいません。`
-                : `違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
-              : "混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。"}
-            {ask === "speaker" && u.confidenceReason && <span className="text-ink-3">（Claude が迷った理由：{u.confidenceReason}）</span>}
-          </p>
+          <p className="font-semibold leading-[1.7]">{`${refLabel(u.index)} に、二人の言葉が混ざっていませんか。`}</p>
+          <p className="mt-0.5 text-[0.86rem] leading-[1.7] text-ink-2">混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。</p>
         </div>
       )}
       <ol className="mt-4 space-y-2.5">
         {before.map((n) => (
           <li key={n.index}>
-            <Bubble n={n} self={self} quiet original={n.text !== n.original ? marked(n.original, fixes(n).map((c) => c.before), MARK_BEFORE) : null}>
-              {marked(n.text ?? n.original, fixes(n).map((c) => c.after), MARK_AFTER)}
-            </Bubble>
+            {neighbor(n)}
           </li>
         ))}
         <li>
@@ -241,6 +297,10 @@ export function CheckUtterance({
               <Meta n={u} flags={[]} self={self} />
               {editor}
             </>
+          ) : speakerOnly ? (
+            <Bubble n={u} self={self} target original={null}>
+              {text}
+            </Bubble>
           ) : (
             <Bubble n={u} self={self} target original={u.text !== u.original ? marked(u.original, beforeMarks, MARK_BEFORE) : null} actions={actions}>
               {corrected ? marked(text, corrections.map((c) => c.after), MARK_AFTER) : marked(text, guessTargets, MARK_BEFORE)}
@@ -249,14 +309,12 @@ export function CheckUtterance({
         </li>
         {after.map((n) => (
           <li key={n.index}>
-            <Bubble n={n} self={self} quiet original={n.text !== n.original ? marked(n.original, fixes(n).map((c) => c.before), MARK_BEFORE) : null}>
-              {marked(n.text ?? n.original, fixes(n).map((c) => c.after), MARK_AFTER)}
-            </Bubble>
+            {neighbor(n)}
           </li>
         ))}
       </ol>
-      {corrected && <p className="mt-3 text-xs text-ink-3">直しの種類：{[...new Set(corrections.map((c) => c.kind))].join("、")}</p>}
-      {guessBox && <div className="mt-4">{guessBox}</div>}
+      {!speakerOnly && corrected && <p className="mt-3 text-xs text-ink-3">直しの種類：{[...new Set(corrections.map((c) => c.kind))].join("、")}</p>}
+      {!speakerOnly && guessBox && <div className="mt-4">{guessBox}</div>}
     </div>
   );
 }

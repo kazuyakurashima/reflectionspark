@@ -1,9 +1,11 @@
 "use client";
 
 // 画面 1・5：確かめる所を種類ごとに出す。区切り・話者・相手の数は一つずつ、聞き違いの直しは同じ直しを 1 行にまとめ、一つずつは畳む。
+// 話者の所では話者だけを確かめる。同じ発言の言葉の直しと推測は、「意味が通らない所」「Claude が直した所」に出す。
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import type { CheckGroups as Groups } from "@/app/lib/check-groups.mts";
+import { speakerChecked } from "@/app/lib/check-groups.mts";
 import { refListLabel } from "@/app/lib/words.mts";
 import { CheckUtterance } from "./CheckUtterance";
 import { Collapsible } from "./Collapsible";
@@ -14,7 +16,8 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
   return (
     <div className={`space-y-12 ${className}`}>
       <Group title="区切りが分からない所" hint="二人の言葉が一つにまとまっているかもしれません。「本文を直す」を開き、カーソルの位置で分けてください。" items={groups.unanchored} t={t} onChange={onChange} onSplit={onSplit} ask="split" />
-      <Group title="話者を確かめる所" hint="講師と相手のどちらが言ったか、Claude が迷った所です。ここで見るのは話者です。聞き違いの直しが一緒に付いている発言もあります。" items={groups.speaker} t={t} onChange={onChange} onSplit={onSplit} ask="speaker" />
+      <Group title="話者を確かめる所" hint="講師と相手のどちらが言ったか、Claude が迷った所です。ここでは話者だけを確かめます。合っていれば「合っている」、違えば選び直してください。押した後も選び直せます。" items={groups.speaker}
+        done={groups.speaker.filter(speakerChecked).length} t={t} onChange={onChange} onSplit={onSplit} ask="speaker" />
       <Group title="相手が 2 人以上かもしれない所" hint="相手が 2 人以上いると Claude が推定した所です。" items={groups.multiple} t={t} onChange={onChange} onSplit={onSplit} />
       <Group title="意味が通らない所" hint="Claude が意味が通らないと見て、推測を付けた所です。推測が合っていれば「この推測で直す」を押してください。押さなければ今の本文のまま読みます。" items={groups.guessed} t={t} onChange={onChange} onSplit={onSplit} />
       <Group title="そのほか" hint="" items={groups.other} t={t} onChange={onChange} onSplit={onSplit} />
@@ -62,12 +65,14 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
   );
 }
 
-function GroupHead({ title, count, hint }: { title: string; count: number; hint: string }) {
+function GroupHead({ title, count, hint, done }: { title: string; count: number; hint: string; done?: number }) {
   return (
     <>
-      <h3 className="flex items-baseline gap-2 font-semibold">
+      <h3 className="flex flex-wrap items-baseline gap-x-2 font-semibold">
         {title}
-        <span className="text-[0.86rem] font-normal tabular-nums text-ink-3">{count} 件</span>
+        <span className="text-[0.86rem] font-normal tabular-nums text-ink-3">
+          {count} 件{done !== undefined && `・確かめた ${done} 件`}
+        </span>
       </h3>
       {hint && <p className="mt-1 text-[0.86rem] leading-[1.7] text-ink-2">{hint}</p>}
     </>
@@ -75,11 +80,11 @@ function GroupHead({ title, count, hint }: { title: string; count: number; hint:
 }
 
 /** 確かめる所の一つの種類。0 件なら出さない */
-function Group({ title, hint, items, t, onChange, onSplit, ask }: { title: string; hint: string; items: Utterance[]; t: Transcript; ask?: "speaker" | "split" } & Handlers) {
+function Group({ title, hint, items, t, onChange, onSplit, ask, done }: { title: string; hint: string; items: Utterance[]; t: Transcript; ask?: "speaker" | "split"; done?: number } & Handlers) {
   if (items.length === 0) return null;
   return (
     <div>
-      <GroupHead title={title} count={items.length} hint={hint} />
+      <GroupHead title={title} count={items.length} hint={hint} done={done} />
       <div className="mt-4 space-y-4">
         {items.map((u) => (
           <CheckUtterance key={u.index} t={t} u={u} onChange={onChange} onSplit={onSplit} showContext ask={ask} />
