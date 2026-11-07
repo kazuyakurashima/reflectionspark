@@ -165,6 +165,6 @@ export function analyzeView(e: ProgressEvent | null): WaitView {
     if (e.total && e.done) return { current: 1, status: `${e.done} 項目を終えました`, ratio: e.done / e.total, whole: `全 ${e.total} 項目` };
     return { current: 1, status: "選んだ場面と面談の全体を、採点表の項目に照らしています", ratio: null };
   }
-  const status = ["面談の全体を読んでいます", "場面 1 の引用と問いを書いています", "場面 2 の引用と問いを書いています", "全体のまとめを書いています"][e?.done ?? 0] ?? "面談の全体を読んでいます";
+  const status = ["面談の全体を読んでいます", "場面 1 の引用と問いを書いています", "場面 2 の引用と問いを書いています", "振り返りの要点を書いています"][e?.done ?? 0] ?? "面談の全体を読んでいます";
   return { current: 0, status, ratio: null };
 }

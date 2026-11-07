@@ -1,7 +1,7 @@
 "use client";
 
 // 画面 2：読む（フィードバックを読む）。この画面は読むだけで、書く所は置かない（答えは画面 3 で書く）。
-// 上から、まとめ（2 文）→ 面談の地図 → 場面を一つ（やりとり → AI の見立て → 考える問い）→ この面談の点 → 詳しく見る → 倫理チェック。
+// 上から、見出し（右に「この画面の読み方」）→ 振り返りの要点（2 文）→ 面談の地図（下に面談の流れ）→ 場面を一つ（やりとり → AI の見立て → 考える問い）→ この面談の点 → 詳しく見る → 倫理チェック。
 // 下に固定した「次にすること」を一つ置く。並びは設計書「画面 2 の出力の形と見せ方」。
 // 場面の中は、確かめられるもの（原文のやりとり）を先に、解釈（AI の見立て）を後に置く（原則 2）。AI の見立ては本人が開き、開くのに入力は求めない。
 // 点は場面と問いの後に、太い罫で区切って置く。自分の点を一つ決めてから AI の点を開く（原則 1・決まり 8）。自分の点と一言は AI に渡さない（決まり 10）。
@@ -16,7 +16,6 @@ import type { Scene, Transcript } from "@/engine/types.mts";
 import { RUBRIC_ITEMS } from "@/engine/rubric.mts";
 import { findUtteranceRefs } from "@/engine/utterance-no.mts";
 import { Atlas } from "@/app/components/Atlas";
-import { Collapsible } from "@/app/components/Collapsible";
 import { RefText } from "@/app/components/RefText";
 import { SceneLines } from "@/app/components/SceneLines";
 import { ScoreTable } from "@/app/components/Scores";
@@ -42,6 +41,8 @@ export default function Screen2() {
   const [retry, setRetry] = useState(0);
   /** 分析を待つ間に、サーバーから届いた進み具合（いまの段階と、書いている所） */
   const [progress, setProgress] = useState<ProgressEvent | null>(null);
+  /** 「この画面の読み方」を開いたか。既定で閉じる */
+  const [guideOpen, setGuideOpen] = useState(false);
   const transcript = session?.transcript ?? null;
   const analysis = session?.analysis ?? null;
   const firstMeeting = session?.firstMeeting ?? true;
@@ -96,10 +97,18 @@ export default function Screen2() {
   return (
     <main className={PAGE}>
       <section className="pb-6">
-        <h1 className={H1}>
-          {session.otherName ? `${session.otherName}との` : ""}
-          {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}
-        </h1>
+        {/* 画面全体の読み方は、見出しの右に 1 か所だけ置く（既定で閉じる）。場面を読めるようになってから出す */}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+          <h1 className={H1}>
+            {session.otherName ? `${session.otherName}との` : ""}
+            {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}
+          </h1>
+          {analysis && !analysis.step1.noScene && !error && (
+            <button type="button" onClick={() => setGuideOpen((o) => !o)} aria-expanded={guideOpen} aria-controls="reading-guide" className={`min-h-9 text-[0.92rem] ${LINK}`}>
+              {guideOpen ? "この画面の読み方を閉じる" : "この画面の読み方"}
+            </button>
+          )}
+        </div>
         <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-2 text-[0.95rem] [&_dt]:text-xs [&_dt]:text-ink-3">
           <div>
             <dt>発言の数</dt>
@@ -125,6 +134,15 @@ export default function Screen2() {
             <dd>{firstMeeting ? "初回の面談として" : "続きの面談として（前回決めたことに触れたかも見ます）"}</dd>
           </div>
         </dl>
+        {guideOpen && analysis && !analysis.step1.noScene && !error && (
+          <div id="reading-guide" className="mt-5 rounded-md bg-accent-soft px-5 py-4">
+            <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
+              <li>場面ごとに、1 から 3 の順に読みます。この画面で書く所はありません。</li>
+              <li>1 の原文のやりとりが、確かめられるものです。2 の AI の見立ては解釈で、開かなくても進めます。開く前に、自分ならどう読むかを考えてみてください。</li>
+              <li>3 の問いには、次の画面「3 問いに答える」で答えます。課題が見えた場面の問いへの答えをもとに、次に試す行動の候補を作ります。</li>
+            </ul>
+          </div>
+        )}
       </section>
 
       {error ? (
@@ -271,7 +289,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
   const [seen, setSeen] = useState<number[]>([0]);
   const [wide, setWide] = useState(false);
   const [aiOpen, setAiOpen] = useState<number[]>([]);
-  const [open, setOpen] = useState<{ flow: boolean; counts: boolean; all: boolean }>({ flow: false, counts: false, all: false });
+  const [open, setOpen] = useState<{ flow: boolean; owner: boolean; counts: boolean; all: boolean }>({ flow: false, owner: false, counts: false, all: false });
   /** AI の点を開いたか。自分の点を決めた後、本人が開く（待つ間に自分の点を付けていても、勝手には開かない） */
   const [scoresShown, setScoresShown] = useState(false);
   const [ethicsOpen, setEthicsOpen] = useState(false);
@@ -305,10 +323,14 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
     <>
       {a.mock && <p className={`mb-6 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、読みと問いと点は仮の文です。</p>}
 
-      {/* まとめ（2 文）は最初から全部見せる。無いときは、選んだ場面を一行で言う */}
+      {/* 振り返りの要点（AI が書く 2 文）は最初から全部見せる。無いときは、選んだ場面を一行で言う。
+          面談の中身の要約ではない（それは地図の下の「面談の流れ」）。AI の読みと分かるように「AI」を添える（原則 2） */}
       {(step1.summary || !step1.noScene) && (
-        <section aria-label="まとめ">
-          <h2 className="text-xs font-semibold text-ink-3">まとめ</h2>
+        <section aria-label="振り返りの要点">
+          <h2 className="flex items-center gap-2 text-xs font-semibold text-ink-3">
+            振り返りの要点
+            <span className="rounded-[3px] border border-line-2 px-1.5 py-px text-[0.7rem] leading-tight">AI</span>
+          </h2>
           <p className="mt-1.5 text-[1.08rem] leading-[1.85] text-pretty">
             {step1.summary ? <RefText t={t} text={step1.summary} /> : `AI がこの面談から、${scenes.map((sc) => sceneTypeLabel(sc.type)).join("と、")}を選びました。`}
           </p>
@@ -329,17 +351,42 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </section>
       ) : (
         <>
-          {/* 読み方の説明は、ここ 1 か所にまとめる（手順には見出しだけを置く） */}
-          <Collapsible label="この画面の読み方" openLabel="この画面の読み方を閉じる" className="mt-3 text-[0.92rem]">
-            <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
-              <li>場面ごとに、1 から 3 の順に読みます。この画面で書く所はありません。</li>
-              <li>1 の原文のやりとりが、確かめられるものです。2 の AI の見立ては解釈で、開かなくても進めます。開く前に、自分ならどう読むかを考えてみてください。</li>
-              <li>3 の問いには、次の画面「3 問いに答える」で答えます。課題が見えた場面の問いへの答えをもとに、次に試す行動の候補を作ります。</li>
-            </ul>
-          </Collapsible>
-
+          {/* 地図（形）のすぐ下に、話題ごとの一覧（中身）を置く。既定で閉じる。番号は地図の下の「話題」の帯と同じ */}
           <section className="mt-12" aria-label="面談の地図">
             <Atlas t={t} spans={spans} sceneNames={scenes.map((sc) => sceneTypeLabel(sc.type))} current={current} chapters={chapters} onScene={(k) => showScene(k, false)} />
+            {step1.flow.length > 0 && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => setOpen((o) => ({ ...o, flow: !o.flow }))}
+                  aria-expanded={open.flow}
+                  aria-controls="meeting-flow"
+                  className="flex min-h-9 items-center gap-2.5 text-[0.92rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent"
+                >
+                  <Chevron open={open.flow} />
+                  {open.flow ? "面談の流れを閉じる" : `面談の流れを見る（話題 ${step1.flow.length} つ）`}
+                </button>
+                {open.flow && (
+                  <ol id="meeting-flow" className="mt-3 space-y-3 border-l border-line-2 pl-4">
+                    {step1.flow.map((f, i) => {
+                      const c = chapters[i];
+                      return (
+                        <li key={i} className="flex gap-3">
+                          <span aria-hidden="true" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface text-xs tabular-nums text-ink-2">
+                            {i + 1}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="sr-only">話題 {i + 1}：</span>
+                            <RefText t={t} text={c ? c.text : f} />
+                            {c && <span className="block text-xs text-ink-3">{refRangeLabel(c.from, c.to)}</span>}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+              </div>
+            )}
           </section>
 
           <section ref={sceneRef} className="mt-16 scroll-mt-6" aria-label={`場面 ${current + 1}`}>
@@ -469,30 +516,9 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </h2>
         <p className="mb-3 text-[0.86rem] text-ink-2">必要なときに開きます。開かなくても、次へ進めます。</p>
         <div className="border-t border-line">
-          <Drawer title="面談の流れ" sub={step1.flow.length > 0 ? `話題 ${step1.flow.length} つ` : ""} open={open.flow} onToggle={() => setOpen((o) => ({ ...o, flow: !o.flow }))}>
-            {step1.flow.length > 0 && (
-              <ol className="space-y-3">
-                {step1.flow.map((f, i) => {
-                  const c = chapters[i];
-                  return (
-                    <li key={i} className="flex gap-3">
-                      <span aria-hidden="true" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface text-xs tabular-nums text-ink-2">
-                        {i + 1}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="sr-only">話題 {i + 1}：</span>
-                        <RefText t={t} text={c ? c.text : f} />
-                        {c && <span className="block text-xs text-ink-3">{refRangeLabel(c.from, c.to)}</span>}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-            )}
-            <p className={`text-[0.95rem] ${step1.flow.length > 0 ? "mt-5 border-t border-line pt-4" : ""}`}>
-              <span className="block text-xs font-semibold text-ink-3">気づきの持ち主</span>
-              面談の最後に残ったテーマを主に言葉にしたのは：{step2.insightOwner}
-            </p>
+          {/* 気づきの持ち主は AI の判定なので、場面の前（地図の下）には出さず、ここに置く */}
+          <Drawer title="気づきの持ち主" sub="" open={open.owner} onToggle={() => setOpen((o) => ({ ...o, owner: !o.owner }))}>
+            <p className="text-[0.95rem]">面談の最後に残ったテーマを主に言葉にしたのは：{step2.insightOwner}</p>
           </Drawer>
 
           <Drawer title="数えた記録" sub="点には入りません" open={open.counts} onToggle={() => setOpen((o) => ({ ...o, counts: !o.counts }))}>

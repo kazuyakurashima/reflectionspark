@@ -3,7 +3,7 @@
 // 面談の地図。発言を順に 1 本ずつの棒にして、本人は上、相手は下に、長さで並べる。AI を呼ばない。
 // 番号の丸は AI が選んだ場面の位置。今読んでいる場面の範囲に、薄い帯を敷く。
 // 文字は最小限にする。棒にマウスを載せる（指で押す）とその発言が、下の「話題」の番号に載せるとその話題が、その場に出る。画面は動かさない。
-// 見方の説明は、初めて開いたときだけ出す（「わかった」で閉じ、このブラウザに覚える）。あとからは「見方」で開ける。
+// 見方の説明は既定で閉じ、見出しの横の「見方」を押したときだけ開く（毎回開くと、地図の上で読む邪魔になるため）。
 
 import { useState } from "react";
 
@@ -14,17 +14,8 @@ import { refLabel, refRangeLabel } from "@/app/lib/words.mts";
 import { BTN_SMALL } from "./ui";
 
 const MID = 50;
-const GUIDE_KEY = "reflectionspark:map-guide-seen";
 const barHeight = (text: string) => Math.min(40, 3 + Math.sqrt([...text].length) * 3);
 const TIP = "pointer-events-none absolute z-20 w-80 max-w-full rounded-lg border border-line-2 bg-surface px-3.5 py-2.5 text-[0.86rem] leading-[1.7] shadow-[0_10px_30px_-12px_rgba(29,27,24,0.45)]";
-
-function guideSeen(): boolean {
-  try {
-    return window.localStorage.getItem(GUIDE_KEY) === "1";
-  } catch {
-    return true;
-  }
-}
 
 export function Atlas({
   t,
@@ -47,19 +38,11 @@ export function Atlas({
   const { self, other } = SPEAKER_LABELS[t.kind];
   const [hover, setHover] = useState<number | null>(null);
   const [topic, setTopic] = useState<number | null>(null);
-  const [guide, setGuide] = useState(() => !guideSeen());
+  const [guide, setGuide] = useState(false);
   const hovered = hover !== null ? t.utterances[hover] : undefined;
   const indexAt = (e: React.MouseEvent<SVGSVGElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     return Math.max(0, Math.min(n - 1, Math.floor(((e.clientX - r.left) / r.width) * n)));
-  };
-  const closeGuide = () => {
-    setGuide(false);
-    try {
-      window.localStorage.setItem(GUIDE_KEY, "1");
-    } catch {
-      // 覚えられなくても閉じる
-    }
   };
   /** 左右どちらに寄せて出すか（地図の外にはみ出さないように） */
   const side = (from: number, to: number) => (from < n / 2 ? { left: `${(from / n) * 100}%` } : { right: `${(1 - (to + 1) / n) * 100}%` });
@@ -67,15 +50,13 @@ export function Atlas({
     <div>
       <div className="flex items-baseline gap-3">
         <h2 className="text-[0.95rem] font-semibold">面談の地図</h2>
-        {!guide && (
-          <button type="button" onClick={() => setGuide(true)} className="text-[0.82rem] text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink">
-            見方
-          </button>
-        )}
+        <button type="button" onClick={() => setGuide((g) => !g)} aria-expanded={guide} aria-controls="atlas-guide" className="min-h-9 text-[0.82rem] text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink">
+          {guide ? "見方を閉じる" : "見方"}
+        </button>
       </div>
 
       {guide && (
-        <div className="mt-3 rounded-md bg-accent-soft px-5 py-4 text-[0.92rem] leading-[1.75]">
+        <div id="atlas-guide" className="mt-3 rounded-md bg-accent-soft px-5 py-4 text-[0.92rem] leading-[1.75]">
           <ul className="space-y-1">
             <li>
               <b className="font-semibold">棒 1 本が、1 つの発言。</b>上が{self}、下が{other}で、長いほど長く話しています。
@@ -87,8 +68,8 @@ export function Atlas({
               <b className="font-semibold">マウスを載せると、中身が出ます。</b>{chapters.length > 0 ? "棒ならその発言、「話題」の数字ならその話題です" : "棒に載せると、その発言です"}（スマホでは押します）。
             </li>
           </ul>
-          <button type="button" onClick={closeGuide} className={`mt-3 ${BTN_SMALL}`}>
-            わかった
+          <button type="button" onClick={() => setGuide(false)} className={`mt-3 ${BTN_SMALL}`}>
+            閉じる
           </button>
         </div>
       )}
