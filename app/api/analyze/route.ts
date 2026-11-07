@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   }
   const t = body.transcript;
   if (!t || !Array.isArray(t.utterances) || t.utterances.length === 0 || !t.kind) {
-    return NextResponse.json({ error: "発話の並びがありません。先に画面 1 で整形してください" }, { status: 400 });
+    return NextResponse.json({ error: "発話の並びがありません。先に画面 1 で話者を分けてください" }, { status: 400 });
   }
   // 画面は、待つ間の進み具合を 1 行ずつ受け取る（app/lib/progress-stream.mts）
   if (wantsProgress(req)) return progressResponse((onProgress) => analyzeOrMock(t, body.firstMeeting ?? true, onProgress), "分析に失敗しました：");

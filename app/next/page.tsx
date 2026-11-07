@@ -103,7 +103,7 @@ export default function Screen5() {
       <main className={PAGE}>
         <section>
           <h1 className={H1}>前回のひとつを確かめる</h1>
-          <p className={LEAD}>先に「1 入力」で、次の面談の文字起こしを貼って整形してください。</p>
+          <p className={LEAD}>先に「1 入力」で、次の面談の文字起こしを貼って、話者を分けてください。</p>
           <Link href="/" className={`mt-3 inline-block ${LINK}`}>
             1 入力 へ
           </Link>

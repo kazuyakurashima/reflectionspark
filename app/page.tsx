@@ -107,7 +107,7 @@ export default function Screen1() {
     setProgress(null);
     const stamp = { id: session?.id ?? "", raw, kind };
     try {
-      const d = await postWithProgress<Step0Response>("/api/step0", { raw, kind }, setProgress, "整形に失敗しました");
+      const d = await postWithProgress<Step0Response>("/api/step0", { raw, kind }, setProgress, "話者を分けられませんでした");
       // 頼んだ時と同じ入力のときだけ保存する（待つ間にサンプルを選んだ・貼り直したときは、この結果を捨てる）
       const now = loadSession();
       if (!now || !sameInput(stamp, now)) return;
@@ -151,18 +151,6 @@ export default function Screen1() {
   const checkCount = groups ? countChecks(groups) : 0;
   const toCheckCount = groups ? countToCheck(groups) : 0;
 
-  /** 整形の結果を一行ずつ数える（0 件の行は出さない） */
-  const counts = groups
-    ? [
-        { label: "区切りを迷った所", n: groups.unanchored.length },
-        { label: "話者を迷った所", n: groups.speaker.length },
-        { label: "相手が 2 人以上かもしれない所", n: groups.multiple.length },
-        { label: "意味が通らず、推測を付けた所", n: groups.guessed.length },
-        { label: "そのほか", n: groups.other.length },
-        { label: "Claude が聞き違いを直した所", n: groups.corrected.length },
-      ].filter((c) => c.n > 0)
-    : [];
-
   return (
     <main className={PAGE}>
       <section>
@@ -184,7 +172,7 @@ export default function Screen1() {
                 </p>
                 <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{prevSpark.sentence}</p>
                 {prevSpark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{prevSpark.criterion}</p>}
-                <p className="mt-2 text-[0.86rem] text-ink-2">整形のあと、読む前に、このひとつが今回の面談でどう現れたかを確かめます。</p>
+                <p className="mt-2 text-[0.86rem] text-ink-2">話者を分けたあと、読む前に、このひとつが今回の面談でどう現れたかを確かめます。</p>
               </div>
             ) : (
               <p className={NOTE}>前の面談では、行動を見送りました。確かめるものはありません。</p>
@@ -240,7 +228,7 @@ export default function Screen1() {
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button type="button" onClick={format} disabled={busy || loadingDemo || raw.trim() === ""} className={transcript ? BTN_SECONDARY : BTN_PRIMARY}>
-            {busy ? "整形しています…" : transcript ? "もう一度整形する" : "整形する"}
+            {busy ? "話者を分けています…" : transcript ? "もう一度分ける" : "話者を分ける"}
           </button>
           {sample !== "none" && (
             <button type="button" onClick={loadDemo} disabled={busy || loadingDemo} className={BTN_SECONDARY}>
@@ -250,39 +238,27 @@ export default function Screen1() {
         </div>
         {!transcript && !busy && (
           <p className="mt-3 text-[0.86rem] text-ink-3">
-            「整形する」を押すと、Claude が発言に区切って話者を付けます（1 分ほど）。
+            「話者を分ける」を押すと、Claude が発言に区切って話者を付けます（1 分ほど）。
             {sample === "first" && "サンプルは作りものの面談で、ログイン不要で、次の面談の確かめまで試せます。"}
             {sample === "next" && "サンプルの続きは、前の面談と同じ相手との、作りものの面談です。"}
           </p>
         )}
         {busy && (
-          <WaitPanel className="mt-6" title="整形しています" estimate="1 分ほど" reopen="開き直して、もう一度「整形する」を押してください。貼った文字起こしは残っています。" steps={STEP0_STEPS} view={step0View(progress)} />
+          <WaitPanel className="mt-6" title="話者を分けています" estimate="1 分ほど" reopen="開き直して、もう一度「話者を分ける」を押してください。貼った文字起こしは残っています。" steps={STEP0_STEPS} view={step0View(progress)} />
         )}
-        {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「整形する」を押すと、やり直せます。</p>}
+        {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「話者を分ける」を押すと、やり直せます。</p>}
         {demoError && <p className="mt-3 text-[0.92rem] text-red-700">サンプルを読めませんでした。もう一度押すと、やり直せます。</p>}
       </section>
 
       {transcript && groups && (
         <section className="mt-16">
-          {mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、仮の出力です。話者は文の区切りだけで交互に付けてあり、本物の整形ではありません。</p>}
+          {mock && <p className={`mb-5 ${NOTE}`}>API キーが無いので、仮の出力です。話者は文の区切りだけで交互に付けてあり、Claude が分けたものではありません。</p>}
+          {/* 見出しは短く。話者・推測・聞き違いの直しの件数は「文字起こしを確かめる」のボタンにまとめる */}
           <h2 className={H2}>
-            {transcript.utterances.length} の発言に区切り、話者を付けました
+            話者を分けました
             {ms !== null && <span className="ml-3 text-xs font-normal tabular-nums text-ink-3">{Math.round(ms / 100) / 10} 秒</span>}
           </h2>
-          <p className={LEAD}>このまま次へ進めます。何もしなければ、Claude が直した後の本文で読みます。元の文はいつも残り、次の画面でも見られます。</p>
-
-          {counts.length > 0 ? (
-            <ul className="mt-4 flex flex-wrap gap-x-8 gap-y-1 text-[0.92rem] text-ink-2">
-              {counts.map((c) => (
-                <li key={c.label}>
-                  {c.label}
-                  <span className="ml-2 font-semibold tabular-nums text-ink">{c.n}</span> 件
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 text-[0.92rem] text-ink-2">確かめる所は 0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>
-          )}
+          {checkCount === 0 && <p className="mt-3 text-[0.92rem] text-ink-2">確かめる所は 0 件です。0 件は、聞き違いが無いことの証明ではありません。</p>}
           {transcript.step0c === null && <p className="mt-2 text-xs text-ink-3">意味が通らない所の推測は別に読んでいます。届いたら発言に添えます（分析には使いません）。</p>}
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -291,7 +267,7 @@ export default function Screen1() {
             </button>
             {checkCount > 0 && (
               <button type="button" onClick={() => setDetail((d) => !d)} aria-expanded={detail} className={BTN_SECONDARY}>
-                {detail ? "確かめる所を閉じる" : `確かめて直す（${toCheckCount + groups.corrected.length} 件）`}
+                {detail ? "確かめる所を閉じる" : `文字起こしを確かめる（${toCheckCount + groups.corrected.length} か所）`}
               </button>
             )}
           </div>

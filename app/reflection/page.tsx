@@ -80,7 +80,7 @@ export default function Screen2() {
     return (
       <main className={PAGE}>
         <section>
-          <p>先に「1 入力」で、文字起こしを整形してください。</p>
+          <p>先に「1 入力」で、文字起こしを貼って、話者を分けてください。</p>
           <Link href="/" className={`mt-2 inline-block ${LINK}`}>
             1 入力 へ
           </Link>

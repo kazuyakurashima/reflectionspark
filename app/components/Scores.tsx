@@ -58,7 +58,7 @@ export function ScoreTable({ items, total, t, selfScore }: { items: ItemScore[];
   return (
     <>
       <p className="mt-1 text-xs leading-relaxed text-ink-3">
-        点は面談の点で、人の点ではありません。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと、理由と根拠の発言が開きます。
+        点は面談の点で、人の点ではありません。AI の点は、同じ面談でも揺れることがあります。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと、理由と根拠の発言が開きます。
       </p>
       <ul className="mt-2 border-t border-line">
         {items.map((it) => (

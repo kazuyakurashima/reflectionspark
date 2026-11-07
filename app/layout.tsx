@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         {children}
         <footer className="mx-auto max-w-3xl px-4 py-8 text-xs text-ink-3">
-          AI（Claude）が作った材料です。点と判定には揺れがあります。文字起こしは振り返りのためだけに使い、サーバーから Anthropic の API に送ります。保存はこのブラウザの中だけです。
+          文字起こしは Anthropic の API に送って読みます。保存はこのブラウザの中だけです。
         </footer>
       </body>
     </html>
