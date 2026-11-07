@@ -23,14 +23,16 @@
   --color-bar-self: #47595c;
   --color-bar-other: #b9ab93;
 
-  /* 待つ間の帯（進んだ割合が数えられない段階で、動いていることだけを示す） */
-  --animate-wait-slide: wait-slide 1.8s ease-in-out infinite;
-  @keyframes wait-slide {
-    from {
-      transform: translateX(-110%);
+  /* 待つ間の点（進んだ割合が数えられない段階で、動いていることだけを示す。帯は本当に進む段階だけに使う） */
+  --animate-wait-dot: wait-dot 1.2s ease-in-out infinite;
+  @keyframes wait-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 0.2;
     }
-    to {
-      transform: translateX(410%);
+    40% {
+      opacity: 1;
     }
   }
 }

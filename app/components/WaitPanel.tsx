@@ -2,7 +2,8 @@
 
 // AI を待つ間の進み具合（画面 1・2・4・5）。段階を縦に並べ、済んだ段階はチェック、今の段階に帯を出す。
 // 帯と ％ は、サーバーから届いた本当の量だけで動かす（engine/progress.mts）。量が数えられない段階は、
-// 進んだ割合を作らず、動いていることだけを示す帯にする。経過の秒は、この部品が出ている間を数える。
+// 進んだ割合を作らず、帯も出さない（帯が出たら進む、と読めるように）。文の後ろで点を順に光らせ、動いていることだけを示す。
+// 経過の秒は、この部品が出ている間を数える。
 
 import { useEffect, useState } from "react";
 
@@ -33,16 +34,24 @@ function useElapsed(): number {
 
 const clock = (sec: number) => (sec < 60 ? `${sec} 秒` : `${Math.floor(sec / 60)} 分 ${sec % 60} 秒`);
 
-function Bar({ ratio }: { ratio: number | null }) {
-  const pct = ratio === null ? null : Math.round(Math.min(1, Math.max(0, ratio)) * 100);
+/** 進んだ割合の帯。量が数えられる段階だけに出す */
+function Bar({ ratio }: { ratio: number }) {
+  const pct = Math.round(Math.min(1, Math.max(0, ratio)) * 100);
   return (
-    <div className="h-1.5 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct ?? undefined}>
-      {pct === null ? (
-        <span className="block h-full w-1/4 animate-wait-slide rounded-full bg-accent/70 motion-reduce:w-full motion-reduce:animate-none motion-reduce:bg-accent/25" />
-      ) : (
-        <span className="block h-full rounded-full bg-accent transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
-      )}
+    <div className="h-1.5 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+      <span className="block h-full rounded-full bg-accent transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
     </div>
+  );
+}
+
+/** 量が数えられない段階の印。3 つの点が順に光る（進んだ割合は作らない） */
+function Dots() {
+  return (
+    <span className="ml-2 inline-flex items-center gap-1 align-middle" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <span key={i} className="h-1.5 w-1.5 animate-wait-dot rounded-full bg-accent motion-reduce:animate-none motion-reduce:opacity-50" style={{ animationDelay: `${i * 0.2}s` }} />
+      ))}
+    </span>
   );
 }
 
@@ -58,11 +67,16 @@ function Percent({ ratio }: { ratio: number }) {
 function Detail({ view }: { view: WaitView }) {
   return (
     <>
-      <div className="mt-3">
-        <Bar ratio={view.ratio} />
-      </div>
-      <p className="mt-2 flex flex-wrap justify-between gap-x-4 text-[0.86rem] leading-[1.7] text-ink-2">
-        <span aria-live="polite">{view.status}</span>
+      {view.ratio !== null && (
+        <div className="mt-3">
+          <Bar ratio={view.ratio} />
+        </div>
+      )}
+      <p className={`${view.ratio !== null ? "mt-2" : "mt-1"} flex flex-wrap justify-between gap-x-4 text-[0.86rem] leading-[1.7] text-ink-2`}>
+        <span>
+          <span aria-live="polite">{view.status}</span>
+          {view.ratio === null && <Dots />}
+        </span>
         {view.whole && <span className="tabular-nums text-ink-3">{view.whole}</span>}
       </p>
     </>
