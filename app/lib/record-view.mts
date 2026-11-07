@@ -29,6 +29,27 @@ export function previousLines(p: PreviousWords): Line[] {
   return [p.before, p.own, p.after].filter((l): l is Line => l !== null);
 }
 
+/** 記録の画面の点の欄に並べるもの（記録の 1 回分の点。memory-read の RecordEntry["scores"] と同じ形の一部） */
+export type RecordScoresInput = {
+  selfScore: number;
+  selfVerdict: string | null;
+  aiScaled: number | null;
+  aiVerdict: string | null;
+};
+export type ScoreCell = { label: string; value: string; unit?: "／10" };
+
+/**
+ * 記録の画面の点の欄。自分の点 → AI の点（合計）、続きの回は 自分の点 → 自分の判定 → AI の判定。
+ * 続きの回（前回のひとつを確かめた回。判定がある回）は、AI の合計を出さない。
+ * サンプルの記録の続きの回の AI の点は、前の作りの画面 5（工程 4）で付けた点で、今の流れで画面 2（工程 2）に出す点とは別のため。
+ */
+export function recordScoreCells(s: RecordScoresInput): ScoreCell[] {
+  const self: ScoreCell = { label: "自分の点", value: String(s.selfScore), unit: "／10" };
+  const followUp = s.selfVerdict !== null || s.aiVerdict !== null;
+  if (!followUp) return [self, { label: "AI の点（合計）", value: s.aiScaled === null ? "—" : String(s.aiScaled), unit: "／10" }];
+  return [self, ...(s.selfVerdict ? [{ label: "自分の判定", value: s.selfVerdict }] : []), ...(s.aiVerdict ? [{ label: "AI の判定", value: s.aiVerdict }] : [])];
+}
+
 /** 「2025-10-24」→「2025 年 10 月 24 日」。読めない形はそのまま返す */
 export function formatDate(date: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);

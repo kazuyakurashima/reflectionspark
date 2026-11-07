@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import type { RecordEntry } from "@/engine/memory-read.mts";
 import type { MeetingKind, PreviousWords } from "@/engine/types.mts";
-import { formatDate, kindLabel, kindOfSpeakers, linesTranscript, mergeLines, previousLines } from "@/app/lib/record-view.mts";
+import { formatDate, kindLabel, kindOfSpeakers, linesTranscript, mergeLines, previousLines, recordScoreCells } from "@/app/lib/record-view.mts";
 import type { Line } from "@/app/lib/record-view.mts";
 import { useRecords } from "@/app/lib/records";
 import { sceneTypeLabel } from "@/app/lib/words.mts";
@@ -172,39 +172,29 @@ export function RecordEntryView({ r }: { r: RecordEntry }) {
   );
 }
 
-/** 点。引用の後ろに、自分の点と AI の合計を並べる（決まり 8。項目ごとの点はこの画面に出さない）。合計はアプリが計算したもの */
+/**
+ * 点。引用の後ろに並べる（決まり 8。項目ごとの点はこの画面に出さない）。合計はアプリが計算したもの。
+ * 続きの回は AI の合計を出さず、自分の判定と AI の判定を並べる（app/lib/record-view.mts の recordScoreCells）
+ */
 function Scores({ s }: { s: NonNullable<RecordEntry["scores"]> }) {
-  const num = "text-xl font-semibold tabular-nums";
+  const cells = recordScoreCells({ selfScore: s.selfScore, selfVerdict: s.selfVerdict, aiScaled: s.aiTotal.scaled, aiVerdict: s.aiVerdict });
   return (
     <div className="mt-6">
       <p className={SUB}>点</p>
       <dl className="mt-2 flex flex-wrap gap-x-10 gap-y-3 [&_dt]:text-xs [&_dt]:text-ink-3">
-        <div>
-          <dt>自分の点</dt>
-          <dd>
-            <span className={num}>{s.selfScore}</span>
-            <span className="text-ink-2"> ／10</span>
-          </dd>
-        </div>
-        <div>
-          <dt>AI の点（合計）</dt>
-          <dd>
-            <span className={num}>{s.aiTotal.scaled === null ? "—" : s.aiTotal.scaled}</span>
-            <span className="text-ink-2"> ／10</span>
-          </dd>
-        </div>
-        {s.selfVerdict && (
-          <div>
-            <dt>自分の評価</dt>
-            <dd className="text-[1.02rem] font-semibold">{s.selfVerdict}</dd>
+        {cells.map((c) => (
+          <div key={c.label}>
+            <dt>{c.label}</dt>
+            {c.unit ? (
+              <dd>
+                <span className="text-xl font-semibold tabular-nums">{c.value}</span>
+                <span className="text-ink-2"> {c.unit}</span>
+              </dd>
+            ) : (
+              <dd className="text-[1.02rem] font-semibold">{c.value}</dd>
+            )}
           </div>
-        )}
-        {s.aiVerdict && (
-          <div>
-            <dt>AI の判定</dt>
-            <dd className="text-[1.02rem] font-semibold">{s.aiVerdict}</dd>
-          </div>
-        )}
+        ))}
       </dl>
       {s.selfNote && <p className="mt-2 text-[0.92rem] text-ink-2">自分の一言：{s.selfNote}</p>}
     </div>

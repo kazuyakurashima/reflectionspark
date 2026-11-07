@@ -8,7 +8,7 @@ import type { PreviousWords } from "../engine/types.mts";
 import { candidatesBody, demoAfterInput } from "./lib/demo-flag.mts";
 import { sameInput, sameTranscript } from "./lib/input-guard.mts";
 import { tooltipPlace } from "./lib/tooltip-place.mts";
-import { formatDate, kindOfSpeakers, linesTranscript, mergeLines, previousLines } from "./lib/record-view.mts";
+import { formatDate, kindOfSpeakers, linesTranscript, mergeLines, previousLines, recordScoreCells } from "./lib/record-view.mts";
 
 describe("サンプルの印", () => {
   it("印が無いとき、画面 4 は demo を送らない（貼った面談に、サンプルの講師の記録を添えない）", () => {
@@ -165,5 +165,24 @@ describe("記録の発話を、画面 2 の部品に渡す形にする", () => {
     assert.equal(formatDate("2025-10-24"), "2025 年 10 月 24 日");
     assert.equal(formatDate("2026-07-08"), "2026 年 7 月 8 日");
     assert.equal(formatDate("去年の秋"), "去年の秋");
+  });
+});
+
+describe("記録の画面の点（決まり 8）", () => {
+  const show = (c: ReturnType<typeof recordScoreCells>) => c.map((x) => `${x.label}=${x.value}${x.unit ?? ""}`);
+
+  it("1 回目の回は、自分の点と AI の合計を並べる", () => {
+    assert.deepEqual(show(recordScoreCells({ selfScore: 6, selfVerdict: null, aiScaled: 7, aiVerdict: null })), ["自分の点=6／10", "AI の点（合計）=7／10"]);
+    assert.deepEqual(show(recordScoreCells({ selfScore: 6, selfVerdict: null, aiScaled: null, aiVerdict: null })), ["自分の点=6／10", "AI の点（合計）=—／10"]);
+  });
+
+  it("続きの回は AI の合計を出さず、自分の判定と AI の判定を並べる（記録の AI の点は前の作りの画面 5 の点のため）", () => {
+    const cells = recordScoreCells({ selfScore: 6, selfVerdict: "一部", aiScaled: 6.4, aiVerdict: "まだ" });
+    assert.deepEqual(show(cells), ["自分の点=6／10", "自分の判定=一部", "AI の判定=まだ"]);
+    assert.ok(!cells.some((c) => c.value === "6.4"));
+  });
+
+  it("続きの回で片方の判定が無ければ、その欄は出さない", () => {
+    assert.deepEqual(show(recordScoreCells({ selfScore: 5, selfVerdict: null, aiScaled: 6.8, aiVerdict: "できた" })), ["自分の点=5／10", "AI の判定=できた"]);
   });
 });
