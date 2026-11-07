@@ -172,7 +172,7 @@ export default function Screen1() {
           <RecordsLink className="text-[0.92rem]" />
         </div>
         <p className={LEAD}>
-          {prev ? "次の面談が終わったら、その文字起こしを貼ります。" : "面談の文字起こしを貼ります。"}ボイスメモの文字起こし（話者の無い文）のままでかまいません。
+          {prev ? "次の面談が終わったら、その文字起こしを貼り付けます。" : "面談の文字起こしを貼り付けます。"}
         </p>
 
         {prev && (
