@@ -3,6 +3,8 @@
 // 画面 3：問いに答える（文書での名前は「自分の言葉で」）。問いに本人が答えを書く。AI は呼ばない。答えは次の工程（行動の候補）に渡す。
 // 問いの中の発言の番号は、載せるとその発言が出る（app/components/RefText.tsx）。
 // 問いは並べて見せ、「回答する」を押した一つだけ書く欄を開く（欄が 3 つ並ぶと、問いの全体を見るのにスクロールが要るため）。書いた分はその場で保存する。
+// 並べる順は、課題が見えた場面の問い（工程 3 が候補を作るもとの場面）→ うまくいった場面の問い → 事情を尋ねる問い。
+// 問いごとに、どの場面から来たかと、答えが何になるかを一行添える（画面 2 の場面と結び付けられるように）。答えは問いの文で保存するので、並べ替えても答えはずれない。
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,7 +12,18 @@ import { useState } from "react";
 
 import { RefText } from "@/app/components/RefText";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, LEAD, LINK, PAGE } from "@/app/components/ui";
-import { questionsOf, updateSession, useSession } from "@/app/lib/session";
+import { questionItemsOf, updateSession, useSession } from "@/app/lib/session";
+import { sceneTypeLabel } from "@/app/lib/words.mts";
+import type { SceneType } from "@/engine/types.mts";
+
+const ORDER = (from: SceneType | null) => (from === "次に試せる所" ? 0 : from === "よく表れた所" ? 1 : 2);
+
+/** 問いの横に添える、どこから来た問いか */
+const sourceLabel = (from: SceneType | null) => (from ? `${sceneTypeLabel(from)}から` : "面談の全体から");
+
+/** 問いの下に添える、答えが何になるか */
+const roleNote = (from: SceneType | null) =>
+  from === "次に試せる所" ? "この答えをもとに、次に試す行動の候補を作ります。" : from === "よく表れた所" ? "うまくいった理由を言葉にしておくと、次の面談でも意識して選べます。" : "";
 
 export default function Screen3() {
   const router = useRouter();
@@ -31,7 +44,8 @@ export default function Screen3() {
     );
   }
   const t = session.transcript;
-  const questions = questionsOf(session);
+  const items = [...questionItemsOf(session)].sort((a, b) => ORDER(a.from) - ORDER(b.from));
+  const questions = items.map((x) => x.q);
   const answers = questions.map((q) => session.answers.find((a) => a.question === q)?.answer ?? "");
   const setAnswer = (q: string, answer: string) =>
     updateSession((s) => ({ ...s, answers: [...s.answers.filter((a) => a.question !== q), { question: q, answer }], candidates: null }));
@@ -41,7 +55,7 @@ export default function Screen3() {
     <main className={PAGE}>
       <section>
         <h1 className={H1}>問いに答える</h1>
-        <p className={LEAD}>場面を読んで受け取った問いに、自分の言葉で答えます。答えは、次に試す行動の候補を作る材料になります。全部に答えなくてもかまいません。AI の見立てと違うと思う所は、そのまま書いてかまいません。</p>
+        <p className={LEAD}>画面 2 の問いに、自分の言葉で答えます。全部に答えなくてもかまいません。AI の見立てと違うと思う所は、そのまま書いてかまいません。</p>
 
         <ol className="mt-7 border-t border-line">
           {questions.map((q, i) => {
@@ -49,8 +63,12 @@ export default function Screen3() {
             const isOpen = open === i;
             return (
               <li key={q} className="border-b border-line py-5">
-                <p className="text-[0.86rem] font-semibold text-accent">問 {i + 1}</p>
+                <p className="text-[0.86rem]">
+                  <span className="font-semibold text-accent">問 {i + 1}</span>
+                  <span className="ml-2 text-ink-3">{sourceLabel(items[i].from)}</span>
+                </p>
                 <p className="mt-1 text-[1.04rem] font-semibold leading-[1.7]">{t ? <RefText t={t} text={q} /> : q}</p>
+                {roleNote(items[i].from) && <p className="mt-1 text-[0.86rem] leading-[1.7] text-ink-2">{roleNote(items[i].from)}</p>}
                 {isOpen ? (
                   <>
                     <textarea autoFocus value={answers[i]} onChange={(e) => setAnswer(q, e.target.value)} rows={4} placeholder="自分の言葉で" aria-label={`問 ${i + 1} への回答`} className={`mt-3 block w-full ${FIELD}`} />

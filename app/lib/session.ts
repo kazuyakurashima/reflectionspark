@@ -5,7 +5,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 
 import { attachStep0c } from "@/engine/step0.mts";
-import type { FollowUpVerdict, MeetingKind, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
+import type { FollowUpVerdict, MeetingKind, SceneType, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
 
 /** 画面 4 で本人が選んだ（または直した）一つ */
 export type SparkChoice = Spark & {
@@ -210,9 +210,14 @@ export function answerText(s: SessionData): string {
 
 /** 画面 3 の問い（場面ごとの問いと、事情を尋ねる問い） */
 export function questionsOf(s: SessionData): string[] {
+  return questionItemsOf(s).map((x) => x.q);
+}
+
+/** 画面 3 の問いと、どこから来た問いか（場面の種類。事情を尋ねる問いは null） */
+export function questionItemsOf(s: SessionData): { q: string; from: SceneType | null }[] {
   const a = s.analysis;
   if (!a) return [];
-  const qs = a.step1.scenes.map((sc) => sc.question).filter((q) => q.trim() !== "");
-  if (a.step1.extraQuestion) qs.push(a.step1.extraQuestion);
+  const qs: { q: string; from: SceneType | null }[] = a.step1.scenes.filter((sc) => sc.question.trim() !== "").map((sc) => ({ q: sc.question, from: sc.type }));
+  if (a.step1.extraQuestion) qs.push({ q: a.step1.extraQuestion, from: null });
   return qs;
 }

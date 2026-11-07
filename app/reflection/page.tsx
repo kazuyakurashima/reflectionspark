@@ -1,11 +1,11 @@
 "use client";
 
-// 画面 2：読む（フィードバックを読む）。比較案 D2 Simple を土台にした形。
-// 最初に見えるのは、面談の地図 → 場面を一つ（やりとり → 自分の見立て → AI の見立て → 問い）→ 下に固定した「次にすること」一つ。
-// 場面の中は、確かめられるもの（原文のやりとり）を先に、解釈（AI の見立て）を後に置く（原則 2）。AI の見立ては本人が開く。書き込みは求めない。
-// 項目ごとの点と合計は、引用と問いの後に置き、本人が自分の点を一つ付けてから並べる（原則 1・決まり 8）。自分の点・一言・見立ては AI に渡さない（決まり 10）。
-// 場面の種別は、場面のボタンに最初から出す（うまくいった場面／課題が見えた場面。順番はいつも同じなので、隠しても分かる）。
-// 区切りは罫線ではなく余白で付ける。倫理チェックはいつも最後の 1 行で、点にしない。
+// 画面 2：読む（フィードバックを読む）。この画面は読むだけで、書く所は置かない（答えは画面 3 で書く）。
+// 上から、まとめ（2 文）→ 面談の地図 → 場面を一つ（やりとり → AI の見立て → 考える問い）→ この面談の点 → 詳しく見る → 倫理チェック。
+// 下に固定した「次にすること」を一つ置く。並びは設計書「画面 2 の出力の形と見せ方」。
+// 場面の中は、確かめられるもの（原文のやりとり）を先に、解釈（AI の見立て）を後に置く（原則 2）。AI の見立ては本人が開き、開くのに入力は求めない。
+// 点は場面と問いの後に、太い罫で区切って置く。自分の点を一つ決めてから AI の点を開く（原則 1・決まり 8）。自分の点と一言は AI に渡さない（決まり 10）。
+// 場面の種別は、場面のボタンに最初から出す（うまくいった場面／課題が見えた場面）。倫理チェックはいつも最後の 1 行で、点にしない。
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -24,7 +24,7 @@ import { Island } from "@/app/components/UtteranceView";
 import { ANALYZE_STEPS, WaitPanel, analyzeView } from "@/app/components/WaitPanel";
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import type { ProgressEvent } from "@/engine/progress.mts";
-import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, LINK, NOTE, PAGE } from "@/app/components/ui";
+import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, H2, LINK, NOTE, PAGE } from "@/app/components/ui";
 import { chaptersOf, sceneSpan, spanWindow, wideWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
 import { loadSession, updateSession, useSession } from "@/app/lib/session";
@@ -161,7 +161,21 @@ export default function Screen2() {
  * 数字を選んだだけでは決まらず、「この点に決める」を押して決める（押し間違いを直せるように）。
  * AI の点は、自分の点を決めた後に並べる（原則 1）。AI の点を見た後は変えない。
  */
-function SelfScore({ selfScore, lead, confirmLabel, canRedo }: { selfScore: number | null; lead: string; confirmLabel: string; /** 決めた後に付け直せるか（AI の点をまだ見ていない間だけ） */ canRedo: boolean }) {
+function SelfScore({
+  selfScore,
+  lead,
+  confirmLabel,
+  canRedo,
+  onDecided,
+}: {
+  selfScore: number | null;
+  lead: string;
+  confirmLabel: string;
+  /** 決めた後に付け直せるか（AI の点をまだ見ていない間だけ） */
+  canRedo: boolean;
+  /** 決めたときに呼ぶ（画面 2 では、決めたらそのまま AI の点を開く） */
+  onDecided?: () => void;
+}) {
   const [picked, setPicked] = useState<number | null>(null);
   if (selfScore !== null) {
     return (
@@ -195,7 +209,11 @@ function SelfScore({ selfScore, lead, confirmLabel, canRedo }: { selfScore: numb
         <button
           type="button"
           disabled={picked === null}
-          onClick={() => picked !== null && updateSession((s) => ({ ...s, selfScore: picked }))}
+          onClick={() => {
+            if (picked === null) return;
+            updateSession((s) => ({ ...s, selfScore: picked }));
+            onDecided?.();
+          }}
           className={BTN_SECONDARY}
         >
           {picked === null ? "点を選んでください" : `${picked} 点に決めて、${confirmLabel}`}
@@ -224,7 +242,7 @@ function Drawer({ id, title, sub, open, onToggle, children }: { id?: string; tit
   );
 }
 
-/** 場面の中の手順一つ。番号は、読む順（やりとり → 自分の見立て → AI の見立て → 問い） */
+/** 場面の中の手順一つ。番号は、読む順（やりとり → AI の見立て → 問い） */
 function Step({ n, title, note, last = false, children }: { n: number; title: string; note?: string; last?: boolean; children: React.ReactNode }) {
   return (
     <div className={`relative sm:pl-11 ${last ? "" : "pb-9"}`}>
@@ -253,7 +271,9 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
   const [seen, setSeen] = useState<number[]>([0]);
   const [wide, setWide] = useState(false);
   const [aiOpen, setAiOpen] = useState<number[]>([]);
-  const [open, setOpen] = useState<{ detail: boolean; scores: boolean; all: boolean }>({ detail: false, scores: false, all: false });
+  const [open, setOpen] = useState<{ flow: boolean; counts: boolean; all: boolean }>({ flow: false, counts: false, all: false });
+  /** AI の点を開いたか。自分の点を決めた後、本人が開く（待つ間に自分の点を付けていても、勝手には開かない） */
+  const [scoresShown, setScoresShown] = useState(false);
   const [ethicsOpen, setEthicsOpen] = useState(false);
   const sceneRef = useRef<HTMLElement>(null);
 
@@ -267,13 +287,6 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
     setSeen((s) => (s.includes(k) ? s : [...s, k]));
     if (scroll) requestAnimationFrame(() => sceneRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
-  const own = session.ownViews[current] ?? "";
-  const setOwn = (v: string) =>
-    updateSession((s) => {
-      const next = [...s.ownViews];
-      next[current] = v;
-      return { ...s, ownViews: next.map((x) => x ?? "") };
-    });
 
   // 広げたときは、AI が場面の文の中で番号で触れた近くの発話まで並べる（文で触れた発話を原文で確かめられるように）
   const sceneRefs = scene ? [scene.observation, scene.reaction, scene.reading, scene.asChoice ?? "", scene.question].flatMap((x) => findUtteranceRefs(x)) : [];
@@ -292,29 +305,36 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
     <>
       {a.mock && <p className={`mb-6 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、読みと問いと点は仮の文です。</p>}
 
+      {/* まとめ（2 文）は最初から全部見せる。無いときは、選んだ場面を一行で言う */}
+      {(step1.summary || !step1.noScene) && (
+        <section aria-label="まとめ">
+          <h2 className="text-xs font-semibold text-ink-3">まとめ</h2>
+          <p className="mt-1.5 text-[1.08rem] leading-[1.85] text-pretty">
+            {step1.summary ? <RefText t={t} text={step1.summary} /> : `AI がこの面談から、${scenes.map((sc) => sceneTypeLabel(sc.type)).join("と、")}を選びました。`}
+          </p>
+          {session.spark && (
+            <p className="mt-3 text-[0.95rem] text-ink-2">
+              次に試すひとつ：
+              <Link href="/spark" className="font-semibold text-ink underline decoration-amber-500 underline-offset-4">
+                {session.spark.sentence}
+              </Link>
+            </p>
+          )}
+        </section>
+      )}
+
       {step1.noScene ? (
         <section className="py-6">
           <p>根拠のある場面が無いとされました：{step1.noScene}</p>
         </section>
       ) : (
         <>
-          <p className="text-[1.02rem]">
-            AI がこの面談から、{scenes.map((sc) => sceneTypeLabel(sc.type)).join("と、")}を選びました。場面ごとに、やりとりを読んで、問いを一つ受け取ります。
-            {session.spark && (
-              <span className="mt-2 block text-[0.95rem] text-ink-2">
-                次に試すひとつ：
-                <Link href="/spark" className="font-semibold text-ink underline decoration-amber-500 underline-offset-4">
-                  {session.spark.sentence}
-                </Link>
-              </span>
-            )}
-          </p>
-          {/* 手順ごとの説明は、ここ 1 か所にまとめる（手順には見出しと入力だけを置く） */}
-          <Collapsible label="この画面の読み方" openLabel="この画面の読み方を閉じる" className="mt-2 text-[0.92rem]">
+          {/* 読み方の説明は、ここ 1 か所にまとめる（手順には見出しだけを置く） */}
+          <Collapsible label="この画面の読み方" openLabel="この画面の読み方を閉じる" className="mt-3 text-[0.92rem]">
             <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
-              <li>場面ごとに、1 から 4 の順に進みます。2 と 3 は、とばしても進めます。</li>
-              <li>2 で先に自分の見方を書いておくと、AI の見立てに引っぱられず、違いに気づきやすくなります。書いた言葉は AI に渡しません。AI の見立てを開くと、自分の見方と上下に並びます。</li>
-              <li>4 の問いには、次の画面「3 問いに答える」で答えます。その答えをもとに、次の面談で試す行動の候補を作ります。</li>
+              <li>場面ごとに、1 から 3 の順に読みます。この画面で書く所はありません。</li>
+              <li>1 の原文のやりとりが、確かめられるものです。2 の AI の見立ては解釈で、開かなくても進めます。開く前に、自分ならどう読むかを考えてみてください。</li>
+              <li>3 の問いには、次の画面「3 問いに答える」で答えます。課題が見えた場面の問いへの答えをもとに、次に試す行動の候補を作ります。</li>
             </ul>
           </Collapsible>
 
@@ -381,24 +401,11 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                   )}
                 </Step>
 
-                <Step n={2} title="自分の見方を一言">
-                  <input
-                    type="text"
-                    value={own}
-                    onChange={(e) => setOwn(e.target.value)}
-                    autoComplete="off"
-                    placeholder="この場面で、何が起きていたと思いますか"
-                    aria-label={`場面 ${current + 1} の自分の見方`}
-                    className="block w-full border-0 border-b border-line-2 bg-transparent py-2 placeholder:text-ink-3 focus:border-accent focus:outline-none"
-                  />
-                  <p className="mt-1.5 text-xs text-ink-3">AI に渡しません。</p>
+                <Step n={2} title="AI の見立て">
+                  <AiView t={t} scene={scene} open={aiOpen.includes(current)} onToggle={() => setAiOpen((o) => (o.includes(current) ? o.filter((k) => k !== current) : [...o, current]))} />
                 </Step>
 
-                <Step n={3} title="AI の見立て">
-                  <AiView t={t} scene={scene} own={own.trim()} open={aiOpen.includes(current)} onToggle={() => setAiOpen((o) => (o.includes(current) ? o.filter((k) => k !== current) : [...o, current]))} />
-                </Step>
-
-                <Step n={4} title="この場面から持ち帰る問い" last>
+                <Step n={3} title="考える問い" note="答えは次の画面で書きます" last>
                   <p className="text-[1.38rem] font-medium leading-[1.65] text-pretty">
                     <RefText t={t} text={scene.question} />
                   </p>
@@ -409,78 +416,100 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </>
       )}
 
-      <section className="mt-20" aria-label="面談の全体">
-        <h2 className="text-[0.95rem] font-semibold">面談の全体</h2>
+      {step1.extraQuestion && (
+        <section className="mt-16" aria-label="もう一つの問い">
+          <h2 className="flex flex-wrap items-baseline gap-x-2 text-[0.95rem] font-semibold">
+            もう一つの問い<span className="text-[0.82rem] font-normal text-ink-3">面談の全体から。答えは次の画面で書きます</span>
+          </h2>
+          <p className="mt-2 text-[1.12rem] font-medium leading-[1.7] text-pretty">
+            <RefText t={t} text={step1.extraQuestion} />
+          </p>
+        </section>
+      )}
+
+      {/* 点は場面と問いの後に、太い罫で区切って置く。自分の点を一つ決めてから、AI の点を開く */}
+      <section className="mt-20 border-t-2 border-ink-2 pt-7" aria-labelledby="score-heading">
+        <h2 id="score-heading" className={H2}>
+          この面談の点
+        </h2>
+        {session.selfScore === null ? (
+          <div className="mt-3">
+            <SelfScore selfScore={null} lead="自分の点を一つ決めると、AI の点が項目ごとに開きます。AI の点を見た後は、自分の点は変えられません。" confirmLabel="AI の点を見る" canRedo={false} onDecided={() => setScoresShown(true)} />
+          </div>
+        ) : !scoresShown ? (
+          <div className="mt-3">
+            <p className="text-[0.95rem]">
+              自分の点：<span className="text-lg font-semibold tabular-nums">{session.selfScore}</span>／10
+            </p>
+            <button type="button" onClick={() => setScoresShown(true)} className={`mt-3 ${BTN_SECONDARY}`}>
+              AI の点を見る
+            </button>
+          </div>
+        ) : (
+          <>
+            <ScoreTable items={step2.items} total={step2.total} t={t} selfScore={session.selfScore} />
+            <label className="mt-5 block text-[0.86rem] text-ink-2">
+              自分の点への一言（書かなくてもかまいません。AI に渡しません）
+              <input
+                type="text"
+                value={session.selfNote}
+                onChange={(e) => updateSession((s) => ({ ...s, selfNote: e.target.value }))}
+                autoComplete="off"
+                placeholder="例：話しすぎた"
+                className="mt-1 block w-full border-0 border-b border-line-2 bg-transparent py-1.5 text-base text-ink placeholder:text-ink-3 focus:border-accent focus:outline-none"
+              />
+            </label>
+          </>
+        )}
+      </section>
+
+      <section className="mt-16" aria-labelledby="more-heading">
+        <h2 id="more-heading" className="text-[0.95rem] font-semibold">
+          詳しく見る
+        </h2>
         <p className="mb-3 text-[0.86rem] text-ink-2">必要なときに開きます。開かなくても、次へ進めます。</p>
         <div className="border-t border-line">
-          <Drawer title="まとめと流れ" sub="サマリー・面談の流れ・数えた記録" open={open.detail} onToggle={() => setOpen((o) => ({ ...o, detail: !o.detail }))}>
-            <dl className="space-y-5 [&_dt]:text-xs [&_dt]:font-semibold [&_dt]:text-ink-3">
-              <div>
-                <dt>サマリー</dt>
-                <dd>{step1.summary ? <RefText t={t} text={step1.summary} /> : "（無し）"}</dd>
-              </div>
-              {step1.flow.length > 0 && (
-                <div>
-                  <dt>面談の流れ</dt>
-                  <dd>
-                    <ol className="list-decimal pl-6">
-                      {step1.flow.map((f, i) => (
-                        <li key={i}>
-                          <RefText t={t} text={f} />
-                        </li>
-                      ))}
-                    </ol>
-                  </dd>
-                </div>
-              )}
-              <div>
-                <dt>気づきの持ち主</dt>
-                <dd>面談の最後に残ったテーマを主に言葉にしたのは：{step2.insightOwner}</dd>
-              </div>
-              <div>
-                <dt>数えた記録（点には入りません）</dt>
-                <dd>
-                  話した量（文字数）：{self} {selfPct}%、{other} {100 - selfPct}%（{counts.selfChars} 字／{counts.otherChars} 字）。
-                  {counts.longestRun && `いちばん長く続けて話した：${counts.longestRun.speaker}、${counts.longestRun.chars} 字（${refRangeLabel(counts.longestRun.from, counts.longestRun.to)}）。`}
-                </dd>
-              </div>
-              {step1.extraQuestion && (
-                <div>
-                  <dt>もう一つの問い</dt>
-                  <dd>
-                    <RefText t={t} text={step1.extraQuestion} />
-                  </dd>
-                </div>
-              )}
-            </dl>
+          <Drawer title="面談の流れ" sub={step1.flow.length > 0 ? `話題 ${step1.flow.length} つ` : ""} open={open.flow} onToggle={() => setOpen((o) => ({ ...o, flow: !o.flow }))}>
+            {step1.flow.length > 0 && (
+              <ol className="space-y-3">
+                {step1.flow.map((f, i) => {
+                  const c = chapters[i];
+                  return (
+                    <li key={i} className="flex gap-3">
+                      <span aria-hidden="true" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface text-xs tabular-nums text-ink-2">
+                        {i + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="sr-only">話題 {i + 1}：</span>
+                        <RefText t={t} text={c ? c.text : f} />
+                        {c && <span className="block text-xs text-ink-3">{refRangeLabel(c.from, c.to)}</span>}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+            <p className={`text-[0.95rem] ${step1.flow.length > 0 ? "mt-5 border-t border-line pt-4" : ""}`}>
+              <span className="block text-xs font-semibold text-ink-3">気づきの持ち主</span>
+              面談の最後に残ったテーマを主に言葉にしたのは：{step2.insightOwner}
+            </p>
           </Drawer>
 
-          <Drawer
-            title="項目ごとの点と合計"
-            sub={session.selfScore === null ? "先に自分の点を一つ" : "AI の点と自分の点"}
-            open={open.scores}
-            onToggle={() => setOpen((o) => ({ ...o, scores: !o.scores }))}
-          >
-            {session.selfScore === null ? (
-              <div className="rounded-md border border-line bg-surface px-5 py-4">
-                <SelfScore selfScore={null} lead="先に、この面談の自分の点を一つ決めます。AI の点に引っぱられずに自分の見方を残すためで、AI の点を見た後は変えられません。" confirmLabel="AI の点を見る" canRedo={false} />
-              </div>
-            ) : (
-              <>
-                <ScoreTable items={step2.items} total={step2.total} t={t} selfScore={session.selfScore} />
-                <label className="mt-5 block text-[0.86rem] text-ink-2">
-                  自分の点への一言（書かなくてもかまいません。AI に渡しません）
-                  <input
-                    type="text"
-                    value={session.selfNote}
-                    onChange={(e) => updateSession((s) => ({ ...s, selfNote: e.target.value }))}
-                    autoComplete="off"
-                    placeholder="例：話しすぎた"
-                    className="mt-1 block w-full border-0 border-b border-line-2 bg-transparent py-1.5 text-base text-ink placeholder:text-ink-3 focus:border-accent focus:outline-none"
-                  />
-                </label>
-              </>
-            )}
+          <Drawer title="数えた記録" sub="点には入りません" open={open.counts} onToggle={() => setOpen((o) => ({ ...o, counts: !o.counts }))}>
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-[0.95rem] sm:grid-cols-[auto_1fr] [&_dt]:text-xs [&_dt]:font-semibold [&_dt]:text-ink-3 sm:[&_dt]:pt-1">
+              <dt>話した量（文字数）</dt>
+              <dd className="mb-2 sm:mb-0">
+                {self} {selfPct}%（{counts.selfChars} 字）、{other} {100 - selfPct}%（{counts.otherChars} 字）
+              </dd>
+              {counts.longestRun && (
+                <>
+                  <dt>いちばん長く続けて話した</dt>
+                  <dd>
+                    {counts.longestRun.speaker}、{counts.longestRun.chars} 字（{refRangeLabel(counts.longestRun.from, counts.longestRun.to)}）
+                  </dd>
+                </>
+              )}
+            </dl>
           </Drawer>
 
           <Drawer title="面談の全文" sub={`発言 ${n} 回`} open={open.all} onToggle={() => setOpen((o) => ({ ...o, all: !o.all }))}>
@@ -543,10 +572,11 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
 }
 
 /** AI の見立て。最初は閉じていて、本人が開いて読む。読むのに入力は求めない */
-function AiView({ t, scene, own, open, onToggle }: { t: Transcript; scene: Scene; own: string; open: boolean; onToggle: () => void }) {
+function AiView({ t, scene, open, onToggle }: { t: Transcript; scene: Scene; open: boolean; onToggle: () => void }) {
   const items = scene.items.map((i) => `${i} ${RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}`).join("、");
   return (
     <div>
+      {!open && <p className="mb-3 text-[0.9rem] leading-[1.75] text-ink-2">開く前に、自分ならどう読むかを考えてみてください。AI の読みと違っていてかまいません。</p>}
       <button type="button" onClick={onToggle} aria-expanded={open} className={`gap-3 ${BTN_SECONDARY}`}>
         <Chevron open={open} />
         {open ? "AI の見立てを閉じる" : "AI の見立てを読む"}
@@ -554,16 +584,9 @@ function AiView({ t, scene, own, open, onToggle }: { t: Transcript; scene: Scene
       {open && (
         <div className="mt-5">
           {items && <p className="text-[0.9rem] text-ink-2">関わる項目：{items}</p>}
-          <div className="mt-4 space-y-5">
-            {own && (
-              <div className="border-l-2 border-ink-2 pl-4">
-                <h4 className="text-xs font-semibold text-ink-3">自分の見方</h4>
-                <p>{own}</p>
-              </div>
-            )}
+          <div className="mt-4">
             <div className="border-l-2 border-line-2 pl-4">
-              <h4 className="text-xs font-semibold text-ink-3">AI の見立て</h4>
-              <dl className="[&_dt]:mt-3 [&_dt]:text-[0.8rem] [&_dt]:text-ink-3">
+              <dl className="[&_dt]:mt-3 [&_dt]:text-[0.8rem] [&_dt]:text-ink-3 [&_dt:first-child]:mt-0">
                 <dt>文字起こしから確かめられること（観察）</dt>
                 <dd>{scene.observation ? <RefText t={t} text={scene.observation} /> : "（書かれていません）"}</dd>
                 <dt>直後の相手の反応</dt>
@@ -582,7 +605,7 @@ function AiView({ t, scene, own, open, onToggle }: { t: Transcript; scene: Scene
             </div>
           </div>
           <p className="mt-4 text-[0.8rem] leading-relaxed text-ink-3">
-            「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。AI の読みと自分の見方が違っていてかまいません。
+            「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。
           </p>
         </div>
       )}
