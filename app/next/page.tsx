@@ -198,7 +198,6 @@ export default function Screen5() {
           <WaitPanel
             title="AI が面談を読んでいます"
             estimate="1 分ほど"
-            reopen="この画面を開き直すと、もう一度読みます。自分の判定は残っています。"
             view={{ current: 0, status: "前回決めた行動が、今回の面談でどう現れたかを読んでいます", ratio: null }}
           />
         </section>

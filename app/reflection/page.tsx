@@ -144,7 +144,7 @@ export default function Screen2() {
         </div>
       ) : !analysis ? (
         <section className="py-6">
-          <WaitPanel title="AI が面談を読んでいます" estimate="1 分ほど" reopen="この画面を開き直すと、もう一度最初から分析します。" steps={ANALYZE_STEPS} view={analyzeView(progress)} />
+          <WaitPanel title="AI が面談を読んでいます" estimate="1 分ほど" steps={ANALYZE_STEPS} view={analyzeView(progress)} />
           <div className="mt-6 rounded-md border border-line bg-surface px-5 py-4">
             <SelfScore selfScore={session.selfScore} lead="待つ間に、この面談の自分の点を付けておけます（付けなくても読めます）。あとで AI の点と並べます。" confirmLabel="待つ" canRedo />
           </div>

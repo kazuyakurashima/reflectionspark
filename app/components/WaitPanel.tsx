@@ -83,7 +83,7 @@ function Detail({ view }: { view: WaitView }) {
   );
 }
 
-export function WaitPanel({ title, estimate, reopen, steps = [], view, className = "" }: { title: string; estimate: string; reopen: string; steps?: string[]; view: WaitView; className?: string }) {
+export function WaitPanel({ title, estimate, steps = [], view, className = "" }: { title: string; estimate: string; steps?: string[]; view: WaitView; className?: string }) {
   const elapsed = useElapsed();
   return (
     <div className={`rounded-md border border-line bg-surface px-5 py-5 sm:px-7 sm:py-6 ${className}`}>
@@ -139,7 +139,7 @@ export function WaitPanel({ title, estimate, reopen, steps = [], view, className
       )}
 
       <div className="mt-5">
-        <WaitNote time={estimate} reopen={reopen} />
+        <WaitNote />
       </div>
     </div>
   );

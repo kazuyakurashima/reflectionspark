@@ -183,7 +183,7 @@ export default function Screen4() {
           </div>
         )}
         {nextScene && !candidates && !error && (
-          <WaitPanel className="mt-3" title="候補を作っています" estimate="20〜30 秒ほど" reopen="この画面を開き直すと、もう一度作ります。" view={{ current: 0, status: "選んだ場面とあなたの答えから、行動の候補を書いています", ratio: null }} />
+          <WaitPanel className="mt-3" title="候補を作っています" estimate="20〜30 秒ほど" view={{ current: 0, status: "選んだ場面とあなたの答えから、行動の候補を書いています", ratio: null }} />
         )}
         {candidates && cands.length === 0 && !error && (
           <div className={`mt-3 ${NOTE}`}>

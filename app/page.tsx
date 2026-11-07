@@ -249,7 +249,7 @@ export default function Screen1() {
           </p>
         )}
         {busy && (
-          <WaitPanel className="mt-6" title="話者を分けています" estimate="1 分ほど" reopen="開き直して、もう一度「話者を分ける」を押してください。貼った文字起こしは残っています。" steps={STEP0_STEPS} view={step0View(progress)} />
+          <WaitPanel className="mt-6" title="話者を分けています" estimate="1 分ほど" steps={STEP0_STEPS} view={step0View(progress)} />
         )}
         {error && <p className="mt-3 text-[0.92rem] text-red-700">{error}　もう一度「話者を分ける」を押すと、やり直せます。</p>}
         {demoError && <p className="mt-3 text-[0.92rem] text-red-700">サンプルを読めませんでした。もう一度押すと、やり直せます。</p>}
