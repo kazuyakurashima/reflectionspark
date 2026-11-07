@@ -278,16 +278,9 @@ export default function Screen1() {
           </div>
 
           {detail && (
-            <div className="mt-10">
-              <p className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink-3">
-                <span>
-                  <span className="font-semibold text-ink underline decoration-accent decoration-2 underline-offset-[5px]">太字の下線</span>　Claude が直した後の言葉
-                </span>
-                <span>
-                  <span className="text-ink underline decoration-ink-3 decoration-wavy decoration-1 underline-offset-[5px]">波線</span>　直す前の言葉と、意味が通らないと見た所
-                </span>
-              </p>
-              <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} className="mt-8" />
+            <div className="mt-8">
+              {/* 最初は種類ごとの一覧だけ。押した種類だけが開く（印の見方は、開いた種類の中に出す） */}
+              <CheckGroups t={transcript} groups={groups} onChange={update} onSplit={split} />
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 <button type="button" onClick={goNext} className={BTN_PRIMARY}>
                   {nextLabel}
