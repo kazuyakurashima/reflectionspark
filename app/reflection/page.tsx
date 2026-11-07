@@ -65,6 +65,9 @@ export default function Screen2() {
           return;
         }
         updateSession((s) => ({ ...s, analysis: { step1: d.step1, step2: d.step2, mock: d.mock } }));
+        // 保存したら印を下ろす。Next は前の画面を消さずに隠して残す（cacheComponents）ので、印が残ると、
+        // 1 に戻って整形し直す・次の面談に進むなどで分析が消えたあと、この画面に戻っても分析を始めない
+        if (run.current === thisRun) started.current = false;
       } catch (e) {
         setError((e as Error).message);
         started.current = false;

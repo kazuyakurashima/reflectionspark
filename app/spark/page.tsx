@@ -65,6 +65,9 @@ export default function Screen4() {
           return;
         }
         updateSession((s) => ({ ...s, candidates: { step3: d.step3, mock: d.mock } }));
+        // 保存したら印を下ろす。Next は前の画面を消さずに隠して残す（cacheComponents）ので、印が残ると、
+        // 3 に戻って答えを直したあと（候補が消える）、この画面に戻っても候補を作らない
+        if (run.current === thisRun) started.current = false;
       } catch (e) {
         setError((e as Error).message);
         started.current = false;

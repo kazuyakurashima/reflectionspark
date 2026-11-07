@@ -74,6 +74,9 @@ export default function Screen5() {
             prev: s.prev?.spark && !counted ? { ...s.prev, spark: { ...s.prev.spark, timesFollowed: s.prev.spark.timesFollowed + 1 } } : s.prev,
           };
         });
+        // 保存したら印を下ろす。Next は前の画面を消さずに隠して残す（cacheComponents）ので、印が残ると、
+        // 1 に戻って発言を直す・整形し直すで判定が消えたあと、この画面に戻っても読み直さない
+        if (run.current === thisRun) started.current = false;
       } catch (e) {
         setFollowError((e as Error).message);
         started.current = false;
