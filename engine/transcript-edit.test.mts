@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { CHECK_UNANCHORED } from "./step0.mts";
-import { CHECK_ORIGINAL_SAME_AS_TEXT, CHECK_SPLIT_BY_USER, splitUtterance } from "./transcript-edit.mts";
+import { CHECK_ORIGINAL_SAME_AS_TEXT, CHECK_SPEAKER_CHECKED_BY_USER, CHECK_SPLIT_BY_USER, splitUtterance } from "./transcript-edit.mts";
 import type { Transcript } from "./types.mts";
 
 function make(): Transcript {
@@ -55,5 +55,17 @@ describe("画面 1 で発話を分ける", () => {
     assert.equal(r.utterances[1].original, "はいあ、ごめん会場はどこ");
     assert.equal(r.utterances[2].original, "あ、ごめん会場はどこ？");
     assert.ok(r.utterances[2].check.includes(CHECK_ORIGINAL_SAME_AS_TEXT));
+  });
+
+  test("話者を確かめた発話を分けると、確かめた印は前半にだけ残る（後半の話者は自動で替えたので、まだ本人が選んでいない）", () => {
+    for (const fixed of [false, true]) {
+      const t = make();
+      t.utterances[1].check = ["話者の確からしさが低い", CHECK_SPEAKER_CHECKED_BY_USER];
+      if (fixed) t.utterances[1].text = "はいあ、ごめん会場はどこ？"; // 直した所がある発話も同じ
+      const r = splitUtterance(t, 1, 2);
+      assert.ok(r.utterances[1].check.includes(CHECK_SPEAKER_CHECKED_BY_USER));
+      assert.ok(!r.utterances[2].check.includes(CHECK_SPEAKER_CHECKED_BY_USER));
+      assert.ok(r.utterances[2].check.includes("話者の確からしさが低い")); // 迷った印は残るので、話者を確かめる所にまた出る
+    }
   });
 });

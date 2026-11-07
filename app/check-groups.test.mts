@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_MID_CONFIDENCE, CHECK_MULTIPLE_OTHERS, CHECK_SPEAKER_LABEL, CHECK_UNANCHORED } from "../engine/step0.mts";
+import { CHECK_SPEAKER_CHECKED_BY_USER, splitUtterance } from "../engine/transcript-edit.mts";
 import type { Transcript, Utterance } from "../engine/types.mts";
+import { sameLine, sameTranscript } from "./lib/input-guard.mts";
 import {
   MARK_CORRECTED,
   MARK_EDITED,
@@ -34,6 +36,25 @@ describe("画面 1：確かめる所を種類ごとに分ける", () => {
     assert.equal(MARK_MULTIPLE, CHECK_MULTIPLE_OTHERS);
     assert.equal(MARK_CORRECTED, CHECK_CORRECTED);
     assert.equal(MARK_EDITED, "本人が直した");
+    assert.equal(MARK_SPEAKER_CHECKED, CHECK_SPEAKER_CHECKED_BY_USER);
+  });
+
+  test("「合っている」は印だけを付け、同じ発言として読める（画面 1 は分析・答え・ひとつを消さない）。話者を替えたときは別の発言", () => {
+    const low = u(0, [CHECK_LOW_CONFIDENCE]);
+    assert.ok(sameLine(low, withSpeaker(low, "講師")));
+    assert.ok(!sameLine(low, withSpeaker(low, "生徒")));
+    const t = (x: Utterance): Transcript => ({ kind: "生徒", raw: "r", multipleOthers: false, step0c: null, utterances: [x], step0b: { proposed: [], discarded: [], applied: [] } });
+    assert.ok(sameTranscript(t(low), t(withSpeaker(low, "講師"))));
+  });
+
+  test("確かめた発話を分けると、後半は確かめる前に戻り、話者を確かめる所にまた出る", () => {
+    const x = withSpeaker({ ...u(0, [CHECK_LOW_CONFIDENCE], "はいそうです"), memoSpan: [0, 6] }, "講師");
+    const t: Transcript = { kind: "生徒", raw: "はいそうです", multipleOthers: false, step0c: null, utterances: [x], step0b: { proposed: [], discarded: [], applied: [] } };
+    const r = splitUtterance(t, 0, 2);
+    assert.deepEqual(r.utterances.map((y) => [y.speaker, speakerChecked(y)]), [["講師", true], ["生徒", false]]);
+    const g = groupChecks(r);
+    assert.deepEqual(g.speaker.map((y) => y.index), [0, 1]);
+    assert.equal(g.speaker.filter(speakerChecked).length, 1);
   });
 
   test("話者を迷った発話は話者の所に、同じ発話の聞き違いの直しは直しの所にも入り、ほかは一つの種類にだけ入る。直しは「前 → 後」ごとにまとめる", () => {

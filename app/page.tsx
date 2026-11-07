@@ -17,7 +17,7 @@ import { Collapsible } from "@/app/components/Collapsible";
 import { STEP0_STEPS, WaitPanel, step0View } from "@/app/components/WaitPanel";
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import { demoAfterInput } from "@/app/lib/demo-flag.mts";
-import { sameInput } from "@/app/lib/input-guard.mts";
+import { sameInput, sameLine } from "@/app/lib/input-guard.mts";
 import { RecordsLink } from "@/app/components/RecordViews";
 import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, FIELD, H1, H2, LABEL, LEAD, NOTE, PAGE, QUIET_LINK, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
@@ -124,9 +124,14 @@ export default function Screen1() {
   /** 発話を直しても残すもの。自分の点と一言、確かめの自分の判定は、面談への自分の見方なので残す。AI の判定は消して読み直す（追った回数は二重に数えない） */
   const kept = (s: SessionData) => ({ selfScore: s.selfScore, selfNote: s.selfNote, followUp: s.followUp ? { ...s.followUp, result: null } : null });
 
-  /** 発話を直したら、分析と後の工程のデータを消す（引用が本文と合わなくなるため） */
+  /** 発話を直したら、分析と後の工程のデータを消す（引用が本文と合わなくなるため）。話者も本文も変わらない（「合っている」で印だけを付けた）ときは消さない */
   const update = (next: Utterance) => {
-    updateSession((s) => (s.transcript ? { ...s, ...cleared, ...kept(s), transcript: { ...s.transcript, utterances: s.transcript.utterances.map((u) => (u.index === next.index ? next : u)) } } : s));
+    updateSession((s) => {
+      if (!s.transcript) return s;
+      const before = s.transcript.utterances.find((u) => u.index === next.index);
+      const transcript = { ...s.transcript, utterances: s.transcript.utterances.map((u) => (u.index === next.index ? next : u)) };
+      return before && sameLine(before, next) ? { ...s, transcript } : { ...s, ...cleared, ...kept(s), transcript };
+    });
   };
 
   const split = (u: Utterance, pos: number) => {

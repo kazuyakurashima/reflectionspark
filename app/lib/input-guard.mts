@@ -9,10 +9,19 @@ export function sameInput(stamp: InputStamp, s: InputStamp): boolean {
   return s.id === stamp.id && s.raw === stamp.raw && s.kind === stamp.kind;
 }
 
-type Lines = { raw: string; utterances: { speaker: string; text: string | null }[] };
+type Line = { speaker: string; text: string | null };
+type Lines = { raw: string; utterances: Line[] };
+
+/**
+ * 同じ発言として読めるか（話者と本文）。印（check）と確からしさは見ない。
+ * 「合っている」で確かめた印だけを付けたときは、分析の材料が変わらないので、後の工程（分析・答え・ひとつ）を消さない。
+ */
+export function sameLine(a: Line, b: Line): boolean {
+  return a.speaker === b.speaker && a.text === b.text;
+}
 
 /** 同じ文字起こしの、同じ発言の並びか（話者と本文）。0c の推測の有無は問わない */
 export function sameTranscript(a: Lines | null | undefined, b: Lines | null | undefined): boolean {
   if (!a || !b || a.raw !== b.raw || a.utterances.length !== b.utterances.length) return false;
-  return a.utterances.every((u, i) => u.speaker === b.utterances[i].speaker && u.text === b.utterances[i].text);
+  return a.utterances.every((u, i) => sameLine(u, b.utterances[i]));
 }
