@@ -1,7 +1,7 @@
 // 工程 1：場面・読み・問い（画面 2）。Messages API、citations、streaming。
 // 受け取る：1 発話 1 ブロックの document、場面の種類、採点表 5 項目の考え方。
 // 渡さない：本人の自己採点と一言、覚えている記録、工程 0c の推測（決まり 10）。
-// 返す：場面 2 つ（引用は照合済みのものだけ。問いは次に試せる所だけ）、サマリー、流れ、事情を尋ねる問い。選んだ理由と次点は記録だけ。
+// 返す：場面 2 つ（引用は照合済みのものだけ。問いは次に試せる所だけ。読み・観察・反応が指す発話の番号は文と分けて）、サマリー、流れ。選んだ理由と次点は記録だけ。
 
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -12,7 +12,7 @@ import { guardStep1 } from "./guard.mts";
 import { step1System, step1UserText } from "./prompts.mts";
 import { findTags, parseNumbers, tagText } from "./tagged.mts";
 import type { Quote, Scene, SceneType, Step1Result, Transcript, Utterance } from "./types.mts";
-import { checkUtteranceRefs, toUtteranceIndices } from "./utterance-no.mts";
+import { checkUtteranceRefs, parseUtteranceList, toUtteranceIndices } from "./utterance-no.mts";
 
 export type Step1Options = {
   onText?: (delta: string) => void;
@@ -36,6 +36,7 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
     const quotes = dedupeQuotes(inScene.filter((q) => q.verified));
     const discardedQuotes = inScene.filter((q) => !q.verified);
     const get = (name: string) => tagText(text, name, tag.start, tag.end);
+    const refsOf = (name: string) => toUtteranceIndices(parseUtteranceList(get(name)), utterances.length);
     scenes.push({
       type,
       items: parseNumbers(get("items")).filter((n) => n >= 1 && n <= 5),
@@ -49,6 +50,7 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
       asChoice: type === "次に試せる所" ? get("as_choice") || null : null,
       // よく表れた所には問いを置かない（決まり 6）。書かれていても使わない
       question: type === "次に試せる所" ? get("question") : "",
+      refs: { reading: refsOf("reading_refs"), observation: refsOf("observation_refs"), reaction: refsOf("reaction_refs") },
       record: { whyChosen: get("why_chosen"), runnerUp: toUtteranceIndices(parseNumbers(get("runner_up")), utterances.length) },
     });
   }
@@ -59,6 +61,7 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
     .map((l) => l.replace(/^(?:[-・*]+\s*|\d+[.．、)）]\s*)/, "").trim())
     .filter((l) => l !== "");
   const summary = tagText(text, "summary");
+  // 事情を尋ねる問いは 11/8 に外した（AI に書かせない）。書かれていても読むだけで、画面には出さない
   const extraQuestion = tagText(text, "extra_question") || null;
   // 文の中の「発話 n」が、発話の並びの範囲にあるか（番号のずれの見張り）
   const utteranceRefs = checkUtteranceRefs(

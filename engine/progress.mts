@@ -68,7 +68,7 @@ export function labeledSentences(partialJson: string): number {
  * 0：まだ本文が無い（読んでいる）／1・2：その番号の場面を書いている／3：場面の後（まとめと流れ）を書いている
  */
 export function step1Phase(partialText: string): number {
-  if (/<(summary|flow|extra_question)\b/.test(partialText)) return 3;
+  if (/<(summary|flow)\b/.test(partialText)) return 3;
   const scenes = [...partialText.matchAll(/<scene\b/g)].length;
   if (scenes > 0) return Math.min(scenes, 2);
   return /<no_scene\b/.test(partialText) ? 3 : 0;

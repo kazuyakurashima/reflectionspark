@@ -5,7 +5,7 @@
 
 import { callStructured, JUDGE_MODEL } from "../../engine/claude.mts";
 import type { CallMeta, Candidate, Scene, Transcript } from "../../engine/types.mts";
-import { blockLabel, utteranceLabel } from "../../engine/utterance-no.mts";
+import { blockLabel, utteranceLabel, utteranceListLabel } from "../../engine/utterance-no.mts";
 
 export type Judgement = { score: number; reason: string };
 
@@ -29,6 +29,14 @@ async function judge(label: string, user: string): Promise<Judgement & { meta: C
   return { ...r.data, meta: r.meta };
 }
 
+/**
+ * 文と分けて返させた、指す発話の番号（11/8 から。文の中には番号を書かせない）。前の作りの出力には無く、そのときは何も足さない
+ * （前の出力の判定に渡す文は、前と一字も変わらない。新しい出力は、文の中にあった番号と同じ中身を、文の後に添える）
+ */
+function refLine(name: string, refs: number[] | undefined): string {
+  return refs && refs.length > 0 ? `\n${name}：${utteranceListLabel(refs)}` : "";
+}
+
 function sceneText(sc: Scene, t: Transcript): string {
   const quotes = sc.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join("\n");
   const around = sc.quotes
@@ -42,9 +50,9 @@ function sceneText(sc: Scene, t: Transcript): string {
 ${quotes || "（引用なし）"}
 前後の発話：
 ${around || "（なし）"}
-観察：${sc.observation}
-直後の相手の反応：${sc.reaction}
-読み：${sc.reading}
+観察：${sc.observation}${refLine("観察が指す発話", sc.refs?.observation)}
+直後の相手の反応：${sc.reaction}${refLine("反応が指す発話", sc.refs?.reaction)}
+読み：${sc.reading}${refLine("読みが指す発話", sc.refs?.reading)}
 ${sc.asChoice ? `意図した選択として見ると：${sc.asChoice}\n` : ""}${sc.question ? `問い：${sc.question}` : "問い：（なし。よく表れた所には問いを置かない）"}`;
 }
 

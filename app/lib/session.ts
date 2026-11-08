@@ -208,15 +208,15 @@ export function answerText(s: SessionData): string {
     .join("\n\n");
 }
 
-/** 本人が答える問い（課題が見えた場面の問いと、面談の全体からの問い。画面 2 で答える） */
+/** 本人が答える問い（課題が見えた場面の問い。画面 2 で答える） */
 export function questionsOf(s: SessionData): string[] {
   return questionItemsOf(s).map((x) => x.q);
 }
 
 /**
- * 本人が答える問いと、どこから来た問いか（場面の種類。面談の全体からの問いは null）。
- * 問いは課題が見えた場面と面談の全体からだけ。うまくいった場面には問いを置かない（決まり 6）。
- * 前の作りで保存した出力に、うまくいった場面の問いが残っていても出さない。
+ * 本人が答える問いと、どこから来た問いか（場面の種類）。
+ * 問いは課題が見えた場面だけ。うまくいった場面には問いを置かない（決まり 6）。
+ * 事情を尋ねる問い（面談の全体から）は 11/8 に外した。前の作りで保存した出力に、うまくいった場面の問いや事情を尋ねる問いが残っていても出さない。
  */
 export function questionItemsOf(s: SessionData): { q: string; from: SceneType | null }[] {
   const a = s.analysis;
@@ -224,6 +224,5 @@ export function questionItemsOf(s: SessionData): { q: string; from: SceneType | 
   const qs: { q: string; from: SceneType | null }[] = a.step1.scenes
     .filter((sc) => sc.type !== "よく表れた所" && sc.question.trim() !== "")
     .map((sc) => ({ q: sc.question, from: sc.type }));
-  if (a.step1.extraQuestion) qs.push({ q: a.step1.extraQuestion, from: null });
   return qs;
 }

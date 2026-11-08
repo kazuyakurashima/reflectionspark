@@ -157,6 +157,11 @@ export type Scene = {
   /** 次に試せる所だけ */
   asChoice: string | null;
   question: string;
+  /**
+   * 読み・観察・直後の相手の反応が指す発話の番号（範囲は広げたもの）。文の中には番号を書かせず、ここに分けて返させる（一読で分かるように。11/8）。
+   * 前の作りの出力には無く、文の中に「発話 n」が書いてある
+   */
+  refs?: { reading: number[]; observation: number[]; reaction: number[] };
   /** 画面に出さない記録 */
   record: { whyChosen: string; runnerUp: number[] };
 };
@@ -167,6 +172,7 @@ export type Step1Result = {
   noScene: string | null;
   summary: string;
   flow: string[];
+  /** 事情を尋ねる問い。11/8 に画面から外し、AI にも書かせない。前の作りの出力にだけある */
   extraQuestion: string | null;
   /** 引用の数：生成した・原文と合わず捨てた・引用を出せなかった場面 */
   quoteStats: { generated: number; discarded: number; scenesWithoutQuote: number };

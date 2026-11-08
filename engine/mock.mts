@@ -8,7 +8,7 @@ import { parseStep3 } from "./step3.mts";
 import { computeTotal } from "./rubric.mts";
 import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
-import { utteranceLabel } from "./utterance-no.mts";
+import { utteranceRangeLabel } from "./utterance-no.mts";
 
 export const MOCK_NOTE = "（仮の出力）";
 
@@ -108,6 +108,16 @@ function pickSelf(utterances: Utterance[], self: string, prefer: RegExp, fallbac
   return selfs[Math.min(selfs.length - 1, Math.floor(selfs.length * fallbackRatio))] ?? utterances[0];
 }
 
+/** 仮の面談の流れ。本物と同じく、行の頭に発話の範囲を書く（地図の話題の帯と、話題ごとの全文を仮の出力でも確かめられるように） */
+function mockFlow(count: number): string[] {
+  const names = ["主題", "転機", "終わり方"];
+  const size = Math.max(1, Math.ceil(count / names.length));
+  return names
+    .map((name, i) => ({ name, from: i * size, to: Math.min(count - 1, (i + 1) * size - 1) }))
+    .filter((c) => c.from <= c.to)
+    .map((c) => `${utteranceRangeLabel(c.from, c.to)}：${MOCK_NOTE}${c.name}`);
+}
+
 /** 仮の工程 1：本文に実際にある発話を引用し（照合も通す）、読みと問いは仮の文にする。問いは次に試せる所だけ。 */
 export function mockStep1(t: Transcript): Step1Result {
   const { self } = SPEAKER_LABELS[t.kind];
@@ -117,7 +127,7 @@ export function mockStep1(t: Transcript): Step1Result {
   const scene = (type: Scene["type"], u: Utterance, items: number[]): Scene => ({
     type,
     items,
-    context: `${MOCK_NOTE}${utteranceLabel(u.index)} の前後で話されていたことを、本物の出力はここに一行で書きます。`,
+    context: `${MOCK_NOTE}この場面で話されていたことを、本物の出力はここに一行で書きます。`,
     quotes: [quoteOf(u, t.utterances)],
     discardedQuotes: [],
     quotedTextInBody: u.text ?? "",
@@ -130,13 +140,15 @@ export function mockStep1(t: Transcript): Step1Result {
     asChoice: type === "次に試せる所" ? `${MOCK_NOTE}本人にその選び方の理由があった可能性を、決めつけずにここに書きます。` : null,
     // 問いは次に試せる所だけ（決まり 6）
     question: type === "次に試せる所" ? `${MOCK_NOTE}次に同じ場面が来たら、何を試しますか。` : "",
+    // 文の中には番号を書かず、指す発話は別に持つ（決まり 2）
+    refs: { reading: [u.index], observation: [u.index], reaction: u.index + 1 < t.utterances.length ? [u.index + 1] : [] },
     record: { whyChosen: `${MOCK_NOTE}選んだ理由（画面に出さない）`, runnerUp: [] },
   });
   return {
     scenes: [scene("よく表れた所", good, [1]), scene("次に試せる所", next, [])],
     noScene: null,
     summary: `${MOCK_NOTE}よく表れた所を先に、次に試せる所を後に、2 文で本物の出力はここに書きます。`,
-    flow: [`${MOCK_NOTE}主題`, `${MOCK_NOTE}転機`, `${MOCK_NOTE}終わり方`],
+    flow: mockFlow(t.utterances.length),
     extraQuestion: null,
     quoteStats: { generated: 2, discarded: 0, scenesWithoutQuote: 0 },
     firstCitationMs: null,

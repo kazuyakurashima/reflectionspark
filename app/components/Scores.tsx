@@ -42,7 +42,7 @@ export function ItemRow({ it, t }: { it: ItemScore; t: Transcript }) {
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex min-h-12 w-full items-center gap-3 py-3 text-left">
         <span aria-hidden="true" className={`h-2 w-2 shrink-0 border-b-[1.5px] border-r-[1.5px] border-ink-2 transition-transform ${open ? "rotate-45" : "-rotate-45"}`} />
         <span className="grow">
-          {it.item}. {def?.name}
+          {it.item}. {def?.label ?? def?.name}
         </span>
         {it.score === null ? (
           <span className="text-sm text-ink-3">判定しない</span>

@@ -1,9 +1,10 @@
 "use client";
 
 // 画面 2：読む（フィードバックを読み、問いに答える）。問いへの答えもこの画面で書く（11/8 に、前の画面 3「問いに答える」を入れた）。
-// 上から、見出し（右に「この画面の読み方」）→ 振り返りの要点（2 文）→ 面談の地図（下に面談の流れ）→ 場面を一つ → もう一つの問い（あれば）→ この面談の点数 → 詳しく見る → 倫理チェック。
-// うまくいった場面は「やりとり → どこが良かったか」（確かめられるものを先に）。問いは置かない（決まり 6）。
-// 課題が見えた場面は「AI の見立て → 会話を確認する（押すと開く）→ 考える問いと回答する → 見立ての根拠と別の見方（押すと開く）」。
+// 上から、見出し（右に「この画面の読み方」）→ 振り返りの要点（2 文）→ 面談の地図（下に面談の流れ）→ 場面を一つ → この面談の点数 → 詳しく見る → 倫理チェック。
+// 場面は、うまくいった場面も課題が見えた場面も同じ並び（11/8 に本人が決めた）：
+// 「AI の見立て → 会話を確認する（押すと開く）→（課題が見えた場面だけ）考える問いと回答する → 見立ての根拠（と別の見方。押すと開く）」。
+// うまくいった場面には問いを置かない（決まり 6）。見立て・要点・事実の文には発話番号を入れず、番号は「会話を確認する」と「根拠の発言」に置く。
 // AI の見立てを読み、それへの自分の考えを書くことを振り返りにする（11/8 に本人が決めた）。書く欄は「回答する」で開き、答えなくても進める。
 // 下に固定した「次にすること」を一つ置く。並びは設計書「画面 2 の出力の形と見せ方」。
 // 点数は場面と問いの後に、太い罫で区切って置く。自分の点数を一つ決めてから AI の点数を開く（原則 1・決まり 8）。自分の点数・一言・問いへの答えは、この画面の AI の呼び出しに渡さない（決まり 10）。
@@ -15,8 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import type { AnalyzeResponse } from "@/engine/server.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import type { Scene, Transcript } from "@/engine/types.mts";
-import { RUBRIC_ITEMS } from "@/engine/rubric.mts";
-import { findUtteranceRefs } from "@/engine/utterance-no.mts";
+import { findUtteranceIndices } from "@/engine/utterance-no.mts";
 import { AnswerBox } from "@/app/components/AnswerBox";
 import { Atlas } from "@/app/components/Atlas";
 import { RefText } from "@/app/components/RefText";
@@ -27,7 +27,7 @@ import { ANALYZE_STEPS, WaitPanel, analyzeView } from "@/app/components/WaitPane
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, H2, LINK, NOTE, PAGE } from "@/app/components/ui";
-import { chapterIndexOf, chaptersOf, sceneSpan, spanWindow, talkByChapter, wideWindow } from "@/app/lib/scene-view.mts";
+import { chapterIndexOf, chaptersOf, refGroups, sceneSpan, spanWindow, talkByChapter } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
 import { loadSession, updateSession, useSession } from "@/app/lib/session";
 import { sameTranscript } from "@/app/lib/input-guard.mts";
@@ -140,7 +140,7 @@ export default function Screen2() {
         {guideOpen && analysis && !analysis.step1.noScene && !error && (
           <div id="reading-guide" className="mt-5 rounded-md bg-accent-soft px-5 py-4">
             <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
-              <li>原文のやりとりが、確かめられるものです。AI の見立ては解釈で、合っているとは限りません。</li>
+              <li>AI の見立ては解釈で、合っているとは限りません。確かめられるのは原文の会話で、「会話を確認する」を押すと、見立てに関わる会話が開きます。</li>
               <li>うまくいった場面は、AI が「どこが良かったか」を書いています。</li>
               <li>課題が見えた場面は、AI の見立てを読み、問いに自分の考えを書きます（書かなくても進めます）。見立てと違う考えも、そのまま書いてください。答えから、次に試す行動の候補を作ります。</li>
             </ul>
@@ -281,21 +281,6 @@ function Drawer({ id, title, sub, open, onToggle, children }: { id?: string; tit
   );
 }
 
-/** 場面の中の手順一つ。番号は、読む順（やりとり → AI の見立て → 問い） */
-function Step({ n, title, note, last = false, children }: { n: number; title: string; note?: string; last?: boolean; children: React.ReactNode }) {
-  return (
-    <div className={`relative sm:pl-11 ${last ? "" : "pb-9"}`}>
-      {!last && <span aria-hidden="true" className="absolute bottom-1 left-[0.84rem] top-9 hidden w-px bg-line-2 sm:block" />}
-      <h3 className="flex flex-wrap items-baseline gap-x-2 text-[0.95rem] font-semibold">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-full border border-line-2 bg-surface text-xs tabular-nums text-ink-2 sm:absolute sm:left-0 sm:top-0">{n}</span>
-        {title}
-        {note && <span className="text-[0.82rem] font-normal text-ink-3">{note}</span>}
-      </h3>
-      <div className="mt-3">{children}</div>
-    </div>
-  );
-}
-
 function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeResponse["step1"]; step2: AnalyzeResponse["step2"]; mock: boolean }; session: SessionData }) {
   const { step1, step2 } = a;
   const scenes = step1.scenes;
@@ -309,30 +294,24 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
 
   const [current, setCurrent] = useState(0);
   const [seen, setSeen] = useState<number[]>([0]);
-  const [wide, setWide] = useState(false);
-  const [open, setOpen] = useState<{ flow: boolean; extra: boolean; owner: boolean; talk: boolean; all: boolean }>({ flow: false, extra: false, owner: false, talk: false, all: false });
+  const [open, setOpen] = useState<{ flow: boolean; talk: boolean; all: boolean }>({ flow: false, talk: false, all: false });
+  /** 「面談の全文」で開いた話題（番号）。いくつ開いてもよい */
+  const [openTopics, setOpenTopics] = useState<number[]>([]);
   /** AI の点数を開いたか。自分の点数を決めた後、本人が開く（待つ間に自分の点数を付けていても、勝手には開かない） */
   const [scoresShown, setScoresShown] = useState(false);
   const [ethicsOpen, setEthicsOpen] = useState(false);
   const sceneRef = useRef<HTMLElement>(null);
 
   const scene: Scene | undefined = scenes[current];
-  const span = spans[current] ?? null;
   const nextScene = scenes.findIndex((_, k) => !seen.includes(k));
   const answerOf = (q: string) => session.answers.find((x) => x.question === q)?.answer.trim() ?? "";
 
   const showScene = (k: number, scroll: boolean) => {
     setCurrent(k);
-    setWide(false);
     setSeen((s) => (s.includes(k) ? s : [...s, k]));
     if (scroll) requestAnimationFrame(() => sceneRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
-  // 広げたときは、AI が場面の文の中で番号で触れた近くの発話まで並べる（文で触れた発話を原文で確かめられるように）
-  const sceneRefs = scene ? [scene.observation, scene.reaction, scene.reading, scene.asChoice ?? "", scene.question].flatMap((x) => findUtteranceRefs(x)) : [];
-  const win = span ? (wide ? wideWindow(span, sceneRefs, n) : spanWindow(span, n, 1)) : null;
-  const discarded = scene?.discardedQuotes.length ?? 0;
-  const verified = scene?.quotes.length ?? 0;
   const sceneFocal = new Map<number, number>();
   const quotedAll = new Set<number>();
   spans.forEach((s, k) => {
@@ -448,48 +427,11 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                 <p className="mb-8 mt-6 text-[1.08rem] leading-[1.8]">
                   <RefText t={t} text={scene.context} />
                 </p>
-
-                {scene.type === "よく表れた所" ? (
-                  // うまくいった場面は、問いで自己分析させず、確かめられるやりとりの後に、どこが良かったかを最初から見せる
-                  <>
-                    <Step n={1} title="やりとりを読む">
-                      <Conversation t={t} span={span} win={win} wide={wide} onWide={() => setWide((w) => !w)} verified={verified} discarded={discarded} />
-                    </Step>
-                    <Step n={2} title="どこが良かったか" note="AI の見立て" last>
-                      <StrengthView key={current} t={t} scene={scene} />
-                    </Step>
-                  </>
-                ) : (
-                  <GrowthScene key={current} t={t} scene={scene} range={span ? refRangeLabel(spanWindow(span, n, 1).from, spanWindow(span, n, 1).to) : ""} answered={answerOf(scene.question) !== ""}>
-                    <Conversation t={t} span={span} win={win} wide={wide} onWide={() => setWide((w) => !w)} verified={verified} discarded={discarded} />
-                  </GrowthScene>
-                )}
+                <SceneBody key={current} t={t} scene={scene} answered={answerOf(scene.question) !== ""} />
               </>
             )}
           </section>
         </>
-      )}
-
-      {/* もう一つの問い（面談の全体から、文字起こしだけでは分からない事情を尋ねる）。既定で閉じ、開くと回答できる */}
-      {step1.extraQuestion && (
-        <section className="mt-14" aria-label="もう一つの問い">
-          <MoreLink
-            open={open.extra}
-            onToggle={() => setOpen((o) => ({ ...o, extra: !o.extra }))}
-            label={`もう一つの問いを見る（面談の全体から${answerOf(step1.extraQuestion) !== "" ? "。回答あり" : ""}）`}
-            openLabel="もう一つの問いを閉じる"
-            controls="extra-question"
-          />
-          {open.extra && (
-            <div id="extra-question" className="mt-2 border-l-2 border-line-2 pl-4">
-              <p className="text-[0.86rem] leading-[1.7] text-ink-2">文字起こしだけでは分からない事情を尋ねる問いです。答えると、次に試す行動の候補を作るときに使います。</p>
-              <p className="mt-2 text-[1.12rem] font-medium leading-[1.7] text-pretty">
-                <RefText t={t} text={step1.extraQuestion} />
-              </p>
-              <AnswerBox q={step1.extraQuestion} label="もう一つの問いへの回答" note="分かる範囲で書いてください。書かなくても進めます。" />
-            </div>
-          )}
-        </section>
       )}
 
       {/* 点数は場面と問いの後に、太い罫で区切って置く。自分の点数を一つ決めてから、AI の点数を開く */}
@@ -534,13 +476,8 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </h2>
         <p className="mb-3 text-[0.86rem] text-ink-2">必要なときに開きます。開かなくても、次へ進めます。</p>
         <div className="border-t border-line">
-          {/* 気づきの持ち主は AI の判定なので、場面の前（地図の下）には出さず、ここに置く */}
-          <Drawer title="気づきの持ち主" sub="" open={open.owner} onToggle={() => setOpen((o) => ({ ...o, owner: !o.owner }))}>
-            <p className="text-[0.95rem]">面談の最後に残ったテーマを主に言葉にしたのは：{step2.insightOwner}</p>
-          </Drawer>
-
           {/* 話題ごとの話した量。数えただけのもので、点数に入れず、良し悪しも付けない。番号は地図の下の「話題」と同じ */}
-          <Drawer title="話題ごとの話した量" sub="点数には入りません" open={open.talk} onToggle={() => setOpen((o) => ({ ...o, talk: !o.talk }))}>
+          <Drawer title="話題ごとの話した量" sub="" open={open.talk} onToggle={() => setOpen((o) => ({ ...o, talk: !o.talk }))}>
             {talk.length > 0 ? (
               <>
                 <p className="text-[0.86rem] leading-[1.75] text-ink-2">
@@ -588,17 +525,64 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
             )}
           </Drawer>
 
-          <Drawer title="面談の全文" sub={`発言 ${n} 回`} open={open.all} onToggle={() => setOpen((o) => ({ ...o, all: !o.all }))}>
-            <ol className="space-y-3">
-              {t.utterances.map((u) => {
-                const k = sceneFocal.get(u.index);
-                return (
-                  <li key={u.index}>
-                    <Island t={t} u={u} compact role={k !== undefined ? "focal" : "plain"} tag={k !== undefined ? `場面 ${k + 1} で引用` : quotedAll.has(u.index) ? "引用" : undefined} />
-                  </li>
-                );
-              })}
-            </ol>
+          {/* 面談の全文は、話題ごとに開く（一度に全部を出さない）。いくつ開いてもよい。話題の区切りが読めないときは、全部を一つで出す */}
+          <Drawer title="面談の全文" sub={chapters.length > 0 ? `話題ごと・発言 ${n} 回` : `発言 ${n} 回`} open={open.all} onToggle={() => setOpen((o) => ({ ...o, all: !o.all }))}>
+            {chapters.length > 0 ? (
+              <>
+                <p className="text-[0.86rem] leading-[1.75] text-ink-2">読みたい話題を押すと、その話題の会話が開きます。番号は、地図の下の「話題」と同じです。</p>
+                <ol className="mt-3 space-y-2">
+                  {chapters.map((c, i) => {
+                    const on = openTopics.includes(i);
+                    return (
+                      <li key={c.from}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenTopics((o) => (on ? o.filter((x) => x !== i) : [...o, i]))}
+                          aria-expanded={on}
+                          aria-controls={`topic-${i}`}
+                          className="flex w-full items-start gap-3 rounded-md border border-line-2 bg-surface px-3 py-2.5 text-left hover:border-accent"
+                        >
+                          <span aria-hidden="true" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 bg-paper text-xs tabular-nums text-ink-2">
+                            {i + 1}
+                          </span>
+                          <span className="min-w-0 grow text-[0.92rem] leading-[1.65]">
+                            <span className="sr-only">話題 {i + 1}：</span>
+                            {c.text}
+                            <span className="ml-2 whitespace-nowrap text-xs text-ink-3">{refRangeLabel(c.from, c.to)}</span>
+                          </span>
+                          <span className="mt-2">
+                            <Chevron open={on} />
+                          </span>
+                        </button>
+                        {on && (
+                          <ol id={`topic-${i}`} className="mt-3 space-y-3 pb-3">
+                            {t.utterances.slice(c.from, c.to + 1).map((u) => {
+                              const k = sceneFocal.get(u.index);
+                              return (
+                                <li key={u.index}>
+                                  <Island t={t} u={u} compact role={k !== undefined ? "focal" : "plain"} tag={k !== undefined ? `場面 ${k + 1} で引用` : quotedAll.has(u.index) ? "引用" : undefined} />
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+              </>
+            ) : (
+              <ol className="space-y-3">
+                {t.utterances.map((u) => {
+                  const k = sceneFocal.get(u.index);
+                  return (
+                    <li key={u.index}>
+                      <Island t={t} u={u} compact role={k !== undefined ? "focal" : "plain"} tag={k !== undefined ? `場面 ${k + 1} で引用` : quotedAll.has(u.index) ? "引用" : undefined} />
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
           </Drawer>
         </div>
 
@@ -657,20 +641,37 @@ function MoreLink({ open, onToggle, label, openLabel, controls }: { open: boolea
   );
 }
 
-/** 原文のやりとり（引用した発話に「引用」、前後に「直前」「直後」）。下に、引用の照合の印と「前後をもう少し読む」 */
-function Conversation({ t, span, win, wide, onWide, verified, discarded }: { t: Transcript; span: SceneSpan | null; win: { from: number; to: number } | null; wide: boolean; onWide: () => void; verified: number; discarded: number }) {
-  if (!span || !win) return <p className="text-ink-2">この場面には、原文と一致した引用がありません。</p>;
+/** 会話のひとまとまり（発話の範囲。含む） */
+type Spot = { from: number; to: number };
+
+/**
+ * 会話のひとまとまりを、原文で並べる箱。引用した発話に「引用」、見立てが触れた発話に印、前後 1 発話（広げると 3 発話）を添える。
+ * 下に、この中の引用が原文と一致した印と「前後をもう少し読む」。
+ */
+function ConversationBox({ t, scene, span, spot, pointed, pointedTag, badge }: { t: Transcript; scene: Scene; span: SceneSpan | null; spot: Spot; pointed: number[]; pointedTag?: string; badge?: string }) {
+  const n = t.utterances.length;
+  const [wide, setWide] = useState(false);
+  const win = spanWindow(spot, n, wide ? 3 : 1);
+  const quoted = (span?.quoted ?? []).filter((i) => i >= spot.from && i <= spot.to);
+  // AI が最初に挙げた引用は、それがこのまとまりにあるときだけ目立たせる
+  const focal = span && span.focal >= spot.from && span.focal <= spot.to ? span.focal : -1;
+  const quotesIn = scene.quotes.filter((q) => q.verified && q.index >= spot.from && q.index <= spot.to).length;
+  const mark = badge ?? (quotesIn > 0 ? `この会話の引用 ${quotesIn} 件は原文と一致` : "");
   return (
     <div className="rounded-md border border-line bg-surface shadow-[0_8px_24px_-16px_rgba(29,27,24,0.25)]">
-      <SceneLines t={t} span={span} from={win.from} to={win.to} />
+      <SceneLines t={t} span={{ from: spot.from, to: spot.to, focal, quoted }} from={win.from} to={win.to} pointed={pointed} pointedTag={pointedTag} />
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-line px-4 py-2.5 text-[0.82rem] text-ink-2 sm:px-5">
         <span>
-          <span aria-hidden="true" className="mr-1.5 font-bold text-accent">
-            ✓
-          </span>
-          {discarded === 0 ? `引用 ${verified} 件すべて原文と一致` : `引用 ${verified}／${verified + discarded} 件が原文と一致（一致しない引用は出していません）`}
+          {mark && (
+            <>
+              <span aria-hidden="true" className="mr-1.5 font-bold text-accent">
+                ✓
+              </span>
+              {mark}
+            </>
+          )}
         </span>
-        <button type="button" onClick={onWide} aria-expanded={wide} className="min-h-9 text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
+        <button type="button" onClick={() => setWide((w) => !w)} aria-expanded={wide} className="min-h-9 text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
           {wide ? "最初の範囲に戻す" : "前後をもう少し読む"}
         </button>
       </div>
@@ -678,42 +679,135 @@ function Conversation({ t, span, win, wide, onWide, verified, discarded }: { t: 
   );
 }
 
-/** 関わる採点表の項目（あれば） */
-function ItemChips({ items }: { items: number[] }) {
-  if (items.length === 0) return null;
+/** か所ごとのボタン。押すと、その会話がすぐ下に開く。いくつ開いてもよい */
+function SpotButton({ n, spot, on, onToggle, controls, note }: { n?: number; spot: Spot; on: boolean; onToggle: () => void; controls: string; note?: string }) {
   return (
-    <ul className="flex flex-wrap gap-1.5" aria-label="関わる項目">
-      {items.map((i) => (
-        <li key={i} className="rounded-full border border-line-2 bg-surface px-2.5 py-px text-[0.8rem] text-ink-2">
-          項目 {i}　{RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}
-        </li>
-      ))}
-    </ul>
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={on}
+      aria-controls={controls}
+      className={`flex min-h-9 items-center gap-2.5 rounded-md border px-3 py-1.5 text-left text-[0.9rem] transition-colors ${on ? "border-accent bg-accent-soft" : "border-line-2 bg-surface hover:border-accent"}`}
+    >
+      {n !== undefined && (
+        <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-accent text-[0.72rem] tabular-nums text-accent">
+          {n}
+        </span>
+      )}
+      <span className="tabular-nums text-accent">{refRangeLabel(spot.from, spot.to)}</span>
+      {note && <span className="text-[0.8rem] text-ink-3">{note}</span>}
+      <Chevron open={on} />
+    </button>
   );
 }
 
-/** 文字起こしから確かめられること（講師がしたこと・相手の反応）。AI が書いた事実で、文の中の番号を押すと発言が開く */
-function Facts({ t, scene, id }: { t: Transcript; scene: Scene; id: string }) {
+/**
+ * 「会話を確認する」。AI の見立てに関わる会話（照合済みの引用と、見立てが触れた発話）を、近いものごとのまとまりにして出す。
+ * 1 か所なら、押すとその会話が開く。何か所かあれば、押すとか所ごとのボタンが並び、ボタンごとに会話が開く（11/8 に本人が決めた）。
+ */
+function ConversationLink({ t, scene, span, pointed }: { t: Transcript; scene: Scene; span: SceneSpan | null; pointed: number[] }) {
+  const n = t.utterances.length;
+  const spots = refGroups([...(span?.quoted ?? []), ...pointed], n);
+  const [open, setOpen] = useState(false);
+  const [openSpots, setOpenSpots] = useState<number[]>([]);
+  const id = `talk-${scene.type}`;
+  const verified = scene.quotes.length;
+  const discarded = scene.discardedQuotes.length;
+  if (spots.length === 0) return <p className="text-ink-2">この場面には、原文と一致した引用がありません。</p>;
+  const whole = discarded === 0 ? `引用 ${verified} 件すべて原文と一致` : `引用 ${verified}／${verified + discarded} 件が原文と一致（一致しない引用は出していません）`;
+  const label = spots.length === 1 ? `会話を確認する（${refRangeLabel(spots[0].from, spots[0].to)}）` : `会話を確認する（${spots.length} か所）`;
+  return (
+    <div>
+      <MoreLink open={open} onToggle={() => setOpen((o) => !o)} label={label} openLabel="会話を閉じる" controls={id} />
+      {open && (
+        <div id={id} className="mt-2">
+          {spots.length === 1 ? (
+            <ConversationBox t={t} scene={scene} span={span} spot={spots[0]} pointed={pointed} badge={verified > 0 ? whole : undefined} />
+          ) : (
+            <>
+              <p className="text-[0.86rem] leading-[1.75] text-ink-2">
+                AI の見立てに関わる会話が {spots.length} か所あります。押すと、その会話が開きます。{verified > 0 && `${whole}。`}
+              </p>
+              <ol className="mt-2.5 space-y-2.5">
+                {spots.map((sp, i) => {
+                  const on = openSpots.includes(i);
+                  const hasQuote = (span?.quoted ?? []).some((q) => q >= sp.from && q <= sp.to);
+                  return (
+                    <li key={sp.from}>
+                      <SpotButton n={i + 1} spot={sp} on={on} onToggle={() => setOpenSpots((o) => (on ? o.filter((x) => x !== i) : [...o, i]))} controls={`${id}-${i}`} note={hasQuote ? "引用あり" : "見立てが触れた発言"} />
+                      {on && (
+                        <div id={`${id}-${i}`} className="mt-2">
+                          <ConversationBox t={t} scene={scene} span={span} spot={sp} pointed={pointed} />
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </>
+          )}
+          <p className="mt-2 text-[0.8rem] leading-relaxed text-ink-3">{MATCH_NOTE}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 事実の文の後に置く「根拠の発言」。番号のまとまりごとのボタンで、押すとその会話がすぐ下に開く */
+function RefSpots({ t, scene, span, indices, idPrefix }: { t: Transcript; scene: Scene; span: SceneSpan | null; indices: number[]; idPrefix: string }) {
+  const spots = refGroups(indices, t.utterances.length);
+  const [openSpots, setOpenSpots] = useState<number[]>([]);
+  if (spots.length === 0) return null;
+  return (
+    <div className="mt-1.5">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+        <span className="text-[0.8rem] text-ink-3">根拠の発言：</span>
+        {spots.map((sp, i) => {
+          const on = openSpots.includes(i);
+          return <SpotButton key={sp.from} spot={sp} on={on} onToggle={() => setOpenSpots((o) => (on ? o.filter((x) => x !== i) : [...o, i]))} controls={`${idPrefix}-${i}`} />;
+        })}
+      </div>
+      {spots.map((sp, i) =>
+        openSpots.includes(i) ? (
+          <div key={sp.from} id={`${idPrefix}-${i}`} className="mt-2">
+            <ConversationBox t={t} scene={scene} span={span} spot={sp} pointed={indices} pointedTag="根拠の発言" />
+          </div>
+        ) : null,
+      )}
+    </div>
+  );
+}
+
+/**
+ * 文字起こしから確かめられること（講師がしたこと・相手の反応）。AI が書いた事実。
+ * 文の中には発話番号を書かせず、根拠の発言は文の後にボタンで置く（11/8）。前の作りの出力は、文の中の番号を押すと発言が開く。
+ * AI が箇条書きで書いた改行は残す（一続きにすると「- 」が文の中に並んで読めない）。
+ */
+function Facts({ t, scene, span, id }: { t: Transcript; scene: Scene; span: SceneSpan | null; id: string }) {
   const { self, other } = SPEAKER_LABELS[t.kind];
+  const rows = [
+    { key: "observation", label: `${self}がしたこと`, bar: "bg-bar-self", text: scene.observation, refs: scene.refs?.observation },
+    { key: "reaction", label: `${other}の反応`, bar: "bg-bar-other", text: scene.reaction, refs: scene.refs?.reaction },
+  ];
   return (
     <div id={id} className="mb-2 mt-1 w-full">
-      <dl className="space-y-3 border-l-2 border-line-2 pl-4 text-[0.95rem] leading-[1.8]">
-        <div>
-          <dt className="flex items-center gap-2 text-[0.8rem] font-semibold text-ink-2">
-            <i aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-self" />
-            {self}がしたこと
-          </dt>
-          <dd>{scene.observation ? <RefText t={t} text={scene.observation} /> : "（書かれていません）"}</dd>
-        </div>
-        <div>
-          <dt className="flex items-center gap-2 text-[0.8rem] font-semibold text-ink-2">
-            <i aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-other" />
-            {other}の反応
-          </dt>
-          <dd>{scene.reaction ? <RefText t={t} text={scene.reaction} /> : "（書かれていません）"}</dd>
-        </div>
+      <dl className="space-y-4 border-l-2 border-line-2 pl-4 text-[0.95rem] leading-[1.8]">
+        {rows.map((r) => (
+          <div key={r.key}>
+            <dt className="flex items-center gap-2 text-[0.8rem] font-semibold text-ink-2">
+              <i aria-hidden="true" className={`inline-block h-2.5 w-2.5 rounded-[2px] ${r.bar}`} />
+              {r.label}
+            </dt>
+            <dd className="whitespace-pre-line">
+              {r.text ? <RefText t={t} text={r.text} /> : "（書かれていません）"}
+              {r.refs && <RefSpots t={t} scene={scene} span={span} indices={r.refs} idPrefix={`${id}-${r.key}`} />}
+            </dd>
+          </div>
+        ))}
       </dl>
-      <p className="mt-2 pl-4 text-[0.8rem] leading-relaxed text-ink-3">AI が文字起こしから書いた事実です。番号を押すと、その発言が開きます。</p>
+      <p className="mt-2 pl-4 text-[0.8rem] leading-relaxed text-ink-3">
+        {scene.refs ? "AI が文字起こしから書いた事実です。「根拠の発言」を押すと、その会話が開きます。" : "AI が文字起こしから書いた事実です。番号を押すと、その発言が開きます。"}
+      </p>
     </div>
   );
 }
@@ -721,42 +815,17 @@ function Facts({ t, scene, id }: { t: Transcript; scene: Scene; id: string }) {
 const MATCH_NOTE = "「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。";
 
 /**
- * うまくいった場面の「どこが良かったか」。最初から見せる（問いを置かず、読んで受け取る場面のため。決まり 6）。
- * 色の付いた箱に入れ、AI の解釈だと分かるようにする（原則 2）。文字起こしで確かめられることは、押すと開く。
+ * 場面の本体。うまくいった場面も課題が見えた場面も同じ並びにする（11/8 に本人が決めた）：
+ * AI の見立て → 会話を確認する（押すと開く）→（課題が見えた場面だけ）考える問いと「回答する」→ 見立ての根拠（課題が見えた場面は別の見方も）。
+ * うまくいった場面には問いを置かない（決まり 6）。見立ての文には発話番号を書かせず、番号は「会話を確認する」と「根拠の発言」に置く。
+ * AI の見立てを読み、それへの自分の考えを書くことを振り返りにする。見立てと違う考えも、そのまま書いてもらう。
  */
-function StrengthView({ t, scene }: { t: Transcript; scene: Scene }) {
-  const [facts, setFacts] = useState(false);
-  const factsId = `facts-${scene.type}`;
-  return (
-    <div>
-      <div className="mb-3">
-        <ItemChips items={scene.items} />
-      </div>
-      <div className="rounded-lg bg-accent-soft px-4 py-3.5 sm:px-5">
-        <p className="flex items-center gap-2 text-[0.8rem] font-semibold text-accent">
-          良かった所
-          <span className="rounded-full border border-accent/30 px-2 text-[0.72rem] font-normal">解釈</span>
-        </p>
-        <p className="mt-1.5 text-[1.06rem] font-medium leading-[1.85] text-pretty">{scene.reading ? <RefText t={t} text={scene.reading} /> : "（書かれていません）"}</p>
-      </div>
-      <div className="mt-2 flex flex-col items-start">
-        <MoreLink open={facts} onToggle={() => setFacts((f) => !f)} label="文字起こしで事実を確かめる" openLabel="事実を閉じる" controls={factsId} />
-        {facts && <Facts t={t} scene={scene} id={factsId} />}
-      </div>
-      <p className="mt-3 text-[0.8rem] leading-relaxed text-ink-3">{MATCH_NOTE}</p>
-    </div>
-  );
-}
-
-/**
- * 課題が見えた場面。上から、AI の見立て（振り返りの要点と同じ形）→ 会話を確認する（押すと開く）→ 考える問いと「回答する」
- * → 見立ての根拠と別の見方（押すと開く。なぜ課題と読んだかを確かめたい人、答えにくい人のため）。
- * AI の見立てを読み、それへの自分の考えを書くことを振り返りにする（11/8 に本人が決めた）。見立てと違う考えも、そのまま書いてもらう。
- */
-function GrowthScene({ t, scene, range, answered, children }: { t: Transcript; scene: Scene; range: string; answered: boolean; children: React.ReactNode }) {
-  const [talk, setTalk] = useState(false);
+function SceneBody({ t, scene, answered }: { t: Transcript; scene: Scene; answered: boolean }) {
   const [detail, setDetail] = useState(false);
-  const talkId = `talk-${scene.type}`;
+  const growth = scene.type === "次に試せる所";
+  const span = sceneSpan(scene.quotes, t.utterances.length);
+  // 見立てが触れた発話。新しい出力は欄に分けてある。前の作りの出力は、文の中の番号を読む
+  const pointed = scene.refs ? scene.refs.reading : findUtteranceIndices(scene.reading);
   const detailId = `detail-${scene.type}`;
   return (
     <div>
@@ -765,42 +834,41 @@ function GrowthScene({ t, scene, range, answered, children }: { t: Transcript; s
           AI の見立て
           <span className="rounded-[3px] border border-line-2 px-1.5 py-px text-[0.7rem] leading-tight">解釈</span>
         </h3>
-        <p className="mt-1.5 text-[1.08rem] leading-[1.85] text-pretty">{scene.reading ? <RefText t={t} text={scene.reading} /> : "（書かれていません）"}</p>
-        <div className="mt-3">
-          <ItemChips items={scene.items} />
-        </div>
+        <p className="mt-1.5 whitespace-pre-line text-[1.08rem] leading-[1.85] text-pretty">{scene.reading ? <RefText t={t} text={scene.reading} /> : "（書かれていません）"}</p>
       </section>
 
       <div className="mt-3">
-        <MoreLink open={talk} onToggle={() => setTalk((o) => !o)} label={`会話を確認する${range ? `（${range}）` : ""}`} openLabel="会話を閉じる" controls={talkId} />
-        {talk && (
-          <div id={talkId} className="mt-2">
-            {children}
-            <p className="mt-2 text-[0.8rem] leading-relaxed text-ink-3">{MATCH_NOTE}</p>
-          </div>
-        )}
+        <ConversationLink t={t} scene={scene} span={span} pointed={pointed} />
       </div>
 
-      <div className="mt-10">
-        <h3 className="flex flex-wrap items-baseline gap-x-2 text-[0.95rem] font-semibold">
-          考える問い
-          <span className="text-[0.82rem] font-normal text-ink-3">{answered ? "回答あり" : "答えなくても進めます"}</span>
-        </h3>
-        <p className="mt-2 text-[1.3rem] font-medium leading-[1.65] text-pretty">
-          <RefText t={t} text={scene.question} />
-        </p>
-        <AnswerBox q={scene.question} label="考える問いへの回答" note="AI の見立てと違うと思う所も、そのまま書いてください。この答えから、次に試す行動の候補を作ります。" />
-      </div>
+      {growth && (
+        <div className="mt-10">
+          <h3 className="flex flex-wrap items-baseline gap-x-2 text-[0.95rem] font-semibold">
+            考える問い
+            <span className="text-[0.82rem] font-normal text-ink-3">{answered ? "回答あり" : "答えなくても進めます"}</span>
+          </h3>
+          <p className="mt-2 text-[1.3rem] font-medium leading-[1.65] text-pretty">
+            <RefText t={t} text={scene.question} />
+          </p>
+          <AnswerBox q={scene.question} label="考える問いへの回答" note="AI の見立てと違うと思う所も、そのまま書いてください。この答えから、次に試す行動の候補を作ります。" />
+        </div>
+      )}
 
-      <div className="mt-6 flex flex-col items-start">
-        <MoreLink open={detail} onToggle={() => setDetail((o) => !o)} label="AI の見立ての根拠と、別の見方を読む" openLabel="根拠と別の見方を閉じる" controls={detailId} />
+      <div className={`${growth ? "mt-6" : "mt-1"} flex flex-col items-start`}>
+        <MoreLink
+          open={detail}
+          onToggle={() => setDetail((o) => !o)}
+          label={growth ? "AI の見立ての根拠と、別の見方を読む" : "AI の見立ての根拠を読む"}
+          openLabel={growth ? "根拠と別の見方を閉じる" : "根拠を閉じる"}
+          controls={detailId}
+        />
         {detail && (
           <div id={detailId} className="w-full">
-            <Facts t={t} scene={scene} id={`facts-${scene.type}`} />
-            {scene.asChoice && (
+            <Facts t={t} scene={scene} span={span} id={`facts-${scene.type}`} />
+            {growth && scene.asChoice && (
               <div className="mt-3 w-full rounded-lg border border-dashed border-line-2 px-4 py-3 text-[0.95rem] leading-[1.8] text-ink-2">
                 <p className="text-[0.8rem] font-semibold text-ink-2">別の見方（意図した選択として見ると）</p>
-                <p className="mt-1">
+                <p className="mt-1 whitespace-pre-line">
                   <RefText t={t} text={scene.asChoice} />
                 </p>
               </div>

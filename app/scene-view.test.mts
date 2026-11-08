@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { chapterIndexOf, chaptersOf, sceneSpan, spanWindow, talkByChapter, wideWindow } from "./lib/scene-view.mts";
+import { chapterIndexOf, chaptersOf, refGroups, sceneSpan, spanWindow, talkByChapter, wideWindow } from "./lib/scene-view.mts";
 
 const q = (index: number, verified = true, endIndex = index + 1) => ({ index, endIndex, verified });
 
@@ -115,5 +115,21 @@ describe("画面 2：話題ごとの話した量（点には入れない）", ()
   test("区切りが無ければ空。誰も話していない区切りは割合 0", () => {
     assert.deepEqual(talkByChapter([], utterances, "講師"), []);
     assert.equal(talkByChapter([{ from: 9, to: 9, text: "x" }], utterances, "講師")[0].selfRatio, 0);
+  });
+});
+
+describe("画面 2：会話を確認するの、か所のまとまり", () => {
+  test("近い番号（あいだが 2 発話まで）は 1 か所にまとめ、離れた番号は別のか所にする。範囲の外と重なりは捨てる", () => {
+    assert.deepEqual(refGroups([95, 93, 94, 96, 73, 75], 130), [
+      { from: 73, to: 75 },
+      { from: 93, to: 96 },
+    ]);
+    assert.deepEqual(refGroups([40, 42, 44, 41, 43, 45], 130), [{ from: 40, to: 45 }]);
+    assert.deepEqual(refGroups([10, 20, 30, -1, 999, 10], 100), [
+      { from: 10, to: 10 },
+      { from: 20, to: 20 },
+      { from: 30, to: 30 },
+    ]);
+    assert.deepEqual(refGroups([], 100), []);
   });
 });

@@ -54,6 +54,21 @@ export function wideWindow(span: Pick<SceneSpan, "from" | "to">, refs: number[],
   return { from: Math.min(base.from, ...close), to: Math.max(base.to, ...close) };
 }
 
+/**
+ * 発話の番号を、近いもの（あいだが gap 発話まで）ごとのまとまりにする。昇順で、重なりなし。
+ * 「会話を確認する」で、見立てが触れた会話が 1 か所ならそのまま開き、何か所かあれば、か所ごとのボタンにするために使う。
+ */
+export function refGroups(indices: number[], count: number, gap = 2): { from: number; to: number }[] {
+  const xs = [...new Set(indices.filter((i) => Number.isInteger(i) && i >= 0 && i < count))].sort((a, b) => a - b);
+  const out: { from: number; to: number }[] = [];
+  for (const i of xs) {
+    const last = out[out.length - 1];
+    if (last && i - last.to <= gap) last.to = i;
+    else out.push({ from: i, to: i });
+  }
+  return out;
+}
+
 export type Chapter = { from: number; to: number; text: string };
 
 /**
