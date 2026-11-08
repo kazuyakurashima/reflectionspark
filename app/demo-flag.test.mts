@@ -11,7 +11,7 @@ import { tooltipPlace } from "./lib/tooltip-place.mts";
 import { formatDate, kindOfSpeakers, linesTranscript, mergeLines, previousLines, recordScoreCells } from "./lib/record-view.mts";
 
 describe("サンプルの印", () => {
-  it("印が無いとき、画面 4 は demo を送らない（貼った面談に、サンプルの講師の記録を添えない）", () => {
+  it("印が無いとき、画面 3 は demo を送らない（貼った面談に、サンプルの講師の記録を添えない）", () => {
     const body = candidatesBody({ transcript: { kind: "生徒" }, scene: { type: "次に試せる所" }, answer: "a", demo: false });
     assert.equal("demo" in body, false);
     assert.equal(JSON.parse(JSON.stringify(body)).demo, undefined);
@@ -32,7 +32,7 @@ describe("サンプルの印", () => {
     assert.equal(demoAfterInput(false, { raw: "貼った文" }), false);
   });
 
-  it("画面のつなぎ：サンプルを選ぶと印を立て、入力を変えたら demoAfterInput を通し、画面 4 は candidatesBody で送る", () => {
+  it("画面のつなぎ：サンプルを選ぶと印を立て、入力を変えたら demoAfterInput を通し、画面 3 は candidatesBody で送る", () => {
     // コメントの行は見ない（コードだけを見る）
     const code = (file: string) =>
       fs
@@ -176,7 +176,7 @@ describe("記録の画面の点数（決まり 8）", () => {
     assert.deepEqual(show(recordScoreCells({ selfScore: 6, selfVerdict: null, aiScaled: null, aiVerdict: null })), ["自分の点数=6／10", "AI の点数（合計）=—／10"]);
   });
 
-  it("続きの回は AI の合計を出さず、自分の判定と AI の判定を並べる（記録の AI の点は前の作りの画面 5 の点のため）", () => {
+  it("続きの回は AI の合計を出さず、自分の判定と AI の判定を並べる（記録の AI の点は前の作りの画面 4 の点のため）", () => {
     const cells = recordScoreCells({ selfScore: 6, selfVerdict: "一部", aiScaled: 6.4, aiVerdict: "まだ" });
     assert.deepEqual(show(cells), ["自分の点数=6／10", "自分の判定=一部", "AI の判定=まだ"]);
     assert.ok(!cells.some((c) => c.value === "6.4"));

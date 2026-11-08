@@ -73,7 +73,7 @@ export function Island({ t, u, role, tag, compact = false }: { t: Transcript; u:
   );
 }
 
-/** 根拠の発話と前後 2 発話。画面 2・5 で根拠の発話番号を押したときに、その場で開く */
+/** 根拠の発話と前後 2 発話。画面 2・4 で根拠の発話番号を押したときに、その場で開く */
 export function UtteranceContext({ t, index }: { t: Transcript; index: number }) {
   return (
     <ol className="mt-2 space-y-2.5 rounded-md border border-line bg-surface px-3 py-3.5 text-ink sm:px-4">

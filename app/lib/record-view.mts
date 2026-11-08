@@ -41,7 +41,7 @@ export type ScoreCell = { label: string; value: string; unit?: "／10" };
 /**
  * 記録の画面の点数の欄。自分の点数 → AI の点数（合計）、続きの回は 自分の点数 → 自分の判定 → AI の判定。
  * 続きの回（前回のひとつを確かめた回。判定がある回）は、AI の合計を出さない。
- * サンプルの記録の続きの回の AI の点は、前の作りの画面 5（工程 4）で付けた点で、今の流れで画面 2（工程 2）に出す点とは別のため。
+ * サンプルの記録の続きの回の AI の点は、前の作りの画面 4（工程 4）で付けた点で、今の流れで画面 2（工程 2）に出す点とは別のため。
  */
 export function recordScoreCells(s: RecordScoresInput): ScoreCell[] {
   const self: ScoreCell = { label: "自分の点数", value: String(s.selfScore), unit: "／10" };

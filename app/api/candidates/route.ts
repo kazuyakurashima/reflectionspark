@@ -1,4 +1,4 @@
-// 画面 4：行動の候補（工程 3）。次に試せる所の場面と、本人の答えから作る。本人の自己採点は受け取らない（決まり 10）。
+// 画面 3：行動の候補（工程 3）。次に試せる所の場面と、本人の答えから作る。本人の自己採点は受け取らない（決まり 10）。
 import { NextResponse } from "next/server";
 
 import { candidatesOrMock } from "@/engine/server.mts";

@@ -7,7 +7,7 @@ import { useMemo, useSyncExternalStore } from "react";
 import { attachStep0c } from "@/engine/step0.mts";
 import type { FollowUpVerdict, MeetingKind, SceneType, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
 
-/** 画面 4 で本人が選んだ（または直した）一つ */
+/** 画面 3 で本人が選んだ（または直した）一つ */
 export type SparkChoice = Spark & {
   id: string;
   lines: string[];
@@ -20,7 +20,7 @@ export type SparkChoice = Spark & {
   keepAfterThird: boolean;
 };
 
-/** 画面 5（前回のひとつを確かめる）のデータ。確かめるのは、この面談の発話（transcript）と、持ち越したひとつ（prev.spark） */
+/** 画面 4（前回のひとつを確かめる）のデータ。確かめるのは、この面談の発話（transcript）と、持ち越したひとつ（prev.spark） */
 export type FollowUpData = {
   /** 本人の判定。AI に渡さない */
   selfVerdict: FollowUpVerdict | null;
@@ -29,7 +29,7 @@ export type FollowUpData = {
   countedSparkId: string | null;
 };
 
-/** 前の面談から持ち越したもの。画面 4 の「今日はここまでにする」で入る（app/lib/next-meeting.mts） */
+/** 前の面談から持ち越したもの。画面 3 の「今日はここまでにする」で入る（app/lib/next-meeting.mts） */
 export type PrevMeeting = {
   /** 前の面談で決めたひとつ（見送ったなら null）。追った回数は、ここで数える */
   spark: SparkChoice | null;
@@ -61,13 +61,13 @@ export type SessionData = {
   /** 画面 2：場面ごとの自分の見立て（任意）。AI に渡さない */
   ownViews: string[];
   analysis: { step1: Step1Result; step2: Step2Result; mock: boolean } | null;
-  /** 画面 3：問いへの本人の答え */
+  /** 画面 2 で書く、問いへの本人の答え（工程 3 に渡す） */
   answers: { question: string; answer: string }[];
-  /** 画面 4：候補と、選んだ一つ */
+  /** 画面 3：候補と、選んだ一つ */
   candidates: { step3: Step3Result; mock: boolean } | null;
   spark: SparkChoice | null;
   sparkSkipped: boolean;
-  /** 画面 5：持ち越したひとつを、この面談で確かめた結果 */
+  /** 画面 4：持ち越したひとつを、この面談で確かめた結果 */
   followUp: FollowUpData | null;
   /** 前の面談（あれば）。面談は 1 回ごとに「1 入力」から始め、決めたひとつだけを持ち越す */
   prev: PrevMeeting | null;
@@ -208,13 +208,13 @@ export function answerText(s: SessionData): string {
     .join("\n\n");
 }
 
-/** 画面 3 の問い（課題が見えた場面の問いと、面談の全体からの問い） */
+/** 本人が答える問い（課題が見えた場面の問いと、面談の全体からの問い。画面 2 で答える） */
 export function questionsOf(s: SessionData): string[] {
   return questionItemsOf(s).map((x) => x.q);
 }
 
 /**
- * 画面 3 の問いと、どこから来た問いか（場面の種類。面談の全体からの問いは null）。
+ * 本人が答える問いと、どこから来た問いか（場面の種類。面談の全体からの問いは null）。
  * 問いは課題が見えた場面と面談の全体からだけ。うまくいった場面には問いを置かない（決まり 6）。
  * 前の作りで保存した出力に、うまくいった場面の問いが残っていても出さない。
  */

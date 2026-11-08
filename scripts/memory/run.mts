@@ -46,7 +46,7 @@ const ANALYSIS_DIR = path.join(OUT_DIR, "analysis");
 type Plan = { id: string; date: string; order: number; other: string; follows: string | null; followedBy: string | null };
 /**
  * サンプルの講師の過去 4 回。日付は台本の手がかりに合わせた作りもの。
- * 山場の 2 回（2026-06-19、2026-07-28）は入れない。入れると、山場 1 回目の画面 4 に、あとの回の発言が出うる。
+ * 山場の 2 回（2026-06-19、2026-07-28）は入れない。入れると、山場 1 回目の画面 3 に、あとの回の発言が出うる。
  */
 const PLAN: Plan[] = [
   { id: "student-seiseki", date: "2025-10-24", order: 1, other: "相手 B", follows: null, followedBy: "student-seiseki-2" },

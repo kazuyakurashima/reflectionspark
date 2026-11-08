@@ -72,7 +72,7 @@ export async function analyzeOrMock(transcript: Transcript, firstMeeting = true,
 }
 
 /**
- * 工程 3（画面 4）。次に試せる所の場面と本人の答えから候補を作る。本人の自己採点は受け取らない。
+ * 工程 3（画面 3）。次に試せる所の場面と本人の答えから候補を作る。本人の自己採点は受け取らない。
  * 記録を渡すのは、Demo Mode のサンプルを通したときだけ（demo）。メモリにあるのはサンプルの講師の記録なので、
  * 訪れた人が貼った面談に添えると、別の人の発言が「あなたの言葉」になってしまう。
  * 読めなければ、記録なしの今のままで候補を作る。
@@ -98,7 +98,7 @@ export async function candidatesOrMock(transcript: Transcript, scene: Scene, ans
   return { step3, mock: false, ms: Date.now() - t0, memory: use };
 }
 
-/** 記録の一覧（画面 6）。AI は呼ばない。公開 URL は読むだけ */
+/** 記録の一覧（画面 5）。AI は呼ばない。公開 URL は読むだけ */
 export async function recordsOrOff(): Promise<RecordsResponse> {
   const cfg = memoryConfig();
   if (!cfg || !hasApiKey()) return { enabled: false };
@@ -113,7 +113,7 @@ export async function recordsOrOff(): Promise<RecordsResponse> {
   }
 }
 
-/** 工程 4（画面 5）。今回の文字起こしと前回の Spark から追跡する。本人の自己評価は受け取らない（決まり 10）。 */
+/** 工程 4（画面 4）。今回の文字起こしと前回の Spark から追跡する。本人の自己評価は受け取らない（決まり 10）。 */
 export async function followUpOrMock(transcript: Transcript, spark: Spark): Promise<FollowUpResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {

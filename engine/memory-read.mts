@@ -1,4 +1,4 @@
-// 記録の読み出し（docs/設計書.md 画面 4・画面 6、「覚えていると整理」）。サーバー側からだけ使う。
+// 記録の読み出し（docs/設計書.md 画面 3・画面 5、「覚えていると整理」）。サーバー側からだけ使う。
 // 公開 URL は読むだけで、書かない。ここに書く処理を足さない。
 // - 記録の一覧：記録（①）と点の控え（②）を読み、日付順に並べて返す。AI は呼ばない。
 // - 前の言葉：夢の「繰り返す場面」から工程 3 に渡す文を作り、工程 3 が返した札から、記録の原文を引く。AI が書いた引用文は出さない（決まり 1）。
@@ -18,7 +18,7 @@ import type { LedgerEntry } from "./score-ledger.mts";
 import { SPEAKER_LABELS } from "./types.mts";
 import type { MeetingKind, PreviousWords, SceneType } from "./types.mts";
 
-/** ストアの番号の環境変数。これが旗で、無ければ画面 4 は今のまま、記録の入口は出さない */
+/** ストアの番号の環境変数。これが旗で、無ければ画面 3 は今のまま、記録の入口は出さない */
 export const MEMORY_ENV = {
   records: "REFLECTIONSPARK_MEMORY_RECORDS_STORE",
   dream: "REFLECTIONSPARK_MEMORY_DREAM_STORE",
@@ -147,7 +147,7 @@ export function parseRecords(files: StoredFile[]): ParsedRecord[] {
   return files.filter(isRecordFile).flatMap((f) => parseRecord(f.content) ?? []);
 }
 
-// ---------- 記録の一覧（画面 6） ----------
+// ---------- 記録の一覧（画面 5） ----------
 
 export type RecordEntry = {
   interviewId: string;
@@ -223,7 +223,7 @@ export async function readRecordList(client: Anthropic, cfg: MemoryConfig): Prom
   return buildRecordList(recordFiles, scoreFiles);
 }
 
-// ---------- 前の言葉（画面 4） ----------
+// ---------- 前の言葉（画面 3） ----------
 
 const evidenceLine = (e: EvidenceRef) => `〔${e.interviewId}｜発話 ${e.index === e.lastIndex ? e.index : `${e.index}〜${e.lastIndex}`}〕${e.speaker ?? ""}：「${e.quote ?? ""}」`;
 
@@ -295,7 +295,7 @@ export async function readStep3Memory(client: Anthropic, cfg: MemoryConfig): Pro
   return { pastScenes, records };
 }
 
-/** 読み出しに時間の上限を付ける（画面 4 と記録の画面を、読み出しで長く止めない） */
+/** 読み出しに時間の上限を付ける（画面 3 と記録の画面を、読み出しで長く止めない） */
 export function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
   const limit = new Promise<never>((_, reject) => {

@@ -1,6 +1,6 @@
 "use client";
 
-// 画面 4：次に試すひとつ（Your Spark）。候補 2〜3 から選ぶ・直す・見送る。
+// 画面 3：次に試すひとつ（Your Spark）。候補 2〜3 から選ぶ・直す・見送る。
 // 候補は「もし（場面）なら、（行動）する」の一文が見え、押すとセリフの例とできたかの基準が開く。
 // 選ぶ・直す・見送るのは本人（決まり 7）。選んだ一つだけを目立つ下地に置く。持ち帰るものは一つ。
 // 前の面談から持ち越したひとつがあれば、候補の下に「前回のひとつを続ける」を置く（続けるか変えるかも本人が決める）。
@@ -67,7 +67,7 @@ export default function Screen4() {
         }
         updateSession((s) => ({ ...s, candidates: { step3: d.step3, mock: d.mock } }));
         // 保存したら印を下ろす。Next は前の画面を消さずに隠して残す（cacheComponents）ので、印が残ると、
-        // 3 に戻って答えを直したあと（候補が消える）、この画面に戻っても候補を作らない
+        // 2 に戻って答えを直したあと（候補が消える）、この画面に戻っても候補を作らない
         if (run.current === thisRun) started.current = false;
       } catch (e) {
         setError((e as Error).message);
@@ -81,7 +81,7 @@ export default function Screen4() {
     return (
       <main className={PAGE}>
         <section>
-          <p>先に「2 読む」でフィードバックを読み、「3 問いに答える」で問いに答えてください。</p>
+          <p>先に「2 読む」でフィードバックを読み、問いに答えてください（答えなくても進めます）。</p>
           <Link href="/reflection" className={`mt-2 inline-block ${LINK}`}>
             2 読む へ
           </Link>

@@ -37,7 +37,7 @@ export type LedgerInput = {
 export function buildLedgerEntry(input: LedgerInput): LedgerEntry {
   const { selfScore, selfNote, selfVerdict } = input.self;
   if (!Number.isInteger(selfScore) || selfScore < 1 || selfScore > 10) throw new Error(`自己採点は 1〜10 の整数にしてください：${input.interviewId}`);
-  // 画面 5 の自己評価と AI の判定は、続きの回にそろって付く
+  // 画面 4 の自己評価と AI の判定は、続きの回にそろって付く
   if ((selfVerdict === null) !== (input.aiVerdict === null)) throw new Error(`自己評価と AI の判定は、続きの回にそろえてください：${input.interviewId}`);
   return {
     interviewId: input.interviewId,

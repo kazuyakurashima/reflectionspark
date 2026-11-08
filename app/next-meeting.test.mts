@@ -37,21 +37,21 @@ const session = (over: Partial<SessionData> = {}): SessionData =>
 const fresh = (): SessionData => session({ id: "s2", otherName: "", raw: "", transcript: null, analysis: null, answers: [], candidates: null, spark: null, selfScore: null, selfNote: "", ownViews: [] });
 
 describe("上の帯の段", () => {
-  it("段は 1〜4。持ち越したひとつがあるときだけ、1 と 2 の間に番号の無い確かめが入る", () => {
+  it("段は 1〜3。持ち越したひとつがあるときだけ、1 と 2 の間に番号の無い確かめが入る", () => {
     assert.deepEqual(
       flowSteps(false).map((s) => `${s.n}:${s.href}`),
-      ["1:/", "2:/reflection", "3:/answers", "4:/spark"],
+      ["1:/", "2:/reflection", "3:/spark"],
     );
     assert.deepEqual(
       flowSteps(true).map((s) => `${s.n}:${s.href}`),
-      ["1:/", "null:/next", "2:/reflection", "3:/answers", "4:/spark"],
+      ["1:/", "null:/next", "2:/reflection", "3:/spark"],
     );
     // 「5 次の面談で」を段の終わりに置かない
     assert.ok(flowSteps(true).every((s) => s.href !== "/next" || s.n === null));
   });
 });
 
-describe("次の面談へ持ち越す（画面 4 の「今日はここまでにする」）", () => {
+describe("次の面談へ持ち越す（画面 3 の「今日はここまでにする」）", () => {
   it("決めたひとつと前の面談を持ち越し、入力は空、サンプルの印は外れ、初回として読む", () => {
     const s1 = session({ demo: true });
     const s2 = startNextMeeting(s1, fresh());
@@ -174,7 +174,7 @@ describe("画面のつなぎ", () => {
     assert.doesNotMatch(cleared, /prev/);
   });
 
-  it("画面 4：選ぶ・見送るでこの面談の確かめを消さない。終わりは「今日はここまでにする」", () => {
+  it("画面 3：選ぶ・見送るでこの面談の確かめを消さない。終わりは「今日はここまでにする」", () => {
     const page4 = code("app/spark/page.tsx");
     assert.doesNotMatch(page4, /followUp: null/);
     assert.match(page4, /startNextMeeting\(s, newSession\(s\.kind\)\)/);
@@ -183,7 +183,7 @@ describe("画面のつなぎ", () => {
     assert.match(page4, /check\?\.result && check\.selfVerdict &&/);
   });
 
-  it("画面 5：確かめるのは今回の発話と持ち越したひとつ。貼る欄・整形・点の表は置かない", () => {
+  it("画面 4：確かめるのは今回の発話と持ち越したひとつ。貼る欄・整形・点の表は置かない", () => {
     const page5 = code("app/next/page.tsx");
     assert.match(page5, /const spark = prev\?\.spark \?\? null;/);
     assert.match(page5, /const transcript = session\?\.transcript \?\? null;/);

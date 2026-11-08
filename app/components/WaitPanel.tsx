@@ -1,6 +1,6 @@
 "use client";
 
-// AI を待つ間の進み具合（画面 1・2・4・5）。段階を縦に並べ、済んだ段階はチェック、今の段階に帯を出す。
+// AI を待つ間の進み具合（画面 1・2・3・4）。段階を縦に並べ、済んだ段階はチェック、今の段階に帯を出す。
 // 帯と ％ は、サーバーから届いた本当の量だけで動かす（engine/progress.mts）。量が数えられない段階は、
 // 進んだ割合を作らず、帯も出さない（帯が出たら進む、と読めるように）。文の後ろで点を順に光らせ、動いていることだけを示す。
 // 経過の秒は、この部品が出ている間を数える。
@@ -147,7 +147,7 @@ export function WaitPanel({ title, estimate, steps = [], view, className = "" }:
 
 const num = (n: number) => n.toLocaleString("ja-JP");
 
-/** 整形（工程 0。画面 1・5）の段階と、届いた進み具合の見せ方 */
+/** 整形（工程 0。画面 1・4）の段階と、届いた進み具合の見せ方 */
 export const STEP0_STEPS = ["発言に区切り、話者を付ける", "聞き違いを直す所を挙げる"];
 export function step0View(e: ProgressEvent | null): WaitView {
   if (e?.stage === "0b") return { current: 1, status: "区切った発言を読み、聞き違いを探しています", ratio: null };

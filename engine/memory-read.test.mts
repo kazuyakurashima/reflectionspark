@@ -99,7 +99,7 @@ describe("記録を読む（engine/memory-read.mts）", () => {
   });
 });
 
-describe("前の言葉（画面 4）", () => {
+describe("前の言葉（画面 3）", () => {
   const records = parseRecords([file(first), file(second)]);
 
   test("決まり 1：札から記録の原文を引く。AI が書いた文は使わない。前後の発話も記録から", () => {

@@ -92,7 +92,7 @@ export default function Screen1() {
         updateSession((s) => (s.raw === raw && s.prev ? withOtherName({ ...s, ...cleared, kind: d.kind, raw: d.raw, transcript: null, mock: false, step0Ms: null, demo: true }, d.otherName) : s));
         return;
       }
-      // サンプルの印を立てる（画面 4 で、サンプルの講師の記録を添えてよい印）。待つ間に貼る欄が変わっていたら、上書きしない
+      // サンプルの印を立てる（画面 3 で、サンプルの講師の記録を添えてよい印）。待つ間に貼る欄が変わっていたら、上書きしない
       updateSession((s) => (s.raw === raw ? { ...newSession(d.kind, d.otherName, d.raw), demo: true } : s));
     } catch {
       setDemoError(true);
@@ -145,7 +145,7 @@ export default function Screen1() {
   };
   const nextLabel = prevSpark ? "次へ　前回のひとつを確かめる" : "次へ　フィードバックを読む";
 
-  /** 前の面談に戻る（この面談の入力は捨てる）。戻り先は、ひとつを決めた画面 4 */
+  /** 前の面談に戻る（この面談の入力は捨てる）。戻り先は、ひとつを決めた画面 3 */
   const backToPrev = () => {
     if (!session?.prev) return;
     saveSession(backToPrevMeeting(session));

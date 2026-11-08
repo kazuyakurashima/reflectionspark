@@ -1,4 +1,4 @@
-// 画面 1・5：意味が通らない箇所（工程 0c）。整形とは別に回し、分析を待たせない。推測は分析に渡さない。
+// 画面 1・4：意味が通らない箇所（工程 0c）。整形とは別に回し、分析を待たせない。推測は分析に渡さない。
 import { NextResponse } from "next/server";
 
 import { step0cOrMock } from "@/engine/server.mts";

@@ -1,6 +1,6 @@
 "use client";
 
-// 上の帯の下に置く、一本の流れ（画面 1〜4）。番号の丸を線でつなぎ、済んだ所はチェック、今いる所は塗りにする。
+// 上の帯の下に置く、一本の流れ（画面 1〜3）。番号の丸を線でつなぎ、済んだ所はチェック、今いる所は塗りにする。
 // 面談は 1 回ごとに 1 から始める。前の面談で決めたひとつを持ち越しているときだけ、1 と 2 の間に「前回の確かめ」が入る
 // （番号は持たない、小さい丸）。段の並びは app/lib/next-meeting.mts。狭い画面では、今いる所の名前だけを出す。
 // 名前を出すかは、画面の幅ではなく、この帯の幅で決める（@container）。文字を大きくした端末でも、入らないときは名前を隠して丸だけにする
@@ -17,11 +17,11 @@ export function StepNav() {
   const session = useSession();
   const steps = flowSteps(Boolean(session?.prev?.spark));
   const now = steps.findIndex((s) => s.href === pathname);
-  const five = steps.length > 4;
-  /** 今いる所の名前が入る幅（4 段：丸 7・線 2.25・すき間 3.5・名前 7 字で 18.8rem。5 段：21.8rem） */
-  const fitsCurrent = five ? "@min-[22rem]:inline" : "@min-[19rem]:inline";
-  /** すべての名前が入る幅（4 段：30.4rem。5 段：39.5rem） */
-  const fitsAll = five ? "@min-[42rem]:inline" : "@min-[34rem]:inline";
+  const withCheck = steps.length > 3;
+  /** 今いる所の名前が入る幅（3 段：丸 5.25・線 2・すき間 2・名前 7 字で 15.3rem。確かめが入った 4 段：17.5rem） */
+  const fitsCurrent = withCheck ? "@min-[18rem]:inline" : "@min-[16rem]:inline";
+  /** すべての名前が入る幅（3 段：名前 11 字で 19.7rem。4 段：名前 17 字で 27.6rem） */
+  const fitsAll = withCheck ? "@min-[28rem]:inline" : "@min-[20rem]:inline";
   return (
     <nav aria-label="流れ" className="@container">
       <ol className="flex items-center gap-2 text-[0.86rem] sm:gap-3">

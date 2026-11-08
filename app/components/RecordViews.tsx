@@ -1,6 +1,6 @@
 "use client";
 
-// 記録（Memory）から来た発話の見せ方（画面 4 の前の言葉、記録の画面）。
+// 記録（Memory）から来た発話の見せ方（画面 3 の前の言葉、記録の画面）。
 // 発話そのものは画面 2 と同じ部品（Island）で出し、新しい見せ方は作らない。文は記録の原文のままで、AI が書いた文は出さない（決まり 1）。
 
 import Link from "next/link";
@@ -39,7 +39,7 @@ function PreviousLines({ p }: { p: PreviousWords }) {
   );
 }
 
-/** 画面 4：候補に添える、前の面談での本人の言葉 */
+/** 画面 3：候補に添える、前の面談での本人の言葉 */
 export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; className?: string }) {
   return (
     <div className={className}>
@@ -60,7 +60,7 @@ export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; cl
   );
 }
 
-/** 画面 4：今回の「次に試せる所」と同じ形の、前の面談の場面。評価の言葉は付けない */
+/** 画面 3：今回の「次に試せる所」と同じ形の、前の面談の場面。評価の言葉は付けない */
 export function RepeatScenesBlock({ items, className = "" }: { items: PreviousWords[]; className?: string }) {
   return (
     <div className={className}>

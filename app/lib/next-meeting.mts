@@ -8,14 +8,14 @@ import type { SessionData, SparkChoice } from "./session.ts";
 /** 上の帯の段。n は番号（確かめは番号を持たない） */
 export type FlowStep = { href: string; label: string; n: number | null };
 
+// 問いへの答えは「2 読む」の中で書く（11/8 に、前の「3 問いに答える」を 2 に入れた）
 const STEPS: FlowStep[] = [
   { href: "/", label: "入力", n: 1 },
   { href: "/reflection", label: "読む", n: 2 },
-  { href: "/answers", label: "問いに答える", n: 3 },
-  { href: "/spark", label: "次に試すひとつ", n: 4 },
+  { href: "/spark", label: "次に試すひとつ", n: 3 },
 ];
 
-/** 上の帯の段は 1〜4。持ち越したひとつがあるときだけ、1 と 2 の間に確かめが入る */
+/** 上の帯の段は 1〜3。持ち越したひとつがあるときだけ、1 と 2 の間に確かめが入る */
 export function flowSteps(hasCheck: boolean): FlowStep[] {
   return hasCheck ? [STEPS[0], { href: "/next", label: "前回の確かめ", n: null }, ...STEPS.slice(1)] : STEPS;
 }
@@ -38,7 +38,7 @@ export function withOtherName(s: SessionData, name: string): SessionData {
   return s.prev ? withFirstMeeting(next, !isContinuation(s.prev.session.otherName, name)) : next;
 }
 
-/** 次の面談へ持ち越す（画面 4 の「今日はここまでにする」）。fresh は新しい空のセッション。決めたひとつ（見送ったなら null）と、前の面談そのものを持ち越す */
+/** 次の面談へ持ち越す（画面 3 の「今日はここまでにする」）。fresh は新しい空のセッション。決めたひとつ（見送ったなら null）と、前の面談そのものを持ち越す */
 export function startNextMeeting(s: SessionData, fresh: SessionData): SessionData {
   return { ...fresh, kind: s.kind, firstMeeting: true, prev: { spark: s.spark, session: { ...s, prev: null } } };
 }
@@ -64,7 +64,7 @@ export function sampleEntry(s: Pick<SessionData, "prev"> | null | undefined): "f
   return s.prev.session.demo ? "next" : "none";
 }
 
-/** 画面 4 で「前回のひとつを続ける」と決めたときの一つ。追った回数と、決めた面談の場面はそのまま持つ */
+/** 画面 3 で「前回のひとつを続ける」と決めたときの一つ。追った回数と、決めた面談の場面はそのまま持つ */
 export function keptSpark(prevSpark: SparkChoice, now: string): SparkChoice {
   return { ...prevSpark, chosenAt: now, keepAfterThird: prevSpark.timesFollowed >= 3 };
 }

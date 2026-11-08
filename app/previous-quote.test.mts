@@ -1,4 +1,4 @@
-// 画面 5 に出す「前回の発言」（app/lib/previous-quote.mts）。
+// 画面 4 に出す「前回の発言」（app/lib/previous-quote.mts）。
 // 保存してある引用を、行動を決めた面談の発話ともう一度完全一致で照らし、一致しないものは出さない（決まり 1）。
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
@@ -20,7 +20,7 @@ const utterances: Utterance[] = [
   u(6, "講師", null),
 ];
 
-describe("画面 5：前回の発言（決まり 1）", () => {
+describe("画面 4：前回の発言（決まり 1）", () => {
   test("発話の本文と完全一致した引用は、話者と発話番号を付けて出す", () => {
     assert.deepEqual(previousQuoteOf("大丈夫。これからだよ。", utterances), { text: "大丈夫。これからだよ。", index: 2, speaker: "講師" });
   });

@@ -7,7 +7,7 @@ export function demoAfterInput(demo: boolean, patch: { raw?: string }): boolean 
   return patch.raw !== undefined ? false : demo;
 }
 
-/** 画面 4 が POST /api/candidates に送る中身。印があるときだけ demo: true を足す（無いときは欄ごと送らない） */
+/** 画面 3 が POST /api/candidates に送る中身。印があるときだけ demo: true を足す（無いときは欄ごと送らない） */
 export function candidatesBody<T, S>(p: { transcript: T; scene: S; answer: string; demo: boolean }): { transcript: T; scene: S; answer: string; demo?: true } {
   const body = { transcript: p.transcript, scene: p.scene, answer: p.answer };
   return p.demo === true ? { ...body, demo: true } : body;
