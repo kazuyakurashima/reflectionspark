@@ -2,9 +2,10 @@
 
 // 画面 4：前回のひとつを確かめる。次の面談を「1 入力」で貼って整形したあと、読む（画面 2）の前に通る。
 // 貼る欄と整形は画面 1 にあり、ここには置かない（面談は 1 回ごとに 1 から入る。app/lib/next-meeting.mts）。
-// 先に本人が「できた／一部／まだ／場面がなかった」を付け、そのあと AI の判定・根拠の引用・なぜの一文を出す。本人の判定は API に渡さない（決まり 10）。
+// 先に本人が「できた／一部／まだ／場面がなかった」を付け、そのあと AI の判定と AI の見立て（なぜ）を出す。本人の判定は API に渡さない（決まり 10）。
 // 本人と AI の判定を並べ、ずれは確かめる点として出す。点はここに出さない（この面談の点は、画面 2 で自分の点を付けてから読む）。
-// 判定の所に、前回（行動を決めた面談）の発言を今回の根拠の発言と並べる。前回の発言は保存してある照合済みの引用で、
+// AI の見立ては画面 2・3 と同じ部品：解釈の札、要の一句を蛍光ペン風に、すぐ下に「会話を確認する」（根拠の引用はその中。11/8 に本人が決めた）。
+// 前回（行動を決めた面談）の発言は、前回のひとつの箱の下に、押すと開く形で置く。保存してある照合済みの引用で、
 // 出す前に前回の発話の本文ともう一度照らす（app/lib/previous-quote.mts）。AI を呼び直さない。
 // 続けるか変えるかは、この面談の画面 3 で決める。
 
@@ -14,10 +15,13 @@ import { useEffect, useRef, useState } from "react";
 import type { FollowUpResponse } from "@/engine/server.mts";
 import type { FollowUpVerdict } from "@/engine/types.mts";
 import { previousQuoteOf } from "@/app/lib/previous-quote.mts";
-import { RefChip, RefText } from "@/app/components/RefText";
-import { BTN_PRIMARY, BTN_SMALL, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
+import { RefChip } from "@/app/components/RefText";
+import { ConversationLink, Fold, KindBadge, ReadingText, RefSpots } from "@/app/components/SceneParts";
+import type { QuoteSet } from "@/app/components/SceneParts";
+import { BTN_PRIMARY, BTN_SMALL, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
+import { sceneSpan } from "@/app/lib/scene-view.mts";
 import { CRITERION_LABEL, refLabel } from "@/app/lib/words.mts";
-import { UtteranceContext } from "@/app/components/UtteranceView";
+import { findUtteranceIndices } from "@/engine/utterance-no.mts";
 import { WaitPanel } from "@/app/components/WaitPanel";
 import { RecordsLink } from "@/app/components/RecordViews";
 import { loadSession, newFollowUp, updateSession, useSession } from "@/app/lib/session";
@@ -31,7 +35,6 @@ export default function Screen5() {
   const [followError, setFollowError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [verdict, setVerdict] = useState<FollowUpVerdict | null>(null);
-  const [openQuote, setOpenQuote] = useState<number | null>(null);
   const sessionId = session?.id;
   const started = useRef(false);
   const run = useRef(0);
@@ -121,6 +124,13 @@ export default function Screen5() {
   const prevTranscript = prev?.session.transcript ?? null;
   const prevQuote = previousQuoteOf(spark.previousScene?.quoteText, prevTranscript?.utterances);
 
+  // AI の見立て（なぜ）の根拠：照合済みの引用と、なぜが指す発話。前の作りの出力は、文の中の番号を読む
+  const step4 = result?.step4 ?? null;
+  const quoteSet: QuoteSet = { type: "followup", quotes: step4?.quotes ?? [], discardedQuotes: step4?.discardedQuotes ?? [] };
+  const whySpan = step4 ? sceneSpan(step4.quotes, transcript.utterances.length) : null;
+  const whyPointed = step4 ? (step4.whyRefs ?? findUtteranceIndices(step4.why)) : [];
+  const otherPointed = step4?.otherPersonLine ? (step4.otherRefs ?? findUtteranceIndices(step4.otherPersonLine)) : [];
+
   const VERIFIED = (
     <span className="ml-3 whitespace-nowrap text-ink-2">
       <span aria-hidden="true" className="mr-1 font-bold text-accent">
@@ -143,6 +153,25 @@ export default function Screen5() {
           <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{spark.sentence}</p>
           {spark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">{CRITERION_LABEL}：{spark.criterion}</p>}
         </div>
+        {prevQuote && (
+          <Fold id="previous-quote" label="前回この行動を決めた場面の発言を見る" className="mt-2">
+            <div className="rounded-md bg-tint-self px-4 py-3">
+              <p className="whitespace-pre-wrap">{prevQuote.text}</p>
+            </div>
+            <p className="mt-1.5 px-1 text-xs text-ink-3">
+              前回の面談・{prevQuote.speaker}
+              {prevQuote.index !== null &&
+                (prevTranscript ? (
+                  <RefChip t={prevTranscript} index={prevQuote.index} className="ml-2">
+                    {refLabel(prevQuote.index)}
+                  </RefChip>
+                ) : (
+                  <span className="ml-2">{refLabel(prevQuote.index)}</span>
+                ))}
+              {VERIFIED}
+            </p>
+          </Fold>
+        )}
       </section>
 
       <section className="mt-12">
@@ -217,59 +246,30 @@ export default function Screen5() {
               </div>
             </dl>
             {fu?.selfVerdict !== result.step4.verdict && <p className="mt-2 text-[0.86rem] text-ink-2">自分の判定と AI の判定がずれています。ずれは、どちらが正しいかではなく、確かめる点です。</p>}
-            <p className="mt-6 text-xs font-semibold text-ink-3">なぜ</p>
-            <p className="mt-1">
-              <RefText t={transcript} text={result.step4.why} />
-            </p>
-
-            {prevQuote && (
-              <div className="mt-7">
-                <p className="text-xs font-semibold text-ink-3">前回（この行動を決めた面談）の発言</p>
-                <div className="mt-1.5 rounded-md bg-tint-self px-4 py-3">
-                  <p className="whitespace-pre-wrap">{prevQuote.text}</p>
-                </div>
-                <p className="mt-1.5 px-1 text-xs text-ink-3">
-                  {prevQuote.speaker}
-                  {prevQuote.index !== null &&
-                    (prevTranscript ? (
-                      <RefChip t={prevTranscript} index={prevQuote.index} className="ml-2">
-                        {refLabel(prevQuote.index)}
-                      </RefChip>
-                    ) : (
-                      <span className="ml-2">{refLabel(prevQuote.index)}</span>
-                    ))}
-                  {VERIFIED}
-                </p>
-              </div>
-            )}
-            {result.step4.quotes.length > 0 ? (
-              <div className="mt-7">
-                <p className="text-xs font-semibold text-ink-3">今回の発言（判定の根拠）</p>
-                {result.step4.quotes.map((q) => (
-                  <div key={q.index} className="mt-1.5 [&+div]:mt-4">
-                    <div className="rounded-md bg-accent-mid px-4 py-3 shadow-[inset_4px_0_0_var(--color-accent)]">
-                      <p className="whitespace-pre-wrap font-medium">{q.text}</p>
-                    </div>
-                    <p className="mt-1.5 px-1 text-xs text-ink-3">
-                      {transcript.utterances[q.index]?.speaker}
-                      <RefChip t={transcript} index={q.index} onClick={() => setOpenQuote(openQuote === q.index ? null : q.index)} className="ml-2">
-                        {refLabel(q.index)}
-                      </RefChip>
-                      <span className="ml-1">（押すと前後も開きます）</span>
-                      {VERIFIED}
-                    </p>
-                    {openQuote === q.index && <UtteranceContext t={transcript} index={q.index} />}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-6 text-[0.95rem] text-ink-2">根拠の引用はありません（場面が無かったときは、引用が無いのが正しい形です）。</p>
-            )}
-            {result.step4.otherPersonLine && (
-              <p className="mt-6 text-[0.95rem] text-ink-2">
-                相手が前回決めたことについて：
-                <RefText t={transcript} text={result.step4.otherPersonLine} />
+            <section aria-label="AI の見立て" className={`mt-6 ${INSET}`}>
+              <h3 className="flex items-center gap-2 text-xs font-semibold text-ink-3">
+                AI の見立て
+                <KindBadge>解釈</KindBadge>
+              </h3>
+              <p className="mt-1.5 whitespace-pre-line text-pretty text-[1rem] leading-[1.85]">
+                <ReadingText t={transcript} text={result.step4.why} keyPhrase={result.step4.whyKey ?? null} />
               </p>
+              <div className="mt-2">
+                {whySpan || whyPointed.length > 0 ? (
+                  <ConversationLink t={transcript} scene={quoteSet} span={whySpan} pointed={whyPointed} />
+                ) : (
+                  <p className="text-[0.9rem] text-ink-2">根拠の引用はありません（場面が無かったときは、引用が無いのが正しい形です）。</p>
+                )}
+              </div>
+            </section>
+            {result.step4.otherPersonLine && (
+              <section aria-label="相手が前回決めたこと" className="mt-6 px-1">
+                <h3 className="text-xs font-semibold text-ink-3">相手が前回決めたこと</h3>
+                <p className="mt-1.5 text-[0.95rem] leading-[1.8] text-pretty">
+                  <ReadingText t={transcript} text={result.step4.otherPersonLine} keyPhrase={null} />
+                </p>
+                <RefSpots t={transcript} scene={quoteSet} span={whySpan} indices={otherPointed} idPrefix="other-line" />
+              </section>
             )}
           </section>
 
@@ -278,7 +278,7 @@ export default function Screen5() {
               次へ　フィードバックを読む
             </Link>
           </div>
-          <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">この面談の読みと点数は、次の「2 読む」で受け取ります。前回のひとつを続けるか変えるかは、「4 次に試すひとつ」で決めます。</p>
+          <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">この面談の読みと点数は、次の「2 読む」で受け取ります。前回のひとつを続けるか変えるかは、「3 次に試すひとつ」で決めます。</p>
           <RecordsLink className="mt-4 inline-block px-1 text-[0.92rem]" />
         </>
       )}

@@ -316,11 +316,18 @@ export type Step4Result = {
   verdict: FollowUpVerdict;
   quotes: Quote[];
   discardedQuotes: Quote[];
+  /** なぜ（画面では「AI の見立て」）。11/8 から文の中に発話番号を書かせない（古い結果には番号がある） */
   why: string;
+  /** なぜが指す発話（AI が <why_refs> に書いた番号。範囲の中だけ。古い結果には無い） */
+  whyRefs?: number[];
+  /** なぜの要の一句。なぜの文にそのまま入っているときだけ（古い結果には無い） */
+  whyKey?: string | null;
   items: ItemScore[];
   total: Step2Result["total"];
   /** （あれば）相手が前回決めたことが今回どう語られたかの 1 行 */
   otherPersonLine: string | null;
+  /** 相手の 1 行が指す発話（<other_refs>。古い結果には無い） */
+  otherRefs?: number[];
   quoteStats: { generated: number; discarded: number };
   firstCitationMs: number | null;
   rawText: string;

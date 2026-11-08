@@ -299,3 +299,37 @@ describe("工程 1：見立ての要の一句（11/8）", () => {
     assert.match(s, /読みの文から一字も変えずに写した/);
   });
 });
+
+describe("工程 4：AI の見立て（なぜ）に番号を書かせず、欄で返させる（11/8）", () => {
+  test("プロンプトは、なぜと相手の 1 行に発話番号を書かせず、指す発話と要の一句を欄に書かせる", () => {
+    const s = step4System("生徒");
+    assert.match(s, /文の中に発話番号を書かない/);
+    for (const tag of ["why_refs", "why_key", "other_refs"]) assert.equal(s.split(`</${tag}>`).length - 1, 1, tag);
+    assert.match(s, /なぜの文から一字も変えずに写した/);
+    // 前の作りの「札の番号で指す」例は残さない
+    assert.doesNotMatch(s, /発話 12 で、相手は/);
+  });
+
+  test("なぜが指す発話・相手の 1 行が指す発話・要の一句を欄から読む。範囲の外の番号と、なぜに無い句は捨てる", () => {
+    const text = `<verdict>一部</verdict>
+<quote></quote>
+<why>模試の結果を尋ねた所で、講師は理由を聞く前に次の話へ移った。前回決めた問いは一部だけ現れた。</why>
+<why_refs>発話 2〜4、発話 9</why_refs>
+<why_key>理由を聞く前に次の話へ移った</why_key>
+<items>
+<item n="5" score="3" utterances="4">発話 4 で前回に触れた。</item>
+</items>
+<other_line>生徒は前回決めた単元の復習を一度したと話した。</other_line>
+<other_refs>発話 5</other_refs>`;
+    const r = parseStep4(text, [], utterances);
+    assert.deepEqual(r.whyRefs, [2, 3, 4]);
+    assert.equal(r.whyKey, "理由を聞く前に次の話へ移った");
+    assert.deepEqual(r.otherRefs, [5]);
+    assert.deepEqual(findUtteranceRefs(r.why), []);
+
+    const r2 = parseStep4(text.replace("理由を聞く前に次の話へ移った</why_key>", "説明が長かった</why_key>").replace(/<other_line>.*<\/other_line>/, "<other_line></other_line>"), [], utterances);
+    assert.equal(r2.whyKey, null);
+    assert.equal(r2.otherPersonLine, null);
+    assert.deepEqual(r2.otherRefs, []);
+  });
+});

@@ -132,9 +132,12 @@ export function guardStep3<T extends Omit<Step3Result, "meta" | "withheld" | "un
 
 export function guardStep4<T extends Omit<Step4Result, "meta" | "firstCitationMs" | "withheld" | "unverifiedQuotes">>(r: T, utterances: Utterance[]): T & GuardLog {
   const log: GuardLog = { withheld: [], unverifiedQuotes: [] };
+  const why = guardText(r.why, "why", utterances, log);
   return {
     ...r,
-    why: guardText(r.why, "why", utterances, log),
+    why,
+    // 要の一句は、守った後のなぜにそのまま残るときだけ持つ（工程 1 の読みと同じ）
+    ...(r.whyKey !== undefined ? { whyKey: r.whyKey && why.includes(r.whyKey) ? r.whyKey : null } : {}),
     items: r.items.map((it) => ({ ...it, reason: guardText(it.reason, `items[${it.item}].reason`, utterances, log) })),
     otherPersonLine: r.otherPersonLine === null ? null : guardText(r.otherPersonLine, "otherPersonLine", utterances, log),
     ...log,

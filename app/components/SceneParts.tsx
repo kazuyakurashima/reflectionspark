@@ -1,13 +1,13 @@
 "use client";
 
-// 場面の部品（画面 2 の場面と、画面 3 の「課題が見えた場面」で同じものを使う）。
+// 場面の部品（画面 2 の場面と、画面 3 の「課題が見えた場面」で同じものを使う。画面 4 の AI の見立てと「会話を確認する」も、11/8 からこの部品）。
 // AI の見立ての文（要の一句を蛍光ペン風に）、「会話を確認する」（か所ごとに開く）、見立ての根拠の事実（根拠の発言を押すと開く）。
 // 見立て・事実の文には発話番号を書かせず、番号は「会話を確認する」と「根拠の発言」に置く（11/8）。
 
 import { useState } from "react";
 
 import { SPEAKER_LABELS } from "@/engine/types.mts";
-import type { Scene, Transcript } from "@/engine/types.mts";
+import type { Quote, Scene, Transcript } from "@/engine/types.mts";
 import { findUtteranceIndices } from "@/engine/utterance-no.mts";
 import { refGroups, spanWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
@@ -33,11 +33,14 @@ export function MoreLink({ open, onToggle, label, openLabel, controls }: { open:
 /** 会話のひとまとまり（発話の範囲。含む） */
 export type Spot = { from: number; to: number };
 
+/** 会話の箱が使う、引用のまとまり（場面。画面 4 の確かめも同じ部品を使う） */
+export type QuoteSet = { type: string; quotes: Quote[]; discardedQuotes: Quote[] };
+
 /**
  * 会話のひとまとまりを、原文で並べる箱。引用した発話に「引用」、見立てが触れた発話に印、前後 1 発話（広げると 3 発話）を添える。
  * 下に、この中の引用が原文と一致した印と「前後をもう少し読む」。
  */
-export function ConversationBox({ t, scene, span, spot, pointed, pointedTag, badge }: { t: Transcript; scene: Scene; span: SceneSpan | null; spot: Spot; pointed: number[]; pointedTag?: string; badge?: string }) {
+export function ConversationBox({ t, scene, span, spot, pointed, pointedTag, badge }: { t: Transcript; scene: QuoteSet; span: SceneSpan | null; spot: Spot; pointed: number[]; pointedTag?: string; badge?: string }) {
   const n = t.utterances.length;
   const [wide, setWide] = useState(false);
   const win = spanWindow(spot, n, wide ? 3 : 1);
@@ -94,7 +97,7 @@ export function SpotButton({ n, spot, on, onToggle, controls, note }: { n?: numb
  * 「会話を確認する」。AI の見立てに関わる会話（照合済みの引用と、見立てが触れた発話）を、近いものごとのまとまりにして出す。
  * 1 か所なら、押すとその会話が開く。何か所かあれば、押すとか所ごとのボタンが並び、ボタンごとに会話が開く（11/8 に本人が決めた）。
  */
-export function ConversationLink({ t, scene, span, pointed }: { t: Transcript; scene: Scene; span: SceneSpan | null; pointed: number[] }) {
+export function ConversationLink({ t, scene, span, pointed }: { t: Transcript; scene: QuoteSet; span: SceneSpan | null; pointed: number[] }) {
   const n = t.utterances.length;
   const spots = refGroups([...(span?.quoted ?? []), ...pointed], n);
   const [open, setOpen] = useState(false);
@@ -143,7 +146,7 @@ export function ConversationLink({ t, scene, span, pointed }: { t: Transcript; s
 }
 
 /** 事実の文の後に置く「根拠の発言」。番号のまとまりごとのボタンで、押すとその会話がすぐ下に開く */
-export function RefSpots({ t, scene, span, indices, idPrefix }: { t: Transcript; scene: Scene; span: SceneSpan | null; indices: number[]; idPrefix: string }) {
+export function RefSpots({ t, scene, span, indices, idPrefix }: { t: Transcript; scene: QuoteSet; span: SceneSpan | null; indices: number[]; idPrefix: string }) {
   const spots = refGroups(indices, t.utterances.length);
   const [openSpots, setOpenSpots] = useState<number[]>([]);
   if (spots.length === 0) return null;

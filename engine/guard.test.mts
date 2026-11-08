@@ -110,6 +110,17 @@ describe("本番の出力の検査（決まり 1・3）", () => {
     assert.equal(r4.otherPersonLine, WITHHELD_NOTICE);
   });
 
+  test("工程 4：なぜの要の一句は、守った後のなぜにそのまま残るときだけ持つ（決まり 3）", () => {
+    const base = { verdict: "一部" as const, quotes: [], discardedQuotes: [], items: [], total: { sum: 0, judgedCount: 0, max: 25, scaled: null }, otherPersonLine: null, quoteStats: { generated: 0, discarded: 0 }, rawText: "" };
+    const kept = guardStep4({ ...base, why: "問いの後に、例を足して話を進めた。待つ行動は文字の上に現れていない。", whyKey: "待つ行動は文字の上に現れていない" }, utterances);
+    assert.equal(kept.whyKey, "待つ行動は文字の上に現れていない");
+    const withheld = guardStep4({ ...base, why: "講師は話しすぎる傾向がある。", whyKey: "話しすぎる" }, utterances);
+    assert.equal(withheld.whyKey, null);
+    // 前の作りの出力（欄が無い）は、欄を足さない
+    const old = guardStep4({ ...base, why: "発話 2 で問いが出た。" }, utterances);
+    assert.equal("whyKey" in old, false);
+  });
+
   test("工程 3・0c：候補の「」は外さない（相手が誰でも起こりうる形）。性質の言葉だけ検査する", () => {
     const r3 = guardStep3(
       {
