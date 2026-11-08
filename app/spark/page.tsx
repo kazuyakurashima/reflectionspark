@@ -240,7 +240,7 @@ export default function Screen4() {
         )}
 
         {/* 案に近い前の言葉は、見えている案（選んだ案、選ぶ前は最初の案）の分だけ。開いていない案の言葉は並べない */}
-        <RepeatScenesBlock items={repeats} near={nearPrevious ? [nearPrevious] : []} pastSummary={candidates?.step3.pastSummary ?? null} className="mt-10" />
+        <RepeatScenesBlock items={repeats} near={nearPrevious ? [nearPrevious] : []} pastSummary={candidates?.step3.pastSummary ?? null} className="mt-5" />
 
         {spark && !keptChosen && (spark.edited || !cands.some((c) => c.sentence === spark.sentence)) && (
           <div className={`mt-6 ${SPARK_BOX}`}>

@@ -23,7 +23,8 @@ const BOX = "space-y-2.5 rounded-md border border-line bg-surface px-3 py-3.5 te
 
 /**
  * 画面 3「この場面、前にもありました」：今回の「次に試せる所」と同じ形の、前の面談の場面（11/8 に本人が決めた形）。
- * 上に過去の記憶の整理を一度だけ。工程 3 が仮説をふつうの言葉で 3 行（どんな場面・何があったか・今回とのつながり）に直したものを見せ、
+ * 閉じて始める。見出しは押すと開くリンクで、件数と「Memory × Dream」の札だけを見せる（11/8 に本人が決めた。主役の案を下へ押し出さないため）。
+ * 開くと、上に過去の記憶の整理を一度だけ。工程 3 が仮説をふつうの言葉で 3 行（どんな場面・何があったか・今回とのつながり）に直したものを見せ、
  * もとの仮説の文は押すと読める（11/8 に本人が決めた。仮説の文だけでは、どんな場面で何が課題か分かりにくかった）。3 行が無ければ仮説の文を出す。要の句は蛍光ペン風に。場面ごとのカードは、見出し（工程 3 が書いた、やりとりの形の 1 行）と、小さく日付と相手。
  * 同じ形の場面の後に、案に近いことを前の面談で言っていた場面（near）をカードで並べる（11/8 に本人が決めた。案の中には出さない）。
  * 押すと、その回の AI の見立て（解釈）、「事実を確認する」（その回に AI が書いた事実）、「会話を確認する」（記録の原文）が開く。
@@ -40,6 +41,7 @@ export function RepeatScenesBlock({
   pastSummary?: PastSummary | null;
   className?: string;
 }) {
+  const [show, setShow] = useState(false);
   const [original, setOriginal] = useState(false);
   const items = raw.map(repeatSceneView);
   const keyOf = (p: RepeatScene) => `${p.interviewId}｜${p.utterance}`;
@@ -54,65 +56,74 @@ export function RepeatScenesBlock({
   const top = new Set(summaries);
   return (
     <section aria-labelledby="repeat-heading" className={className}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-        <h2 id="repeat-heading" className={H2}>
-          この場面、前にもありました
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
+        <h2 id="repeat-heading" className="text-[1rem] font-medium leading-snug">
+          <button type="button" onClick={() => setShow((o) => !o)} aria-expanded={show} aria-controls="repeat-body" className={`flex min-h-9 items-center gap-2.5 text-left ${LINK}`}>
+            <Chevron open={show} />
+            <span>
+              この場面、前にもありました<span className="text-[0.86rem] font-normal">（前の面談から {all.length} 件）</span>
+            </span>
+          </button>
         </h2>
         <span className="text-xs tracking-wide text-ink-3">Memory × Dream</span>
       </div>
-      <p className="mt-1 text-[0.86rem] leading-[1.7] text-ink-2">記憶（Memory）を夢（Dream）が整理して見つけた、同じ形の場面です。</p>
-      {summaries.length > 0 && (
-        <div className="mt-3 rounded-md border border-dashed border-line-2 px-4 py-3">
-          <p className="flex items-center gap-2 text-xs font-semibold text-ink-3">
-            過去の記憶の整理
-            <KindBadge>仮説</KindBadge>
-          </p>
-          {pastSummary ? (
-            <>
-              <dl className="mt-2 grid gap-x-4 gap-y-1 text-[0.95rem] leading-[1.8] sm:grid-cols-[7.5em_1fr] sm:gap-y-2">
-                {[
-                  { label: "どんな場面", text: pastSummary.scene },
-                  { label: "何があったか", text: pastSummary.happened },
-                  { label: "今回とのつながり", text: pastSummary.link },
-                ].map((r) => (
-                  <div key={r.label} className="contents">
-                    <dt className="mt-1.5 text-[0.8rem] font-semibold text-ink-2 sm:mt-0 sm:pt-[0.2em]">{r.label}</dt>
-                    <dd className="text-pretty">
-                      <MarkedText text={r.text} phrase={pastSummary.key} />
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-2">
-                <MoreLink open={original} onToggle={() => setOriginal((o) => !o)} label="もとの仮説の文を読む" openLabel="もとの仮説の文を閉じる" controls="past-statement" />
-                {original && (
-                  <div id="past-statement" className="mt-1 border-l-2 border-line-2 pl-3 text-[0.9rem] leading-[1.8] text-ink-2">
-                    {summaries.map((s) => (
-                      <p key={s} className="text-pretty">
-                        <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            summaries.map((s) => (
-              <p key={s} className="mt-1.5 text-[0.95rem] leading-[1.85] text-pretty">
-                <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
+      {show && (
+        <div id="repeat-body" className="mt-1">
+          <p className="text-[0.86rem] leading-[1.7] text-ink-2">記憶（Memory）を夢（Dream）が整理して見つけた、同じ形の場面です。</p>
+          {summaries.length > 0 && (
+            <div className="mt-3 rounded-md border border-dashed border-line-2 px-4 py-3">
+              <p className="flex items-center gap-2 text-xs font-semibold text-ink-3">
+                過去の記憶の整理
+                <KindBadge>仮説</KindBadge>
               </p>
-            ))
+              {pastSummary ? (
+                <>
+                  <dl className="mt-2 grid gap-x-4 gap-y-1 text-[0.95rem] leading-[1.8] sm:grid-cols-[7.5em_1fr] sm:gap-y-2">
+                    {[
+                      { label: "どんな場面", text: pastSummary.scene },
+                      { label: "何があったか", text: pastSummary.happened },
+                      { label: "今回とのつながり", text: pastSummary.link },
+                    ].map((r) => (
+                      <div key={r.label} className="contents">
+                        <dt className="mt-1.5 text-[0.8rem] font-semibold text-ink-2 sm:mt-0 sm:pt-[0.2em]">{r.label}</dt>
+                        <dd className="text-pretty">
+                          <MarkedText text={r.text} phrase={pastSummary.key} />
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="mt-2">
+                    <MoreLink open={original} onToggle={() => setOriginal((o) => !o)} label="もとの仮説の文を読む" openLabel="もとの仮説の文を閉じる" controls="past-statement" />
+                    {original && (
+                      <div id="past-statement" className="mt-1 border-l-2 border-line-2 pl-3 text-[0.9rem] leading-[1.8] text-ink-2">
+                        {summaries.map((s) => (
+                          <p key={s} className="text-pretty">
+                            <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                summaries.map((s) => (
+                  <p key={s} className="mt-1.5 text-[0.95rem] leading-[1.85] text-pretty">
+                    <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
+                  </p>
+                ))
+              )}
+              <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink-3">前の面談の記録を整理して立てた仮説で、確かめられたことではありません。</p>
+            </div>
           )}
-          <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink-3">前の面談の記録を整理して立てた仮説で、確かめられたことではありません。</p>
+          <ul className="mt-3 space-y-2.5">
+            {all.map((p, i) => (
+              <li key={keyOf(p)}>
+                <RepeatCard p={p} near={i >= items.length} summary={p.summary && !top.has(p.summary) ? p.summary : null} summaryKey={p.summary ? keyFor(p.summary) : null} />
+              </li>
+            ))}
+          </ul>
         </div>
       )}
-      <ul className="mt-3 space-y-2.5">
-        {all.map((p, i) => (
-          <li key={keyOf(p)}>
-            <RepeatCard p={p} near={i >= items.length} summary={p.summary && !top.has(p.summary) ? p.summary : null} summaryKey={p.summary ? keyFor(p.summary) : null} />
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
