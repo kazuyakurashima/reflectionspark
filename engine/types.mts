@@ -280,8 +280,27 @@ export type Candidate = {
   previous?: RepeatScene | PreviousWords;
 };
 
+/**
+ * 画面 3「過去の記憶の整理」：同じ形の場面の根拠になった夢の仮説を、工程 3 がふつうの言葉で 3 行に直したもの（11/8 に本人が決めた）。
+ * 仮説に無い理由は足させない。もとの仮説の文（statement）も持ち、押すと読める
+ */
+export type PastSummary = {
+  /** もとの仮説の文（夢が書いたもの） */
+  statement: string;
+  /** どんな場面 */
+  scene: string;
+  /** 何があったか */
+  happened: string;
+  /** 今回とのつながり */
+  link: string;
+  /** 三つの文のどれかから一字も変えずに写した要の句。どの文にもそのまま無ければ null */
+  key: string | null;
+};
+
 export type Step3Result = {
   candidates: Candidate[];
+  /** 過去の記憶の整理（記録に合う場面があり、言葉の検査を通ったときだけ） */
+  pastSummary?: PastSummary;
   /** 今回の「次に試せる所」と同じ形の、前の面談の場面（記録に合うものがあるときだけ。2 つまで、古い順） */
   repeats?: RepeatScene[];
   /** 言葉に表れない行動として落とした候補 */

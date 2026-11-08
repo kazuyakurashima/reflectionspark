@@ -9,7 +9,7 @@ import { useState } from "react";
 
 import type { RecordEntry } from "@/engine/memory-read.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
-import type { MeetingKind, PreviousWords, RepeatScene } from "@/engine/types.mts";
+import type { MeetingKind, PastSummary, PreviousWords, RepeatScene } from "@/engine/types.mts";
 import { formatDate, kindLabel, linesTranscript, mergeLines, recordScoreCells, repeatSceneView, slashDate } from "@/app/lib/record-view.mts";
 import type { Line } from "@/app/lib/record-view.mts";
 import { useRecords } from "@/app/lib/records";
@@ -23,12 +23,24 @@ const BOX = "space-y-2.5 rounded-md border border-line bg-surface px-3 py-3.5 te
 
 /**
  * 画面 3「この場面、前にもありました」：今回の「次に試せる所」と同じ形の、前の面談の場面（11/8 に本人が決めた形）。
- * 上に過去の記憶の整理（夢の仮説の文。要の句を蛍光ペン風に）を一度だけ。場面ごとのカードは、見出し（工程 3 が書いた、やりとりの形の 1 行）と、小さく日付と相手。
+ * 上に過去の記憶の整理を一度だけ。工程 3 が仮説をふつうの言葉で 3 行（どんな場面・何があったか・今回とのつながり）に直したものを見せ、
+ * もとの仮説の文は押すと読める（11/8 に本人が決めた。仮説の文だけでは、どんな場面で何が課題か分かりにくかった）。3 行が無ければ仮説の文を出す。要の句は蛍光ペン風に。場面ごとのカードは、見出し（工程 3 が書いた、やりとりの形の 1 行）と、小さく日付と相手。
  * 同じ形の場面の後に、案に近いことを前の面談で言っていた場面（near）をカードで並べる（11/8 に本人が決めた。案の中には出さない）。
  * 押すと、その回の AI の見立て（解釈）、「事実を確認する」（その回に AI が書いた事実）、「会話を確認する」（記録の原文）が開く。
  * 前の面談の文字起こしはこの画面に無いので、AI の文の中の発話番号は外して出す。評価の言葉は付けない。
  */
-export function RepeatScenesBlock({ items: raw, near: rawNear = [], className = "" }: { items: (RepeatScene | PreviousWords)[]; near?: (RepeatScene | PreviousWords)[]; className?: string }) {
+export function RepeatScenesBlock({
+  items: raw,
+  near: rawNear = [],
+  pastSummary = null,
+  className = "",
+}: {
+  items: (RepeatScene | PreviousWords)[];
+  near?: (RepeatScene | PreviousWords)[];
+  pastSummary?: PastSummary | null;
+  className?: string;
+}) {
+  const [original, setOriginal] = useState(false);
   const items = raw.map(repeatSceneView);
   const keyOf = (p: RepeatScene) => `${p.interviewId}｜${p.utterance}`;
   const shown = new Set(items.map(keyOf));
@@ -55,11 +67,42 @@ export function RepeatScenesBlock({ items: raw, near: rawNear = [], className = 
             過去の記憶の整理
             <KindBadge>仮説</KindBadge>
           </p>
-          {summaries.map((s) => (
-            <p key={s} className="mt-1.5 text-[0.95rem] leading-[1.85] text-pretty">
-              <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
-            </p>
-          ))}
+          {pastSummary ? (
+            <>
+              <dl className="mt-2 grid gap-x-4 gap-y-1 text-[0.95rem] leading-[1.8] sm:grid-cols-[7.5em_1fr] sm:gap-y-2">
+                {[
+                  { label: "どんな場面", text: pastSummary.scene },
+                  { label: "何があったか", text: pastSummary.happened },
+                  { label: "今回とのつながり", text: pastSummary.link },
+                ].map((r) => (
+                  <div key={r.label} className="contents">
+                    <dt className="mt-1.5 text-[0.8rem] font-semibold text-ink-2 sm:mt-0 sm:pt-[0.2em]">{r.label}</dt>
+                    <dd className="text-pretty">
+                      <MarkedText text={r.text} phrase={pastSummary.key} />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="mt-2">
+                <MoreLink open={original} onToggle={() => setOriginal((o) => !o)} label="もとの仮説の文を読む" openLabel="もとの仮説の文を閉じる" controls="past-statement" />
+                {original && (
+                  <div id="past-statement" className="mt-1 border-l-2 border-line-2 pl-3 text-[0.9rem] leading-[1.8] text-ink-2">
+                    {summaries.map((s) => (
+                      <p key={s} className="text-pretty">
+                        <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            summaries.map((s) => (
+              <p key={s} className="mt-1.5 text-[0.95rem] leading-[1.85] text-pretty">
+                <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
+              </p>
+            ))
+          )}
           <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink-3">前の面談の記録を整理して立てた仮説で、確かめられたことではありません。</p>
         </div>
       )}

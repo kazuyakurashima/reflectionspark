@@ -347,7 +347,7 @@ export function resolveRepeatScene(ref: string | null | undefined, title: string
 }
 
 /** 夢の仮説のうち、画面 3 の「過去の記憶の整理」に使う所（仮説の文と根拠の札） */
-export type PastHypothesis = { statement: string; evidence: Pick<EvidenceRef, "interviewId" | "index" | "lastIndex">[] };
+export type PastHypothesis = { id?: string; statement: string; evidence: Pick<EvidenceRef, "interviewId" | "index" | "lastIndex">[] };
 
 export type Step3Memory = { pastScenes: string; records: ParsedRecord[]; hypotheses: PastHypothesis[] };
 
@@ -359,7 +359,7 @@ export function step3MemoryFrom(recurringMarkdown: string, recordFiles: StoredFi
   // pastScenesText が通った（仮説の文に点・判定・性質の言葉が無い）ときだけ、仮説の文を持つ
   const hypotheses = parseHypotheses(recurringMarkdown)
     .filter((h) => h.evidence.length > 0)
-    .map((h) => ({ statement: h.statement, evidence: h.evidence.map(({ interviewId, index, lastIndex }) => ({ interviewId, index, lastIndex })) }));
+    .map((h) => ({ id: h.id, statement: h.statement, evidence: h.evidence.map(({ interviewId, index, lastIndex }) => ({ interviewId, index, lastIndex })) }));
   return { pastScenes, records, hypotheses };
 }
 

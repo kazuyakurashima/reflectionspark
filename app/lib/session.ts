@@ -29,7 +29,7 @@ export type FollowUpData = {
   countedSparkId: string | null;
 };
 
-/** 前の面談から持ち越したもの。画面 3 の「今日はここまでにする」で入る（app/lib/next-meeting.mts） */
+/** 前の面談から持ち越したもの。画面 3 の「次の面談の入力へ」で入る（app/lib/next-meeting.mts） */
 export type PrevMeeting = {
   /** 前の面談で決めたひとつ（見送ったなら null）。追った回数は、ここで数える */
   spark: SparkChoice | null;

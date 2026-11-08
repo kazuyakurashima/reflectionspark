@@ -446,7 +446,8 @@ function step3PastScenesRules(self: string): string {
 - 候補ごとに、その行動に近いことを本人が前の面談で実際に言っている発話が、根拠や例外の行にあれば、その札を previous_ref に写す（例の形：student-a｜発話 12）。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合う発話が無ければ空にする。引用文や評価の言葉は書かない。previous_title には、そのやりとりの形を repeat_scenes の title と同じ書き方で 1 行に書く（previous_ref が空なら空）。
 - 今回の「次に試せる所」と同じ形のやりとりが前の面談にもあれば、根拠や例外の行から、その本人の発話の札を repeat_scenes の ref に写す（2 つまで）。話題が違っても、やりとりの形が同じならよい。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合うものが無ければ空の配列にする。
 - repeat_scenes の title には、そのやりとりの形を、相手の発話と本人の行動で 1 行に書く（30 字ほど。例の形：「相手が出来事を話した直後に、${self}が相手の言葉で返した」）。前の面談の相手の名前や話題、引用文、良し悪しや評価の言葉、人を言い表す言葉は書かない。
-- repeat_scenes の key には、その発話が根拠に挙がっている仮説（「## 」の行）の文から、今回の場面と同じ形を言っている一続きの句を、一字も変えずに写す（15〜35 字ほど。言い換えない）。合う句が無ければ空にする。`;
+- repeat_scenes の key には、その発話が根拠に挙がっている仮説（「## 」の行）の文から、今回の場面と同じ形を言っている一続きの句を、一字も変えずに写す（15〜35 字ほど。言い換えない）。合う句が無ければ空にする。
+- past_summary は、本人が仮説を一読で分かるように、ふつうの言葉で 3 行に直したもの。repeat_scenes の発話が根拠に挙がっている仮説を一つ選び、その記号（H1 など）を hypothesis に写す。scene には、どんな場面か（相手の発話と${self}の行動で）。happened には、その直後に何があったか（仮説の文にあることだけ。何回の面談であったかを添える）。link には、今回の「次に試せる所」の場面で、同じ形がどう現れたか（今回の観察・反応・読みにあることだけ）。それぞれ 1 文、40 字ほど。仮説に無い理由（「〜だから」「〜ので」）、良し悪しや評価の言葉、人を言い表す言葉、点や判定の言葉は書かない。key には、3 つの文のうち、いちばん要の句を一字も変えずに写す。repeat_scenes が空なら、すべて空にする。`;
 }
 
 export function step3System(kind: MeetingKind, withPastScenes = false): string {
@@ -496,8 +497,21 @@ export const STEP3_SCHEMA = {
 /** 前の面談の記録を渡すときの形。候補ごとの前の面談の発話の札と、今回の場面と同じ形の発話の札（とやりとりの形の 1 行）を返す欄を足す */
 export const STEP3_PAST_SCENES_SCHEMA = {
   ...STEP3_SCHEMA,
-  required: [...STEP3_SCHEMA.required, "repeat_scenes"],
+  required: [...STEP3_SCHEMA.required, "repeat_scenes", "past_summary"],
   properties: {
+    past_summary: {
+      type: "object",
+      additionalProperties: false,
+      description: "同じ形の場面の根拠になった仮説を、ふつうの言葉で 3 行に直したもの。repeat_scenes が空なら、すべて空",
+      required: ["hypothesis", "scene", "happened", "link", "key"],
+      properties: {
+        hypothesis: { type: "string", description: "選んだ仮説の記号（H1 など）" },
+        scene: { type: "string", description: "どんな場面か。1 文" },
+        happened: { type: "string", description: "その直後に何があったか。仮説の文にあることだけ。1 文" },
+        link: { type: "string", description: "今回の場面で同じ形がどう現れたか。今回の観察・反応・読みにあることだけ。1 文" },
+        key: { type: "string", description: "3 つの文のうち、いちばん要の句を一字も変えずに写したもの" },
+      },
+    },
     repeat_scenes: {
       type: "array",
       description: "今回の「次に試せる所」と同じ形のやりとりをした、前の面談の場面。2 つまで。無ければ空の配列",

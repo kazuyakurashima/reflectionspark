@@ -11,7 +11,7 @@ import { buildRecordList, memoryConfig, parsePreviousRef, parseRecord, parseReco
 import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
 import { buildLedgerEntry, ledgerPath, renderLedgerEntry } from "./score-ledger.mts";
 import { candidatesOrMock, recordsOrOff } from "./server.mts";
-import { attachPreviousWords, parseStep3, repeatTitle, resolveRepeats } from "./step3.mts";
+import { attachPreviousWords, parseStep3, repeatTitle, resolvePastSummary, resolveRepeats } from "./step3.mts";
 import type { Candidate, Quote, Scene, Utterance } from "./types.mts";
 
 
@@ -250,6 +250,9 @@ describe("旗（ストアの番号の環境変数）", () => {
     assert.equal(STEP3_PAST_SCENES_SCHEMA.required.includes("repeat_scenes"), true);
     assert.deepEqual(STEP3_PAST_SCENES_SCHEMA.properties.repeat_scenes.items.required, ["ref", "title", "key"]);
     assert.equal(STEP3_PAST_SCENES_SCHEMA.properties.candidates.items.required.includes("previous_title"), true);
+    assert.equal(STEP3_PAST_SCENES_SCHEMA.required.includes("past_summary"), true);
+    assert.deepEqual(STEP3_PAST_SCENES_SCHEMA.properties.past_summary.required, ["hypothesis", "scene", "happened", "link", "key"]);
+    assert.equal("past_summary" in STEP3_SCHEMA.properties, false);
     assert.equal("previous_title" in STEP3_SCHEMA.properties.candidates.items.properties, false);
     assert.equal("repeat_scenes" in STEP3_SCHEMA.properties, false);
     // 旗が無いときと同じく、system と user の文は、記録の決まりの文の分だけ違う
@@ -307,6 +310,26 @@ describe("旗（ストアの番号の環境変数）", () => {
     assert.equal(at(""), null);
     // 夢のまとめが無い発話には、句も付けない
     assert.equal(resolveRepeatScene("student-b｜発話 6", null, records, hypotheses, "講師がその語で返す")?.key, null);
+  });
+
+  test("過去の記憶の整理（3 行）：出す場面の仮説で、言葉の検査を通ったときだけ。要の句は 3 行にそのまま入っているときだけ", () => {
+    const records = parseRecords([file(first)]);
+    const hypotheses = [
+      { id: "H1", statement: "相手が気持ちを口にした直後に、講師がその語で返す発話があった。", evidence: [{ interviewId: "student-b", index: 2, lastIndex: 2 }] },
+      { id: "H2", statement: "別の仮説。", evidence: [{ interviewId: "student-b", index: 6, lastIndex: 6 }] },
+    ];
+    const repeats = resolveRepeats([{ ref: "student-b｜発話 2", title: "t", key: "" }], [], records, hypotheses);
+    const raw = { hypothesis: "H1", scene: "相手が気持ちを一言で話した直後", happened: "講師がその言葉で返した（1 回）", link: "今回も、相手が心配を口にした直後の場面だった", key: "その言葉で返した" };
+    const got = resolvePastSummary(raw, repeats, hypotheses);
+    assert.deepEqual(got, { statement: hypotheses[0].statement, scene: raw.scene, happened: raw.happened, link: raw.link, key: "その言葉で返した" });
+    assert.equal(resolvePastSummary({ ...raw, hypothesis: "仮説 H1" }, repeats, hypotheses)?.statement, hypotheses[0].statement);
+    assert.equal(resolvePastSummary({ ...raw, key: "言い換えた句" }, repeats, hypotheses)?.key, null);
+    assert.equal(resolvePastSummary({ ...raw, hypothesis: "H2" }, repeats, hypotheses), null, "出す場面の仮説でなければ出さない");
+    assert.equal(resolvePastSummary({ ...raw, hypothesis: "H9" }, repeats, hypotheses), null);
+    assert.equal(resolvePastSummary({ ...raw, link: "" }, repeats, hypotheses), null);
+    assert.equal(resolvePastSummary({ ...raw, happened: "講師が説明しすぎる傾向があった" }, repeats, hypotheses), null, "性質の言葉");
+    assert.equal(resolvePastSummary({ ...raw, link: "今回の判定と同じだった" }, repeats, hypotheses), null, "判定の言葉");
+    assert.equal(resolvePastSummary(undefined, repeats, hypotheses), null);
   });
 
   test("案に近い前の言葉も、見出し・過去の記憶の整理・会話の付いたカードの形にする", () => {
@@ -393,6 +416,8 @@ describe("サンプルの記録と夢の出力（実データ）", () => {
   test("同じ形の場面：実際の記録から、その回の AI の文と夢のまとめと会話を引ける", () => {
     const m = step3MemoryFrom(dreamFiles.find((f) => f.path.endsWith("recurring-scenes.md"))!.content, recordFiles);
     assert.ok(m);
+    // H7 は根拠の欄の見出しが「根拠（講師が案を言った場面）：」で、根拠として読めない（engine/memory-evidence.mts）ので入らない
+    assert.deepEqual(m.hypotheses.map((h) => h.id), ["H1", "H2", "H3", "H4", "H5", "H6"]);
     const got = resolveRepeatScene("student-seiseki-2｜発話 26", "相手が出来事を話した直後に、講師が相手の言葉で返した", m.records, m.hypotheses);
     assert.ok(got);
     assert.equal(got.date, "2025-11-21");
