@@ -278,7 +278,7 @@ export default function Screen5() {
               次へ　フィードバックを読む
             </Link>
           </div>
-          <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">この面談の読みと点は、次の「2 読む」で受け取ります。前回のひとつを続けるか変えるかは、「4 次に試すひとつ」で決めます。</p>
+          <p className="mt-3 text-[0.86rem] leading-[1.7] text-ink-3">この面談の読みと点数は、次の「2 読む」で受け取ります。前回のひとつを続けるか変えるかは、「4 次に試すひとつ」で決めます。</p>
           <RecordsLink className="mt-4 inline-block px-1 text-[0.92rem]" />
         </>
       )}

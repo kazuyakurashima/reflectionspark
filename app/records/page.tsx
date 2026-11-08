@@ -33,7 +33,7 @@ export default function Screen6() {
         ) : (
           <>
             <p className={LEAD}>サンプルの講師の記録です（作ったダミーの面談）。前もって分析・記録・夢を回して作りました。この画面は AI を呼びません。</p>
-            <p className="mt-1 text-[0.86rem] leading-[1.8] text-ink-3">面談を日付の古い順に並べています。AI の点は、同じ面談でも揺れることがあります。</p>
+            <p className="mt-1 text-[0.86rem] leading-[1.8] text-ink-3">面談を日付の古い順に並べています。AI の点数は、同じ面談でも揺れることがあります。</p>
             <ol className="mt-12 space-y-16">
               {records.records.map((r) => (
                 <li key={r.interviewId}>

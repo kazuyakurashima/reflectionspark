@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { chapterIndexOf, chaptersOf, sceneSpan, spanWindow, wideWindow } from "./lib/scene-view.mts";
+import { chapterIndexOf, chaptersOf, sceneSpan, spanWindow, talkByChapter, wideWindow } from "./lib/scene-view.mts";
 
 const q = (index: number, verified = true, endIndex = index + 1) => ({ index, endIndex, verified });
 
@@ -70,5 +70,35 @@ describe("画面 2：地図の区切り", () => {
     assert.equal(chapterIndexOf(c, 40), 2);
     assert.equal(chapterIndexOf(c, 11), 0);
     assert.equal(chapterIndexOf([], 3), -1);
+  });
+});
+
+describe("画面 2：話題ごとの話した量（点には入れない）", () => {
+  const u = (index: number, speaker: string, text: string | null, original = text ?? "") => ({ index, speaker, text, original });
+  const utterances = [u(0, "講師", "こんにちは"), u(1, "生徒", "はい"), u(2, "講師", "今日は進路の話"), u(3, "生徒", null, "えっと迷ってて")];
+  const chapters = [
+    { from: 0, to: 1, text: "あいさつ" },
+    { from: 2, to: 3, text: "進路の話" },
+  ];
+
+  test("区切りごとに、本人と相手の文字数と本人の割合を数える", () => {
+    const r = talkByChapter(chapters, utterances, "講師");
+    assert.deepEqual(
+      r.map((c) => [c.text, c.selfChars, c.otherChars]),
+      [
+        ["あいさつ", 5, 2],
+        ["進路の話", 7, 7],
+      ],
+    );
+    assert.equal(r[1].selfRatio, 0.5);
+  });
+
+  test("直しを当てられなかった発話は、元の文で数える", () => {
+    assert.equal(talkByChapter(chapters, utterances, "講師")[1].otherChars, [..."えっと迷ってて"].length);
+  });
+
+  test("区切りが無ければ空。誰も話していない区切りは割合 0", () => {
+    assert.deepEqual(talkByChapter([], utterances, "講師"), []);
+    assert.equal(talkByChapter([{ from: 9, to: 9, text: "x" }], utterances, "講師")[0].selfRatio, 0);
   });
 });

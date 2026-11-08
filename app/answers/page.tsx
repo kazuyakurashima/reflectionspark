@@ -3,7 +3,7 @@
 // 画面 3：問いに答える（文書での名前は「自分の言葉で」）。問いに本人が答えを書く。AI は呼ばない。答えは次の工程（行動の候補）に渡す。
 // 問いの中の発言の番号は、載せるとその発言が出る（app/components/RefText.tsx）。
 // 問いは並べて見せ、「回答する」を押した一つだけ書く欄を開く（欄が 3 つ並ぶと、問いの全体を見るのにスクロールが要るため）。書いた分はその場で保存する。
-// 並べる順は、課題が見えた場面の問い（工程 3 が候補を作るもとの場面）→ うまくいった場面の問い → 事情を尋ねる問い。
+// 並べる順は、課題が見えた場面の問い（工程 3 が候補を作るもとの場面）→ 面談の全体からの問い。うまくいった場面には問いを置かない（決まり 6）。
 // 問いごとに、どの場面から来たかと、答えが何になるかを一行添える（画面 2 の場面と結び付けられるように）。答えは問いの文で保存するので、並べ替えても答えはずれない。
 
 import Link from "next/link";
@@ -16,14 +16,13 @@ import { questionItemsOf, updateSession, useSession } from "@/app/lib/session";
 import { sceneTypeLabel } from "@/app/lib/words.mts";
 import type { SceneType } from "@/engine/types.mts";
 
-const ORDER = (from: SceneType | null) => (from === "次に試せる所" ? 0 : from === "よく表れた所" ? 1 : 2);
+const ORDER = (from: SceneType | null) => (from === "次に試せる所" ? 0 : 1);
 
 /** 問いの横に添える、どこから来た問いか */
 const sourceLabel = (from: SceneType | null) => (from ? `${sceneTypeLabel(from)}から` : "面談の全体から");
 
 /** 問いの下に添える、答えが何になるか */
-const roleNote = (from: SceneType | null) =>
-  from === "次に試せる所" ? "この答えをもとに、次に試す行動の候補を作ります。" : from === "よく表れた所" ? "うまくいった理由を言葉にしておくと、次の面談でも意識して選べます。" : "";
+const roleNote = (from: SceneType | null) => (from === "次に試せる所" ? "この答えをもとに、次に試す行動の候補を作ります。" : "");
 
 export default function Screen3() {
   const router = useRouter();

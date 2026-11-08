@@ -2,8 +2,9 @@
 // - 場面に並べる発話の範囲：引用した発話（照合済み）のうち、最初の引用とつながっているひと続き。
 //   その直前と直後の発話はアプリが発話番号から足す（AI には書かせない。決まり 1）。
 // - 地図の区切り：工程 1 の「面談の流れ」の文の末尾にある発話番号の範囲を読む。読めなければ区切りを出さない。
+// - 話題ごとの話した量：区切りごとに、本人と相手が話した文字数を数える。点には入れず、良し悪しも付けない。
 
-import type { Quote } from "../../engine/types.mts";
+import type { Quote, Utterance } from "../../engine/types.mts";
 import { findUtteranceRefs } from "../../engine/utterance-no.mts";
 
 export type SceneSpan = {
@@ -78,4 +79,27 @@ export function chaptersOf(flow: string[], count: number): Chapter[] {
 /** その発話が入っている区切りの番号（0 始まり）。無ければ -1 */
 export function chapterIndexOf(chapters: Chapter[], index: number): number {
   return chapters.findIndex((c) => index >= c.from && index <= c.to);
+}
+
+export type ChapterTalk = Chapter & {
+  selfChars: number;
+  otherChars: number;
+  /** 本人が話した割合（0〜1）。その話題で誰も話していなければ 0 */
+  selfRatio: number;
+};
+
+/** 話題ごとの話した量（文字数）。本人の話者ラベルを self で渡す。区切りが無ければ空を返す */
+export function talkByChapter(chapters: Chapter[], utterances: Pick<Utterance, "index" | "speaker" | "text" | "original">[], self: string): ChapterTalk[] {
+  return chapters.map((c) => {
+    let selfChars = 0;
+    let otherChars = 0;
+    for (const u of utterances) {
+      if (u.index < c.from || u.index > c.to) continue;
+      const n = [...(u.text ?? u.original)].length;
+      if (u.speaker === self) selfChars += n;
+      else otherChars += n;
+    }
+    const total = selfChars + otherChars;
+    return { ...c, selfChars, otherChars, selfRatio: total === 0 ? 0 : selfChars / total };
+  });
 }

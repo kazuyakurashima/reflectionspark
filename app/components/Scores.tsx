@@ -58,7 +58,7 @@ export function ScoreTable({ items, total, t, selfScore }: { items: ItemScore[];
   return (
     <>
       <p className="mt-1 text-xs leading-relaxed text-ink-3">
-        点は面談の点で、人の点ではありません。AI の点は、同じ面談でも揺れることがあります。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと、理由と根拠の発言が開きます。
+        点数は面談の点数で、人の点数ではありません。AI の点数は、同じ面談でも揺れることがあります。尺度は 1〜5（仮）。「判定しない」は 0 点ではなく、合計の分母から外します。行を押すと、理由と根拠の発言が開きます。
       </p>
       <ul className="mt-2 border-t border-line">
         {items.map((it) => (
@@ -67,7 +67,7 @@ export function ScoreTable({ items, total, t, selfScore }: { items: ItemScore[];
       </ul>
       <div className="mt-4 flex flex-wrap items-baseline gap-x-10 gap-y-2">
         <p>
-          <span className="block text-xs text-ink-3">AI の点（合計）</span>
+          <span className="block text-xs text-ink-3">AI の点数（合計）</span>
           <span className="text-2xl font-semibold tabular-nums">{total.scaled === null ? "—" : total.scaled}</span>
           <span className="text-ink-2"> ／10</span>
           <span className="ml-2 text-xs text-ink-3">
@@ -76,14 +76,14 @@ export function ScoreTable({ items, total, t, selfScore }: { items: ItemScore[];
         </p>
         {selfScore !== null && (
           <p>
-            <span className="block text-xs text-ink-3">自分の点</span>
+            <span className="block text-xs text-ink-3">自分の点数</span>
             <span className="text-2xl font-semibold tabular-nums">{selfScore}</span>
             <span className="text-ink-2"> ／10</span>
           </p>
         )}
       </div>
       {selfScore !== null && total.scaled !== null && Math.abs(selfScore - total.scaled) >= 2 && (
-        <p className="mt-2 text-sm text-ink-2">自分の点と AI の点に差があります。差は、どちらが正しいかではなく、確かめる点です。</p>
+        <p className="mt-2 text-sm text-ink-2">自分の点数と AI の点数に差があります。差は、どちらが正しいかではなく、確かめる所です。</p>
       )}
     </>
   );

@@ -180,7 +180,7 @@ function Scores({ s }: { s: NonNullable<RecordEntry["scores"]> }) {
   const cells = recordScoreCells({ selfScore: s.selfScore, selfVerdict: s.selfVerdict, aiScaled: s.aiTotal.scaled, aiVerdict: s.aiVerdict });
   return (
     <div className="mt-6">
-      <p className={SUB}>点</p>
+      <p className={SUB}>点数</p>
       <dl className="mt-2 flex flex-wrap gap-x-10 gap-y-3 [&_dt]:text-xs [&_dt]:text-ink-3">
         {cells.map((c) => (
           <div key={c.label}>

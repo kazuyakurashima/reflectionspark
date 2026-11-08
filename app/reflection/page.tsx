@@ -1,10 +1,11 @@
 "use client";
 
 // 画面 2：読む（フィードバックを読む）。この画面は読むだけで、書く所は置かない（答えは画面 3 で書く）。
-// 上から、見出し（右に「この画面の読み方」）→ 振り返りの要点（2 文）→ 面談の地図（下に面談の流れ）→ 場面を一つ（やりとり → AI の見立て → 考える問い）→ この面談の点 → 詳しく見る → 倫理チェック。
+// 上から、見出し（右に「この画面の読み方」）→ 振り返りの要点（2 文）→ 面談の地図（下に面談の流れ）→ 場面を一つ → この面談の点数 → 詳しく見る → 倫理チェック。
+// 場面の中は、うまくいった場面は「やりとり → どこが良かったか」、課題が見えた場面は「やりとり → AI の見立て → 考える問い」。問いは課題が見えた場面にだけ置く（決まり 6）。
 // 下に固定した「次にすること」を一つ置く。並びは設計書「画面 2 の出力の形と見せ方」。
-// 場面の中は、確かめられるもの（原文のやりとり）を先に、解釈（AI の見立て）を後に置く（原則 2）。AI の見立ては本人が開き、開くのに入力は求めない。
-// 点は場面と問いの後に、太い罫で区切って置く。自分の点を一つ決めてから AI の点を開く（原則 1・決まり 8）。自分の点と一言は AI に渡さない（決まり 10）。
+// 場面の中は、確かめられるもの（原文のやりとり）を先に、解釈（AI の見立て）を後に置く（原則 2）。課題が見えた場面の AI の見立ては本人が開き、開くのに入力は求めない。
+// 点数は場面と問いの後に、太い罫で区切って置く。自分の点数を一つ決めてから AI の点数を開く（原則 1・決まり 8）。自分の点数と一言は AI に渡さない（決まり 10）。
 // 場面の種別は、場面のボタンに最初から出す（うまくいった場面／課題が見えた場面）。倫理チェックはいつも最後の 1 行で、点にしない。
 
 import Link from "next/link";
@@ -24,7 +25,7 @@ import { ANALYZE_STEPS, WaitPanel, analyzeView } from "@/app/components/WaitPane
 import { postWithProgress } from "@/app/lib/progress-stream.mts";
 import type { ProgressEvent } from "@/engine/progress.mts";
 import { BTN_PRIMARY, BTN_SECONDARY, BTN_SMALL, H1, H2, LINK, NOTE, PAGE } from "@/app/components/ui";
-import { chaptersOf, sceneSpan, spanWindow, wideWindow } from "@/app/lib/scene-view.mts";
+import { chapterIndexOf, chaptersOf, sceneSpan, spanWindow, talkByChapter, wideWindow } from "@/app/lib/scene-view.mts";
 import type { SceneSpan } from "@/app/lib/scene-view.mts";
 import { loadSession, updateSession, useSession } from "@/app/lib/session";
 import { sameTranscript } from "@/app/lib/input-guard.mts";
@@ -137,9 +138,9 @@ export default function Screen2() {
         {guideOpen && analysis && !analysis.step1.noScene && !error && (
           <div id="reading-guide" className="mt-5 rounded-md bg-accent-soft px-5 py-4">
             <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
-              <li>場面ごとに、1 から 3 の順に読みます。この画面で書く所はありません。</li>
-              <li>1 の原文のやりとりが、確かめられるものです。2 の AI の見立ては解釈で、開かなくても進めます。開く前に、自分ならどう読むかを考えてみてください。</li>
-              <li>3 の問いには、次の画面「3 問いに答える」で答えます。課題が見えた場面の問いへの答えをもとに、次に試す行動の候補を作ります。</li>
+              <li>場面ごとに、番号の順に読みます。この画面で書く所はありません。1 の原文のやりとりが、確かめられるものです。</li>
+              <li>うまくいった場面は、2 に AI が「どこが良かったか」を書いています。</li>
+              <li>課題が見えた場面は、2 の AI の見立てを開く前に、自分ならどう読むかを考えてみてください（開かなくても進めます）。3 の問いには次の画面「3 問いに答える」で答え、その答えから次に試す行動の候補を作ります。</li>
             </ul>
           </div>
         )}
@@ -164,7 +165,7 @@ export default function Screen2() {
         <section className="py-6">
           <WaitPanel title="AI が面談を読んでいます" estimate="1 分ほど" steps={ANALYZE_STEPS} view={analyzeView(progress)} />
           <div className="mt-6 rounded-md border border-line bg-surface px-5 py-4">
-            <SelfScore selfScore={session.selfScore} lead="待つ間に、この面談の自分の点を付けておけます（付けなくても読めます）。あとで AI の点と並べます。" confirmLabel="待つ" canRedo />
+            <SelfScore selfScore={session.selfScore} lead="待つ間に、この面談の自分の点数を付けておけます（付けなくても読めます）。あとで AI の点数と並べます。" confirmLabel="待つ" canRedo />
           </div>
         </section>
       ) : (
@@ -175,9 +176,9 @@ export default function Screen2() {
 }
 
 /**
- * 自分の点（10 点満点、一つ）。AI に渡さない（決まり 10）。
+ * 自分の点数（10 点満点、一つ）。AI に渡さない（決まり 10）。
  * 数字を選んだだけでは決まらず、「この点に決める」を押して決める（押し間違いを直せるように）。
- * AI の点は、自分の点を決めた後に並べる（原則 1）。AI の点を見た後は変えない。
+ * AI の点数は、自分の点数を決めた後に並べる（原則 1）。AI の点数を見た後は変えない。
  */
 function SelfScore({
   selfScore,
@@ -189,16 +190,16 @@ function SelfScore({
   selfScore: number | null;
   lead: string;
   confirmLabel: string;
-  /** 決めた後に付け直せるか（AI の点をまだ見ていない間だけ） */
+  /** 決めた後に付け直せるか（AI の点数をまだ見ていない間だけ） */
   canRedo: boolean;
-  /** 決めたときに呼ぶ（画面 2 では、決めたらそのまま AI の点を開く） */
+  /** 決めたときに呼ぶ（画面 2 では、決めたらそのまま AI の点数を開く） */
   onDecided?: () => void;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
   if (selfScore !== null) {
     return (
       <p className="text-[0.95rem]">
-        自分の点：<span className="text-lg font-semibold tabular-nums">{selfScore}</span>／10
+        自分の点数：<span className="text-lg font-semibold tabular-nums">{selfScore}</span>／10
         {canRedo && (
           <button type="button" onClick={() => updateSession((s) => ({ ...s, selfScore: null }))} className="ml-3 text-[0.86rem] text-accent underline decoration-accent/40 underline-offset-[3px]">
             付け直す
@@ -210,7 +211,7 @@ function SelfScore({
   return (
     <div>
       <p className="text-[0.95rem]">{lead}</p>
-      <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="この面談の自分の点（10 点満点）">
+      <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="この面談の自分の点数（10 点満点）">
         {Array.from({ length: 10 }, (_, i) => i + 1).map((v) => (
           <button
             key={v}
@@ -234,10 +235,28 @@ function SelfScore({
           }}
           className={BTN_SECONDARY}
         >
-          {picked === null ? "点を選んでください" : `${picked} 点に決めて、${confirmLabel}`}
+          {picked === null ? "点数を選んでください" : `${picked} 点に決めて、${confirmLabel}`}
         </button>
-        <span className="text-xs text-ink-3">10 点満点で一つ。決めるまでは選び直せます。この点は AI に渡しません。</span>
+        <span className="text-xs text-ink-3">10 点満点で一つ。決めるまでは選び直せます。この点数は AI に渡しません。</span>
       </div>
+    </div>
+  );
+}
+
+/** 話した量の棒（本人の割合を左から）。数えただけのもので、良し悪しの色は付けない */
+function TalkBar({ self, other, pct }: { self: string; other: string; pct: number }) {
+  return (
+    <div className="mt-1.5 flex items-center gap-3 text-[0.82rem] tabular-nums text-ink-2">
+      <span className="w-[5.5rem] shrink-0">
+        {self} {pct}%
+      </span>
+      <span className="flex h-2 min-w-0 max-w-xs grow overflow-hidden rounded-full" aria-hidden="true">
+        <i className="block bg-bar-self" style={{ width: `${pct}%` }} />
+        <i className="block grow bg-bar-other" />
+      </span>
+      <span className="w-[5.5rem] shrink-0">
+        {other} {100 - pct}%
+      </span>
     </div>
   );
 }
@@ -284,13 +303,14 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
   const counts = countTranscript(t);
   const { self, other } = SPEAKER_LABELS[t.kind];
   const selfPct = Math.round(counts.selfRatio * 100);
+  const talk = talkByChapter(chapters, t.utterances, self);
 
   const [current, setCurrent] = useState(0);
   const [seen, setSeen] = useState<number[]>([0]);
   const [wide, setWide] = useState(false);
   const [aiOpen, setAiOpen] = useState<number[]>([]);
-  const [open, setOpen] = useState<{ flow: boolean; owner: boolean; counts: boolean; all: boolean }>({ flow: false, owner: false, counts: false, all: false });
-  /** AI の点を開いたか。自分の点を決めた後、本人が開く（待つ間に自分の点を付けていても、勝手には開かない） */
+  const [open, setOpen] = useState<{ flow: boolean; owner: boolean; talk: boolean; all: boolean }>({ flow: false, owner: false, talk: false, all: false });
+  /** AI の点数を開いたか。自分の点数を決めた後、本人が開く（待つ間に自分の点数を付けていても、勝手には開かない） */
   const [scoresShown, setScoresShown] = useState(false);
   const [ethicsOpen, setEthicsOpen] = useState(false);
   const sceneRef = useRef<HTMLElement>(null);
@@ -321,7 +341,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
 
   return (
     <>
-      {a.mock && <p className={`mb-6 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、読みと問いと点は仮の文です。</p>}
+      {a.mock && <p className={`mb-6 ${NOTE}`}>API キーが無いので、仮の出力です。引用は本文の発言ですが、読みと問いと点数は仮の文です。</p>}
 
       {/* 振り返りの要点（AI が書く 2 文）は最初から全部見せる。無いときは、選んだ場面を一行で言う。
           面談の中身の要約ではない（それは地図の下の「面談の流れ」）。AI の読みと分かるように「AI」を添える（原則 2） */}
@@ -448,15 +468,24 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                   )}
                 </Step>
 
-                <Step n={2} title="AI の見立て">
-                  <AiView t={t} scene={scene} open={aiOpen.includes(current)} onToggle={() => setAiOpen((o) => (o.includes(current) ? o.filter((k) => k !== current) : [...o, current]))} />
-                </Step>
+                {scene.type === "よく表れた所" ? (
+                  // うまくいった場面は、問いで自己分析させず、どこが良かったかを最初から見せる
+                  <Step n={2} title="どこが良かったか" note="AI の見立て" last>
+                    <AiView key={current} t={t} scene={scene} strength open onToggle={() => {}} />
+                  </Step>
+                ) : (
+                  <>
+                    <Step n={2} title="AI の見立て">
+                      <AiView key={current} t={t} scene={scene} strength={false} open={aiOpen.includes(current)} onToggle={() => setAiOpen((o) => (o.includes(current) ? o.filter((k) => k !== current) : [...o, current]))} />
+                    </Step>
 
-                <Step n={3} title="考える問い" note="答えは次の画面で書きます" last>
-                  <p className="text-[1.38rem] font-medium leading-[1.65] text-pretty">
-                    <RefText t={t} text={scene.question} />
-                  </p>
-                </Step>
+                    <Step n={3} title="考える問い" note="答えは次の画面で書きます" last>
+                      <p className="text-[1.38rem] font-medium leading-[1.65] text-pretty">
+                        <RefText t={t} text={scene.question} />
+                      </p>
+                    </Step>
+                  </>
+                )}
               </>
             )}
           </section>
@@ -474,29 +503,29 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
         </section>
       )}
 
-      {/* 点は場面と問いの後に、太い罫で区切って置く。自分の点を一つ決めてから、AI の点を開く */}
+      {/* 点数は場面と問いの後に、太い罫で区切って置く。自分の点数を一つ決めてから、AI の点数を開く */}
       <section className="mt-20 border-t-2 border-ink-2 pt-7" aria-labelledby="score-heading">
         <h2 id="score-heading" className={H2}>
-          この面談の点
+          この面談の点数
         </h2>
         {session.selfScore === null ? (
           <div className="mt-3">
-            <SelfScore selfScore={null} lead="自分の点を一つ決めると、AI の点が項目ごとに開きます。AI の点を見た後は、自分の点は変えられません。" confirmLabel="AI の点を見る" canRedo={false} onDecided={() => setScoresShown(true)} />
+            <SelfScore selfScore={null} lead="自分の点数を一つ決めると、AI の点数が項目ごとに開きます。AI の点数を見た後は、自分の点数は変えられません。" confirmLabel="AI の点数を見る" canRedo={false} onDecided={() => setScoresShown(true)} />
           </div>
         ) : !scoresShown ? (
           <div className="mt-3">
             <p className="text-[0.95rem]">
-              自分の点：<span className="text-lg font-semibold tabular-nums">{session.selfScore}</span>／10
+              自分の点数：<span className="text-lg font-semibold tabular-nums">{session.selfScore}</span>／10
             </p>
             <button type="button" onClick={() => setScoresShown(true)} className={`mt-3 ${BTN_SECONDARY}`}>
-              AI の点を見る
+              AI の点数を見る
             </button>
           </div>
         ) : (
           <>
             <ScoreTable items={step2.items} total={step2.total} t={t} selfScore={session.selfScore} />
             <label className="mt-5 block text-[0.86rem] text-ink-2">
-              自分の点への一言（書かなくてもかまいません。AI に渡しません）
+              自分の点数への一言（書かなくてもかまいません。AI に渡しません）
               <input
                 type="text"
                 value={session.selfNote}
@@ -521,21 +550,53 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
             <p className="text-[0.95rem]">面談の最後に残ったテーマを主に言葉にしたのは：{step2.insightOwner}</p>
           </Drawer>
 
-          <Drawer title="数えた記録" sub="点には入りません" open={open.counts} onToggle={() => setOpen((o) => ({ ...o, counts: !o.counts }))}>
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-[0.95rem] sm:grid-cols-[auto_1fr] [&_dt]:text-xs [&_dt]:font-semibold [&_dt]:text-ink-3 sm:[&_dt]:pt-1">
-              <dt>話した量（文字数）</dt>
-              <dd className="mb-2 sm:mb-0">
-                {self} {selfPct}%（{counts.selfChars} 字）、{other} {100 - selfPct}%（{counts.otherChars} 字）
-              </dd>
-              {counts.longestRun && (
-                <>
-                  <dt>いちばん長く続けて話した</dt>
-                  <dd>
-                    {counts.longestRun.speaker}、{counts.longestRun.chars} 字（{refRangeLabel(counts.longestRun.from, counts.longestRun.to)}）
-                  </dd>
-                </>
-              )}
-            </dl>
+          {/* 話題ごとの話した量。数えただけのもので、点数に入れず、良し悪しも付けない。番号は地図の下の「話題」と同じ */}
+          <Drawer title="話題ごとの話した量" sub="点数には入りません" open={open.talk} onToggle={() => setOpen((o) => ({ ...o, talk: !o.talk }))}>
+            {talk.length > 0 ? (
+              <>
+                <p className="text-[0.86rem] leading-[1.75] text-ink-2">
+                  話題ごとに、{self}と{other}が話した文字数の割合です。番号は、地図の下の「話題」と同じです。
+                </p>
+                <ol className="mt-4 space-y-4">
+                  {talk.map((c, i) => {
+                    const pct = Math.round(c.selfRatio * 100);
+                    const here = scenes.map((_, k) => k).filter((k) => spans[k] && chapterIndexOf(chapters, spans[k].focal) === i);
+                    return (
+                      <li key={c.from} className="flex gap-3">
+                        <span aria-hidden="true" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface text-xs tabular-nums text-ink-2">
+                          {i + 1}
+                        </span>
+                        <div className="min-w-0 grow">
+                          <p className="text-[0.92rem] leading-[1.65]">
+                            <span className="sr-only">話題 {i + 1}：</span>
+                            <RefText t={t} text={c.text} />
+                            <span className="ml-2 whitespace-nowrap text-xs text-ink-3">{refRangeLabel(c.from, c.to)}</span>
+                            {here.map((k) => (
+                              <span key={k} className="ml-2 whitespace-nowrap rounded-full border border-accent px-2 py-px text-[0.72rem] text-accent">
+                                場面 {k + 1}
+                              </span>
+                            ))}
+                          </p>
+                          <TalkBar self={self} other={other} pct={pct} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+                <div className="mt-5 flex gap-3 border-t border-line pt-4">
+                  <span aria-hidden="true" className="w-7 shrink-0" />
+                  <div className="min-w-0 grow">
+                    <p className="text-[0.92rem] font-semibold">面談の全体</p>
+                    <TalkBar self={self} other={other} pct={selfPct} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-[0.86rem] leading-[1.75] text-ink-2">話題の区切りが読めなかったので、面談の全体だけを出します（文字数）。</p>
+                <TalkBar self={self} other={other} pct={selfPct} />
+              </>
+            )}
           </Drawer>
 
           <Drawer title="面談の全文" sub={`発言 ${n} 回`} open={open.all} onToggle={() => setOpen((o) => ({ ...o, all: !o.all }))}>
@@ -554,7 +615,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
 
         <p className="mt-6 text-[0.86rem] text-ink-2">
           <span className="mr-1.5 font-semibold text-ink">{ethicsMark(step2.ethics.level)} 倫理チェック</span>
-          {step2.ethics.level === "所属の手順" ? step2.ethics.text : `${step2.ethics.level}。`}点にはせず、合計にも入れません。
+          {step2.ethics.level === "所属の手順" ? step2.ethics.text : `${step2.ethics.level}。`}点数にはせず、合計にも入れません。
           {step2.ethics.level !== "問題なし" && step2.ethics.level !== "所属の手順" && (
             <>
               <button type="button" onClick={() => setEthicsOpen((o) => !o)} aria-expanded={ethicsOpen} className="ml-2 text-accent underline decoration-accent/40 underline-offset-[3px]">
@@ -584,7 +645,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
             </Link>
           )}
           <span className="hidden text-[0.86rem] text-ink-2 sm:inline">
-            {step1.noScene ? "問いに、自分の言葉で答えます。" : nextScene >= 0 ? `今は場面 ${current + 1}／${scenes.length}。問いは場面ごとに一つあります。` : `${scenes.length} つの場面を読みました。問いに、自分の言葉で答えます。`}
+            {step1.noScene ? "問いに、自分の言葉で答えます。" : nextScene >= 0 ? `今は場面 ${current + 1}／${scenes.length}。読み終えたら、問いに自分の言葉で答えます。` : `${scenes.length} つの場面を読みました。問いに、自分の言葉で答えます。`}
           </span>
           {nextScene >= 0 && (
             <Link href="/answers" className="ml-auto text-[0.82rem] text-ink-3 underline underline-offset-[3px] hover:text-ink">
@@ -597,40 +658,94 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
   );
 }
 
-/** AI の見立て。最初は閉じていて、本人が開いて読む。読むのに入力は求めない */
-function AiView({ t, scene, open, onToggle }: { t: Transcript; scene: Scene; open: boolean; onToggle: () => void }) {
-  const items = scene.items.map((i) => `${i} ${RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}`).join("、");
+/** 押すと開く小さなリンク（AI の見立ての中の「事実」「別の見方」） */
+function MoreLink({ open, onToggle, label, openLabel, controls }: { open: boolean; onToggle: () => void; label: string; openLabel: string; controls: string }) {
+  return (
+    <button type="button" onClick={onToggle} aria-expanded={open} aria-controls={controls} className="flex min-h-9 items-center gap-2.5 text-[0.9rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
+      <Chevron open={open} />
+      {open ? openLabel : label}
+    </button>
+  );
+}
+
+/**
+ * AI の見立て。最初に見せるのは AI の読み（解釈）だけ。色の付いた箱に入れ、AI の解釈だと分かるようにする（原則 2）。
+ * 文字起こしで確かめられること（講師がしたこと・相手の反応）と、別の見方（意図した選択として見ると）は、押すと開く。
+ * 原文のやりとりは、この前の「やりとりを読む」にある。文の中の発言の番号を押すと、その発言がその場で開く。
+ * うまくいった場面（strength）は「どこが良かったか」として最初から開く。課題が見えた場面は閉じて始め、開く前に自分の読みを促す。
+ */
+function AiView({ t, scene, strength, open, onToggle }: { t: Transcript; scene: Scene; strength: boolean; open: boolean; onToggle: () => void }) {
+  const { self, other } = SPEAKER_LABELS[t.kind];
+  const [facts, setFacts] = useState(false);
+  const [alt, setAlt] = useState(false);
+  const shown = strength || open;
+  const factsId = `facts-${scene.type}`;
+  const altId = `alt-${scene.type}`;
   return (
     <div>
-      {!open && <p className="mb-3 text-[0.9rem] leading-[1.75] text-ink-2">開く前に、自分ならどう読むかを考えてみてください。AI の読みと違っていてかまいません。</p>}
-      <button type="button" onClick={onToggle} aria-expanded={open} className={`gap-3 ${BTN_SECONDARY}`}>
-        <Chevron open={open} />
-        {open ? "AI の見立てを閉じる" : "AI の見立てを読む"}
-      </button>
-      {open && (
-        <div className="mt-5">
-          {items && <p className="text-[0.9rem] text-ink-2">関わる項目：{items}</p>}
-          <div className="mt-4">
-            <div className="border-l-2 border-line-2 pl-4">
-              <dl className="[&_dt]:mt-3 [&_dt]:text-[0.8rem] [&_dt]:text-ink-3 [&_dt:first-child]:mt-0">
-                <dt>文字起こしから確かめられること（観察）</dt>
-                <dd>{scene.observation ? <RefText t={t} text={scene.observation} /> : "（書かれていません）"}</dd>
-                <dt>直後の相手の反応</dt>
-                <dd>{scene.reaction ? <RefText t={t} text={scene.reaction} /> : "（書かれていません）"}</dd>
-                <dt>読み（解釈）</dt>
-                <dd>{scene.reading ? <RefText t={t} text={scene.reading} /> : "（書かれていません）"}</dd>
-                {scene.asChoice && (
-                  <>
-                    <dt>意図した選択として見ると</dt>
-                    <dd>
-                      <RefText t={t} text={scene.asChoice} />
-                    </dd>
-                  </>
-                )}
-              </dl>
-            </div>
+      {!strength && (
+        <>
+          {!open && <p className="mb-3 text-[0.9rem] leading-[1.75] text-ink-2">開く前に、自分ならどう読むかを考えてみてください。AI の読みと違っていてかまいません。</p>}
+          <button type="button" onClick={onToggle} aria-expanded={open} className={`gap-3 ${BTN_SECONDARY}`}>
+            <Chevron open={open} />
+            {open ? "AI の見立てを閉じる" : "AI の見立てを読む"}
+          </button>
+        </>
+      )}
+      {shown && (
+        <div className={strength ? "" : "mt-5"}>
+          {scene.items.length > 0 && (
+            <ul className="mb-3 flex flex-wrap gap-1.5" aria-label="関わる項目">
+              {scene.items.map((i) => (
+                <li key={i} className="rounded-full border border-line-2 bg-surface px-2.5 py-px text-[0.8rem] text-ink-2">
+                  項目 {i}　{RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="rounded-lg bg-accent-soft px-4 py-3.5 sm:px-5">
+            <p className="flex items-center gap-2 text-[0.8rem] font-semibold text-accent">
+              {strength ? "良かった所" : "AI の読み"}
+              <span className="rounded-full border border-accent/30 px-2 text-[0.72rem] font-normal">解釈</span>
+            </p>
+            <p className="mt-1.5 text-[1.06rem] font-medium leading-[1.85] text-pretty">{scene.reading ? <RefText t={t} text={scene.reading} /> : "（書かれていません）"}</p>
           </div>
-          <p className="mt-4 text-[0.8rem] leading-relaxed text-ink-3">
+
+          <div className="mt-2 flex flex-col items-start">
+            <MoreLink open={facts} onToggle={() => setFacts((f) => !f)} label="文字起こしで事実を確かめる" openLabel="事実を閉じる" controls={factsId} />
+            {facts && (
+              <div id={factsId} className="mb-2 mt-1 w-full">
+                <dl className="space-y-3 border-l-2 border-line-2 pl-4 text-[0.95rem] leading-[1.8]">
+                  <div>
+                    <dt className="flex items-center gap-2 text-[0.8rem] font-semibold text-ink-2">
+                      <i aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-self" />
+                      {self}がしたこと
+                    </dt>
+                    <dd>{scene.observation ? <RefText t={t} text={scene.observation} /> : "（書かれていません）"}</dd>
+                  </div>
+                  <div>
+                    <dt className="flex items-center gap-2 text-[0.8rem] font-semibold text-ink-2">
+                      <i aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-[2px] bg-bar-other" />
+                      {other}の反応
+                    </dt>
+                    <dd>{scene.reaction ? <RefText t={t} text={scene.reaction} /> : "（書かれていません）"}</dd>
+                  </div>
+                </dl>
+                <p className="mt-2 pl-4 text-[0.8rem] leading-relaxed text-ink-3">AI が文字起こしから書いた事実です。番号を押すと、その発言が開きます。</p>
+              </div>
+            )}
+            {scene.asChoice && (
+              <>
+                <MoreLink open={alt} onToggle={() => setAlt((a) => !a)} label="別の見方を見る（意図した選択として見ると）" openLabel="別の見方を閉じる" controls={altId} />
+                {alt && (
+                  <div id={altId} className="mt-1 w-full rounded-lg border border-dashed border-line-2 px-4 py-3 text-[0.95rem] leading-[1.8] text-ink-2">
+                    <RefText t={t} text={scene.asChoice} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          <p className="mt-3 text-[0.8rem] leading-relaxed text-ink-3">
             「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。
           </p>
         </div>
