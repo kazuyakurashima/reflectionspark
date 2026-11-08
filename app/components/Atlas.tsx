@@ -50,7 +50,7 @@ export function Atlas({
     <div>
       <div className="flex items-baseline gap-3">
         <h2 className="text-[0.95rem] font-semibold">面談の地図</h2>
-        <button type="button" onClick={() => setGuide((g) => !g)} aria-expanded={guide} aria-controls="atlas-guide" className="min-h-9 text-[0.82rem] text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink">
+        <button type="button" onClick={() => setGuide((g) => !g)} aria-expanded={guide} aria-controls={guide ? "atlas-guide" : undefined} className="min-h-9 text-[0.82rem] text-ink-3 underline decoration-ink-3/40 underline-offset-[3px] hover:text-ink">
           {guide ? "見方を閉じる" : "見方"}
         </button>
       </div>

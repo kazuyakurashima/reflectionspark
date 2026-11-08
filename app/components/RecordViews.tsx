@@ -58,7 +58,7 @@ export function RepeatScenesBlock({
     <section aria-labelledby="repeat-heading" className={className}>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
         <h2 id="repeat-heading" className="text-[1rem] font-medium leading-snug">
-          <button type="button" onClick={() => setShow((o) => !o)} aria-expanded={show} aria-controls="repeat-body" className={`flex min-h-9 items-center gap-2.5 text-left ${LINK}`}>
+          <button type="button" onClick={() => setShow((o) => !o)} aria-expanded={show} aria-controls={show ? "repeat-body" : undefined} className={`flex min-h-9 items-center gap-2.5 text-left ${LINK}`}>
             <Chevron open={show} />
             <span>
               この場面、前にもありました<span className="text-[0.86rem] font-normal">（前の面談から {all.length} 件）</span>
@@ -146,7 +146,7 @@ function RepeatCard({ p, near, summary, summaryKey }: { p: RepeatScene; near: bo
   const t = linesTranscript(p.kind, p.lines);
   return (
     <div className={`rounded-md border bg-surface transition-colors ${open ? "border-accent shadow-[0_8px_24px_-16px_rgba(29,27,24,0.25)]" : "border-line-2 hover:border-accent"}`}>
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={id} className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5">
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={open ? id : undefined} className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5">
         <span className="min-w-0 flex-1">
           <span className={`block text-[1rem] font-medium leading-[1.65] text-pretty ${open ? "text-ink" : "text-accent"}`}>{p.title ?? (near ? "前の面談で、案に近いことを言った場面" : "同じ形のやりとり")}</span>
           <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8rem] tabular-nums text-ink-3">

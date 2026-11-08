@@ -20,10 +20,10 @@ export function Chevron({ open }: { open: boolean }) {
 }
 
 
-/** 押すと開く小さなリンク（AI の見立ての中の「事実」「別の見方」） */
+/** 押すと開く小さなリンク（AI の見立ての中の「事実」「別の見方」）。開く中身は閉じている間は無いので、aria-controls は開いている間だけ付ける */
 export function MoreLink({ open, onToggle, label, openLabel, controls }: { open: boolean; onToggle: () => void; label: string; openLabel: string; controls: string }) {
   return (
-    <button type="button" onClick={onToggle} aria-expanded={open} aria-controls={controls} className="flex min-h-9 items-center gap-2.5 text-[0.9rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
+    <button type="button" onClick={onToggle} aria-expanded={open} aria-controls={open ? controls : undefined} className="flex min-h-9 items-center gap-2.5 text-[0.9rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent">
       <Chevron open={open} />
       {open ? openLabel : label}
     </button>
@@ -78,7 +78,7 @@ export function SpotButton({ n, spot, on, onToggle, controls, note }: { n?: numb
       type="button"
       onClick={onToggle}
       aria-expanded={on}
-      aria-controls={controls}
+      aria-controls={on ? controls : undefined}
       className={`flex min-h-9 items-center gap-2.5 rounded-md border px-3 py-1.5 text-left text-[0.9rem] transition-colors ${on ? "border-accent bg-accent-soft" : "border-line-2 bg-surface hover:border-accent"}`}
     >
       {n !== undefined && (

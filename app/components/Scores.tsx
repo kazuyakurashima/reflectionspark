@@ -66,7 +66,7 @@ export function ItemRow({ it, t }: { it: ItemScore; t: Transcript }) {
                 type="button"
                 onClick={() => setDetail((d) => !d)}
                 aria-expanded={detail}
-                aria-controls={detailId}
+                aria-controls={detail ? detailId : undefined}
                 className="mt-1.5 flex min-h-9 items-center gap-2.5 text-[0.86rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent"
               >
                 <span aria-hidden="true" className={`h-2 w-2 shrink-0 border-b-[1.5px] border-r-[1.5px] border-ink-2 transition-transform ${detail ? "rotate-45" : "-rotate-45"}`} />

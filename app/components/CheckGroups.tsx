@@ -131,7 +131,7 @@ function Section({ title, summary, count, done, how, legend, defaultOpen, childr
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        aria-controls={bodyId}
+        aria-controls={open ? bodyId : undefined}
         className={`flex min-h-16 w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-accent-soft/60 sm:px-5 ${open ? "bg-accent-soft/60" : ""}`}
       >
         <span className="min-w-0 grow">

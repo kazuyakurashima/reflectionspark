@@ -107,7 +107,7 @@ export default function Screen2() {
             {t.kind === "コーチング" ? "1on1" : `${t.kind}面談`}
           </h1>
           {analysis && !analysis.step1.noScene && !error && (
-            <button type="button" onClick={() => setGuideOpen((o) => !o)} aria-expanded={guideOpen} aria-controls="reading-guide" className={`min-h-9 text-[0.92rem] ${LINK}`}>
+            <button type="button" onClick={() => setGuideOpen((o) => !o)} aria-expanded={guideOpen} aria-controls={guideOpen ? "reading-guide" : undefined} className={`min-h-9 text-[0.92rem] ${LINK}`}>
               {guideOpen ? "この画面の読み方を閉じる" : "この画面の読み方"}
             </button>
           )}
@@ -357,7 +357,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                   type="button"
                   onClick={() => setOpen((o) => ({ ...o, flow: !o.flow }))}
                   aria-expanded={open.flow}
-                  aria-controls="meeting-flow"
+                  aria-controls={open.flow ? "meeting-flow" : undefined}
                   className="flex min-h-9 items-center gap-2.5 text-[0.92rem] text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent"
                 >
                   <Chevron open={open.flow} />
@@ -539,7 +539,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                           type="button"
                           onClick={() => setOpenTopics((o) => (on ? o.filter((x) => x !== i) : [...o, i]))}
                           aria-expanded={on}
-                          aria-controls={`topic-${i}`}
+                          aria-controls={on ? `topic-${i}` : undefined}
                           className="flex w-full items-start gap-3 rounded-md border border-line-2 bg-surface px-3 py-2.5 text-left hover:border-accent"
                         >
                           <span aria-hidden="true" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 bg-paper text-xs tabular-nums text-ink-2">
