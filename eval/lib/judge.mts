@@ -1,10 +1,11 @@
-// LLM 判定（軸 3 問いの質、軸 4 行動の具体性、軸 10 引用が読みを支えるか、軸 12 推測の意味の一致）。
+// LLM 判定（軸 3 問いの質と良かった所の書き方、軸 4 行動の具体性、軸 10 引用が読みを支えるか、軸 12 推測の意味の一致）。
 // 観点と 1〜5 の基準を明記し、判定に理由を一行付けさせる（docs/設計書.md「読み方と決まり」）。
+// 判定の文は評価スクリプトの版（eval/lib/version.mts）の一部なので、画面の番号が変わっても書き換えない（行動の判定の「画面 3」は、11/8 から画面 2 の問いへの答え）。
 // 人の抜き取りで確かめるときは、人が先に判定を書いてから AI の判定を見る。
 
 import { callStructured, JUDGE_MODEL } from "../../engine/claude.mts";
 import type { CallMeta, Candidate, Scene, Transcript } from "../../engine/types.mts";
-import { blockLabel, utteranceLabel } from "../../engine/utterance-no.mts";
+import { blockLabel, utteranceLabel, utteranceListLabel } from "../../engine/utterance-no.mts";
 
 export type Judgement = { score: number; reason: string };
 
@@ -28,6 +29,14 @@ async function judge(label: string, user: string): Promise<Judgement & { meta: C
   return { ...r.data, meta: r.meta };
 }
 
+/**
+ * 文と分けて返させた、指す発話の番号（11/8 から。文の中には番号を書かせない）。前の作りの出力には無く、そのときは何も足さない
+ * （前の出力の判定に渡す文は、前と一字も変わらない。新しい出力は、文の中にあった番号と同じ中身を、文の後に添える）
+ */
+function refLine(name: string, refs: number[] | undefined): string {
+  return refs && refs.length > 0 ? `\n${name}：${utteranceListLabel(refs)}` : "";
+}
+
 function sceneText(sc: Scene, t: Transcript): string {
   const quotes = sc.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join("\n");
   const around = sc.quotes
@@ -41,10 +50,10 @@ function sceneText(sc: Scene, t: Transcript): string {
 ${quotes || "（引用なし）"}
 前後の発話：
 ${around || "（なし）"}
-観察：${sc.observation}
-直後の相手の反応：${sc.reaction}
-読み：${sc.reading}
-${sc.asChoice ? `意図した選択として見ると：${sc.asChoice}\n` : ""}問い：${sc.question}`;
+観察：${sc.observation}${refLine("観察が指す発話", sc.refs?.observation)}
+直後の相手の反応：${sc.reaction}${refLine("反応が指す発話", sc.refs?.reaction)}
+読み：${sc.reading}${refLine("読みが指す発話", sc.refs?.reading)}
+${sc.asChoice ? `意図した選択として見ると：${sc.asChoice}\n` : ""}${sc.question ? `問い：${sc.question}` : "問い：（なし。よく表れた所には問いを置かない）"}`;
 }
 
 /** 軸 3：問いの質 */
@@ -65,6 +74,30 @@ export async function judgeQuestion(sc: Scene, t: Transcript): Promise<Judgement
 3 = 二つを満たす。
 2 = 一つだけ満たす。
 1 = どれも満たさない（答えを先に言っている、閉じた問い、場面と関係がない）。
+
+${sceneText(sc, t)}`,
+  );
+}
+
+/** 軸 3（よく表れた所）：良かった所の書き方。よく表れた所には問いを置かず、どこが良かったかを読みに書く（決まり 6） */
+export async function judgeStrength(sc: Scene, t: Transcript): Promise<Judgement & { meta: CallMeta }> {
+  return judge(
+    "軸 3 良かった所の書き方",
+    `次の「よく表れた所」の場面で、「読み」が、本人の面談のどこが良かったかを伝えているかを評価してください。
+この場面には問いを置かず、本人は読みを読んで受け取ります。
+
+観点：
+- 具体的：本人のどの言葉や関わり方が良かったかを、発話を指して書いている（「よかった」「丁寧」だけで終わっていない）。
+- 相手の反応に基づく：良かったと言う根拠が、直後の相手の発話がどう続いたかにある。
+- 行動で書いている：人を言い表す言葉で褒めず、その面談でした行動として書いている。
+- 受け取れる形：問い・助言・「〜すべき」・次の課題を混ぜていない。
+
+基準：
+5 = 四つすべてを満たす。
+4 = 三つを満たし、残り一つも大きくは外れていない。
+3 = 二つを満たす。
+2 = 一つだけ満たす。
+1 = どれも満たさない（どこが良かったか分からない、根拠が無い、人を言い表す言葉で褒めている）。
 
 ${sceneText(sc, t)}`,
   );

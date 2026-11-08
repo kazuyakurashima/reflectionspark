@@ -3,7 +3,7 @@
 // student-shinro-2：工程 0 → 4（次の面談での追跡）
 // この通しは流れと時間を確かめるためのもので、追跡の正しさは測らない。
 //
-// 仮に置くもの：画面 3 の本人の答えは、eval/正解.md の student-shinro「よい行動の例」の作り手の一言を、
+// 仮に置くもの：画面 2 で問いに書く本人の答えは、eval/正解.md の student-shinro「よい行動の例」の作り手の一言を、
 // 行動につながる問い（ここでは「次に試せる所」の問い）への答えとして 1 つだけ入れる（ほかの問いは空）。
 // 本人の自己評価は工程 4 に渡さない（決まり 10）。
 //
@@ -41,7 +41,7 @@ const time = async <T,>(step: string, f: () => Promise<T>, note?: (r: T) => stri
 
 if (dryRun) {
   console.log(`dry-run：student-shinro ${[...first.raw].length} 字、student-shinro-2 ${[...second.raw].length} 字`);
-  console.log(`画面 3 の答え（次に試せる所の問いに）：${answer}`);
+  console.log(`画面 2 の問いへの答え（次に試せる所の問いに）：${answer}`);
   process.exit(0);
 }
 
@@ -72,12 +72,12 @@ try {
   flush();
   const nextScene = s1.scenes.find((s) => s.type === "次に試せる所");
   if (!nextScene) throw new Error("次に試せる所が無いので工程 3 に進めません");
-  // 画面 3：本人の答え（次に試せる所の問いにだけ入れる。ほかは空）
+  // 画面 2 の問いへの本人の答え（次に試せる所の問いにだけ入れる。ほかは空）
   const s3 = await time("工程 3（student-shinro）", () => runStep3(s0.transcript, nextScene, answer), (r) => `候補 ${r.candidates.length}、落とした ${r.dropped.length}`);
   result.step3 = s3;
   flush();
   const chosen = s3.candidates[0];
-  if (!chosen) throw new Error("候補が無いので画面 4 で選べません");
+  if (!chosen) throw new Error("候補が無いので画面 3 で選べません");
   const firstMs = Date.now() - total0;
   log(`1 回目の面談の流れ全体（本人の入力の時間を除く）：${firstMs} ms`);
 
@@ -126,8 +126,8 @@ ${timings.map((t) => `| ${t.step} | ${t.ms} | ${t.note ?? ""} |`).join("\n")}
 | 2 回目の流れ全体 | ${secondMs} | |
 
 - 最初の引用が出るまで：工程 1 ${s1.firstCitationMs ?? "-"} ms、工程 4 ${s4.firstCitationMs ?? "-"} ms
-- 画面 3 の答え（次に試せる所の問いに 1 つだけ）：${answer}
-- 画面 4 で選んだことにした候補：${chosen.sentence}
+- 画面 2 の問いへの答え（次に試せる所の問いに 1 つだけ）：${answer}
+- 画面 3 で選んだことにした候補：${chosen.sentence}
 - 工程 4 の判定：${s4.verdict}（${s4.why}）
 `;
   fs.writeFileSync(path.join(outDir, `${id}.md`), md);

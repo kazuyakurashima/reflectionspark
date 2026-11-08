@@ -69,6 +69,39 @@ function readRefs(text: string, pattern: RegExp): number[] {
   return out;
 }
 
+// 番号の並びの中の一つ：「12」「15〜17」「発話 15〜発話 17」。範囲の区切りは「〜」と横棒の仲間だけ（「・」「、」は並べる区切り）
+const RANGE_JOIN = "[〜～~\\-–—−ー]";
+const LIST_ITEM = new RegExp(`(${NUMBER})(?:\\s*${RANGE_JOIN}\\s*(?:発話\\s*)?(${NUMBER}))?`, "gu");
+/** 範囲を広げるのは、一つの範囲につき 60 発話まで（それより長い範囲は、書き誤りとみて両端だけを取る） */
+const MAX_RANGE = 60;
+
+/**
+ * 番号の並び（「発話 12、発話 15〜17」「12, 15-17」）を、範囲を広げた番号の並びにする。重ならない昇順。
+ * AI が文の外の欄（読みが指す発話など）に書いた番号を読むのに使う。範囲の中にあるかは toUtteranceIndices で確かめる。
+ */
+export function parseUtteranceList(text: string): number[] {
+  const out = new Set<number>();
+  for (const m of (text ?? "").matchAll(LIST_ITEM)) {
+    const a = toNumber(m[1]);
+    const b = m[2] !== undefined ? toNumber(m[2]) : a;
+    const [lo, hi] = a <= b ? [a, b] : [b, a];
+    if (hi - lo > MAX_RANGE) {
+      out.add(lo);
+      out.add(hi);
+      continue;
+    }
+    for (let i = lo; i <= hi; i++) out.add(i);
+  }
+  return [...out].sort((x, y) => x - y);
+}
+
+/** 文の中の「発話 n」「発話 n〜m」を、範囲を広げた番号の並びにする（前の作りの出力で、文の中に番号を書いていたもの）。重ならない昇順 */
+export function findUtteranceIndices(text: string): number[] {
+  const out = new Set<number>();
+  for (const m of (text ?? "").matchAll(REF)) for (const i of parseUtteranceList(m[0])) out.add(i);
+  return [...out].sort((x, y) => x - y);
+}
+
 /** 文の中の「発話 n」の番号をすべて取る（範囲は両端の番号）。出てきた順 */
 export function findUtteranceRefs(text: string): number[] {
   return readRefs(text, REF);

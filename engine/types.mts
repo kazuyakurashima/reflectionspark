@@ -154,9 +154,19 @@ export type Scene = {
   observation: string;
   reaction: string;
   reading: string;
+  /**
+   * 読みの要の一句（画面で目立たせる。11/8）。読みの文にそのまま入っているときだけ持つ（入っていなければ null）。
+   * 前の作りの出力には無い
+   */
+  readingKey?: string | null;
   /** 次に試せる所だけ */
   asChoice: string | null;
   question: string;
+  /**
+   * 読み・観察・直後の相手の反応が指す発話の番号（範囲は広げたもの）。文の中には番号を書かせず、ここに分けて返させる（一読で分かるように。11/8）。
+   * 前の作りの出力には無く、文の中に「発話 n」が書いてある
+   */
+  refs?: { reading: number[]; observation: number[]; reaction: number[] };
   /** 画面に出さない記録 */
   record: { whyChosen: string; runnerUp: number[] };
 };
@@ -167,6 +177,7 @@ export type Step1Result = {
   noScene: string | null;
   summary: string;
   flow: string[];
+  /** 事情を尋ねる問い。11/8 に画面から外し、AI にも書かせない。前の作りの出力にだけある */
   extraQuestion: string | null;
   /** 引用の数：生成した・原文と合わず捨てた・引用を出せなかった場面 */
   quoteStats: { generated: number; discarded: number; scenesWithoutQuote: number };
@@ -187,6 +198,9 @@ export type ItemScore = {
   item: ItemNumber;
   /** 点。「この面談では判定しない」は null */
   score: number | null;
+  /** 一読で分かる説明（発話番号を書かない。画面で先に見せる）。工程 2 だけが書く。古い結果と工程 4 には無い */
+  plain?: string;
+  /** 根拠を発話番号で指した説明（画面では「根拠を見る」で開く） */
   reason: string;
   utterances: number[];
 };
@@ -204,6 +218,44 @@ export type Step2Result = {
   unverifiedQuotes: { field: string; text: string }[];
 };
 
+/** 画面 3：候補に添える、前の面談での本人の言葉。すべて記録（メモリ）の原文から引く。AI が書いた文は入らない（決まり 1） */
+export type PreviousWords = {
+  /** 面談の日付（YYYY-MM-DD） */
+  date: string;
+  /** 相手の札 */
+  otherTag: string | null;
+  /** 直前の発話（記録に無ければ null） */
+  before: { index: number; speaker: string; text: string } | null;
+  /** 本人の発言 */
+  own: { index: number; speaker: string; text: string };
+  /** 直後の発話（記録に無ければ null） */
+  after: { index: number; speaker: string; text: string } | null;
+  interviewId: string;
+  /** 発話番号 */
+  utterance: number;
+};
+
+/** 前の面談の場面について、その回に AI が書いた文（記録の「AI が書いた説明」と「その回の AI の読み」の欄）。原文と照合していない */
+export type RecordSceneText = { context: string | null; observation: string | null; reaction: string | null; reading: string | null; asChoice: string | null };
+
+/**
+ * 画面 3「この場面、前にもありました」：今回の「次に試せる所」と同じ形の、前の面談の場面。
+ * 発話はすべて記録（メモリ）の原文から引く（決まり 1）。見出し・夢のまとめ・その回の AI の文は、解釈・仮説として分けて出す（11/8 に本人が決めた）。
+ */
+export type RepeatScene = PreviousWords & {
+  kind: MeetingKind;
+  /** 工程 3 が書いた、そのやりとりの形の 1 行（場面と本人の行動）。言葉の検査で外したら null */
+  title: string | null;
+  /** 過去の記憶の整理：その発話を根拠に挙げた、夢の仮説の文。無ければ null */
+  summary: string | null;
+  /** 仮説の文のうち、今回の場面と同じ形を言っている句（工程 3 が仮説の文から写したもの。文にそのまま無ければ null）。画面で目立たせる */
+  key?: string | null;
+  /** その発話を含む場面の種類と、その回に AI が書いた文。場面でなく前回の行動の欄にある発話なら null */
+  scene: ({ type: SceneType } & RecordSceneText) | null;
+  /** 会話を確認する：その発話を含む、記録にあるひと続きの発話（原文） */
+  lines: { index: number; speaker: string; text: string }[];
+};
+
 export type Candidate = {
   /** もし（場面）なら */
   condition: string;
@@ -217,10 +269,40 @@ export type Candidate = {
   criterion: string;
   /** どこから作ったか（本人の答えのどの言葉から。答えが空なら場面と読みから）。持ち帰る一文には入れない */
   basis?: string;
+  /** 工程 3 が返した、前の面談の発話の札。engine/memory-read.mts で原文を引いたら消す */
+  previousRef?: string;
+  /** 工程 3 が返した、その発話のやりとりの形の 1 行。原文を引いたら previous の title に移す */
+  previousTitle?: string;
+  /**
+   * 前の面談での本人の言葉（記録に合うものがあるときだけ。候補ごとに 0 か 1 つ）。
+   * 画面 3 では案の中に出さず、「この場面、前にもありました」のカードにする（11/8 に本人が決めた）。11/8 より前に保存した面談は PreviousWords の形
+   */
+  previous?: RepeatScene | PreviousWords;
+};
+
+/**
+ * 画面 3「過去の記憶の整理」：同じ形の場面の根拠になった夢の仮説を、工程 3 がふつうの言葉で 3 行に直したもの（11/8 に本人が決めた）。
+ * 仮説に無い理由は足させない。もとの仮説の文（statement）も持ち、押すと読める
+ */
+export type PastSummary = {
+  /** もとの仮説の文（夢が書いたもの） */
+  statement: string;
+  /** どんな場面 */
+  scene: string;
+  /** 何があったか */
+  happened: string;
+  /** 今回とのつながり */
+  link: string;
+  /** 三つの文のどれかから一字も変えずに写した要の句。どの文にもそのまま無ければ null */
+  key: string | null;
 };
 
 export type Step3Result = {
   candidates: Candidate[];
+  /** 過去の記憶の整理（記録に合う場面があり、言葉の検査を通ったときだけ） */
+  pastSummary?: PastSummary;
+  /** 今回の「次に試せる所」と同じ形の、前の面談の場面（記録に合うものがあるときだけ。2 つまで、古い順） */
+  repeats?: RepeatScene[];
   /** 言葉に表れない行動として落とした候補 */
   dropped: { candidate: Candidate; reason: string }[];
   meta: CallMeta;
@@ -234,11 +316,18 @@ export type Step4Result = {
   verdict: FollowUpVerdict;
   quotes: Quote[];
   discardedQuotes: Quote[];
+  /** なぜ（画面では「AI の見立て」）。11/8 から文の中に発話番号を書かせない（古い結果には番号がある） */
   why: string;
+  /** なぜが指す発話（AI が <why_refs> に書いた番号。範囲の中だけ。古い結果には無い） */
+  whyRefs?: number[];
+  /** なぜの要の一句。なぜの文にそのまま入っているときだけ（古い結果には無い） */
+  whyKey?: string | null;
   items: ItemScore[];
   total: Step2Result["total"];
   /** （あれば）相手が前回決めたことが今回どう語られたかの 1 行 */
   otherPersonLine: string | null;
+  /** 相手の 1 行が指す発話（<other_refs>。古い結果には無い） */
+  otherRefs?: number[];
   quoteStats: { generated: number; discarded: number };
   firstCitationMs: number | null;
   rawText: string;
@@ -249,7 +338,7 @@ export type Step4Result = {
   utteranceRefs?: { total: number; outOfRange: number[] };
 };
 
-/** 前回の Spark（画面 4 で本人が選んだ一つ） */
+/** 前回の Spark（画面 3 で本人が選んだ一つ） */
 export type Spark = {
   sentence: string;
   criterion: string | null;

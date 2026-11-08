@@ -8,7 +8,7 @@ import { parseStep3 } from "./step3.mts";
 import { computeTotal } from "./rubric.mts";
 import type { Correction, Guess, ItemNumber, ItemScore, MeetingKind, Quote, Scene, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript, Utterance } from "./types.mts";
 import { SPEAKER_LABELS } from "./types.mts";
-import { utteranceLabel } from "./utterance-no.mts";
+import { utteranceRangeLabel } from "./utterance-no.mts";
 
 export const MOCK_NOTE = "（仮の出力）";
 
@@ -108,7 +108,17 @@ function pickSelf(utterances: Utterance[], self: string, prefer: RegExp, fallbac
   return selfs[Math.min(selfs.length - 1, Math.floor(selfs.length * fallbackRatio))] ?? utterances[0];
 }
 
-/** 仮の工程 1：本文に実際にある発話を引用し（照合も通す）、読みと問いは仮の文にする。 */
+/** 仮の面談の流れ。本物と同じく、行の頭に発話の範囲を書く（地図の話題の帯と、話題ごとの全文を仮の出力でも確かめられるように） */
+function mockFlow(count: number): string[] {
+  const names = ["主題", "転機", "終わり方"];
+  const size = Math.max(1, Math.ceil(count / names.length));
+  return names
+    .map((name, i) => ({ name, from: i * size, to: Math.min(count - 1, (i + 1) * size - 1) }))
+    .filter((c) => c.from <= c.to)
+    .map((c) => `${utteranceRangeLabel(c.from, c.to)}：${MOCK_NOTE}${c.name}`);
+}
+
+/** 仮の工程 1：本文に実際にある発話を引用し（照合も通す）、読みと問いは仮の文にする。問いは次に試せる所だけ。 */
 export function mockStep1(t: Transcript): Step1Result {
   const { self } = SPEAKER_LABELS[t.kind];
   const good = pickSelf(t.utterances, self, /そっか|そうなんだ|なるほど/, 0.2);
@@ -117,23 +127,30 @@ export function mockStep1(t: Transcript): Step1Result {
   const scene = (type: Scene["type"], u: Utterance, items: number[]): Scene => ({
     type,
     items,
-    context: `${MOCK_NOTE}${utteranceLabel(u.index)} の前後で話されていたことを、本物の出力はここに一行で書きます。`,
+    context: `${MOCK_NOTE}この場面で話されていたことを、本物の出力はここに一行で書きます。`,
     quotes: [quoteOf(u, t.utterances)],
     discardedQuotes: [],
     quotedTextInBody: u.text ?? "",
     observation: `${MOCK_NOTE}本人が何をしたかの事実だけを、本物の出力はここに書きます。`,
     reaction: `${MOCK_NOTE}直後の相手の発話がどう続いたかを、本物の出力はここに書きます。`,
-    reading: `${MOCK_NOTE}ここで何が起きたかの読みを、本物の出力は「〜と読める」の形でここに書きます。二文目以降は押すと開きます。`,
+    reading:
+      type === "よく表れた所"
+        ? `${MOCK_NOTE}本人のどの言葉が、相手の話をどう引き出したかを、本物の出力はここに具体的に書きます。`
+        : `${MOCK_NOTE}ここで何が起きたかの読みを、本物の出力は「〜と読める」の形でここに書きます。`,
+    // 読みの要の一句（画面で目立たせる）。読みの文の一部
+    readingKey: type === "よく表れた所" ? "本人のどの言葉が、相手の話をどう引き出したか" : "ここで何が起きたかの読み",
     asChoice: type === "次に試せる所" ? `${MOCK_NOTE}本人にその選び方の理由があった可能性を、決めつけずにここに書きます。` : null,
-    question:
-      type === "よく表れた所" ? `${MOCK_NOTE}この場面で、相手の言葉をどう受け取っていましたか。` : `${MOCK_NOTE}次に同じ場面が来たら、何を試しますか。`,
+    // 問いは次に試せる所だけ（決まり 6）
+    question: type === "次に試せる所" ? `${MOCK_NOTE}次に同じ場面が来たら、何を試しますか。` : "",
+    // 文の中には番号を書かず、指す発話は別に持つ（決まり 2）
+    refs: { reading: [u.index], observation: [u.index], reaction: u.index + 1 < t.utterances.length ? [u.index + 1] : [] },
     record: { whyChosen: `${MOCK_NOTE}選んだ理由（画面に出さない）`, runnerUp: [] },
   });
   return {
     scenes: [scene("よく表れた所", good, [1]), scene("次に試せる所", next, [])],
     noScene: null,
     summary: `${MOCK_NOTE}よく表れた所を先に、次に試せる所を後に、2 文で本物の出力はここに書きます。`,
-    flow: [`${MOCK_NOTE}主題`, `${MOCK_NOTE}転機`, `${MOCK_NOTE}終わり方`],
+    flow: mockFlow(t.utterances.length),
     extraQuestion: null,
     quoteStats: { generated: 2, discarded: 0, scenesWithoutQuote: 0 },
     firstCitationMs: null,
@@ -149,7 +166,8 @@ export function mockStep2(t: Transcript, firstMeeting = true): Step2Result {
   const items: ItemScore[] = ([1, 2, 3, 4, 5] as ItemNumber[]).map((n) => ({
     item: n,
     score: n === 5 && firstMeeting ? null : 3,
-    reason: n === 5 && firstMeeting ? `${MOCK_NOTE}初回の面談なので、前回決めたことは判定しない` : `${MOCK_NOTE}理由の一行を、本物の出力はここに書きます`,
+    plain: n === 5 && firstMeeting ? `${MOCK_NOTE}初回の面談なので、前回決めたことは判定しません。` : `${MOCK_NOTE}一読で分かる説明を、本物の出力はここに番号なしで書きます。`,
+    reason: n === 5 && firstMeeting ? `${MOCK_NOTE}初回の面談なので、前回決めたことは判定しない` : `${MOCK_NOTE}根拠を発言の番号で指した説明を、本物の出力はここに書きます`,
     utterances: n === 5 && firstMeeting ? [] : [Math.min(t.utterances.length - 1, n * 2)],
   }));
   return {
@@ -206,10 +224,13 @@ export function mockStep4(t: Transcript, spark: Spark): Step4Result {
     verdict: "一部",
     quotes: [quoteOf(u, t.utterances)],
     discardedQuotes: [],
-    why: `${MOCK_NOTE}前回の行動がどう現れたかの一文を、本物の出力はここに書きます。`,
+    why: `${MOCK_NOTE}前回の行動がどう現れたかを、本物の出力はここに 2 文までで書きます。文の中に発話番号は書きません。`,
+    whyRefs: [u.index],
+    whyKey: "前回の行動がどう現れたか",
     items,
     total: computeTotal(items),
     otherPersonLine: null,
+    otherRefs: [],
     quoteStats: { generated: 1, discarded: 0 },
     firstCitationMs: null,
     rawText: "",

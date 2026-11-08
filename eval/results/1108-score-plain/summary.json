@@ -1,0 +1,446 @@
+[
+  {
+    "case": "coaching",
+    "ms": 30711,
+    "usage": {
+      "in": 4187,
+      "out": 2730,
+      "cacheR": 0,
+      "cacheW": 4129,
+      "usd": 0.09
+    },
+    "scores": {
+      "before": "3 2 2 2 4",
+      "after": "3 2 2 2 5"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0,
+      "withheldAfter": 0
+    },
+    "axis8": {
+      "before": {
+        "firstMeeting": false,
+        "item5Withheld": null,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": false,
+            "ai": false
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      },
+      "after": {
+        "firstMeeting": false,
+        "item5Withheld": null,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": false,
+            "ai": false
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      }
+    },
+    "axis9": {
+      "before": {
+        "satisfied": 2,
+        "countable": 4
+      },
+      "after": {
+        "satisfied": 2,
+        "countable": 4
+      }
+    },
+    "form": {
+      "plainCount": 5,
+      "plainWithRefs": 0,
+      "plainMaxChars": 94,
+      "reasonWithRefs": 5
+    },
+    "plains": [
+      "1（3）授業が半分しか進まなかった話をしんどさとして受け止め、相手は落ち込みと申し訳なさを話し続けました。苦手や心配の言葉の後は、説明や励ましに移っています。",
+      "2（2）困りごとを聞いた後に、事実で短く叱ることやフォローの仕方という選択肢を出しました。相手の返事は短いままで、強めに言った後の様子や英語が好きという話には見立てが足されませんでした。",
+      "3（2）次の木曜に試すことは、コーチの声かけに相手がやってみますと答えて決まりました。何をどう言うかを相手が自分の言葉で選ぶところまでは進んでいません。",
+      "4（2）予定通り進めたい、ちゃんと聞いている子に申し訳ないという相手の思いに、他の子の時間を守る話でつなげる場面はありました。相手がどんな授業にしたいかは確かめられず、相手の返事も短いままでした。",
+      "5（5）前回決めた小テストを名指しで尋ね、続けたかどうかを確かめました。相手は続けた内容や自分で加えた工夫、生徒の変化まで、話を広げていきました。"
+    ]
+  },
+  {
+    "case": "parent",
+    "ms": 31563,
+    "usage": {
+      "in": 4003,
+      "out": 2894,
+      "cacheR": 0,
+      "cacheW": 4125,
+      "usd": 0.09
+    },
+    "scores": {
+      "before": "3 4 3 2 —",
+      "after": "2 4 3 2 —"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0,
+      "withheldAfter": 0
+    },
+    "axis8": {
+      "before": {
+        "firstMeeting": true,
+        "item5Withheld": true,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": true,
+            "ai": true
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      },
+      "after": {
+        "firstMeeting": true,
+        "item5Withheld": true,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": true,
+            "ai": true
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      }
+    },
+    "axis9": {
+      "before": {
+        "satisfied": 0,
+        "countable": 0
+      },
+      "after": {
+        "satisfied": 0,
+        "countable": 0
+      }
+    },
+    "form": {
+      "plainCount": 5,
+      "plainWithRefs": 0,
+      "plainMaxChars": 86,
+      "reasonWithRefs": 5
+    },
+    "plains": [
+      "1（2）忙しさを言い返した所では保護者が自分の忙しさも足しました。英語の点への驚きや声かけの迷い、スマホの心配の後は、受け止める前に事実やお願い、助言へ移っています。",
+      "2（4）英語の失点は文法ではなく単語だという見立てを、話してよいか尋ねてから伝え、保護者は単語の話を続けて見通しを口にしました。スマホの件でも決め方の選択肢を足しています。",
+      "3（3）火曜と木曜の夕方に自習室で単語テストという具体案は講師が出し、保護者は部活の終わる時刻を挙げて間に合うと自分の言葉で受けました。合格した日の声かけも講師案を受けた形です。",
+      "4（2）保護者が北高への願いや英語の目標点を口にしましたが、講師は本人の志望を聞いていないと返したり、単語テストの合格に話を戻したりして、行動と目標を結ぶ所までは進みませんでした。",
+      "5（—）今回は初めての保護者面談で、前回決めたことが無いため判定しません。"
+    ]
+  },
+  {
+    "case": "student-shinro",
+    "ms": 29017,
+    "usage": {
+      "in": 4871,
+      "out": 2666,
+      "cacheR": 0,
+      "cacheW": 4125,
+      "usd": 0.09
+    },
+    "scores": {
+      "before": "4 3 2 3 —",
+      "after": "4 4 2 3 —"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0,
+      "withheldAfter": 0
+    },
+    "axis8": {
+      "before": {
+        "firstMeeting": true,
+        "item5Withheld": true,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": true,
+            "ai": true
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      },
+      "after": {
+        "firstMeeting": true,
+        "item5Withheld": true,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": true,
+            "ai": true
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      }
+    },
+    "axis9": {
+      "before": {
+        "satisfied": 1,
+        "countable": 1
+      },
+      "after": {
+        "satisfied": 1,
+        "countable": 1
+      }
+    },
+    "form": {
+      "plainCount": 5,
+      "plainWithRefs": 0,
+      "plainMaxChars": 95,
+      "reasonWithRefs": 4
+    },
+    "plains": [
+      "1（4）模試の判定や南高を選んだきっかけの場面で生徒の気持ちを言葉で返し、生徒は自分の言葉で話を広げました。家で勉強していない焦りの場面では、気持ちに触れる前に夏の話へ移りました。",
+      "2（4）模試の答案を一緒に見て、どこで落とし、どこが取れているかの見立てを伝え、生徒は計算が好きなことや苦手な箇所を自分から話しました。家庭学習の場面では見立てを足さず、一般的な夏の話になりました。",
+      "3（2）オープンスクールには生徒が行きたいと言いましたが、いつ何をするかは講師の案内のままでした。期末や7月の模試までの行動は具体にならず、講習の日程説明で着地しました。",
+      "4（3）南高を選んだ理由を丁寧に聞き、生徒は自分の言葉で思いを語り、オープンスクールにも行きたいと応じました。一方で数学で75点という目標は、行動と結ばれないまま話が家庭の様子へ移りました。",
+      "5（—）初回の面談で前回が無いため、この面談では判定しません。"
+    ]
+  },
+  {
+    "case": "student-shinro-2",
+    "ms": 29064,
+    "usage": {
+      "in": 4282,
+      "out": 2637,
+      "cacheR": 4125,
+      "cacheW": 0,
+      "usd": 0.07
+    },
+    "scores": {
+      "before": "4 3 5 4 4",
+      "after": "4 3 5 4 4"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0,
+      "withheldAfter": 0
+    },
+    "axis8": {
+      "before": {
+        "firstMeeting": false,
+        "item5Withheld": null,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": false,
+            "ai": false
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      },
+      "after": {
+        "firstMeeting": false,
+        "item5Withheld": null,
+        "withheldAsTruth": [
+          {
+            "item": 1,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 2,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 3,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 4,
+            "truth": false,
+            "ai": false
+          },
+          {
+            "item": 5,
+            "truth": false,
+            "ai": false
+          }
+        ],
+        "truthNoScene": false,
+        "saidNoScene": false
+      }
+    },
+    "axis9": {
+      "before": {
+        "satisfied": 1,
+        "countable": 3
+      },
+      "after": {
+        "satisfied": 1,
+        "countable": 3
+      }
+    },
+    "form": {
+      "plainCount": 5,
+      "plainWithRefs": 0,
+      "plainMaxChars": 83,
+      "reasonWithRefs": 5
+    },
+    "plains": [
+      "1（4）コンクールの悔しさや、三者面談で落ち込んだ気持ちを講師が受け止め、生徒はそのあと母親の様子や志望が変わらないことまで話を広げました。",
+      "2（3）志望と家庭学習の現状を並べた講師の問いは、生徒の長い振り返りにつながりました。ただ、夏の差についての見立ては答えを聞く前に講師が話し切り、生徒の返事は短いままでした。",
+      "3（5）講師がいつやるかを尋ねると、生徒は自分で曜日、時間、中身、スマホの置き場所、母親への声かけまで決めました。最初は関数から始めることも自分で選びました。",
+      "4（4）講師は志望校への思いと家庭学習の現状を並べて問いかけ、生徒はそこから行動を決めました。オープンスクールまでに変わりたいと、自分で目標と行動を結びつけています。",
+      "5（4）前回話した夏の頑張りについて、講師は結果ではなく家での様子を尋ねました。生徒がほぼできていないと正直に話すと、そのことを受け止めています。"
+    ]
+  }
+]

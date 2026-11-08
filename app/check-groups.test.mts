@@ -3,11 +3,14 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_MID_CONFIDENCE, CHECK_MULTIPLE_OTHERS, CHECK_SPEAKER_LABEL, CHECK_UNANCHORED } from "../engine/step0.mts";
+import { CHECK_SPEAKER_CHECKED_BY_USER, splitUtterance } from "../engine/transcript-edit.mts";
 import type { Transcript, Utterance } from "../engine/types.mts";
+import { sameLine, sameTranscript } from "./lib/input-guard.mts";
 import {
   MARK_CORRECTED,
   MARK_EDITED,
   MARK_MULTIPLE,
+  MARK_SPEAKER_CHECKED,
   MARK_SPEAKER_LABEL,
   MARK_SPEAKER_LOW,
   MARK_SPEAKER_MID,
@@ -16,6 +19,8 @@ import {
   countToCheck,
   groupChecks,
   guessViews,
+  speakerChecked,
+  withSpeaker,
 } from "./lib/check-groups.mts";
 
 function u(index: number, check: string[], text = "x"): Utterance {
@@ -31,9 +36,28 @@ describe("画面 1：確かめる所を種類ごとに分ける", () => {
     assert.equal(MARK_MULTIPLE, CHECK_MULTIPLE_OTHERS);
     assert.equal(MARK_CORRECTED, CHECK_CORRECTED);
     assert.equal(MARK_EDITED, "本人が直した");
+    assert.equal(MARK_SPEAKER_CHECKED, CHECK_SPEAKER_CHECKED_BY_USER);
   });
 
-  test("一つの発話は一つの種類にだけ入り、聞き違いの直しは「前 → 後」ごとにまとめる", () => {
+  test("「合っている」は印だけを付け、同じ発言として読める（画面 1 は分析・答え・ひとつを消さない）。話者を替えたときは別の発言", () => {
+    const low = u(0, [CHECK_LOW_CONFIDENCE]);
+    assert.ok(sameLine(low, withSpeaker(low, "講師")));
+    assert.ok(!sameLine(low, withSpeaker(low, "生徒")));
+    const t = (x: Utterance): Transcript => ({ kind: "生徒", raw: "r", multipleOthers: false, step0c: null, utterances: [x], step0b: { proposed: [], discarded: [], applied: [] } });
+    assert.ok(sameTranscript(t(low), t(withSpeaker(low, "講師"))));
+  });
+
+  test("確かめた発話を分けると、後半は確かめる前に戻り、話者を確かめる所にまた出る", () => {
+    const x = withSpeaker({ ...u(0, [CHECK_LOW_CONFIDENCE], "はいそうです"), memoSpan: [0, 6] }, "講師");
+    const t: Transcript = { kind: "生徒", raw: "はいそうです", multipleOthers: false, step0c: null, utterances: [x], step0b: { proposed: [], discarded: [], applied: [] } };
+    const r = splitUtterance(t, 0, 2);
+    assert.deepEqual(r.utterances.map((y) => [y.speaker, speakerChecked(y)]), [["講師", true], ["生徒", false]]);
+    const g = groupChecks(r);
+    assert.deepEqual(g.speaker.map((y) => y.index), [0, 1]);
+    assert.equal(g.speaker.filter(speakerChecked).length, 1);
+  });
+
+  test("話者を迷った発話は話者の所に、同じ発話の聞き違いの直しは直しの所にも入り、ほかは一つの種類にだけ入る。直しは「前 → 後」ごとにまとめる", () => {
     const t: Transcript = {
       kind: "生徒",
       raw: "",
@@ -42,7 +66,7 @@ describe("画面 1：確かめる所を種類ごとに分ける", () => {
       utterances: [
         u(0, []),
         u(1, [CHECK_MID_CONFIDENCE]), // 中だけは出さない
-        u(2, [CHECK_LOW_CONFIDENCE, CHECK_CORRECTED]), // 話者を先に
+        u(2, [CHECK_LOW_CONFIDENCE, CHECK_CORRECTED]), // 話者の所と直しの所の両方に（話者の所では話者だけを見る）
         u(3, [CHECK_UNANCHORED + "（モデルの区切り：…）", CHECK_LOW_CONFIDENCE]), // 区切りを先に
         u(4, [CHECK_CORRECTED]),
         u(5, [CHECK_CORRECTED]),
@@ -65,18 +89,46 @@ describe("画面 1：確かめる所を種類ごとに分ける", () => {
     assert.deepEqual(g.unanchored.map((x) => x.index), [3]);
     assert.deepEqual(g.speaker.map((x) => x.index), [2]);
     assert.deepEqual(g.multiple.map((x) => x.index), [7]);
-    assert.deepEqual(g.corrected.map((x) => x.index), [4, 5, 6]);
+    assert.deepEqual(g.corrected.map((x) => x.index), [2, 4, 5, 6]);
     assert.deepEqual(g.edited.map((x) => x.index), [8]);
-    assert.equal(countChecks(g), 7);
+    assert.equal(countChecks(g), 8);
     assert.equal(countToCheck(g), 3); // 直しは一つずつ見る所に数えない
-    // 話者の所に入った 2 の直しは、まとめに数えない（その発話は一つずつ見るので）
     assert.deepEqual(
       g.correctionGroups.map((c) => [c.before, c.after, c.indices]),
       [
         ["南航", "南高", [4, 5]],
+        ["難航", "南高", [2]],
         ["南港", "南高", [6]],
       ],
     );
+  });
+
+  test("話者を確かめても話者の所から消えず、選び直せる。話者を替えたときだけ「本人が直した」が付く", () => {
+    const t = (x: Utterance): Transcript => ({ kind: "生徒", raw: "", multipleOthers: false, step0c: null, utterances: [x], step0b: { proposed: [], discarded: [], applied: [] } });
+    const low = u(0, [CHECK_LOW_CONFIDENCE]);
+    assert.equal(speakerChecked(low), false);
+    // 合っている（今の話者を選ぶ）
+    const ok = withSpeaker(low, "講師");
+    assert.equal(ok.speaker, "講師");
+    assert.ok(speakerChecked(ok));
+    assert.ok(!ok.check.includes(MARK_EDITED));
+    assert.deepEqual(groupChecks(t(ok)).speaker.map((x) => x.index), [0]);
+    // 替える
+    const changed = withSpeaker(ok, "生徒");
+    assert.equal(changed.speaker, "生徒");
+    assert.ok(changed.check.includes(MARK_EDITED));
+    assert.deepEqual(groupChecks(t(changed)).speaker.map((x) => x.index), [0]);
+    assert.deepEqual(groupChecks(t(changed)).edited, []); // 話者の所に残り、「あなたが直した所」に移らない
+    // やっぱり戻す
+    const back = withSpeaker(changed, "講師");
+    assert.equal(back.speaker, "講師");
+    assert.deepEqual(groupChecks(t(back)).speaker.map((x) => x.index), [0]);
+    // 印は重ならない
+    assert.equal(back.check.filter((c) => c === MARK_SPEAKER_CHECKED).length, 1);
+    assert.equal(back.check.filter((c) => c === MARK_EDITED).length, 1);
+    // 話者ラベルが読めなかった発話も同じ
+    const label = withSpeaker(u(0, [CHECK_SPEAKER_LABEL]), "生徒");
+    assert.deepEqual(groupChecks(t(label)).speaker.map((x) => x.index), [0]);
   });
 });
 

@@ -1,8 +1,13 @@
 // Route Handler から呼ぶ入口。API キーがあれば本物のエンジン、無ければ仮の出力（engine/mock.mts）を返す。
 // 返す形はどちらも同じ（engine/types.mts）なので、画面は差し替えを意識しない。
 
+import { getClient } from "./claude.mts";
 import { guardStep1, guardStep2, guardStep3, guardStep4 } from "./guard.mts";
+import { memoryConfig, readRecordList, readStep3Memory, withTimeout } from "./memory-read.mts";
+import type { RecordEntry, Step3Memory } from "./memory-read.mts";
 import { mockStep0, mockStep0c, mockStep1, mockStep2, mockStep3, mockStep4 } from "./mock.mts";
+import { scoredItems, step1Phase, throttled } from "./progress.mts";
+import type { OnProgress } from "./progress.mts";
 import { runStep0, runStep0c } from "./step0.mts";
 import { runStep1 } from "./step1.mts";
 import { runStep2 } from "./step2.mts";
@@ -17,16 +22,24 @@ export function hasApiKey(): boolean {
 export type Step0Response = { transcript: Transcript; mock: boolean; ms: number };
 export type Step0cResponse = { step0c: Step0cResult; utteranceCount: number; mock: boolean; ms: number };
 export type AnalyzeResponse = { step1: Step1Result; step2: Step2Result; mock: boolean; ms: number };
-export type CandidatesResponse = { step3: Step3Result; mock: boolean; ms: number };
+/** 工程 3 に記録を渡したか。off：渡していない（旗なし、Demo Mode でない、など）／used：渡した／unreadable：旗はあるが読めなかった */
+export type MemoryUse = "off" | "used" | "unreadable";
+export type CandidatesResponse = { step3: Step3Result; mock: boolean; ms: number; memory: MemoryUse };
+/** enabled が false なら旗なし（記録の入口を出さない）。ok が false なら「いま記録を読めません」 */
+export type RecordsResponse = { enabled: false } | { enabled: true; ok: true; records: RecordEntry[]; ms: number } | { enabled: true; ok: false };
 export type FollowUpResponse = { step4: Step4Result; mock: boolean; ms: number };
 
-/** 工程 0（画面 1）。0a と 0b。0c は step0cOrMock で別に回す（分析を待たせない）。 */
-export async function step0OrMock(raw: string, kind: MeetingKind): Promise<Step0Response> {
+/** 公開 URL でのメモリの読み出しの時間の上限。超えたら読めなかったものとして扱う */
+const MEMORY_READ_MS = 8000;
+
+/** 工程 0（画面 1）。0a と 0b。0c は step0cOrMock で別に回す（分析を待たせない）。onProgress は待つ間の画面用（engine/progress.mts）。 */
+export async function step0OrMock(raw: string, kind: MeetingKind, onProgress?: OnProgress): Promise<Step0Response> {
   const t0 = Date.now();
   if (!hasApiKey()) {
     return { transcript: mockStep0(raw, kind), mock: true, ms: Date.now() - t0 };
   }
-  const r = await runStep0(raw, kind);
+  const send = onProgress ? throttled(onProgress, Math.max(10, Math.round([...raw].length / 200))) : undefined;
+  const r = await runStep0(raw, kind, send ? { onStage: (stage) => send({ stage }), onProgress: (done, total, unit) => send({ stage: "0a", done, total, unit }) } : {});
   return { transcript: r.transcript, mock: false, ms: Date.now() - t0 };
 }
 
@@ -42,28 +55,65 @@ export async function step0cOrMock(transcript: Transcript): Promise<Step0cRespon
 }
 
 /** 工程 1 → 2（画面 2）。本人の自己採点と一言は受け取らない（決まり 10）。 */
-export async function analyzeOrMock(transcript: Transcript, firstMeeting = true): Promise<AnalyzeResponse> {
+export async function analyzeOrMock(transcript: Transcript, firstMeeting = true, onProgress?: OnProgress): Promise<AnalyzeResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {
     const step1 = guardStep1(mockStep1(transcript), transcript.utterances);
     return { step1, step2: guardStep2(mockStep2(transcript, firstMeeting), transcript.utterances), mock: true, ms: Date.now() - t0 };
   }
-  const step1 = await runStep1(transcript);
-  const step2 = await runStep2(transcript, step1.scenes, { firstMeeting });
+  const send = onProgress ? throttled(onProgress) : undefined;
+  let text1 = "";
+  let text2 = "";
+  send?.({ stage: "1", done: 0 });
+  const step1 = await runStep1(transcript, send ? { onText: (d) => send({ stage: "1", done: step1Phase((text1 += d)) }) } : {});
+  send?.({ stage: "2", done: 0, total: 5 });
+  const step2 = await runStep2(transcript, step1.scenes, { firstMeeting, onText: send ? (d) => send({ stage: "2", done: scoredItems((text2 += d)), total: 5 }) : undefined });
   return { step1, step2, mock: false, ms: Date.now() - t0 };
 }
 
-/** 工程 3（画面 4）。次に試せる所の場面と本人の答えから候補を作る。本人の自己採点は受け取らない。 */
-export async function candidatesOrMock(transcript: Transcript, scene: Scene, answer: string): Promise<CandidatesResponse> {
+/**
+ * 工程 3（画面 3）。次に試せる所の場面と本人の答えから候補を作る。本人の自己採点は受け取らない。
+ * 記録を渡すのは、Demo Mode のサンプルを通したときだけ（demo）。メモリにあるのはサンプルの講師の記録なので、
+ * 訪れた人が貼った面談に添えると、別の人の発言が「あなたの言葉」になってしまう。
+ * 読めなければ、記録なしの今のままで候補を作る。
+ */
+export async function candidatesOrMock(transcript: Transcript, scene: Scene, answer: string, opts: { demo?: boolean } = {}): Promise<CandidatesResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {
-    return { step3: guardStep3(mockStep3(scene, answer), transcript.utterances), mock: true, ms: Date.now() - t0 };
+    return { step3: guardStep3(mockStep3(scene, answer), transcript.utterances), mock: true, ms: Date.now() - t0, memory: "off" };
   }
-  const step3 = await runStep3(transcript, scene, answer);
-  return { step3, mock: false, ms: Date.now() - t0 };
+  const cfg = opts.demo ? memoryConfig() : null;
+  let memory: Step3Memory | null = null;
+  let use: MemoryUse = "off";
+  if (cfg?.dreamStoreId) {
+    try {
+      memory = await withTimeout(readStep3Memory(getClient(), cfg), MEMORY_READ_MS);
+      use = memory ? "used" : "unreadable";
+    } catch (e) {
+      console.error(`工程 3 の記録を読めなかった：${(e as Error).message.slice(0, 120)}`);
+      use = "unreadable";
+    }
+  }
+  const step3 = await runStep3(transcript, scene, answer, memory);
+  return { step3, mock: false, ms: Date.now() - t0, memory: use };
 }
 
-/** 工程 4（画面 5）。今回の文字起こしと前回の Spark から追跡する。本人の自己評価は受け取らない（決まり 10）。 */
+/** 記録の一覧（画面 5）。AI は呼ばない。公開 URL は読むだけ */
+export async function recordsOrOff(): Promise<RecordsResponse> {
+  const cfg = memoryConfig();
+  if (!cfg || !hasApiKey()) return { enabled: false };
+  const t0 = Date.now();
+  try {
+    const records = await withTimeout(readRecordList(getClient(), cfg), MEMORY_READ_MS);
+    if (records.length === 0) return { enabled: true, ok: false };
+    return { enabled: true, ok: true, records, ms: Date.now() - t0 };
+  } catch (e) {
+    console.error(`記録を読めなかった：${(e as Error).message.slice(0, 120)}`);
+    return { enabled: true, ok: false };
+  }
+}
+
+/** 工程 4（画面 4）。今回の文字起こしと前回の Spark から追跡する。本人の自己評価は受け取らない（決まり 10）。 */
 export async function followUpOrMock(transcript: Transcript, spark: Spark): Promise<FollowUpResponse> {
   const t0 = Date.now();
   if (!hasApiKey()) {

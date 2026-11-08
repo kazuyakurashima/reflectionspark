@@ -1,0 +1,421 @@
+[
+  {
+    "case": "coaching",
+    "ms": 37749,
+    "usd": 0.12,
+    "refsInText": {
+      "before": {
+        "total": 24,
+        "fields": [
+          "よく表れた所.observation:4",
+          "よく表れた所.reaction:4",
+          "よく表れた所.reading:6",
+          "次に試せる所.observation:4",
+          "次に試せる所.reaction:2",
+          "次に試せる所.reading:3",
+          "次に試せる所.asChoice:1"
+        ]
+      },
+      "after": {
+        "total": 0,
+        "fields": []
+      }
+    },
+    "flowRanged": {
+      "before": "0/5",
+      "after": "5/5"
+    },
+    "refsFields": [
+      {
+        "type": "よく表れた所",
+        "reading": [
+          2,
+          3,
+          6,
+          7,
+          8,
+          9
+        ],
+        "observation": [
+          2,
+          6,
+          8
+        ],
+        "reaction": [
+          3
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "reading": [
+          43,
+          44,
+          45,
+          53
+        ],
+        "observation": [
+          43,
+          44
+        ],
+        "reaction": [
+          45,
+          46,
+          47
+        ]
+      }
+    ],
+    "spots": [
+      2,
+      2
+    ],
+    "axis1": {
+      "before": {
+        "generated": 2,
+        "displayed": 2
+      },
+      "after": {
+        "generated": 2,
+        "displayed": 2,
+        "discarded": 0,
+        "rate": 1
+      }
+    },
+    "axis2": {
+      "before": "強み・いちばん:× 強み・次点:× 課題・いちばん:×",
+      "after": "強み・いちばん:× 強み・次点:× 課題・いちばん:×"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0
+    },
+    "axis3": {
+      "before": "よく表れた所:4 次に試せる所:4",
+      "after": "よく表れた所:5 次に試せる所:4"
+    },
+    "axis10": {
+      "before": "よく表れた所:3 次に試せる所:4",
+      "after": "よく表れた所:4 次に試せる所:4"
+    }
+  },
+  {
+    "case": "parent",
+    "ms": 33607,
+    "usd": 0.11,
+    "refsInText": {
+      "before": {
+        "total": 24,
+        "fields": [
+          "summary:2",
+          "よく表れた所.observation:3",
+          "よく表れた所.reaction:4",
+          "よく表れた所.reading:5",
+          "次に試せる所.observation:2",
+          "次に試せる所.reaction:2",
+          "次に試せる所.reading:3",
+          "次に試せる所.asChoice:3"
+        ]
+      },
+      "after": {
+        "total": 0,
+        "fields": []
+      }
+    },
+    "flowRanged": {
+      "before": "5/5",
+      "after": "4/4"
+    },
+    "refsFields": [
+      {
+        "type": "よく表れた所",
+        "reading": [
+          44,
+          46,
+          47,
+          51,
+          52,
+          53,
+          54
+        ],
+        "observation": [
+          44,
+          45,
+          46
+        ],
+        "reaction": [
+          47
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "reading": [
+          27,
+          28,
+          29,
+          31
+        ],
+        "observation": [
+          27,
+          28
+        ],
+        "reaction": [
+          29,
+          31
+        ]
+      }
+    ],
+    "spots": [
+      2,
+      1
+    ],
+    "axis1": {
+      "before": {
+        "generated": 2,
+        "displayed": 2
+      },
+      "after": {
+        "generated": 2,
+        "displayed": 2,
+        "discarded": 0,
+        "rate": 1
+      }
+    },
+    "axis2": {
+      "before": "強み・いちばん:○ 強み・次点:× 課題・いちばん:× 課題・次点:×",
+      "after": "強み・いちばん:○ 強み・次点:× 課題・いちばん:× 課題・次点:×"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0
+    },
+    "axis3": {
+      "before": "よく表れた所:5 次に試せる所:4",
+      "after": "よく表れた所:5 次に試せる所:5"
+    },
+    "axis10": {
+      "before": "よく表れた所:4 次に試せる所:4",
+      "after": "よく表れた所:4 次に試せる所:4"
+    }
+  },
+  {
+    "case": "student-shinro",
+    "ms": 42405,
+    "usd": 0.14,
+    "refsInText": {
+      "before": {
+        "total": 27,
+        "fields": [
+          "よく表れた所.observation:5",
+          "よく表れた所.reaction:3",
+          "よく表れた所.reading:6",
+          "次に試せる所.observation:4",
+          "次に試せる所.reaction:3",
+          "次に試せる所.reading:3",
+          "次に試せる所.asChoice:3"
+        ]
+      },
+      "after": {
+        "total": 0,
+        "fields": []
+      }
+    },
+    "flowRanged": {
+      "before": "5/5",
+      "after": "5/5"
+    },
+    "refsFields": [
+      {
+        "type": "よく表れた所",
+        "reading": [
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46
+        ],
+        "observation": [
+          40,
+          42,
+          44,
+          46
+        ],
+        "reaction": [
+          41,
+          43,
+          45
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "reading": [
+          73,
+          75,
+          93,
+          94,
+          95,
+          96
+        ],
+        "observation": [
+          96,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108
+        ],
+        "reaction": [
+          97,
+          99,
+          101,
+          103,
+          105,
+          107,
+          109
+        ]
+      }
+    ],
+    "spots": [
+      1,
+      2
+    ],
+    "axis1": {
+      "before": {
+        "generated": 2,
+        "displayed": 2
+      },
+      "after": {
+        "generated": 2,
+        "displayed": 2,
+        "discarded": 0,
+        "rate": 1
+      }
+    },
+    "axis2": {
+      "before": "強み・いちばん:× 強み・次点:× 課題・いちばん:○ 課題・次点:×",
+      "after": "強み・いちばん:× 強み・次点:× 課題・いちばん:○ 課題・次点:×"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0
+    },
+    "axis3": {
+      "before": "よく表れた所:5 次に試せる所:4",
+      "after": "よく表れた所:4 次に試せる所:4"
+    },
+    "axis10": {
+      "before": "よく表れた所:4 次に試せる所:4",
+      "after": "よく表れた所:4 次に試せる所:3"
+    }
+  },
+  {
+    "case": "student-shinro-2",
+    "ms": 37302,
+    "usd": 0.12,
+    "refsInText": {
+      "before": {
+        "total": 17,
+        "fields": [
+          "summary:2",
+          "よく表れた所.observation:2",
+          "よく表れた所.reaction:2",
+          "よく表れた所.reading:5",
+          "次に試せる所.observation:1",
+          "次に試せる所.reaction:2",
+          "次に試せる所.reading:2",
+          "次に試せる所.asChoice:1"
+        ]
+      },
+      "after": {
+        "total": 0,
+        "fields": []
+      }
+    },
+    "flowRanged": {
+      "before": "0/5",
+      "after": "5/5"
+    },
+    "refsFields": [
+      {
+        "type": "よく表れた所",
+        "reading": [
+          50,
+          51,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58
+        ],
+        "observation": [
+          48,
+          50,
+          54
+        ],
+        "reaction": [
+          51,
+          53
+        ]
+      },
+      {
+        "type": "次に試せる所",
+        "reading": [
+          44,
+          45,
+          46,
+          47,
+          50,
+          51
+        ],
+        "observation": [
+          42,
+          44,
+          46
+        ],
+        "reaction": [
+          45,
+          47
+        ]
+      }
+    ],
+    "spots": [
+      1,
+      2
+    ],
+    "axis1": {
+      "before": {
+        "generated": 2,
+        "displayed": 2
+      },
+      "after": {
+        "generated": 2,
+        "displayed": 2,
+        "discarded": 0,
+        "rate": 1
+      }
+    },
+    "axis2": {
+      "before": "強み・いちばん:○ 強み・次点:× 課題・いちばん:× 課題・次点:○",
+      "after": "強み・いちばん:○ 強み・次点:× 課題・いちばん:× 課題・次点:○"
+    },
+    "axis5": {
+      "before": 0,
+      "after": 0
+    },
+    "axis3": {
+      "before": "よく表れた所:5 次に試せる所:4",
+      "after": "よく表れた所:5 次に試せる所:4"
+    },
+    "axis10": {
+      "before": "よく表れた所:3 次に試せる所:4",
+      "after": "よく表れた所:4 次に試せる所:4"
+    }
+  }
+]

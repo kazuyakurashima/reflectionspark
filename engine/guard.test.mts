@@ -62,6 +62,18 @@ describe("本番の出力の検査（決まり 1・3）", () => {
     assert.deepEqual(r.withheld[0], { field: "scenes[0].reading", words: ["傾向"], original: "講師は話しすぎる傾向があると読める。" });
   });
 
+  test("工程 1：読みの要の一句は、守った後の読みにそのまま残るときだけ持つ（決まり 3）", () => {
+    const base = { noScene: null, summary: "", flow: [], extraQuestion: null, quoteStats: { generated: 0, discarded: 0, scenesWithoutQuote: 1 }, rawText: "" };
+    const kept = guardStep1({ ...base, scenes: [scene({ reading: "気持ちを尋ねたことが、志望を口にすることにつながったと読める。", readingKey: "志望を口にすることにつながった" })] }, utterances);
+    assert.equal(kept.scenes[0].readingKey, "志望を口にすることにつながった");
+    // 読みを控えたときは、句も目立たせない
+    const withheld = guardStep1({ ...base, scenes: [scene({ reading: "話しすぎる傾向があると読める。", readingKey: "話しすぎる" })] }, utterances);
+    assert.equal(withheld.scenes[0].readingKey, null);
+    // 前の作りの出力（欄が無い）は、欄を足さない
+    const old = guardStep1({ ...base, scenes: [scene({ reading: "読める。" })] }, utterances);
+    assert.equal("readingKey" in old.scenes[0], false);
+  });
+
   test("原文と一致した「」の中の言葉は検査しない。一致しない「」は外してから検査する", () => {
     const r = guardStep1(
       {
@@ -86,12 +98,27 @@ describe("本番の出力の検査（決まり 1・3）", () => {
     assert.equal(r2.items[1].reason, WITHHELD_NOTICE);
     assert.equal(r2.items[0].reason, "受け止めた。");
     assert.equal(r2.ethics.text, "この話は、所属の手順に沿って扱ってください");
+    // 一読で分かる説明（plain）も同じく検査する（決まり 3・8）
+    const r2p = guardStep2({ items: [{ item: 1, score: 3, plain: "講師が決めるべきだった。", reason: "受け止めた。", utterances: [] }], total: { sum: 3, judgedCount: 1, max: 5, scaled: 6 }, insightOwner: "講師", ethics: { level: "問題なし", text: "問題なし", viewpoint: null, utterances: [] } }, utterances);
+    assert.equal(r2p.items[0].plain, WITHHELD_NOTICE);
+    assert.equal(r2p.items[0].reason, "受け止めた。");
     const r4 = guardStep4(
       { verdict: "できた", quotes: [], discardedQuotes: [], why: "前回の行動が「夏から頑張ろう」の後に現れた。", items, total: { sum: 15, judgedCount: 5, max: 25, scaled: 6 }, otherPersonLine: "相手は几帳面な人で、やってきた。", quoteStats: { generated: 0, discarded: 0 }, rawText: "" },
       utterances,
     );
     assert.equal(r4.why, "前回の行動が「夏から頑張ろう」の後に現れた。");
     assert.equal(r4.otherPersonLine, WITHHELD_NOTICE);
+  });
+
+  test("工程 4：なぜの要の一句は、守った後のなぜにそのまま残るときだけ持つ（決まり 3）", () => {
+    const base = { verdict: "一部" as const, quotes: [], discardedQuotes: [], items: [], total: { sum: 0, judgedCount: 0, max: 25, scaled: null }, otherPersonLine: null, quoteStats: { generated: 0, discarded: 0 }, rawText: "" };
+    const kept = guardStep4({ ...base, why: "問いの後に、例を足して話を進めた。待つ行動は文字の上に現れていない。", whyKey: "待つ行動は文字の上に現れていない" }, utterances);
+    assert.equal(kept.whyKey, "待つ行動は文字の上に現れていない");
+    const withheld = guardStep4({ ...base, why: "講師は話しすぎる傾向がある。", whyKey: "話しすぎる" }, utterances);
+    assert.equal(withheld.whyKey, null);
+    // 前の作りの出力（欄が無い）は、欄を足さない
+    const old = guardStep4({ ...base, why: "発話 2 で問いが出た。" }, utterances);
+    assert.equal("whyKey" in old, false);
   });
 
   test("工程 3・0c：候補の「」は外さない（相手が誰でも起こりうる形）。性質の言葉だけ検査する", () => {

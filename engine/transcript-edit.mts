@@ -7,6 +7,8 @@ import { SPEAKER_LABELS } from "./types.mts";
 
 export const CHECK_SPLIT_BY_USER = "本人が分けた";
 export const CHECK_ORIGINAL_SAME_AS_TEXT = "分けた後の元の文は本文と同じ（直した所があったため、元の文を分けられなかった）";
+/** 本人が話者を確かめた（画面 1 の「合っている」・話者を選び直した）。画面の印（app/lib/check-groups.mts の MARK_SPEAKER_CHECKED と同じ文字列） */
+export const CHECK_SPEAKER_CHECKED_BY_USER = "話者を本人が確かめた";
 
 function trimSpan(cps: string[], s: number, e: number): [number, number] {
   while (s < e && /\s/.test(cps[s])) s++;
@@ -17,6 +19,7 @@ function trimSpan(cps: string[], s: number, e: number): [number, number] {
 /**
  * 発話 index を、本文の pos 文字目（コードポイント）で 2 つに分ける。
  * 分けた前半は元の話者、後半はもう一方の話者にする（本人が画面で直せる）。
+ * 後半の話者は自動で替えたもので本人はまだ選んでいないので、話者を確かめた印は前半にだけ残す。
  * 前半か後半が空になるときは何もしない。
  */
 export function splitUtterance(t: Transcript, index: number, pos: number): Transcript {
@@ -32,19 +35,20 @@ export function splitUtterance(t: Transcript, index: number, pos: number): Trans
   const { self, other } = SPEAKER_LABELS[t.kind];
   const otherSpeaker = u.speaker === self ? other : self;
   const baseCheck = u.check.filter((c) => !c.startsWith(CHECK_UNANCHORED) && c !== CHECK_SPLIT_BY_USER);
+  const secondCheck = baseCheck.filter((c) => c !== CHECK_SPEAKER_CHECKED_BY_USER);
   let first: Utterance;
   let second: Utterance;
   if (u.text === u.original && u.memoSpan) {
     const s0 = u.memoSpan[0];
     first = { ...u, text: firstText, original: firstText, check: [...baseCheck, CHECK_SPLIT_BY_USER], memoSpan: [s0 + a0, s0 + a1] };
-    second = { ...u, speaker: otherSpeaker, text: secondText, original: secondText, check: [...baseCheck, CHECK_SPLIT_BY_USER], memoSpan: [s0 + b0, s0 + b1] };
+    second = { ...u, speaker: otherSpeaker, text: secondText, original: secondText, check: [...secondCheck, CHECK_SPLIT_BY_USER], memoSpan: [s0 + b0, s0 + b1] };
   } else if (u.text === u.original) {
     first = { ...u, text: firstText, original: firstText, check: [...baseCheck, CHECK_SPLIT_BY_USER], memoSpan: null };
-    second = { ...u, speaker: otherSpeaker, text: secondText, original: secondText, check: [...baseCheck, CHECK_SPLIT_BY_USER], memoSpan: null };
+    second = { ...u, speaker: otherSpeaker, text: secondText, original: secondText, check: [...secondCheck, CHECK_SPLIT_BY_USER], memoSpan: null };
   } else {
     // 直した所がある発話は、元の文を同じ位置で分けられない。前半に元の文を残し、後半は本文を元の文にして印を付ける
     first = { ...u, text: firstText, check: [...baseCheck, CHECK_SPLIT_BY_USER] };
-    second = { ...u, speaker: otherSpeaker, text: secondText, original: secondText, check: [...baseCheck, CHECK_SPLIT_BY_USER, CHECK_ORIGINAL_SAME_AS_TEXT], memoSpan: null };
+    second = { ...u, speaker: otherSpeaker, text: secondText, original: secondText, check: [...secondCheck, CHECK_SPLIT_BY_USER, CHECK_ORIGINAL_SAME_AS_TEXT], memoSpan: null };
   }
   const utterances = [...t.utterances.slice(0, index), first, second, ...t.utterances.slice(index + 1)].map((x, i) => ({ ...x, index: i }));
   const remap = (i: number, needle: string): number => {

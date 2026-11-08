@@ -1,0 +1,489 @@
+{
+  "status": "サンプル・暫定（作ったダミーの面談。本人は確かめていない）",
+  "runId": "2026-11-06T16-55-09",
+  "interviews": [
+    {
+      "id": "student-seiseki",
+      "source": {
+        "step0": "今回",
+        "step1": "今回",
+        "step2": "今回",
+        "step4": null
+      },
+      "utterances": 123,
+      "scenes": 2,
+      "verdict": null,
+      "freshCalls": 4,
+      "failures": []
+    },
+    {
+      "id": "student-yaruki",
+      "source": {
+        "step0": "今回",
+        "step1": "今回",
+        "step2": "今回",
+        "step4": null
+      },
+      "utterances": 154,
+      "scenes": 2,
+      "verdict": null,
+      "freshCalls": 4,
+      "failures": []
+    },
+    {
+      "id": "student-yaruki-2",
+      "source": {
+        "step0": "今回",
+        "step1": "今回",
+        "step2": null,
+        "step4": "今回"
+      },
+      "utterances": 158,
+      "scenes": 2,
+      "verdict": "まだ",
+      "freshCalls": 4,
+      "failures": []
+    },
+    {
+      "id": "student-seiseki-2",
+      "source": {
+        "step0": "今回",
+        "step1": "今回",
+        "step2": null,
+        "step4": "今回"
+      },
+      "utterances": 126,
+      "scenes": 2,
+      "verdict": "できた",
+      "freshCalls": 4,
+      "failures": []
+    }
+  ],
+  "steps": [
+    {
+      "step": "分析：工程 0a",
+      "model": "claude-opus-5-5",
+      "calls": 4,
+      "ms": 172240,
+      "inputTokens": 10583,
+      "outputTokens": 25810,
+      "cacheReadTokens": 4612,
+      "cacheWriteTokens": 0,
+      "note": "今回回した呼び出しだけ。同時に回したので、時間は呼び出しごとの合計"
+    },
+    {
+      "step": "分析：工程 0b",
+      "model": "claude-opus-5-5",
+      "calls": 4,
+      "ms": 58587,
+      "inputTokens": 15415,
+      "outputTokens": 6531,
+      "cacheReadTokens": 4880,
+      "cacheWriteTokens": 0,
+      "note": "今回回した呼び出しだけ。同時に回したので、時間は呼び出しごとの合計"
+    },
+    {
+      "step": "分析：工程 1",
+      "model": "claude-opus-5-5",
+      "calls": 4,
+      "ms": 148433,
+      "inputTokens": 416,
+      "outputTokens": 14775,
+      "cacheReadTokens": 12832,
+      "cacheWriteTokens": 26027,
+      "note": "今回回した呼び出しだけ。同時に回したので、時間は呼び出しごとの合計"
+    },
+    {
+      "step": "分析：工程 2",
+      "model": "claude-opus-5-5",
+      "calls": 2,
+      "ms": 44086,
+      "inputTokens": 8688,
+      "outputTokens": 3883,
+      "cacheReadTokens": 3804,
+      "cacheWriteTokens": 3804,
+      "note": "今回回した呼び出しだけ。同時に回したので、時間は呼び出しごとの合計"
+    },
+    {
+      "step": "分析：工程 4",
+      "model": "claude-opus-5-5",
+      "calls": 2,
+      "ms": 81735,
+      "inputTokens": 477,
+      "outputTokens": 8029,
+      "cacheReadTokens": 7790,
+      "cacheWriteTokens": 13133,
+      "note": "今回回した呼び出しだけ。同時に回したので、時間は呼び出しごとの合計"
+    },
+    {
+      "step": "記録係（セッション 4 本。1 本ずつ順番に）",
+      "model": "claude-sonnet-5-5",
+      "calls": 4,
+      "ms": 108941,
+      "inputTokens": 48,
+      "outputTokens": 12733,
+      "cacheReadTokens": 162625,
+      "cacheWriteTokens": 39284,
+      "note": "時間はセッションを作ってから止まるまで"
+    },
+    {
+      "step": "夢（1 回）",
+      "model": "claude-sonnet-5-5",
+      "calls": 1,
+      "ms": 299355,
+      "inputTokens": 126,
+      "outputTokens": 108049,
+      "cacheReadTokens": 1993512,
+      "cacheWriteTokens": 298023,
+      "note": "終わり方 completed。入力トークン換算 1112251（上限 2000000）"
+    }
+  ],
+  "recorder": {
+    "indexIdentical": true,
+    "runs": [
+      {
+        "id": "student-seiseki",
+        "ms": 25661,
+        "usage": {
+          "inputTokens": 12,
+          "outputTokens": 2870,
+          "cacheReadTokens": 34914,
+          "cacheWriteTokens": 12983,
+          "activeSeconds": 24.23
+        },
+        "toolUses": {
+          "glob": 2,
+          "write": 2,
+          "read": 2
+        },
+        "agentWroteIdentical": true,
+        "indexHasLine": true
+      },
+      {
+        "id": "student-yaruki",
+        "ms": 24279,
+        "usage": {
+          "inputTokens": 12,
+          "outputTokens": 2753,
+          "cacheReadTokens": 40462,
+          "cacheWriteTokens": 7236,
+          "activeSeconds": 22.778
+        },
+        "toolUses": {
+          "glob": 1,
+          "read": 3,
+          "write": 1,
+          "edit": 1
+        },
+        "agentWroteIdentical": true,
+        "indexHasLine": true
+      },
+      {
+        "id": "student-yaruki-2",
+        "ms": 33013,
+        "usage": {
+          "inputTokens": 12,
+          "outputTokens": 3634,
+          "cacheReadTokens": 43149,
+          "cacheWriteTokens": 9401,
+          "activeSeconds": 31.617
+        },
+        "toolUses": {
+          "glob": 1,
+          "read": 3,
+          "write": 1,
+          "edit": 2
+        },
+        "agentWroteIdentical": true,
+        "indexHasLine": true
+      },
+      {
+        "id": "student-seiseki-2",
+        "ms": 25988,
+        "usage": {
+          "inputTokens": 12,
+          "outputTokens": 3476,
+          "cacheReadTokens": 44100,
+          "cacheWriteTokens": 9664,
+          "activeSeconds": 24.558
+        },
+        "toolUses": {
+          "glob": 1,
+          "read": 3,
+          "write": 1,
+          "edit": 1
+        },
+        "agentWroteIdentical": true,
+        "indexHasLine": true
+      }
+    ]
+  },
+  "dream": {
+    "status": "サンプル・暫定（作ったダミーの面談。本人は確かめていない）",
+    "model": "claude-sonnet-5-5",
+    "dreamStatus": "completed",
+    "ms": 299355,
+    "usage": {
+      "inputTokens": 126,
+      "outputTokens": 108049,
+      "cacheReadTokens": 1993512,
+      "cacheWriteTokens": 298023,
+      "activeSeconds": null
+    },
+    "inputEquivalent": 1112251,
+    "capInputEquivalent": 2000000,
+    "canceledByCap": false,
+    "stoppedBy": null,
+    "cancelRequested": false,
+    "cancelError": null,
+    "monitorErrors": 0,
+    "lastMonitorError": null,
+    "watchEndedBeforeTerminal": false,
+    "overCapBy": 0,
+    "capIsStrict": false,
+    "error": null,
+    "samples": [
+      {
+        "sec": 11,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 21,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 31,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 42,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 52,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 62,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 72,
+        "status": "running",
+        "inputEquivalent": 0
+      },
+      {
+        "sec": 83,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 93,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 103,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 114,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 124,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 134,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 144,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 155,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 165,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 175,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 186,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 196,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 206,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 217,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 227,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 237,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 248,
+        "status": "running",
+        "inputEquivalent": 67622
+      },
+      {
+        "sec": 258,
+        "status": "running",
+        "inputEquivalent": 289515
+      },
+      {
+        "sec": 268,
+        "status": "running",
+        "inputEquivalent": 289515
+      },
+      {
+        "sec": 278,
+        "status": "running",
+        "inputEquivalent": 289515
+      },
+      {
+        "sec": 289,
+        "status": "running",
+        "inputEquivalent": 1101593
+      },
+      {
+        "sec": 299,
+        "status": "completed",
+        "inputEquivalent": 1112251
+      }
+    ],
+    "instructionsChars": 1894,
+    "sessions": 4,
+    "sessionsExcludedForCorrection": [],
+    "outputFiles": [
+      {
+        "path": "/actions.md",
+        "chars": 1819
+      },
+      {
+        "path": "/changes.md",
+        "chars": 2499
+      },
+      {
+        "path": "/index.md",
+        "chars": 606
+      },
+      {
+        "path": "/records/2025-10-24-student-seiseki.md",
+        "chars": 2108
+      },
+      {
+        "path": "/records/2025-10-28-student-yaruki.md",
+        "chars": 1999
+      },
+      {
+        "path": "/records/2025-11-18-student-yaruki-2.md",
+        "chars": 2492
+      },
+      {
+        "path": "/records/2025-11-21-student-seiseki-2.md",
+        "chars": 2533
+      },
+      {
+        "path": "/recurring-scenes.md",
+        "chars": 7118
+      }
+    ],
+    "recordsUnchanged": [
+      {
+        "path": "/records/2025-10-24-student-seiseki.md",
+        "unchanged": true
+      },
+      {
+        "path": "/records/2025-10-28-student-yaruki.md",
+        "unchanged": true
+      },
+      {
+        "path": "/records/2025-11-18-student-yaruki-2.md",
+        "unchanged": true
+      },
+      {
+        "path": "/records/2025-11-21-student-seiseki-2.md",
+        "unchanged": true
+      }
+    ],
+    "expectedFilesPresent": {
+      "index": true,
+      "recurring": true,
+      "changes": true,
+      "actions": true
+    }
+  },
+  "evidence": {
+    "evidence": {
+      "total": 89,
+      "byStatus": {
+        "全文一致": 89
+      },
+      "matched": 89,
+      "withQuote": 89,
+      "speakerMismatch": 0
+    },
+    "hypotheses": {
+      "total": 7,
+      "withCounterEvidence": 2,
+      "withCounterNoteOnly": 4,
+      "withoutCounter": 1,
+      "acrossInterviews": 4,
+      "byConfidence": {
+        "中": 3,
+        "保留": 2,
+        "低": 2
+      }
+    },
+    "traitHits": 0,
+    "growthHits": 0
+  },
+  "failures": {
+    "analysisRetries": [],
+    "recorderErrors": [],
+    "recorderRewrittenByApp": [],
+    "recorderTraitHitsAfterReadBack": [],
+    "recorderNameCheck": "未検査（名前の一覧を渡していない）",
+    "dreamCanceled": false,
+    "dreamError": null,
+    "dreamChangedRecords": []
+  }
+}

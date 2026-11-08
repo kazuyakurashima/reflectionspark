@@ -1,0 +1,148 @@
+{
+  "status": "サンプル・暫定（作ったダミーの面談。本人は確かめていない）",
+  "model": "claude-sonnet-5-5",
+  "nameCheck": "未検査（名前の一覧を渡していない）",
+  "files": [
+    "/index.md",
+    "/records/2025-10-24-student-seiseki.md",
+    "/records/2025-10-28-student-yaruki.md",
+    "/records/2025-11-18-student-yaruki-2.md",
+    "/records/2025-11-21-student-seiseki-2.md"
+  ],
+  "indexIdentical": true,
+  "indexRewrittenByApp": false,
+  "indexLines": 5,
+  "runs": [
+    {
+      "id": "student-seiseki",
+      "ms": 25661,
+      "usage": {
+        "inputTokens": 12,
+        "outputTokens": 2870,
+        "cacheReadTokens": 34914,
+        "cacheWriteTokens": 12983,
+        "activeSeconds": 24.23
+      },
+      "toolUses": {
+        "glob": 2,
+        "write": 2,
+        "read": 2
+      },
+      "stopReason": "end_turn",
+      "errors": [],
+      "interruptRequested": false,
+      "report": "記録を書き、渡された本文と同じであることを読み返して確かめました。\n\n- 記録のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/records/2025-10-24-student-seiseki.md`\n- 索引のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/index.md`。ファイルが無かったので、見出し `# 索引（面談の記録）` を 1 行目にして作りました。\n\n索引に足した行：\n- records/2025-10-24-student-seiseki.md｜2025-10-24｜1 本目｜生徒｜相手 B｜よく表れた所（発話 28）・次に試せる所（発話 72）｜追跡：なし｜決めた行動：あり｜サンプル・暫定（作ったダミーの面談。本人は確かめていない）",
+      "chars": 2108,
+      "agentWroteIdentical": true,
+      "fixedByApp": false,
+      "firstDiff": null,
+      "storedIdentical": true,
+      "traitHitsAfterReadBack": [],
+      "scoreHitsAfterReadBack": [],
+      "nameHitsAfterReadBack": [],
+      "indexHasLine": true,
+      "indexFixedByApp": false,
+      "verified": true,
+      "problems": []
+    },
+    {
+      "id": "student-yaruki",
+      "ms": 24279,
+      "usage": {
+        "inputTokens": 12,
+        "outputTokens": 2753,
+        "cacheReadTokens": 40462,
+        "cacheWriteTokens": 7236,
+        "activeSeconds": 22.778
+      },
+      "toolUses": {
+        "glob": 1,
+        "read": 3,
+        "write": 1,
+        "edit": 1
+      },
+      "stopReason": "end_turn",
+      "errors": [],
+      "interruptRequested": false,
+      "report": "記録と索引を書き込み、読み返して渡された本文と同じことを確かめました。\n\n- 記録のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/records/2025-10-28-student-yaruki.md`\n- 索引のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/index.md`。索引はすでにあったので、いちばん下に次の 1 行を足しました。\n\n```\n- records/2025-10-28-student-yaruki.md｜2025-10-28｜2 本目｜生徒｜相手 C｜よく表れた所（発話 62）・次に試せる所（発話 106）｜追跡：なし｜決めた行動：あり｜サンプル・暫定（作ったダミーの面談。本人は確かめていない）\n```",
+      "chars": 1999,
+      "agentWroteIdentical": true,
+      "fixedByApp": false,
+      "firstDiff": null,
+      "storedIdentical": true,
+      "traitHitsAfterReadBack": [],
+      "scoreHitsAfterReadBack": [],
+      "nameHitsAfterReadBack": [],
+      "indexHasLine": true,
+      "indexFixedByApp": false,
+      "verified": true,
+      "problems": []
+    },
+    {
+      "id": "student-yaruki-2",
+      "ms": 33013,
+      "usage": {
+        "inputTokens": 12,
+        "outputTokens": 3634,
+        "cacheReadTokens": 43149,
+        "cacheWriteTokens": 9401,
+        "activeSeconds": 31.617
+      },
+      "toolUses": {
+        "glob": 1,
+        "read": 3,
+        "write": 1,
+        "edit": 2
+      },
+      "stopReason": "end_turn",
+      "errors": [],
+      "interruptRequested": false,
+      "report": "記録と索引への追記を済ませ、読み返して渡された内容と同じことを確かめました。\n\n- 記録のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/records/2025-11-18-student-yaruki-2.md`\n- 索引のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/index.md`（4 行目に追加）\n\n索引に足した行：\n- records/2025-11-18-student-yaruki-2.md｜2025-11-18｜3 本目｜生徒｜相手 C｜よく表れた所（発話 8）・次に試せる所（発話 146）｜追跡：student-yaruki の行動｜決めた行動：なし｜サンプル・暫定（作ったダミーの面談。本人は確かめていない）\n\n途中で、索引への追記に失敗した編集が 1 回ありました。置換前と置換後が同じ文字列で、2 行に当てはまってしまい、エラーで止まりました。ファイルは変わっていません。",
+      "chars": 2492,
+      "agentWroteIdentical": true,
+      "fixedByApp": false,
+      "firstDiff": null,
+      "storedIdentical": true,
+      "traitHitsAfterReadBack": [],
+      "scoreHitsAfterReadBack": [],
+      "nameHitsAfterReadBack": [],
+      "indexHasLine": true,
+      "indexFixedByApp": false,
+      "verified": true,
+      "problems": []
+    },
+    {
+      "id": "student-seiseki-2",
+      "ms": 25988,
+      "usage": {
+        "inputTokens": 12,
+        "outputTokens": 3476,
+        "cacheReadTokens": 44100,
+        "cacheWriteTokens": 9664,
+        "activeSeconds": 24.558
+      },
+      "toolUses": {
+        "glob": 1,
+        "read": 3,
+        "write": 1,
+        "edit": 1
+      },
+      "stopReason": "end_turn",
+      "errors": [],
+      "interruptRequested": false,
+      "report": "記録を書き、読み返して、渡された本文と同じであることを確かめました。\n\n- 記録のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/records/2025-11-21-student-seiseki-2.md`\n- 索引のファイル：`/mnt/memory/reflectionspark-memory-sample-11061655/index.md`（いちばん下に次の 1 行を足しました）\n\n`- records/2025-11-21-student-seiseki-2.md｜2025-11-21｜4 本目｜生徒｜相手 B｜よく表れた所（発話 24）・次に試せる所（発話 110）｜追跡：student-seiseki の行動｜決めた行動：なし｜サンプル・暫定（作ったダミーの面談。本人は確かめていない）`",
+      "chars": 2533,
+      "agentWroteIdentical": true,
+      "fixedByApp": false,
+      "firstDiff": null,
+      "storedIdentical": true,
+      "traitHitsAfterReadBack": [],
+      "scoreHitsAfterReadBack": [],
+      "nameHitsAfterReadBack": [],
+      "indexHasLine": true,
+      "indexFixedByApp": false,
+      "verified": true,
+      "problems": []
+    }
+  ]
+}

@@ -137,6 +137,17 @@ describe("工程 1 の本文の読み取りと、引用の場面への当て方"
     assert.equal(r.noScene, null);
   });
 
+  test("決まり 6：問いは次に試せる所だけ。よく表れた所に問いが書かれていても使わない", () => {
+    const r = parseStep1(text, segments, utterances);
+    assert.equal(r.scenes[0].question, "");
+    assert.equal(r.scenes[1].question, "次に同じ場面が来たら、何を試しますか。");
+  });
+
+  test("面談の流れは、行の頭の箇条の印だけを外し、本文の頭の数字は残す", () => {
+    const flowText = "<no_scene>x</no_scene>\n<summary>s</summary>\n<flow>\n1. 部活の話（発話 0〜3）\n- 進路の話（発話 4〜9）\n・夏の話（発話 10〜12）\n5月模試のD判定（発話 13〜20）\n2）締めくくり（発話 21〜25）\n</flow>";
+    assert.deepEqual(parseStep1(flowText, [], utterances).flow, ["部活の話（発話 0〜3）", "進路の話（発話 4〜9）", "夏の話（発話 10〜12）", "5月模試のD判定（発話 13〜20）", "締めくくり（発話 21〜25）"]);
+  });
+
   test("根拠のある場面が無いときは no_scene を読む", () => {
     const r = parseStep1("<no_scene>本人の関わりが読める発話が無い。</no_scene><summary>s</summary><flow>a</flow>", [], utterances);
     assert.equal(r.scenes.length, 0);
@@ -164,6 +175,24 @@ describe("工程 2・3・4 の読み取り", () => {
     assert.deepEqual(r.items[0].utterances, [2]);
     assert.deepEqual(r.total, { sum: 12, judgedCount: 4, max: 20, scaled: 6 });
     assert.equal(r.ethics.viewpoint, null);
+  });
+
+  test("決まり 8：工程 2 は、一読で分かる説明（plain）と発話番号で指した理由を分けて持つ。plain が空なら持たない（古い結果と同じ形）", () => {
+    const r = parseStep2(
+      {
+        items: [
+          { item: 1, judged: true, score: 4, plain: " 気持ちを返したあと、生徒が自分の言葉で話を続けました。 ", reason: "発話 20 のあと発話 21 で続いた", utterances: [20] },
+          { item: 2, judged: true, score: 3, plain: "", reason: "b", utterances: [] },
+        ],
+        insight_owner: "両方",
+        ethics: { level: "問題なし", text: "問題なし", viewpoint: "", utterances: [] },
+      },
+      30,
+    );
+    assert.equal(r.items[0].plain, "気持ちを返したあと、生徒が自分の言葉で話を続けました。");
+    assert.equal(r.items[0].reason, "発話 20 のあと発話 21 で続いた");
+    assert.equal("plain" in r.items[1], false);
+    assert.equal("plain" in r.items[2], false);
   });
 
   test("工程 2：相手の安全にかかわる話は、点にせず決まった 1 行にする", () => {

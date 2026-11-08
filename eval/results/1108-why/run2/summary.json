@@ -1,0 +1,198 @@
+{
+  "student-shinro-2": {
+    "before": {
+      "shownRefs": 6,
+      "whyChars": 88,
+      "whySentences": 1,
+      "whyRefs": null,
+      "whyKey": null,
+      "otherRefs": null,
+      "verdict": "できた",
+      "truthVerdict": "できた",
+      "matched": true,
+      "evidenceOverlaps": true,
+      "quotes": 1,
+      "discarded": 0,
+      "axis5Hits": 0,
+      "why": "発話 50 で講師は、志望校へ行きたい気持ちと家での勉強の様子との違いを生徒に返して考えを聞き、生徒は発話 51 で自分の受け止めを語り、発話 53 で自分から次の手を出した。",
+      "otherPersonLine": "発話 36 で講師が触れた前回の夏からの取り組みについて、生徒は発話 39 と発話 41 で、講習には通っているが家での勉強にはほとんど手が付いていないことを、その理由とあわせて話した。",
+      "meta": {
+        "model": "claude-opus-5-5",
+        "ms": 37654,
+        "inputTokens": 221,
+        "outputTokens": 3732,
+        "cacheReadTokens": 4079,
+        "cacheWriteTokens": 5035
+      },
+      "from": "eval/results/runs（11/8 朝）"
+    },
+    "after": {
+      "shownRefs": 0,
+      "whyChars": 142,
+      "whySentences": 2,
+      "whyRefs": [
+        50,
+        51,
+        52,
+        53
+      ],
+      "whyKey": "その差をどう思うか尋ねた所で、前回の行動がそのまま現れています",
+      "otherRefs": [
+        37,
+        39,
+        41
+      ],
+      "verdict": "できた",
+      "truthVerdict": "できた",
+      "matched": true,
+      "evidenceOverlaps": true,
+      "quotes": 1,
+      "discarded": 0,
+      "axis5Hits": 0,
+      "why": "南高に行きたい気持ちと、家での勉強がほとんど進んでいない今の様子を並べて返し、その差をどう思うか尋ねた所で、前回の行動がそのまま現れています。生徒はそこから、前から気づいていたことや自分で続けられるやり方を語り、夕食後に講習の数学を解き直す案を自分で出しているので、できたになります。",
+      "otherPersonLine": "前に話した夏からの取り組みについて、講習には通っているものの、家での勉強はほとんどできていないことが、帰宅後の過ごし方とあわせて語られた。",
+      "meta": {
+        "model": "claude-opus-5-5",
+        "ms": 29769,
+        "inputTokens": 221,
+        "outputTokens": 2957,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 9568
+      }
+    }
+  },
+  "student-seiseki-2": {
+    "before": {
+      "shownRefs": 6,
+      "whyChars": 127,
+      "whySentences": 2,
+      "whyRefs": null,
+      "whyKey": null,
+      "otherRefs": null,
+      "verdict": "できた",
+      "truthVerdict": "一部",
+      "matched": false,
+      "evidenceOverlaps": true,
+      "quotes": 4,
+      "discarded": 0,
+      "axis5Hits": 0,
+      "why": "発話 49 の短い答えに対して、講師は発話 50 で単元・問題・いつを聞き返し、発話 52 でいつを重ねて聞きました。生徒は発話 51 と発話 53 で、単元と曜日まで自分の言葉で続けています（ただし、発話 61 の英語の場面では聞き返しは見えません）。",
+      "otherPersonLine": "前回決めたワーク（答えを見ないで毎日）について、生徒は最初の 1週間はやりました。帰ってすぐ 1ページずつと語り、その後は練習が遅くなって帰ると8時近くて、そこからちょっと空いて、先週は 3日くらいです。と続けました。",
+      "meta": {
+        "model": "claude-opus-5-5",
+        "ms": 38418,
+        "inputTokens": 238,
+        "outputTokens": 3735,
+        "cacheReadTokens": 3895,
+        "cacheWriteTokens": 6060
+      },
+      "from": "eval/results/memory/analysis（11/6）"
+    },
+    "after": {
+      "shownRefs": 0,
+      "whyChars": 186,
+      "whySentences": 2,
+      "whyRefs": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        61,
+        62
+      ],
+      "whyKey": "生徒は単元と曜日まで自分の言葉で答えた",
+      "otherRefs": [
+        19,
+        21,
+        25,
+        27,
+        29,
+        31
+      ],
+      "verdict": "できた",
+      "truthVerdict": "一部",
+      "matched": false,
+      "evidenceOverlaps": true,
+      "quotes": 5,
+      "discarded": 0,
+      "axis5Hits": 0,
+      "why": "数学の期末の進め方を尋ねて意気込みだけの短い返事が返った所で、単元と問題と時期を一度に尋ね直し、続けて時期も確かめたことで、生徒は単元と曜日まで自分の言葉で答えたので、前回の行動がそのまま現れています。英語で同じ短い返事が出た所では、尋ね直さずに励ましと講師の方針で受けていますが、行動そのものは一度はっきり現れて相手の具体的な答えにつながっているため、できたとしました。",
+      "otherPersonLine": "答えを見ずにワークを毎日進めることについて、生徒は次のように話した。最初の一週間は帰宅直後に続けられた。練習が遅くなってからは間が空き、先週は数日だった。帰宅直後なら取り組めた日があった。止まった問題は空けておいた。",
+      "meta": {
+        "model": "claude-opus-5-5",
+        "ms": 38934,
+        "inputTokens": 238,
+        "outputTokens": 3883,
+        "cacheReadTokens": 4533,
+        "cacheWriteTokens": 6060
+      }
+    }
+  },
+  "student-yaruki-2": {
+    "before": {
+      "shownRefs": 5,
+      "whyChars": 167,
+      "whySentences": 2,
+      "whyRefs": null,
+      "whyKey": null,
+      "otherRefs": null,
+      "verdict": "まだ",
+      "truthVerdict": "まだ",
+      "matched": true,
+      "evidenceOverlaps": true,
+      "quotes": 2,
+      "discarded": 0,
+      "axis5Hits": 0,
+      "why": "発話 100 の問いに生徒が発話 101 で答えの中身を出さずに止まった場面で、講師は発話 102 で例と自分の考えを足して話を進めており、何でもいいよとだけ言って待つ行動は文字の上に現れていません（沈黙の長さは文字に無いため判断していません。発話 26 と発話 146 でも、問いのすぐ後に同じ発話の中で説明や決定が続いています）。",
+      "otherPersonLine": "生徒が前回決めた30分前に来て1ページは、1回目は来て1ページ終えたこと、先週と今日はいつもの時間になったことが語られました。小テストは全部見てから1問書いたと語られています。",
+      "meta": {
+        "model": "claude-opus-5-5",
+        "ms": 43317,
+        "inputTokens": 239,
+        "outputTokens": 4294,
+        "cacheReadTokens": 3895,
+        "cacheWriteTokens": 7073
+      },
+      "from": "eval/results/memory/analysis（11/6）"
+    },
+    "after": {
+      "shownRefs": 0,
+      "whyChars": 141,
+      "whySentences": 2,
+      "whyRefs": [
+        100,
+        101,
+        102,
+        146
+      ],
+      "whyKey": "点や志望校の例と先生自身の考えが続けて足され",
+      "otherRefs": [
+        3,
+        5,
+        9,
+        11,
+        15,
+        17,
+        77
+      ],
+      "verdict": "まだ",
+      "truthVerdict": "まだ",
+      "matched": true,
+      "evidenceOverlaps": true,
+      "quotes": 3,
+      "discarded": 0,
+      "axis5Hits": 0,
+      "why": "先の望みを尋ねたあと、生徒の返事が言いよどみで止まった所で、点や志望校の例と先生自身の考えが続けて足されました。待つ形も、短いひと言で促す形も見えず、生徒自身の案を尋ねた所でも返事を待たずに先生が決めているため、試せる場面があったのに行動が現れなかったとして、判定はまだになります。",
+      "otherPersonLine": "早めに来て 1ページ進める約束は、先々週の一度だけ果たして計算の範囲を終えたものの、先週と今日は思い出せずにいつもの時刻になったと語られました。小テストで先に全体を見る約束は実行し、そのうえで解けそうな計算の 1問を選んで書いたと語られました。",
+      "meta": {
+        "model": "claude-opus-5-5",
+        "ms": 43327,
+        "inputTokens": 239,
+        "outputTokens": 4243,
+        "cacheReadTokens": 4533,
+        "cacheWriteTokens": 7073
+      }
+    }
+  }
+}

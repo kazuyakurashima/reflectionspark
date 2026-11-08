@@ -1,7 +1,7 @@
-// 工程 4：次の面談で（画面 5）。Messages API、citations。
+// 工程 4：次の面談で（画面 4）。Messages API、citations。
 // 受け取る：今回の文字起こし（発話ブロック）、前回の Spark とできたかの基準、前回の場面（ふつうの文として）。
 // 渡さない：本人の自己評価（四つの言葉と点）、前回の AI の点と判定（決まり 10）。
-// 返す：判定、根拠の引用（照合済み）、なぜの一文、5 項目の点（項目 5 が中心）、（あれば）相手の前回の行動の 1 行。
+// 返す：判定、根拠の引用（照合済み）、なぜ（2 文まで。文に発話番号を書かせず、指す発話は欄で返させる）と要の一句、5 項目の点（項目 5 が中心）、（あれば）相手の前回の行動の 1 行と指す発話。
 
 import { callCited, makeDocument } from "./claude.mts";
 import type { TextSegment } from "./claude.mts";
@@ -11,7 +11,8 @@ import { step4System, step4UserText } from "./prompts.mts";
 import { computeTotal } from "./rubric.mts";
 import { findTags, parseNumbers, tagText } from "./tagged.mts";
 import type { FollowUpVerdict, ItemNumber, ItemScore, Quote, Spark, Step4Result, Transcript, Utterance } from "./types.mts";
-import { checkUtteranceRefs, toUtteranceIndices } from "./utterance-no.mts";
+import { keyIn } from "./step1.mts";
+import { checkUtteranceRefs, parseUtteranceList, toUtteranceIndices } from "./utterance-no.mts";
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
 
@@ -37,14 +38,18 @@ export function parseStep4(text: string, segments: TextSegment[], utterances: Ut
   });
   const why = tagText(text, "why");
   const otherPersonLine = tagText(text, "other_line") || null;
+  const refsOf = (name: string) => toUtteranceIndices(parseUtteranceList(tagText(text, name)), utterances.length);
   return {
     verdict,
     quotes,
     discardedQuotes,
     why,
+    whyRefs: refsOf("why_refs"),
+    whyKey: keyIn(why, tagText(text, "why_key")),
     items,
     total: computeTotal(items),
     otherPersonLine,
+    otherRefs: otherPersonLine ? refsOf("other_refs") : [],
     // 文の中の「発話 n」が、発話の並びの範囲にあるか（番号のずれの見張り）
     utteranceRefs: checkUtteranceRefs([why, ...items.map((i) => i.reason), otherPersonLine], utterances.length),
     quoteStats: { generated: all.length, discarded: discardedQuotes.length },

@@ -5,15 +5,17 @@ import { describe, test } from "node:test";
 
 import { blockText, blockTexts, verifyCitation } from "./citations.mts";
 import { step1System, step4System, step4UserText } from "./prompts.mts";
-import { parseStep1 } from "./step1.mts";
+import { keyIn, parseStep1 } from "./step1.mts";
 import { parseStep4 } from "./step4.mts";
 import { splitUtterance } from "./transcript-edit.mts";
 import type { Transcript, Utterance } from "./types.mts";
 import {
   blockLabel,
   checkUtteranceRefs,
+  findUtteranceIndices,
   findUtteranceRefs,
   markPreviousUtteranceRefs,
+  parseUtteranceList,
   toUtteranceIndex,
   toUtteranceIndices,
   utteranceLabel,
@@ -192,5 +194,142 @@ describe("工程 1・4：番号は札から読ませ、返ってきた番号は�
     assert.deepEqual(r.items[0].utterances, [3, 4]);
     assert.deepEqual(r.items[4].utterances, [2]);
     assert.deepEqual(r.utteranceRefs, { total: 4, outOfRange: [] });
+  });
+});
+
+describe("工程 1：番号を文から分けた欄（11/8）", () => {
+  test("欄の番号は、範囲を広げ、重ねず、小さい順に読む", () => {
+    assert.deepEqual(parseUtteranceList("発話 93〜95、発話 73、発話 75"), [73, 75, 93, 94, 95]);
+    assert.deepEqual(parseUtteranceList("93, 95-97"), [93, 95, 96, 97]);
+    assert.deepEqual(parseUtteranceList(""), []);
+    // 広すぎる範囲は、両端だけを残す（一つの場面で 60 発話を超えて指すことは無いため）
+    assert.deepEqual(parseUtteranceList("発話 1〜500"), [1, 500]);
+  });
+
+  test("前の作りの出力は、文の中の「発話 n」から番号を読む", () => {
+    assert.deepEqual(findUtteranceIndices("発話 4 で尋ね、発話 5〜6 で生徒が答えたと読める。"), [4, 5, 6]);
+    assert.deepEqual(findUtteranceIndices("番号の無い文。"), []);
+  });
+
+  test("読み・観察・反応の番号を欄から読み、並びの範囲の外は捨てる。文の中には番号が無くてよい", () => {
+    const text = `<scene type="次に試せる所">
+<items>3</items>
+<context>苦手な単元を尋ねた所。</context>
+<quote>そっか。どこがだめだったと思う。</quote>
+<observation>講師が、どこがだめだったかを尋ねた。</observation>
+<observation_refs>発話 4</observation_refs>
+<reaction>生徒が単元を一つ挙げた。</reaction>
+<reaction_refs>発話 5</reaction_refs>
+<reading>理由を尋ねる前に話が次へ移ったと読める。</reading>
+<reading_refs>発話 2〜4、発話 9</reading_refs>
+<as_choice>時間の都合があった可能性。</as_choice>
+<question>次に同じ場面が来たら、何を試しますか。</question>
+<why_chosen>w</why_chosen>
+<runner_up></runner_up>
+</scene>
+<summary>s</summary>
+<flow>
+発話 0〜5：模試
+</flow>`;
+    const r = parseStep1(text, [], utterances);
+    assert.deepEqual(r.scenes[0].refs, { reading: [2, 3, 4], observation: [4], reaction: [5] });
+    assert.equal(r.extraQuestion, null);
+  });
+
+  test("工程 1 のプロンプトは、文の中に番号を書かせず、番号の欄を場面ごとに置く。事情を尋ねる問いは書かせない（決まり 2・6）", () => {
+    const s = step1System("生徒");
+    assert.match(s, /発話番号も書きません/);
+    for (const tag of ["reading_refs", "observation_refs", "reaction_refs"]) {
+      assert.equal(s.split(`</${tag}>`).length - 1, 2, tag); // 出力の形の、2 つの場面の両方に
+    }
+    assert.doesNotMatch(s, /<extra_question>/);
+    // 面談の流れの行の頭は、発話の範囲（地図の区切りに使う）
+    assert.match(s, /発話 0〜11：/);
+  });
+});
+
+describe("工程 1：見立ての要の一句（11/8）", () => {
+  test("要の一句は、読みの文にそのまま入っているときだけ受け取る", () => {
+    const reading = "気持ちを尋ねたことが、志望を口にすることにつながったと読める。";
+    assert.equal(keyIn(reading, " 志望を口にすることにつながった "), "志望を口にすることにつながった");
+    assert.equal(keyIn(reading, "志望を自分から口にした"), null); // 読みに無い言葉
+    assert.equal(keyIn(reading, ""), null);
+    assert.equal(keyIn(reading, reading), null); // 文の全体は要ではない
+  });
+
+  test("出力の欄から読み、読みに無い句は捨てる", () => {
+    const text = `<scene type="よく表れた所">
+<items></items>
+<context>c</context>
+<quote>q</quote>
+<observation>o</observation>
+<reaction>r</reaction>
+<reading>気持ちを尋ねたことが、志望を口にすることにつながったと読める。</reading>
+<reading_key>志望を口にすることにつながった</reading_key>
+<reading_refs>発話 2</reading_refs>
+<why_chosen>w</why_chosen>
+<runner_up></runner_up>
+</scene>
+<scene type="次に試せる所">
+<items></items>
+<context>c</context>
+<quote>q</quote>
+<observation>o</observation>
+<reaction>r</reaction>
+<reading>説明に移ったと読める。</reading>
+<reading_key>説明が長かった</reading_key>
+<reading_refs></reading_refs>
+<as_choice>a</as_choice>
+<question>次に同じ場面が来たら、何を試しますか。</question>
+<why_chosen>w</why_chosen>
+<runner_up></runner_up>
+</scene>
+<summary>s</summary>
+<flow>
+発話 0〜5：模試
+</flow>`;
+    const r = parseStep1(text, [], utterances);
+    assert.equal(r.scenes[0].readingKey, "志望を口にすることにつながった");
+    assert.equal(r.scenes[1].readingKey, null);
+  });
+
+  test("工程 1 のプロンプトは、両方の場面に要の一句の欄を置き、読みから写させる", () => {
+    const s = step1System("生徒");
+    assert.equal(s.split("</reading_key>").length - 1, 2);
+    assert.match(s, /読みの文から一字も変えずに写した/);
+  });
+});
+
+describe("工程 4：AI の見立て（なぜ）に番号を書かせず、欄で返させる（11/8）", () => {
+  test("プロンプトは、なぜと相手の 1 行に発話番号を書かせず、指す発話と要の一句を欄に書かせる", () => {
+    const s = step4System("生徒");
+    assert.match(s, /文の中に発話番号を書かない/);
+    for (const tag of ["why_refs", "why_key", "other_refs"]) assert.equal(s.split(`</${tag}>`).length - 1, 1, tag);
+    assert.match(s, /なぜの文から一字も変えずに写した/);
+    // 前の作りの「札の番号で指す」例は残さない
+    assert.doesNotMatch(s, /発話 12 で、相手は/);
+  });
+
+  test("なぜが指す発話・相手の 1 行が指す発話・要の一句を欄から読む。範囲の外の番号と、なぜに無い句は捨てる", () => {
+    const text = `<verdict>一部</verdict>
+<quote></quote>
+<why>模試の結果を尋ねた所で、講師は理由を聞く前に次の話へ移った。前回決めた問いは一部だけ現れた。</why>
+<why_refs>発話 2〜4、発話 9</why_refs>
+<why_key>理由を聞く前に次の話へ移った</why_key>
+<items>
+<item n="5" score="3" utterances="4">発話 4 で前回に触れた。</item>
+</items>
+<other_line>生徒は前回決めた単元の復習を一度したと話した。</other_line>
+<other_refs>発話 5</other_refs>`;
+    const r = parseStep4(text, [], utterances);
+    assert.deepEqual(r.whyRefs, [2, 3, 4]);
+    assert.equal(r.whyKey, "理由を聞く前に次の話へ移った");
+    assert.deepEqual(r.otherRefs, [5]);
+    assert.deepEqual(findUtteranceRefs(r.why), []);
+
+    const r2 = parseStep4(text.replace("理由を聞く前に次の話へ移った</why_key>", "説明が長かった</why_key>").replace(/<other_line>.*<\/other_line>/, "<other_line></other_line>"), [], utterances);
+    assert.equal(r2.whyKey, null);
+    assert.equal(r2.otherPersonLine, null);
+    assert.deepEqual(r2.otherRefs, []);
   });
 });

@@ -65,12 +65,15 @@ export function guardText(text: string, field: string, utterances: Utterance[], 
 
 function guardScene(sc: Scene, i: number, utterances: Utterance[], log: GuardLog): Scene {
   const f = (name: string) => `scenes[${i}].${name}`;
+  const reading = guardText(sc.reading, f("reading"), utterances, log);
   return {
     ...sc,
     context: guardText(sc.context, f("context"), utterances, log),
     observation: guardText(sc.observation, f("observation"), utterances, log),
     reaction: guardText(sc.reaction, f("reaction"), utterances, log),
-    reading: guardText(sc.reading, f("reading"), utterances, log),
+    reading,
+    // 要の一句は、守った後の読みにそのまま残っているときだけ目立たせる（読みを控えた・「」を外したときは目立たせない）
+    ...(sc.readingKey !== undefined ? { readingKey: sc.readingKey && reading.includes(sc.readingKey) ? sc.readingKey : null } : {}),
     asChoice: sc.asChoice === null ? null : guardText(sc.asChoice, f("asChoice"), utterances, log),
     question: guardText(sc.question, f("question"), utterances, log),
     record: { ...sc.record, whyChosen: guardText(sc.record.whyChosen, f("record.whyChosen"), utterances, log) },
@@ -94,7 +97,11 @@ export function guardStep2<T extends Omit<Step2Result, "meta" | "withheld" | "un
   const log: GuardLog = { withheld: [], unverifiedQuotes: [] };
   return {
     ...r,
-    items: r.items.map((it) => ({ ...it, reason: guardText(it.reason, `items[${it.item}].reason`, utterances, log) })),
+    items: r.items.map((it) => ({
+      ...it,
+      ...(it.plain ? { plain: guardText(it.plain, `items[${it.item}].plain`, utterances, log) } : {}),
+      reason: guardText(it.reason, `items[${it.item}].reason`, utterances, log),
+    })),
     ethics: {
       ...r.ethics,
       text: r.ethics.level === "所属の手順" ? r.ethics.text : guardText(r.ethics.text, "ethics.text", utterances, log),
@@ -125,9 +132,12 @@ export function guardStep3<T extends Omit<Step3Result, "meta" | "withheld" | "un
 
 export function guardStep4<T extends Omit<Step4Result, "meta" | "firstCitationMs" | "withheld" | "unverifiedQuotes">>(r: T, utterances: Utterance[]): T & GuardLog {
   const log: GuardLog = { withheld: [], unverifiedQuotes: [] };
+  const why = guardText(r.why, "why", utterances, log);
   return {
     ...r,
-    why: guardText(r.why, "why", utterances, log),
+    why,
+    // 要の一句は、守った後のなぜにそのまま残るときだけ持つ（工程 1 の読みと同じ）
+    ...(r.whyKey !== undefined ? { whyKey: r.whyKey && why.includes(r.whyKey) ? r.whyKey : null } : {}),
     items: r.items.map((it) => ({ ...it, reason: guardText(it.reason, `items[${it.item}].reason`, utterances, log) })),
     otherPersonLine: r.otherPersonLine === null ? null : guardText(r.otherPersonLine, "otherPersonLine", utterances, log),
     ...log,

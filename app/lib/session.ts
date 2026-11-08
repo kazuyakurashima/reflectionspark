@@ -5,9 +5,9 @@
 import { useMemo, useSyncExternalStore } from "react";
 
 import { attachStep0c } from "@/engine/step0.mts";
-import type { FollowUpVerdict, MeetingKind, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
+import type { FollowUpVerdict, MeetingKind, SceneType, Spark, Step0cResult, Step1Result, Step2Result, Step3Result, Step4Result, Transcript } from "@/engine/types.mts";
 
-/** 画面 4 で本人が選んだ（または直した）一つ */
+/** 画面 3 で本人が選んだ（または直した）一つ */
 export type SparkChoice = Spark & {
   id: string;
   lines: string[];
@@ -20,18 +20,21 @@ export type SparkChoice = Spark & {
   keepAfterThird: boolean;
 };
 
-/** 画面 5（次の面談で）のデータ */
+/** 画面 4（前回のひとつを確かめる）のデータ。確かめるのは、この面談の発話（transcript）と、持ち越したひとつ（prev.spark） */
 export type FollowUpData = {
-  raw: string;
-  transcript: Transcript | null;
-  mock: boolean;
-  step0Ms: number | null;
-  /** 本人の自己評価。AI に渡さない */
+  /** 本人の判定。AI に渡さない */
   selfVerdict: FollowUpVerdict | null;
-  selfScore: number | null;
   result: { step4: Step4Result; mock: boolean } | null;
   /** この結果で追った回数を数えた Spark の id（二重に数えない） */
   countedSparkId: string | null;
+};
+
+/** 前の面談から持ち越したもの。画面 3 の「次の面談の入力へ」で入る（app/lib/next-meeting.mts） */
+export type PrevMeeting = {
+  /** 前の面談で決めたひとつ（見送ったなら null）。追った回数は、ここで数える */
+  spark: SparkChoice | null;
+  /** 前の面談そのもの。「前の面談に戻る」と、前回の発言を並べるために持つ。前の前は持たない（prev は null） */
+  session: SessionData;
 };
 
 export type SessionData = {
@@ -44,6 +47,8 @@ export type SessionData = {
   firstMeeting: boolean;
   /** 貼った文字起こし（そのまま） */
   raw: string;
+  /** サンプルの印。「サンプルを選ぶ」で立て、貼る欄の文を書き換えたら外す（app/lib/demo-flag.mts） */
+  demo: boolean;
   /** 整形の結果（本人が画面 1 で直した後） */
   transcript: Transcript | null;
   /** 仮の出力か */
@@ -53,15 +58,19 @@ export type SessionData = {
   /** 本人の自己採点（10 点満点）と一言。AI に渡さない */
   selfScore: number | null;
   selfNote: string;
+  /** 画面 2：場面ごとの自分の見立て（任意）。AI に渡さない */
+  ownViews: string[];
   analysis: { step1: Step1Result; step2: Step2Result; mock: boolean } | null;
-  /** 画面 3：問いへの本人の答え */
+  /** 画面 2 で書く、問いへの本人の答え（工程 3 に渡す） */
   answers: { question: string; answer: string }[];
-  /** 画面 4：候補と、選んだ一つ */
+  /** 画面 3：候補と、選んだ一つ */
   candidates: { step3: Step3Result; mock: boolean } | null;
   spark: SparkChoice | null;
   sparkSkipped: boolean;
-  /** 画面 5 */
+  /** 画面 4：持ち越したひとつを、この面談で確かめた結果 */
   followUp: FollowUpData | null;
+  /** 前の面談（あれば）。面談は 1 回ごとに「1 入力」から始め、決めたひとつだけを持ち越す */
+  prev: PrevMeeting | null;
 };
 
 const KEY = "reflectionspark:session";
@@ -75,27 +84,32 @@ export function newSession(kind: MeetingKind = "生徒", otherName = "", raw = "
     otherName,
     firstMeeting: true,
     raw,
+    demo: false,
     transcript: null,
     mock: false,
     step0Ms: null,
     selfScore: null,
     selfNote: "",
+    ownViews: [],
     analysis: null,
     answers: [],
     candidates: null,
     spark: null,
     sparkSkipped: false,
     followUp: null,
+    prev: null,
   };
 }
 
-export function newFollowUp(raw = ""): FollowUpData {
-  return { raw, transcript: null, mock: false, step0Ms: null, selfVerdict: null, selfScore: null, result: null, countedSparkId: null };
+export function newFollowUp(): FollowUpData {
+  return { selfVerdict: null, result: null, countedSparkId: null };
 }
 
-/** 古い保存に無い項目を埋める */
+/** 古い保存に無い項目を埋める。前の面談が無い保存の確かめ（古い形）は捨てる */
 function fill(s: Partial<SessionData>): SessionData {
-  return { ...newSession(), ...s, answers: s.answers ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true } as SessionData;
+  const prev = s.prev?.session ? { spark: s.prev.spark ?? null, session: fill({ ...s.prev.session, prev: null }) } : null;
+  const f = prev && s.followUp ? { selfVerdict: s.followUp.selfVerdict ?? null, result: s.followUp.result ?? null, countedSparkId: s.followUp.countedSparkId ?? null } : null;
+  return { ...newSession(), ...s, answers: s.answers ?? [], ownViews: s.ownViews ?? [], sparkSkipped: s.sparkSkipped ?? false, firstMeeting: s.firstMeeting ?? true, demo: s.demo === true, followUp: f, prev } as SessionData;
 }
 
 function read(): string | null {
@@ -185,11 +199,30 @@ export function makeSparkId(i: number): string {
   return `${Date.now().toString(36)}-${i}`;
 }
 
-/** 画面 3 の問い（場面ごとの問いと、事情を尋ねる問い） */
+/** 工程 3 に渡す、本人の答えの文。答えのある問いだけを並べる */
+export function answerText(s: SessionData): string {
+  return questionsOf(s)
+    .map((q) => ({ q, a: s.answers.find((x) => x.question === q)?.answer.trim() ?? "" }))
+    .filter((x) => x.a !== "")
+    .map((x) => `問い：${x.q}\n答え：${x.a}`)
+    .join("\n\n");
+}
+
+/** 本人が答える問い（課題が見えた場面の問い。画面 2 で答える） */
 export function questionsOf(s: SessionData): string[] {
+  return questionItemsOf(s).map((x) => x.q);
+}
+
+/**
+ * 本人が答える問いと、どこから来た問いか（場面の種類）。
+ * 問いは課題が見えた場面だけ。うまくいった場面には問いを置かない（決まり 6）。
+ * 事情を尋ねる問い（面談の全体から）は 11/8 に外した。前の作りで保存した出力に、うまくいった場面の問いや事情を尋ねる問いが残っていても出さない。
+ */
+export function questionItemsOf(s: SessionData): { q: string; from: SceneType | null }[] {
   const a = s.analysis;
   if (!a) return [];
-  const qs = a.step1.scenes.map((sc) => sc.question).filter((q) => q.trim() !== "");
-  if (a.step1.extraQuestion) qs.push(a.step1.extraQuestion);
+  const qs: { q: string; from: SceneType | null }[] = a.step1.scenes
+    .filter((sc) => sc.type !== "よく表れた所" && sc.question.trim() !== "")
+    .map((sc) => ({ q: sc.question, from: sc.type }));
   return qs;
 }

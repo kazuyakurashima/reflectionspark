@@ -1,14 +1,32 @@
-// 工程 3：行動の候補（画面 4）。Messages API、構造化出力。
-// 受け取る：次に試せる場面（引用・読み・問い）、本人の答え。（あれば）記録から似た場面の本人の発言。渡さない：本人の自己採点。
+// 工程 3：行動の候補（画面 3）。Messages API、構造化出力。
+// 受け取る：次に試せる場面（引用・読み・問い）、本人の答え。（あれば）夢で整理した「繰り返す場面」と根拠の発話。渡さない：本人の自己採点、点の控え。
 // 返す：候補 2〜3。「もし（場面）なら、（行動）する」、セリフの例 2〜3、できたかの基準。言葉に表れない行動は落とす。
+// 記録を渡したときは、候補ごとの前の面談の発話の札と、今回の場面と同じ形の発話の札（とそのやりとりの形の 1 行）も返させ、
+// アプリが札から記録の原文を引く（AI が書いた引用文は出さない。決まり 1）。その場面の夢の仮説を、ふつうの言葉の 3 行（過去の記憶の整理）にも直させる。
+// 候補は、本人の答えにいちばん沿うものを最初に置かせる。画面は最初の一つを先に見せ、ほかは押すと開く（決まり 7。11/8）。
 
 import { callStructured } from "./claude.mts";
 import { neighborsOf } from "./citations.mts";
 import { guardStep3 } from "./guard.mts";
-import { STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
-import type { Candidate, Scene, Step3Result, Transcript } from "./types.mts";
+import { scanText } from "./forbidden-words.mts";
+import { resolveRepeatScene } from "./memory-read.mts";
+import type { ParsedRecord, PastHypothesis, Step3Memory } from "./memory-read.mts";
+import { scanScoreWords } from "./memory-record.mts";
+import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
+import type { Candidate, PastSummary, RepeatScene, Scene, Step3Result, Transcript } from "./types.mts";
 
-type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string }[] };
+/** 同じ形の場面の札と、そのやりとりの形の 1 行。前の版（11/8 より前）は札だけ（repeat_refs） */
+type RawRepeat = { ref: string; title: string; key?: string };
+type RawPastSummary = { hypothesis: string; scene: string; happened: string; link: string; key: string };
+type Raw = {
+  candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string; previous_ref?: string; previous_title?: string }[];
+  repeat_scenes?: RawRepeat[];
+  repeat_refs?: string[];
+  past_summary?: RawPastSummary;
+};
+
+/** 今回の場面と同じ形として出す、前の面談の場面の上限 */
+const MAX_REPEATS = 2;
 
 /** 言葉に表れない行動の目印。セリフや発話の動詞があれば残す。 */
 const NON_VERBAL = /(待つ|待って|黙る|黙って|沈黙|表情|うなず|頷|目を見|視線|身を乗り出|笑顔|姿勢|深呼吸)/;
@@ -56,6 +74,8 @@ export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "u
       lines: (c.lines ?? []).map((l) => l.trim()).filter((l) => l !== ""),
       criterion: (c.criterion ?? "").trim(),
       ...(basis ? { basis } : {}),
+      ...(c.previous_ref?.trim() ? { previousRef: c.previous_ref.trim() } : {}),
+      ...(c.previous_ref?.trim() && c.previous_title?.trim() ? { previousTitle: c.previous_title.trim() } : {}),
     };
     if (NON_VERBAL.test(cand.action) && !VERBAL.test(cand.action)) {
       dropped.push({ candidate: cand, reason: "言葉に表れない行動（次の面談の文字起こしで確かめられない）" });
@@ -70,15 +90,78 @@ export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "u
   return { candidates, dropped };
 }
 
-export async function runStep3(t: Transcript, scene: Scene, answer: string, memoryNotes: string[] = []): Promise<Step3Result> {
+/**
+ * 工程 3 が返した札を、記録の原文に置き換える。札が記録に無ければ添えない（決まり 1）。
+ * 画面 3 では「この場面、前にもありました」のカードにするので、同じ形の場面と同じ形（見出し・過去の記憶の整理・その回の AI の文・会話）にする
+ */
+export function attachPreviousWords(candidates: Candidate[], records: ParsedRecord[], hypotheses: PastHypothesis[] = []): Candidate[] {
+  return candidates.map(({ previousRef, previousTitle, ...c }) => {
+    const previous = resolveRepeatScene(previousRef, repeatTitle(previousTitle), records, hypotheses);
+    return previous ? { ...c, previous } : c;
+  });
+}
+
+/**
+ * 同じ形の場面の見出し（工程 3 が書いた、やりとりの形の 1 行）。性質・優劣・点や判定の言葉があれば出さない（決まり 3・10）。
+ * 括弧や句点で囲った形は外す
+ */
+export function repeatTitle(title: string | null | undefined): string | null {
+  const t = (title ?? "").trim().replace(/^「(.*)」$/u, "$1").replace(/。$/u, "").trim();
+  if (t === "") return null;
+  if (scanText(t, "同じ形の場面の見出し").length > 0 || scanScoreWords(t, "同じ形の場面の見出し").length > 0) return null;
+  return t;
+}
+
+/**
+ * 工程 3 が返した「同じ形の場面」の札を、記録の原文に置き換える。札が記録に無ければ出さない（決まり 1）。
+ * 同じ発話は 1 回だけ。候補に添えた発話は出さない（できた言葉と同じ形の場面に、同じ発話を並べない）。古い順に 2 つまで。
+ */
+export function resolveRepeats(items: (RawRepeat | string)[] | null | undefined, candidates: Candidate[], records: ParsedRecord[], hypotheses: PastHypothesis[] = []): RepeatScene[] {
+  const key = (p: { interviewId: string; utterance: number }) => `${p.interviewId}｜${p.utterance}`;
+  const seen = new Set(candidates.flatMap((c) => (c.previous ? [key(c.previous)] : [])));
+  const out: RepeatScene[] = [];
+  for (const item of items ?? []) {
+    const { ref, title, key: phrase } = typeof item === "string" ? { ref: item, title: null, key: null } : item;
+    const p = resolveRepeatScene(ref, repeatTitle(title), records, hypotheses, phrase ?? null);
+    if (!p || seen.has(key(p))) continue;
+    seen.add(key(p));
+    out.push(p);
+    if (out.length === MAX_REPEATS) break;
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date) || a.utterance - b.utterance);
+}
+
+/**
+ * 過去の記憶の整理（3 行）を確かめる。仮説は、出す同じ形の場面のどれかの夢のまとめであること。
+ * 3 行のどれかが空、性質・優劣・点や判定の言葉があれば出さない（画面は、もとの仮説の文に戻る。決まり 3・10）。
+ * 要の句は、3 行のどれかにそのまま入っているときだけ使う
+ */
+export function resolvePastSummary(raw: RawPastSummary | null | undefined, repeats: RepeatScene[], hypotheses: PastHypothesis[]): PastSummary | null {
+  if (!raw) return null;
+  const id = (raw.hypothesis ?? "").trim().replace(/^仮説\s*/u, "");
+  const h = hypotheses.find((x) => x.id === id);
+  if (!h || !repeats.some((p) => p.summary === h.statement)) return null;
+  const [scene, happened, link] = [raw.scene, raw.happened, raw.link].map((t) => (t ?? "").trim());
+  if (!scene || !happened || !link) return null;
+  const all = `${scene}\n${happened}\n${link}`;
+  if (scanText(all, "過去の記憶の整理").length > 0 || scanScoreWords(all, "過去の記憶の整理").length > 0) return null;
+  const key = (raw.key ?? "").trim();
+  return { statement: h.statement, scene, happened, link, key: key !== "" && [scene, happened, link].some((t) => t.includes(key)) ? key : null };
+}
+
+export async function runStep3(t: Transcript, scene: Scene, answer: string, memory: Step3Memory | null = null): Promise<Step3Result> {
   const anchor = scene.quotes[0]?.index;
   const neighbors = anchor === undefined ? { before: null, after: null } : neighborsOf(anchor, t.utterances);
   const r = await callStructured<Raw>({
-    system: step3System(t.kind),
-    user: step3User(scene, answer, neighbors, memoryNotes),
-    schema: STEP3_SCHEMA,
+    system: step3System(t.kind, memory !== null),
+    user: step3User(scene, answer, neighbors, memory?.pastScenes ?? null),
+    schema: memory ? STEP3_PAST_SCENES_SCHEMA : STEP3_SCHEMA,
     effort: "high",
     label: "工程 3",
   });
-  return { ...guardStep3(parseStep3(r.data), t.utterances), meta: r.meta };
+  const guarded = guardStep3(parseStep3(r.data), t.utterances);
+  const candidates = attachPreviousWords(guarded.candidates, memory?.records ?? [], memory?.hypotheses ?? []);
+  const repeats = resolveRepeats(r.data.repeat_scenes ?? r.data.repeat_refs, candidates, memory?.records ?? [], memory?.hypotheses ?? []);
+  const pastSummary = resolvePastSummary(r.data.past_summary, repeats, memory?.hypotheses ?? []);
+  return { ...guarded, candidates, ...(repeats.length > 0 ? { repeats } : {}), ...(pastSummary ? { pastSummary } : {}), meta: r.meta };
 }

@@ -11,7 +11,7 @@ import type { Step1Result, Step2Result, Step3Result, Step4Result, Transcript } f
 import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, step0Variance } from "../lib/axes.mts";
 import type { Axis1, Axis11, Axis12, Axis2, Axis5, Axis6, Axis8, Axis9, Step0Variance } from "../lib/axes.mts";
 import { loadCase, loadJson, RUNS_DIR, saveJson } from "../lib/cases.mts";
-import { judgeAction, judgeGuessMeaning, judgeQuestion, judgeQuoteSupport } from "../lib/judge.mts";
+import { judgeAction, judgeGuessMeaning, judgeQuestion, judgeQuoteSupport, judgeStrength } from "../lib/judge.mts";
 import { listTruthCases } from "../lib/truth.mts";
 import { EVAL_SCRIPT_VERSION, TRUTH_VERSION } from "../lib/version.mts";
 
@@ -68,7 +68,8 @@ for (const name of listTruthCases()) {
     ax.axis3 = [];
     ax.axis10 = [];
     for (const sc of s1.scenes) {
-      const q = await judgeQuestion(sc, t);
+      // よく表れた所は問いを置かないので、良かった所の書き方を見る（決まり 6）。次に試せる所は問いの質
+      const q = sc.type === "よく表れた所" ? await judgeStrength(sc, t) : await judgeQuestion(sc, t);
       ax.axis3.push({ scene: sc.type, score: q.score, reason: q.reason });
       if (sc.quotes.length) {
         const s = await judgeQuoteSupport(sc, t);
@@ -146,7 +147,7 @@ for (const r of rows) {
 }
 lines.push("");
 
-lines.push("## 軸 3・10：問いの質、引用が読みを支えるか（LLM 判定、1〜5）", "", "| ケース | 軸 3 よく表れた所 | 軸 3 次に試せる所 | 軸 10 よく表れた所 | 軸 10 次に試せる所 |", "|---|---|---|---|---|");
+lines.push("## 軸 3・10：良かった所の書き方と問いの質、引用が読みを支えるか（LLM 判定、1〜5）", "", "| ケース | 軸 3 よく表れた所（良かった所の書き方） | 軸 3 次に試せる所（問いの質） | 軸 10 よく表れた所 | 軸 10 次に試せる所 |", "|---|---|---|---|---|");
 for (const r of rows) {
   const g = (xs: { scene: string; score: number }[] | null, scene: string) => xs?.find((x) => x.scene === scene)?.score ?? "—";
   lines.push(`| ${r.case} | ${g(r.axis3, "よく表れた所")} | ${g(r.axis3, "次に試せる所")} | ${g(r.axis10, "よく表れた所")} | ${g(r.axis10, "次に試せる所")} |`);

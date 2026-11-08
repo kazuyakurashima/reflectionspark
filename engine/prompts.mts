@@ -259,17 +259,18 @@ ${numberedTranscript(utterances)}
 </utterances>`;
 }
 
-// ---------- 工程 1：場面・読み・問い ----------
+// ---------- 工程 1：場面・読み・問い（問いは次に試せる所だけ。決まり 6。文の中に発話番号を書かせず、指す発話は別の欄に。決まり 2） ----------
 
 export function step1System(kind: MeetingKind): string {
   const { self, other } = labels(kind);
   return `${COMMON}
 
-あなたの仕事は、面談の文字起こしを読み、本人が振り返るための場面を 2 つ選び、場面ごとに「引用・何が起きたか・問い」を書くことです。
+あなたの仕事は、面談の文字起こしを読み、本人が振り返るための場面を 2 つ選び、場面ごとに「引用・何が起きたか」を書くことです。よく表れた所には、どこが良かったかを具体的に書きます。次に試せる所には、本人が考える問いを 1 つ書きます。
 面談の種類は「${kind}」。本人は「${self}」、相手は「${other}」。
 
 文字起こしは、1 発話 1 ブロックの文書として渡します。各ブロックの先頭に〔発話 n〕の札があり、n がその発話の番号です（最初の発話が〔発話 0〕）。引用は、この文書の発話をそのまま引用（citation）で示してください。本文に引用文を書き写しても根拠にはなりません。引用は必ず citation として付けます。
-文脈の一行・観察・反応・読み・問いなど、あなたが書く文の中に、発話の言葉を「」で書き写さないでください。発話を指すときは、そのブロックの札の番号を「発話 12」の形で書きます（例：発話 12 で）。番号は札から読み、自分で数え直しません。「」で書いた言葉は検証されないので、原文に無ければアプリが「」を外します。
+文脈の一行・観察・反応・読み・問い・サマリーなど、あなたが書く文の中に、発話の言葉を「」で書き写さないでください。「」で書いた言葉は検証されないので、原文に無ければアプリが「」を外します。
+これらの文の中には、発話番号も書きません（本人が一読で分かるように）。どの発話のことかは、ふだんの言葉で言い換えて書きます（例の形：志望校を選んだきっかけを尋ねた所で）。読み・観察・直後の相手の反応が指す発話は、それぞれのすぐ後の欄（<reading_refs> など）に、札の番号を「発話 12、発話 15〜17」の形で書きます。番号は札から読み、自分で数え直しません。
 
 場面の選び方：
 - よく表れた所を 1 つ、次に試せる所を 1 つ。順番はこの順。
@@ -288,15 +289,16 @@ ${rubricBackground()}
 - 引用：本人か相手の発話を 1 つ、citation で示す。
 - 観察：本人が何をしたか。事実だけ。
 - 直後の相手の反応：直後の相手の発話がどう続いたか。直後に相手の発話が無いときは「無い」と書き、反応を推し量らない。
-- 読み：あなたの読み。「〜と読める」と書く。原因とは書かない。
+- 読み（よく表れた所）：どこが良かったか。本人のどの言葉や関わり方が、相手の話をどう引き出したか、または面談をどう前に進めたかを、どの言葉か（短く言い換えて）と相手がどう続いたかで、具体的に 2 文までで書く。指す発話の番号は <reading_refs> に書く。良かったと言う根拠は、直後の相手の発話がどう続いたかに置く。褒めるのは人ではなく、その面談でした行動にする。原因とは書かず、「〜につながったと読める」の形にする。問い・助言・次の課題は書かない。
+- 読み（次に試せる所）：あなたの読み。「〜と読める」と書く。原因とは書かない。
+- 読みの要の一句：読みの中で、本人にいちばん受け取ってほしい所を 1 つ。読みの文から一字も変えずに写した、一続きの句にする（15〜40 字ほど。文の全体ではなく、要の所だけ）。画面では、この句を読みの中で目立たせる。
 - 意図した選択として見ると（次に試せる所だけ）：本人にその選び方の理由があった可能性（時間、相手の様子など）。決めつけず、問いにつなぐ。文字起こしの範囲で確かめられない関わりを選んだときは「この文字起こしの範囲では確認できません」と書き、「しなかった」とは書かない。
-- 問い：開かれた問いを 1 つ。場面の解釈を先に言わない。答えを誘導しない。2 つの場面の問いのうち 1 つは、「次に同じ場面が来たら何を試すか」のように行動につながる問いにする。もう 1 つは別の形にし、2 つとも「その時どう感じたか」の形にしない。
-- 選んだ理由（1 行）と、次点の場面（札の発話番号）。これは画面に出さず、記録に残すだけ。
+- 問い（次に試せる所だけ）：開かれた問いを 1 つ。場面の解釈を先に言わない。答えを誘導しない。「その時どう感じたか」だけで終わらせず、「次に同じ場面が来たら何を試すか」のように、次の一回の行動につながる問いにする。よく表れた所には問いを書かない。
+- 選んだ理由（1 行）と、次点の場面（札の発話番号）。これは画面に出さず、記録に残すだけ（選んだ理由には番号を書いてよい）。
 
 場面の後に書くこと：
-- サマリー：2 文まで。よく表れた所を先に、次に試せる所を後に。
-- 面談の流れ：主題・転機・終わり方を 3〜5 区切りで、1 行 1 区切り。
-- 事情を尋ねる問い（あれば 1 つ）：文字起こしの範囲で確かめられない関わりや、判定を保留しそうな項目があるときに、その事情を本人に尋ねる問い。
+- サマリー：2 文まで。よく表れた所を先に、次に試せる所を後に。発話番号は書かない。
+- 面談の流れ：主題・転機・終わり方を 3〜5 区切りで、1 行 1 区切り。各行の頭に、その区切りの発話の範囲を「発話 0〜11：」の形で書き、続けて中身を書く（流れの行だけは番号を書く。区切りは発話の順に、すき間なく続ける）。
 
 点は書きません。点は別の工程が出します。
 
@@ -307,9 +309,12 @@ ${rubricBackground()}
 <context>文脈の一行</context>
 <quote>引用する発話（citation 付き）</quote>
 <observation>観察</observation>
+<observation_refs>観察が指す発話の番号（例の形：発話 12、発話 15〜17）</observation_refs>
 <reaction>直後の相手の反応</reaction>
-<reading>読み</reading>
-<question>問い</question>
+<reaction_refs>反応が指す発話の番号</reaction_refs>
+<reading>どこが良かったか</reading>
+<reading_key>読みの要の一句（読みの文からそのまま写す）</reading_key>
+<reading_refs>読みが指す発話の番号</reading_refs>
 <why_chosen>選んだ理由（1 行）</why_chosen>
 <runner_up>次点の場面の発話番号（札の番号。カンマ区切り）</runner_up>
 </scene>
@@ -318,20 +323,23 @@ ${rubricBackground()}
 <context></context>
 <quote></quote>
 <observation></observation>
+<observation_refs></observation_refs>
 <reaction></reaction>
-<reading></reading>
+<reaction_refs></reaction_refs>
+<reading>読み</reading>
+<reading_key></reading_key>
+<reading_refs></reading_refs>
 <as_choice>意図した選択として見ると</as_choice>
-<question></question>
+<question>問い</question>
 <why_chosen></why_chosen>
 <runner_up></runner_up>
 </scene>
 <summary>サマリー</summary>
 <flow>
-区切り 1
-区切り 2
-区切り 3
+発話 0〜11：区切り 1
+発話 12〜40：区切り 2
+発話 41〜70：区切り 3
 </flow>
-<extra_question>事情を尋ねる問い（無ければ空）</extra_question>
 
 根拠になる発話が無いときは、<scene> の代わりに <no_scene>理由</no_scene> を書き、サマリーと流れは書きます。`;
 }
@@ -355,7 +363,10 @@ export function step2System(kind: MeetingKind): string {
 ${rubricFull()}
 
 守ること：
-- 項目ごとに、点（1〜5）か「判定しない」を出し、理由を一行と、根拠の発話番号を添える。理由の中に発話の言葉を「」で書き写さず、発話番号で指す。
+- 項目ごとに、点（1〜5）か「判定しない」を出し、説明を 2 通り書いて、根拠の発話番号を utterances に添える。
+  - plain：一読で分かる説明。発話番号を書かず、この面談で何があって、相手がどう続いたかを、ふだんの言葉で 1〜2 文（80 字ほどまで）。判定しないときは、その理由を一文で。
+  - reason：根拠を発話番号で指した説明（3 文まで）。plain の中身を、文字起こしで確かめられる形で書く。plain と食い違わせない。
+  - どちらも、発話の言葉を「」で書き写さない。
 - 本人の発言は、直前と直後の相手の発話と合わせて読む。関わりの回数ではなく、相手がどう続いたかで読む。
 - 相手の目標達成（成績が上がったか）は点に使わない。使うのは行動（相手の発話に表れたもの）だけ。
 - 続きの面談で、前回決めたことに触れた所が本文に無いときは、「範囲では確認できない」として項目 5 を判定しない。初回の面談では項目 5 を判定しない。
@@ -380,12 +391,13 @@ export const STEP2_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["item", "judged", "score", "reason", "utterances"],
+        required: ["item", "judged", "score", "plain", "reason", "utterances"],
         properties: {
           item: { type: "integer", minimum: 1, maximum: 5 },
           judged: { type: "boolean", description: "false なら「この面談では判定しない」" },
           score: { type: "integer", minimum: 0, maximum: 5, description: "判定しないときは 0" },
-          reason: { type: "string" },
+          plain: { type: "string", description: "発話番号を書かない、一読で分かる説明" },
+          reason: { type: "string", description: "根拠を発話番号で指した説明" },
           utterances: { type: "array", items: { type: "integer", minimum: 0 } },
         },
       },
@@ -427,7 +439,18 @@ ${sceneText || "（根拠のある場面は無いとされた）"}
 
 // ---------- 工程 3：行動の候補 ----------
 
-export function step3System(kind: MeetingKind): string {
+/** 工程 3 の決まりに足す文（前の面談の記録を渡すときだけ）。出すための指示は入れない。合うものが無ければ空でよい */
+function step3PastScenesRules(self: string): string {
+  return `
+- 「前の面談の記録から」は、この本人の前の面談を AI が整理した仮説と、その根拠の発話。確かめられていない仮説なので、候補の材料にしてもよいし、使わなくてもよい。候補は今回の場面と本人の答えから作る。仮説の文を候補の文に持ち込まない。前の面談の相手の話題を持ち込まない。
+- 候補ごとに、その行動に近いことを本人が前の面談で実際に言っている発話が、根拠や例外の行にあれば、その札を previous_ref に写す（例の形：student-a｜発話 12）。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合う発話が無ければ空にする。引用文や評価の言葉は書かない。previous_title には、そのやりとりの形を repeat_scenes の title と同じ書き方で 1 行に書く（previous_ref が空なら空）。
+- 今回の「次に試せる所」と同じ形のやりとりが前の面談にもあれば、根拠や例外の行から、その本人の発話の札を repeat_scenes の ref に写す（2 つまで）。話題が違っても、やりとりの形が同じならよい。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合うものが無ければ空の配列にする。
+- repeat_scenes の title には、そのやりとりの形を、相手の発話と本人の行動で 1 行に書く（30 字ほど。例の形：「相手が出来事を話した直後に、${self}が相手の言葉で返した」）。前の面談の相手の名前や話題、引用文、良し悪しや評価の言葉、人を言い表す言葉は書かない。
+- repeat_scenes の key には、その発話が根拠に挙がっている仮説（「## 」の行）の文から、今回の場面と同じ形を言っている一続きの句を、一字も変えずに写す（15〜35 字ほど。言い換えない）。合う句が無ければ空にする。
+- past_summary は、本人が仮説を一読で分かるように、ふつうの言葉で 3 行に直したもの。repeat_scenes の発話が根拠に挙がっている仮説を一つ選び、その記号（H1 など）を hypothesis に写す。scene には、どんな場面か（相手の発話と${self}の行動で）。happened には、その直後に何があったか（仮説の文にあることだけ。何回の面談であったかを添える）。link には、今回の「次に試せる所」の場面で、同じ形がどう現れたか（今回の観察・反応・読みにあることだけ）。それぞれ 1 文、40 字ほど。仮説に無い理由（「〜だから」「〜ので」）、良し悪しや評価の言葉、人を言い表す言葉、点や判定の言葉は書かない。key には、3 つの文のうち、いちばん要の句を一字も変えずに写す。repeat_scenes が空なら、すべて空にする。`;
+}
+
+export function step3System(kind: MeetingKind, withPastScenes = false): string {
   const { self, other } = labels(kind);
   return `${COMMON}
 
@@ -442,7 +465,8 @@ export function step3System(kind: MeetingKind): string {
 - 一つの候補に、行動は一つ。「〜し、〜し、〜する」と束ねない。
 - 候補ごとに、セリフの例を 2〜3 と、できたかの基準（次の面談で何が言葉に表れたら「できた」と言えるかの一行）を添える。
 - 塾やコーチ側の都合（講座の追加、志望校やコースへの誘導）に寄った行動を入れない。
-- 選ぶ・直す・見送るのは本人。あなたは一つに決めない。
+- 候補は、本人の答えの言葉と向きにいちばん沿うものを最初に置く。画面は最初の一つを先に見せ、ほかは本人が開いたときに見せる。
+- 選ぶ・直す・見送るのは本人。あなたは一つに決めない。${withPastScenes ? step3PastScenesRules(self) : ""}
 
 出力は JSON だけ。`;
 }
@@ -470,13 +494,60 @@ export const STEP3_SCHEMA = {
   },
 };
 
-export function step3User(scene: Scene, answer: string, neighbors: { before: Utterance | null; after: Utterance | null }, memoryNotes: string[] = []): string {
+/** 前の面談の記録を渡すときの形。候補ごとの前の面談の発話の札と、今回の場面と同じ形の発話の札（とやりとりの形の 1 行）を返す欄を足す */
+export const STEP3_PAST_SCENES_SCHEMA = {
+  ...STEP3_SCHEMA,
+  required: [...STEP3_SCHEMA.required, "repeat_scenes", "past_summary"],
+  properties: {
+    past_summary: {
+      type: "object",
+      additionalProperties: false,
+      description: "同じ形の場面の根拠になった仮説を、ふつうの言葉で 3 行に直したもの。repeat_scenes が空なら、すべて空",
+      required: ["hypothesis", "scene", "happened", "link", "key"],
+      properties: {
+        hypothesis: { type: "string", description: "選んだ仮説の記号（H1 など）" },
+        scene: { type: "string", description: "どんな場面か。1 文" },
+        happened: { type: "string", description: "その直後に何があったか。仮説の文にあることだけ。1 文" },
+        link: { type: "string", description: "今回の場面で同じ形がどう現れたか。今回の観察・反応・読みにあることだけ。1 文" },
+        key: { type: "string", description: "3 つの文のうち、いちばん要の句を一字も変えずに写したもの" },
+      },
+    },
+    repeat_scenes: {
+      type: "array",
+      description: "今回の「次に試せる所」と同じ形のやりとりをした、前の面談の場面。2 つまで。無ければ空の配列",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["ref", "title", "key"],
+        properties: {
+          ref: { type: "string", description: "前の面談の本人の発話の札（例の形：student-a｜発話 12）" },
+          title: { type: "string", description: "そのやりとりの形を、相手の発話と本人の行動で 1 行（30 字ほど）。評価の言葉を入れない" },
+          key: { type: "string", description: "その発話が根拠に挙がっている仮説の文から、今回の場面と同じ形を言っている句を一字も変えずに写したもの。無ければ空" },
+        },
+      },
+    },
+    candidates: {
+      type: "array",
+      items: {
+        ...STEP3_SCHEMA.properties.candidates.items,
+        required: [...STEP3_SCHEMA.properties.candidates.items.required, "previous_ref", "previous_title"],
+        properties: {
+          ...STEP3_SCHEMA.properties.candidates.items.properties,
+          previous_ref: { type: "string", description: "前の面談の本人の発話の札（例の形：student-a｜発話 12）。合う発話が無ければ空" },
+          previous_title: { type: "string", description: "previous_ref の発話のやりとりの形を 1 行（repeat_scenes の title と同じ書き方）。previous_ref が空なら空" },
+        },
+      },
+    },
+  },
+};
+
+export function step3User(scene: Scene, answer: string, neighbors: { before: Utterance | null; after: Utterance | null }, pastScenes: string | null = null): string {
   const quotes = scene.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join("\n");
   const around = [neighbors.before, neighbors.after]
     .filter((u): u is Utterance => u !== null)
     .map((u) => `〔${utteranceLabel(u.index)}・${u.speaker}〕${u.text ?? ""}`)
     .join("\n");
-  const memory = memoryNotes.length ? `\n記録から（似た場面でうまくいった本人の発言）：\n${memoryNotes.map((m) => `- ${m}`).join("\n")}\n` : "";
+  const memory = pastScenes ? `\n前の面談の記録から（AI が整理した仮説と根拠の発話。本人は確かめていない）：\n${pastScenes}\n` : "";
   return `次に試せる所：
 文脈の一行：${scene.context}
 引用：
@@ -514,11 +585,12 @@ export function step4System(kind: MeetingKind): string {
 守ること：
 - 本人の自己評価は渡されていません。文字起こしだけで判定します。
 - 根拠の引用は、本人の発話を citation で示す。「場面がなかった」のときは、場面が無いと読める理由を書き、引用は無くてよい。
-- なぜの一文：判定の理由を一文で。発話の言葉を「」で書き写さず、そのブロックの札の番号を「発話 12」の形で書いて指す（根拠は citation で示す）。番号は札から読み、自分で数え直さない。
-- 採点表の 5 項目ごとに、点か「判定しない」と、理由の一行、根拠の発話番号（札の番号）。理由の中で発話を指すときも「発話 12」の形で書く。項目 5（前回決めたことに触れた）が中心。
-- あなたが書く文（なぜの一文、理由の一行、相手が前回決めたことの 1 行）には、発話の言葉をそのまま写さない。「」を付けて写すことも、「」を付けずに文の中へ埋め込むこともしない。何が話されたかは短く言い換え、どの発話かは札の番号で指す（例の形：発話 12 で、相手は前の週にしたことを話した）。言葉を取り出して示すための「」も使わない。
+- なぜ（判定の理由）：2 文まで。前回の行動が今回の本人の発話にどう現れたか（現れなかったか、場面が無かったか）を書き、判定がなぜその一つになるのかが分かるようにする。書くのは判定の理由だけ。問いかけ、助言、「振り返ってみては」などの勧め、次の課題は書かない（問いは別の工程で出す）。本人が一読で分かるように、ふだんの言葉で書く。文の中に発話番号を書かない。どの発話のことかは、ふだんの言葉で言い換えて書く（例の形：前の週にしたことを尋ねた所で）。なぜが指す発話は、すぐ後の <why_refs> に、札の番号を「発話 12、発話 15〜17」の形で書く。番号は札から読み、自分で数え直さない。根拠は citation で示す。
+- なぜの要の一句：なぜの中で、本人にいちばん受け取ってほしい所を 1 つ。なぜの文から一字も変えずに写した、一続きの句にする（15〜40 字ほど。文の全体ではなく、要の所だけ）。画面では、この句をなぜの中で目立たせる。
+- 採点表の 5 項目ごとに、点か「判定しない」と、理由の一行、根拠の発話番号（札の番号）。理由の一行は画面に出さないので、理由の中で発話を指すときは「発話 12」の形で書いてよい。項目 5（前回決めたことに触れた）が中心。
+- あなたが書く文（なぜ、理由の一行、相手が前回決めたことの 1 行）には、発話の言葉をそのまま写さない。「」を付けて写すことも、「」を付けずに文の中へ埋め込むこともしない。何が話されたかは短く言い換える。言葉を取り出して示すための「」も使わない。
 - 話の長さを理由に点を下げない。見るのは、相手の発話がどう続いたか。
-- （あれば）相手が前回決めたことが今回どう語られたかを 1 行で。相手の言葉は写さず、言い換えて札の番号で指す。相手を採点しない。無ければ空。
+- （あれば）相手が前回決めたことが今回どう語られたかを 1 行で。相手の言葉は写さず、言い換える。文の中に発話番号を書かず、指す発話は <other_refs> に札の番号で書く。相手を採点しない。無ければ両方とも空。
 
 採点表：
 ${rubricFull()}
@@ -527,7 +599,9 @@ ${rubricFull()}
 
 <verdict>できた／一部／まだ／場面がなかった のどれか</verdict>
 <quote>根拠の発話（citation 付き）。無ければ空</quote>
-<why>なぜの一文</why>
+<why>なぜ（2 文まで。発話番号を書かない）</why>
+<why_refs>なぜが指す発話の番号（例の形：発話 12、発話 15〜17）</why_refs>
+<why_key>なぜの要の一句（なぜの文からそのまま写す）</why_key>
 <items>
 <item n="1" score="点か「判定しない」" utterances="札の発話番号（カンマ区切り）">理由の一行</item>
 <item n="2" score="" utterances=""></item>
@@ -535,7 +609,8 @@ ${rubricFull()}
 <item n="4" score="" utterances=""></item>
 <item n="5" score="" utterances=""></item>
 </items>
-<other_line>相手が前回決めたことが今回どう語られたか（無ければ空）</other_line>`;
+<other_line>相手が前回決めたことが今回どう語られたか（無ければ空。発話番号を書かない）</other_line>
+<other_refs>other_line が指す発話の番号（無ければ空）</other_refs>`;
 }
 
 export function step4UserText(kind: MeetingKind, spark: Spark): string {
