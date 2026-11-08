@@ -55,7 +55,8 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
   const noScene = tagText(text, "no_scene") || null;
   const flow = tagText(text, "flow")
     .split(/\r?\n/)
-    .map((l) => l.replace(/^[-・\d.．、)]+\s*/, "").trim())
+    // 行の頭の箇条の印（「- 」「・」「1. 」「2）」）だけを外す。「5月模試」のような本文の数字は残す
+    .map((l) => l.replace(/^(?:[-・*]+\s*|\d+[.．、)）]\s*)/, "").trim())
     .filter((l) => l !== "");
   const summary = tagText(text, "summary");
   const extraQuestion = tagText(text, "extra_question") || null;

@@ -143,6 +143,11 @@ describe("工程 1 の本文の読み取りと、引用の場面への当て方"
     assert.equal(r.scenes[1].question, "次に同じ場面が来たら、何を試しますか。");
   });
 
+  test("面談の流れは、行の頭の箇条の印だけを外し、本文の頭の数字は残す", () => {
+    const flowText = "<no_scene>x</no_scene>\n<summary>s</summary>\n<flow>\n1. 部活の話（発話 0〜3）\n- 進路の話（発話 4〜9）\n・夏の話（発話 10〜12）\n5月模試のD判定（発話 13〜20）\n2）締めくくり（発話 21〜25）\n</flow>";
+    assert.deepEqual(parseStep1(flowText, [], utterances).flow, ["部活の話（発話 0〜3）", "進路の話（発話 4〜9）", "夏の話（発話 10〜12）", "5月模試のD判定（発話 13〜20）", "締めくくり（発話 21〜25）"]);
+  });
+
   test("根拠のある場面が無いときは no_scene を読む", () => {
     const r = parseStep1("<no_scene>本人の関わりが読める発話が無い。</no_scene><summary>s</summary><flow>a</flow>", [], utterances);
     assert.equal(r.scenes.length, 0);
