@@ -355,7 +355,10 @@ export function step2System(kind: MeetingKind): string {
 ${rubricFull()}
 
 守ること：
-- 項目ごとに、点（1〜5）か「判定しない」を出し、理由を一行と、根拠の発話番号を添える。理由の中に発話の言葉を「」で書き写さず、発話番号で指す。
+- 項目ごとに、点（1〜5）か「判定しない」を出し、説明を 2 通り書いて、根拠の発話番号を utterances に添える。
+  - plain：一読で分かる説明。発話番号を書かず、この面談で何があって、相手がどう続いたかを、ふだんの言葉で 1〜2 文（80 字ほどまで）。判定しないときは、その理由を一文で。
+  - reason：根拠を発話番号で指した説明（3 文まで）。plain の中身を、文字起こしで確かめられる形で書く。plain と食い違わせない。
+  - どちらも、発話の言葉を「」で書き写さない。
 - 本人の発言は、直前と直後の相手の発話と合わせて読む。関わりの回数ではなく、相手がどう続いたかで読む。
 - 相手の目標達成（成績が上がったか）は点に使わない。使うのは行動（相手の発話に表れたもの）だけ。
 - 続きの面談で、前回決めたことに触れた所が本文に無いときは、「範囲では確認できない」として項目 5 を判定しない。初回の面談では項目 5 を判定しない。
@@ -380,12 +383,13 @@ export const STEP2_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["item", "judged", "score", "reason", "utterances"],
+        required: ["item", "judged", "score", "plain", "reason", "utterances"],
         properties: {
           item: { type: "integer", minimum: 1, maximum: 5 },
           judged: { type: "boolean", description: "false なら「この面談では判定しない」" },
           score: { type: "integer", minimum: 0, maximum: 5, description: "判定しないときは 0" },
-          reason: { type: "string" },
+          plain: { type: "string", description: "発話番号を書かない、一読で分かる説明" },
+          reason: { type: "string", description: "根拠を発話番号で指した説明" },
           utterances: { type: "array", items: { type: "integer", minimum: 0 } },
         },
       },

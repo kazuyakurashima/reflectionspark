@@ -86,6 +86,10 @@ describe("本番の出力の検査（決まり 1・3）", () => {
     assert.equal(r2.items[1].reason, WITHHELD_NOTICE);
     assert.equal(r2.items[0].reason, "受け止めた。");
     assert.equal(r2.ethics.text, "この話は、所属の手順に沿って扱ってください");
+    // 一読で分かる説明（plain）も同じく検査する（決まり 3・8）
+    const r2p = guardStep2({ items: [{ item: 1, score: 3, plain: "講師が決めるべきだった。", reason: "受け止めた。", utterances: [] }], total: { sum: 3, judgedCount: 1, max: 5, scaled: 6 }, insightOwner: "講師", ethics: { level: "問題なし", text: "問題なし", viewpoint: null, utterances: [] } }, utterances);
+    assert.equal(r2p.items[0].plain, WITHHELD_NOTICE);
+    assert.equal(r2p.items[0].reason, "受け止めた。");
     const r4 = guardStep4(
       { verdict: "できた", quotes: [], discardedQuotes: [], why: "前回の行動が「夏から頑張ろう」の後に現れた。", items, total: { sum: 15, judgedCount: 5, max: 25, scaled: 6 }, otherPersonLine: "相手は几帳面な人で、やってきた。", quoteStats: { generated: 0, discarded: 0 }, rawText: "" },
       utterances,

@@ -94,7 +94,11 @@ export function guardStep2<T extends Omit<Step2Result, "meta" | "withheld" | "un
   const log: GuardLog = { withheld: [], unverifiedQuotes: [] };
   return {
     ...r,
-    items: r.items.map((it) => ({ ...it, reason: guardText(it.reason, `items[${it.item}].reason`, utterances, log) })),
+    items: r.items.map((it) => ({
+      ...it,
+      ...(it.plain ? { plain: guardText(it.plain, `items[${it.item}].plain`, utterances, log) } : {}),
+      reason: guardText(it.reason, `items[${it.item}].reason`, utterances, log),
+    })),
     ethics: {
       ...r.ethics,
       text: r.ethics.level === "所属の手順" ? r.ethics.text : guardText(r.ethics.text, "ethics.text", utterances, log),

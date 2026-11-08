@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { scanText } from "./forbidden-words.mts";
-import { step0aSystem, step1System, step2System, step2User, step3System, step4System } from "./prompts.mts";
+import { STEP2_SCHEMA, step0aSystem, step1System, step2System, step2User, step3System, step4System } from "./prompts.mts";
 import { computeTotal, RUBRIC_ITEMS, rubricBackground, rubricFull } from "./rubric.mts";
 
 describe("採点表（初版・仮）", () => {
@@ -47,6 +47,15 @@ describe("採点表（初版・仮）", () => {
     assert.match(s, /5 項目に縛りません/);
     assert.match(s, /点は書きません/);
     assert.doesNotMatch(s, /大丈夫、これからだよ/); // デモの山場を選ばせる指示を入れない
+  });
+});
+
+describe("工程 2 の説明は 2 通り（決まり 8）", () => {
+  test("一読で分かる説明（発話番号を書かない）と、発話番号で指した理由を、別の欄に書かせる", () => {
+    const s = step2System("生徒");
+    assert.match(s, /plain：一読で分かる説明。発話番号を書かず/);
+    assert.match(s, /reason：根拠を発話番号で指した説明/);
+    assert.deepEqual(STEP2_SCHEMA.properties.items.items.required, ["item", "judged", "score", "plain", "reason", "utterances"]);
   });
 });
 

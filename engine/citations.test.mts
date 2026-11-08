@@ -177,6 +177,24 @@ describe("工程 2・3・4 の読み取り", () => {
     assert.equal(r.ethics.viewpoint, null);
   });
 
+  test("決まり 8：工程 2 は、一読で分かる説明（plain）と発話番号で指した理由を分けて持つ。plain が空なら持たない（古い結果と同じ形）", () => {
+    const r = parseStep2(
+      {
+        items: [
+          { item: 1, judged: true, score: 4, plain: " 気持ちを返したあと、生徒が自分の言葉で話を続けました。 ", reason: "発話 20 のあと発話 21 で続いた", utterances: [20] },
+          { item: 2, judged: true, score: 3, plain: "", reason: "b", utterances: [] },
+        ],
+        insight_owner: "両方",
+        ethics: { level: "問題なし", text: "問題なし", viewpoint: "", utterances: [] },
+      },
+      30,
+    );
+    assert.equal(r.items[0].plain, "気持ちを返したあと、生徒が自分の言葉で話を続けました。");
+    assert.equal(r.items[0].reason, "発話 20 のあと発話 21 で続いた");
+    assert.equal("plain" in r.items[1], false);
+    assert.equal("plain" in r.items[2], false);
+  });
+
   test("工程 2：相手の安全にかかわる話は、点にせず決まった 1 行にする", () => {
     const r = parseStep2({ items: [], insight_owner: "講師", ethics: { level: "所属の手順", text: "x", viewpoint: "", utterances: [] } }, 4);
     assert.equal(r.ethics.text, "この話は、所属の手順に沿って扱ってください");

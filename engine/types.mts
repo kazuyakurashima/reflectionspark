@@ -187,6 +187,9 @@ export type ItemScore = {
   item: ItemNumber;
   /** 点。「この面談では判定しない」は null */
   score: number | null;
+  /** 一読で分かる説明（発話番号を書かない。画面で先に見せる）。工程 2 だけが書く。古い結果と工程 4 には無い */
+  plain?: string;
+  /** 根拠を発話番号で指した説明（画面では「根拠を見る」で開く） */
   reason: string;
   utterances: number[];
 };
@@ -204,7 +207,7 @@ export type Step2Result = {
   unverifiedQuotes: { field: string; text: string }[];
 };
 
-/** 画面 4：候補に添える、前の面談での本人の言葉。すべて記録（メモリ）の原文から引く。AI が書いた文は入らない（決まり 1） */
+/** 画面 3：候補に添える、前の面談での本人の言葉。すべて記録（メモリ）の原文から引く。AI が書いた文は入らない（決まり 1） */
 export type PreviousWords = {
   /** 面談の日付（YYYY-MM-DD） */
   date: string;
@@ -272,7 +275,7 @@ export type Step4Result = {
   utteranceRefs?: { total: number; outOfRange: number[] };
 };
 
-/** 前回の Spark（画面 4 で本人が選んだ一つ） */
+/** 前回の Spark（画面 3 で本人が選んだ一つ） */
 export type Spark = {
   sentence: string;
   criterion: string | null;

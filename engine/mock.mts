@@ -152,7 +152,8 @@ export function mockStep2(t: Transcript, firstMeeting = true): Step2Result {
   const items: ItemScore[] = ([1, 2, 3, 4, 5] as ItemNumber[]).map((n) => ({
     item: n,
     score: n === 5 && firstMeeting ? null : 3,
-    reason: n === 5 && firstMeeting ? `${MOCK_NOTE}初回の面談なので、前回決めたことは判定しない` : `${MOCK_NOTE}理由の一行を、本物の出力はここに書きます`,
+    plain: n === 5 && firstMeeting ? `${MOCK_NOTE}初回の面談なので、前回決めたことは判定しません。` : `${MOCK_NOTE}一読で分かる説明を、本物の出力はここに番号なしで書きます。`,
+    reason: n === 5 && firstMeeting ? `${MOCK_NOTE}初回の面談なので、前回決めたことは判定しない` : `${MOCK_NOTE}根拠を発言の番号で指した説明を、本物の出力はここに書きます`,
     utterances: n === 5 && firstMeeting ? [] : [Math.min(t.utterances.length - 1, n * 2)],
   }));
   return {
