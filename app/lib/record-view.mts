@@ -2,7 +2,7 @@
 // 見せ方を新しく作らないための橋渡しで、文は変えない（原文のまま）。API は呼ばない。
 
 import { SPEAKER_LABELS } from "../../engine/types.mts";
-import type { MeetingKind, PreviousWords, Transcript, Utterance } from "../../engine/types.mts";
+import type { MeetingKind, PreviousWords, RepeatScene, Transcript, Utterance } from "../../engine/types.mts";
 
 export type Line = { index: number; speaker: string; text: string };
 
@@ -56,6 +56,33 @@ export function formatDate(date: string): string {
   return m ? `${m[1]} 年 ${Number(m[2])} 月 ${Number(m[3])} 日` : date;
 }
 
+/** 「2025/11/21」の形（画面 3 のカードの小さな日付） */
+export function slashDate(date: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  return m ? `${m[1]}/${Number(m[2])}/${Number(m[3])}` : date;
+}
+
 export function kindLabel(kind: MeetingKind): string {
   return kind === "コーチング" ? "1on1" : `${kind}面談`;
+}
+
+/**
+ * 同じ形の場面を、画面 3 のカードが読む形にそろえる。11/8 より前に保存した面談は、前の言葉（直前・本人・直後）だけを持つので、
+ * 見出し・夢のまとめ・その回の AI の文は空にし、会話はその 3 発話にする（開き直しても画面が壊れないように）
+ */
+export function repeatSceneView(p: RepeatScene | PreviousWords): RepeatScene {
+  const r = p as Partial<RepeatScene> & PreviousWords;
+  if (Array.isArray(r.lines) && r.lines.length > 0 && r.kind !== undefined && r.kind in SPEAKER_LABELS) return r as RepeatScene;
+  const lines = previousLines(p);
+  return {
+    ...p,
+    kind: kindOfSpeakers(
+      p.own.speaker,
+      lines.map((l) => l.speaker),
+    ),
+    title: typeof r.title === "string" ? r.title : null,
+    summary: null,
+    scene: null,
+    lines,
+  };
 }

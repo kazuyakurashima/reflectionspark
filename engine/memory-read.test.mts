@@ -7,11 +7,11 @@ import { describe, test } from "node:test";
 import { blockText } from "./citations.mts";
 import { buildFactRecord, checkMarkdown, recordPath, renderRecord, scanScoreWords } from "./memory-record.mts";
 import type { FactRecordInput } from "./memory-record.mts";
-import { buildRecordList, memoryConfig, parsePreviousRef, parseRecord, parseRecords, pastScenesText, readStep3Memory, resolvePreviousWords, withTimeout } from "./memory-read.mts";
+import { buildRecordList, memoryConfig, parsePreviousRef, parseRecord, parseRecords, pastScenesText, readStep3Memory, resolvePreviousWords, resolveRepeatScene, step3MemoryFrom, withTimeout } from "./memory-read.mts";
 import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
 import { buildLedgerEntry, ledgerPath, renderLedgerEntry } from "./score-ledger.mts";
 import { candidatesOrMock, recordsOrOff } from "./server.mts";
-import { attachPreviousWords, parseStep3, resolveRepeats } from "./step3.mts";
+import { attachPreviousWords, parseStep3, repeatTitle, resolveRepeats } from "./step3.mts";
 import type { Candidate, Quote, Scene, Utterance } from "./types.mts";
 
 
@@ -50,7 +50,7 @@ const ledgerFile = (input: FactRecordInput, verdict: "できた" | null) => {
 };
 
 describe("記録を読む（engine/memory-read.mts）", () => {
-  test("記録の文を読み、発話の本文は「>」の行からだけ取る。AI の文は読まない（決まり 1）", () => {
+  test("記録の文を読み、発話の本文は「>」の行からだけ取る。AI の文は場面ごとの ai に分けて読む（決まり 1）", () => {
     const r = parseRecord(file(second).content);
     assert.ok(r);
     assert.equal(r.date, "2025-11-21");
@@ -63,8 +63,21 @@ describe("記録を読む（engine/memory-read.mts）", () => {
     assert.equal(r.followUp?.previousAction, "もし相手が短く答えたら、一つ聞き返す。");
     assert.equal(r.followUp?.criterion, "聞き返しがある");
     assert.equal(r.action, null);
-    assert.equal(JSON.stringify(r).includes("観察。"), false);
-    assert.equal(JSON.stringify(r).includes("読み。"), false);
+    // 発話の本文（引用・前後・前回の行動の欄）に、AI の文は混ざらない
+    const lines = JSON.stringify([r.scenes.map((sc) => [sc.quotes, sc.neighbors]), r.followUp]);
+    assert.equal(lines.includes("観察。"), false);
+    assert.equal(lines.includes("読み。"), false);
+    assert.deepEqual(r.scenes[0].ai, { context: "文脈。", observation: "観察。", reaction: "反応。", reading: "読み。", asChoice: null });
+  });
+
+  test("AI の文：改行した続きを同じ欄に読み、場面のものでない行は混ぜない", () => {
+    const md = file(first).content
+      .replace("- 場面 1 の観察：観察。", "- 場面 1 の観察：観察。\n- 一つめ。\n- 二つめ。")
+      .replace("- 場面 2 の読み：読み。", "- 場面 2 の読み：読み二。\n- 場面 2 を意図した選択として見ると：選択の文。\n- 相手が前回決めたことの語られ方：語られ方の文。");
+    const r = parseRecord(md);
+    assert.equal(r?.scenes[0].ai.observation, "観察。\n- 一つめ。\n- 二つめ。");
+    assert.equal(r?.scenes[1].ai.reading, "読み二。");
+    assert.equal(r?.scenes[1].ai.asChoice, "選択の文。");
   });
 
   test("決めた行動と、基準が無い行動を読む。形の違う文は読まない", () => {
@@ -211,8 +224,10 @@ describe("旗（ストアの番号の環境変数）", () => {
     const s = scene({ type: "次に試せる所", context: "文脈の一行。", quotes: [{ citedText: "x", text: "大丈夫。", index: 6, endIndex: 7, verified: true }], observation: "観察の文。", reaction: "反応の文。", reading: "読みの文。", asChoice: "選択の文。", question: "問いの文。" });
     const u = (index: number, speaker: string, text: string): Utterance => ({ index, speaker, text, original: text, confidence: "高", check: [], memoSpan: null });
     const text = JSON.stringify([step3System("生徒"), step3User(s, "聞き返す。", { before: u(5, "生徒", "ゼロです。"), after: u(7, "生徒", "はい。") }), STEP3_SCHEMA]);
-    // main の engine/prompts.mts（記録をつなぐ前）で同じ入力から計算した値
-    assert.equal(crypto.createHash("sha256").update(text).digest("hex"), "c483527981559672db3d4c6eef4ec23524ec1fdf6da9128190c153c98c6cea0d");
+    // 記録をつなぐ前の値に、11/8 に候補の並び（答えにいちばん沿うものを最初に。決まり 7）の一文を足した後の値。
+    // 旗の有無で変わるのは、記録の決まりの文と札の欄だけ（下のテスト）
+    assert.equal(crypto.createHash("sha256").update(text).digest("hex"), "d4ba0ae8f2e00994c616abaf9de6bf2665c04f850fbd2d70e8ae42d780ed6258");
+    assert.equal(step3System("生徒").includes("いちばん沿うものを最初に置く"), true);
   });
 
   test("記録を渡すときだけ、決まりの文と札の欄が足される。出すための指示は入れない", () => {
@@ -230,10 +245,21 @@ describe("旗（ストアの番号の環境変数）", () => {
     assert.equal(parseStep3({ candidates: [{ ...raw, previous_ref: "a｜発話 1" }] }).candidates[0].previousRef, "a｜発話 1");
     assert.equal("previousRef" in parseStep3({ candidates: [{ ...raw, previous_ref: "" }] }).candidates[0], false);
     // 同じ形の場面の札は、記録を渡すときだけ求める
-    assert.equal(step3System("生徒", true).includes("repeat_refs"), true);
-    assert.equal(step3System("生徒").includes("repeat_refs"), false);
-    assert.equal(STEP3_PAST_SCENES_SCHEMA.required.includes("repeat_refs"), true);
-    assert.equal("repeat_refs" in STEP3_SCHEMA.properties, false);
+    assert.equal(step3System("生徒", true).includes("repeat_scenes"), true);
+    assert.equal(step3System("生徒").includes("repeat_scenes"), false);
+    assert.equal(STEP3_PAST_SCENES_SCHEMA.required.includes("repeat_scenes"), true);
+    assert.deepEqual(STEP3_PAST_SCENES_SCHEMA.properties.repeat_scenes.items.required, ["ref", "title"]);
+    assert.equal("repeat_scenes" in STEP3_SCHEMA.properties, false);
+    // 旗が無いときと同じく、system と user の文は、記録の決まりの文の分だけ違う
+    assert.equal(step3System("生徒", true).startsWith(step3System("生徒").replace(/\n\n出力は JSON だけ。$/, "")), true);
+  });
+
+  test("決まり 3・10：同じ形の場面の見出しは、性質・優劣・点や判定の言葉があれば出さない。括弧と句点は外す", () => {
+    assert.equal(repeatTitle("「相手が出来事を話した直後に、講師が相手の言葉で返した。」"), "相手が出来事を話した直後に、講師が相手の言葉で返した");
+    assert.equal(repeatTitle("相手が話すと、すぐ説明する癖が出た"), null);
+    assert.equal(repeatTitle("相手が話した直後に、講師の判定どおり返した"), null);
+    assert.equal(repeatTitle(""), null);
+    assert.equal(repeatTitle(undefined), null);
   });
 
   test("決まり 1：同じ形の場面は、札から記録の原文を引く。無い札・相手の発話・重なる発話は出さない", () => {
@@ -246,6 +272,28 @@ describe("旗（ストアの番号の環境変数）", () => {
     assert.deepEqual(resolveRepeats(undefined, cand(), []), []);
     // 候補に「前の言葉」として添えた発話は、同じ形の場面に出さない
     assert.deepEqual(resolveRepeats(["student-b｜発話 2"], cand("student-b｜発話 2"), records), []);
+  });
+
+  test("同じ形の場面：見出し・夢のまとめ・その回の AI の文・ひと続きの会話を添える。会話は記録の原文だけ", () => {
+    const records = parseRecords([file(first), file(second)]);
+    const hypotheses = [
+      { statement: "反例に挙げた仮説。", evidence: [] },
+      { statement: "相手が気持ちを口にした直後に、講師がその語で返す発話があった。", evidence: [{ interviewId: "student-b", index: 1, lastIndex: 2, speaker: "講師", quote: "嫌いになりそうか。" }] },
+    ];
+    const [got] = resolveRepeats([{ ref: "student-b｜発話 2", title: "相手が気持ちを話した直後に、講師がその語で返した" }], [], records, hypotheses);
+    assert.equal(got.title, "相手が気持ちを話した直後に、講師がその語で返した");
+    assert.equal(got.summary, "相手が気持ちを口にした直後に、講師がその語で返す発話があった。");
+    assert.equal(got.kind, "生徒");
+    assert.equal(got.scene?.type, "よく表れた所");
+    assert.equal(got.scene?.reading, "読み。");
+    assert.deepEqual(got.lines.map((l) => [l.index, l.text]), [[1, "もう嫌いになりそうです。"], [2, "嫌いになりそうか。"], [3, "前は割と好きだったんです。"]]);
+    // 根拠に挙げていない発話には、夢のまとめを付けない。前回の行動の欄の発話は、場面の AI の文を付けない
+    const fu = resolveRepeatScene("student-b-2｜発話 4", null, records, hypotheses);
+    assert.equal(fu?.summary, null);
+    assert.equal(fu?.scene, null);
+    assert.deepEqual(fu?.lines.map((l) => l.index), [3, 4, 5]);
+    // 札だけの前の版の出力も読む（見出しなし）
+    assert.equal(resolveRepeats(["student-b｜発話 2"], [], records)[0].title, null);
   });
 
   test("同じ形の場面は 2 つまでで、古い順に並べる", () => {
@@ -312,6 +360,20 @@ describe("サンプルの記録と夢の出力（実データ）", () => {
       assert.ok(p, ref);
       assert.equal(p.own.text, written, ref);
     }
+  });
+
+  test("同じ形の場面：実際の記録から、その回の AI の文と夢のまとめと会話を引ける", () => {
+    const m = step3MemoryFrom(dreamFiles.find((f) => f.path.endsWith("recurring-scenes.md"))!.content, recordFiles);
+    assert.ok(m);
+    const got = resolveRepeatScene("student-seiseki-2｜発話 26", "相手が出来事を話した直後に、講師が相手の言葉で返した", m.records, m.hypotheses);
+    assert.ok(got);
+    assert.equal(got.date, "2025-11-21");
+    assert.equal(got.otherTag, "相手 B");
+    assert.equal(got.scene?.type, "よく表れた所");
+    assert.equal(got.scene?.reading?.startsWith("講師の問いが、できなかった日ではなく"), true);
+    assert.equal(got.scene?.observation?.includes("発話 24 で"), true);
+    assert.equal(got.summary?.includes("講師が相手の言葉の一部を使った短い返しや問いを出す場面があった"), true);
+    assert.deepEqual(got.lines.map((l) => l.index), [23, 24, 25, 26]);
   });
 
   test("決まり 12：一覧は面談の日付の古い順で、続きの回に前回の行動と現れた発言がある", () => {

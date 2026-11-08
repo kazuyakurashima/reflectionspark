@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { refLabel, refListLabel, refRangeLabel, sayRefs, sceneTypeLabel, splitRefs } from "./lib/words.mts";
+import { dropRefs, refLabel, refListLabel, refRangeLabel, sayRefs, sceneTypeLabel, splitRefs } from "./lib/words.mts";
 
 describe("画面の言葉：発言の番号", () => {
   test("番号は変えず、呼び方だけ「発言」にする", () => {
@@ -64,5 +64,20 @@ describe("画面の言葉：場面の種別（決まり 3）", () => {
   test("場面についての言葉で出す", () => {
     assert.equal(sceneTypeLabel("よく表れた所"), "うまくいった場面");
     assert.equal(sceneTypeLabel("次に試せる所"), "課題が見えた場面");
+  });
+});
+
+describe("画面の言葉：前の面談の AI の文から番号を外す（画面 3）", () => {
+  test("発話を指す所を助詞まで外し、文はそのまま読める", () => {
+    assert.equal(dropRefs("講師は発話 16 で前回の取り決めを持ち出し、発話 18 で様子を尋ねました。"), "講師は前回の取り決めを持ち出し、様子を尋ねました。");
+    assert.equal(dropRefs("と答えました。続く発話 27 では、すぐやらないとスマホを見てしまうことも話しています。"), "と答えました。すぐやらないとスマホを見てしまうことも話しています。");
+    assert.equal(dropRefs("その条件が発話 104 で帰宅後の時刻を決める話にもつながったと読めます。"), "その条件が帰宅後の時刻を決める話にもつながったと読めます。");
+    assert.equal(dropRefs("説明を続けた（発話 94〜104）。"), "説明を続けた。");
+    assert.equal(dropRefs("発話 40、発話 42・44 で確かめた。"), "確かめた。");
+  });
+
+  test("番号の無い「発話」と、「」の中は変えない", () => {
+    assert.equal(dropRefs("生徒の発話が長くなった。"), "生徒の発話が長くなった。");
+    assert.equal(dropRefs("「発話 3 で」と言った。3 日やった。"), "「発話 3 で」と言った。3 日やった。");
   });
 });

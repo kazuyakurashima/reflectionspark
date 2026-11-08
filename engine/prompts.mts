@@ -444,7 +444,8 @@ function step3PastScenesRules(self: string): string {
   return `
 - 「前の面談の記録から」は、この本人の前の面談を AI が整理した仮説と、その根拠の発話。確かめられていない仮説なので、候補の材料にしてもよいし、使わなくてもよい。候補は今回の場面と本人の答えから作る。仮説の文を候補の文に持ち込まない。前の面談の相手の話題を持ち込まない。
 - 候補ごとに、その行動に近いことを本人が前の面談で実際に言っている発話が、根拠や例外の行にあれば、その札を previous_ref に写す（例の形：student-a｜発話 12）。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合う発話が無ければ空にする。引用文や評価の言葉は書かない。
-- 今回の「次に試せる所」と同じ形のやりとりが前の面談にもあれば、根拠や例外の行から、その本人の発話の札を repeat_refs に写す（2 つまで）。話題が違っても、やりとりの形が同じならよい。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合うものが無ければ空の配列にする。引用文や評価の言葉は書かない。`;
+- 今回の「次に試せる所」と同じ形のやりとりが前の面談にもあれば、根拠や例外の行から、その本人の発話の札を repeat_scenes の ref に写す（2 つまで）。話題が違っても、やりとりの形が同じならよい。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合うものが無ければ空の配列にする。
+- repeat_scenes の title には、そのやりとりの形を、相手の発話と本人の行動で 1 行に書く（30 字ほど。例の形：「相手が出来事を話した直後に、${self}が相手の言葉で返した」）。前の面談の相手の名前や話題、引用文、良し悪しや評価の言葉、人を言い表す言葉は書かない。`;
 }
 
 export function step3System(kind: MeetingKind, withPastScenes = false): string {
@@ -462,6 +463,7 @@ export function step3System(kind: MeetingKind, withPastScenes = false): string {
 - 一つの候補に、行動は一つ。「〜し、〜し、〜する」と束ねない。
 - 候補ごとに、セリフの例を 2〜3 と、できたかの基準（次の面談で何が言葉に表れたら「できた」と言えるかの一行）を添える。
 - 塾やコーチ側の都合（講座の追加、志望校やコースへの誘導）に寄った行動を入れない。
+- 候補は、本人の答えの言葉と向きにいちばん沿うものを最初に置く。画面は最初の一つを先に見せ、ほかは本人が開いたときに見せる。
 - 選ぶ・直す・見送るのは本人。あなたは一つに決めない。${withPastScenes ? step3PastScenesRules(self) : ""}
 
 出力は JSON だけ。`;
@@ -490,12 +492,24 @@ export const STEP3_SCHEMA = {
   },
 };
 
-/** 前の面談の記録を渡すときの形。候補ごとの前の面談の発話の札と、今回の場面と同じ形の発話の札を返す欄を足す */
+/** 前の面談の記録を渡すときの形。候補ごとの前の面談の発話の札と、今回の場面と同じ形の発話の札（とやりとりの形の 1 行）を返す欄を足す */
 export const STEP3_PAST_SCENES_SCHEMA = {
   ...STEP3_SCHEMA,
-  required: [...STEP3_SCHEMA.required, "repeat_refs"],
+  required: [...STEP3_SCHEMA.required, "repeat_scenes"],
   properties: {
-    repeat_refs: { type: "array", items: { type: "string" }, description: "今回の「次に試せる所」と同じ形のやりとりをした、前の面談の本人の発話の札。2 つまで。無ければ空の配列" },
+    repeat_scenes: {
+      type: "array",
+      description: "今回の「次に試せる所」と同じ形のやりとりをした、前の面談の場面。2 つまで。無ければ空の配列",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["ref", "title"],
+        properties: {
+          ref: { type: "string", description: "前の面談の本人の発話の札（例の形：student-a｜発話 12）" },
+          title: { type: "string", description: "そのやりとりの形を、相手の発話と本人の行動で 1 行（30 字ほど）。評価の言葉を入れない" },
+        },
+      },
+    },
     candidates: {
       type: "array",
       items: {

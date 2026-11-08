@@ -235,6 +235,25 @@ export type PreviousWords = {
   utterance: number;
 };
 
+/** 前の面談の場面について、その回に AI が書いた文（記録の「AI が書いた説明」と「その回の AI の読み」の欄）。原文と照合していない */
+export type RecordSceneText = { context: string | null; observation: string | null; reaction: string | null; reading: string | null; asChoice: string | null };
+
+/**
+ * 画面 3「この場面、前にもありました」：今回の「次に試せる所」と同じ形の、前の面談の場面。
+ * 発話はすべて記録（メモリ）の原文から引く（決まり 1）。見出し・夢のまとめ・その回の AI の文は、解釈・仮説として分けて出す（11/8 に本人が決めた）。
+ */
+export type RepeatScene = PreviousWords & {
+  kind: MeetingKind;
+  /** 工程 3 が書いた、そのやりとりの形の 1 行（場面と本人の行動）。言葉の検査で外したら null */
+  title: string | null;
+  /** 夢のまとめ：その発話を根拠に挙げた、夢の仮説の文。無ければ null */
+  summary: string | null;
+  /** その発話を含む場面の種類と、その回に AI が書いた文。場面でなく前回の行動の欄にある発話なら null */
+  scene: ({ type: SceneType } & RecordSceneText) | null;
+  /** 会話を確認する：その発話を含む、記録にあるひと続きの発話（原文） */
+  lines: { index: number; speaker: string; text: string }[];
+};
+
 export type Candidate = {
   /** もし（場面）なら */
   condition: string;
@@ -257,7 +276,7 @@ export type Candidate = {
 export type Step3Result = {
   candidates: Candidate[];
   /** 今回の「次に試せる所」と同じ形の、前の面談の場面（記録に合うものがあるときだけ。2 つまで、古い順） */
-  repeats?: PreviousWords[];
+  repeats?: RepeatScene[];
   /** 言葉に表れない行動として落とした候補 */
   dropped: { candidate: Candidate; reason: string }[];
   meta: CallMeta;

@@ -8,7 +8,7 @@ import type { PreviousWords } from "../engine/types.mts";
 import { candidatesBody, demoAfterInput } from "./lib/demo-flag.mts";
 import { sameInput, sameTranscript } from "./lib/input-guard.mts";
 import { tooltipPlace } from "./lib/tooltip-place.mts";
-import { formatDate, kindOfSpeakers, linesTranscript, mergeLines, previousLines, recordScoreCells } from "./lib/record-view.mts";
+import { formatDate, kindOfSpeakers, linesTranscript, mergeLines, previousLines, recordScoreCells, repeatSceneView, slashDate } from "./lib/record-view.mts";
 
 describe("サンプルの印", () => {
   it("印が無いとき、画面 3 は demo を送らない（貼った面談に、サンプルの講師の記録を添えない）", () => {
@@ -165,6 +165,37 @@ describe("記録の発話を、画面 2 の部品に渡す形にする", () => {
     assert.equal(formatDate("2025-10-24"), "2025 年 10 月 24 日");
     assert.equal(formatDate("2026-07-08"), "2026 年 7 月 8 日");
     assert.equal(formatDate("去年の秋"), "去年の秋");
+  });
+});
+
+describe("画面 3「この場面、前にもありました」のカード", () => {
+  const p = {
+    date: "2025-11-21",
+    otherTag: "相手 B",
+    before: { index: 23, speaker: "生徒", text: "はい。" },
+    own: { index: 24, speaker: "講師", text: "3日やった日はどんな日だった。" },
+    after: { index: 25, speaker: "生徒", text: "練習が早く終わった日です。" },
+    interviewId: "student-seiseki-2",
+    utterance: 24,
+  };
+
+  it("11/8 より前に保存した形（前の言葉だけ）も、見出しなし・会話は 3 発話で出せる", () => {
+    const v = repeatSceneView(p);
+    assert.equal(v.kind, "生徒");
+    assert.equal(v.title, null);
+    assert.equal(v.summary, null);
+    assert.equal(v.scene, null);
+    assert.deepEqual(v.lines.map((l) => l.index), [23, 24, 25]);
+  });
+
+  it("今の形はそのまま使う", () => {
+    const now = { ...p, kind: "生徒" as const, title: "見出し", summary: "まとめ", scene: null, lines: [p.before, p.own] };
+    assert.equal(repeatSceneView(now), now);
+  });
+
+  it("日付は「2025/11/21」の形", () => {
+    assert.equal(slashDate("2025-11-21"), "2025/11/21");
+    assert.equal(slashDate("2026-01-05"), "2026/1/5");
   });
 });
 

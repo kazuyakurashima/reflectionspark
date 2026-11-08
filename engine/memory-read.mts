@@ -2,21 +2,23 @@
 // 公開 URL は読むだけで、書かない。ここに書く処理を足さない。
 // - 記録の一覧：記録（①）と点の控え（②）を読み、日付順に並べて返す。AI は呼ばない。
 // - 前の言葉：夢の「繰り返す場面」から工程 3 に渡す文を作り、工程 3 が返した札から、記録の原文を引く。AI が書いた引用文は出さない（決まり 1）。
-// 夢が書いた文（仮説など）は画面に出さない。点と判定は工程 3 に渡さない（決まり 10）。
+// - 同じ形の場面（画面 3「この場面、前にもありました」）：札から記録の原文を引き、夢の仮説の文と、その回に AI が書いた文を添える。
+//   夢が書いた文とその回の AI の文を画面に出すのはここだけで、仮説・解釈と書いて分けて出す（11/8 に本人が決めた）。ほかの画面には出さない。
+// 点と判定は工程 3 に渡さない（決まり 10）。
 
 import type Anthropic from "@anthropic-ai/sdk";
 
 import { scanText } from "./forbidden-words.mts";
 import { parseEvidenceRefs, parseHypotheses } from "./memory-evidence.mts";
 import type { EvidenceRef } from "./memory-evidence.mts";
-import { ACTION_HEADING, FOLLOW_UP_HEADING, ORIGINAL_HEADING, RECORD_FORMAT, scanScoreWords } from "./memory-record.mts";
+import { ACTION_HEADING, AI_READING_HEADING, AI_WRITTEN_HEADING, FOLLOW_UP_HEADING, ORIGINAL_HEADING, RECORD_FORMAT, scanScoreWords } from "./memory-record.mts";
 import type { RecordLine } from "./memory-record.mts";
 import { DREAM_FILES, readStore } from "./recorder.mts";
 import type { StoredFile } from "./recorder.mts";
 import { ledgerTotal, parseLedgerEntry } from "./score-ledger.mts";
 import type { LedgerEntry } from "./score-ledger.mts";
 import { SPEAKER_LABELS } from "./types.mts";
-import type { MeetingKind, PreviousWords, SceneType } from "./types.mts";
+import type { MeetingKind, PreviousWords, RecordSceneText, RepeatScene, SceneType } from "./types.mts";
 
 /** ストアの番号の環境変数。これが旗で、無ければ画面 3 は今のまま、記録の入口は出さない */
 export const MEMORY_ENV = {
@@ -35,7 +37,13 @@ export function memoryConfig(env: Record<string, string | undefined> = process.e
 
 // ---------- 記録の文を読む ----------
 
-export type RecordSceneLines = { type: SceneType; quotes: RecordLine[]; neighbors: RecordLine[] };
+export type RecordSceneLines = {
+  type: SceneType;
+  quotes: RecordLine[];
+  neighbors: RecordLine[];
+  /** その回に AI が書いた文（原文と照合していない）。画面 3 の「この場面、前にもありました」でだけ使う */
+  ai: RecordSceneText;
+};
 
 export type ParsedRecord = {
   interviewId: string;
@@ -50,6 +58,12 @@ export type ParsedRecord = {
 };
 
 const QUOTE_LINE = /^> 〔発話 (\d+)〕([^：]+)：(.*)$/u;
+/** AI が書いた欄の行（「- 場面 1 の観察：…」など） */
+const AI_FIELD_LINE = /^- 場面 (\d+) (?:の(文脈|観察|直後の相手の反応|読み)|を(意図した選択として見ると))：(.*)$/u;
+const AI_FIELD_KEY: Record<string, keyof RecordSceneText> = { 文脈: "context", 観察: "observation", 直後の相手の反応: "reaction", 読み: "reading", 意図した選択として見ると: "asChoice" };
+/** AI が書いた欄の、場面のものでない行（「- 相手が前回決めたことの語られ方：」など） */
+const OTHER_LABEL_LINE = /^- [^：]{1,30}：/u;
+const emptyAi = (): RecordSceneText => ({ context: null, observation: null, reaction: null, reading: null, asChoice: null });
 const SCENE_HEADING = /^### 場面 \d+：(.+)$/u;
 const NONE = /^（.*）$/u;
 const orNull = (s: string): string | null => (s === "" || NONE.test(s) ? null : s);
@@ -68,7 +82,7 @@ function frontmatter(lines: string[]): Record<string, string> | null {
 
 /**
  * 記録の文（engine/memory-record.mts の renderRecord）を読む。形が違えば null（画面に出さない）。
- * 発話の本文は「>」の行からだけ取る。AI が書いた説明と読みの欄は読まない。
+ * 発話の本文は「>」の行からだけ取る。AI が書いた説明と読みの欄は、場面ごとの ai に分けて読む（発話の本文には混ぜない）。
  */
 export function parseRecord(markdown: string): ParsedRecord | null {
   const lines = markdown.split("\n");
@@ -86,7 +100,9 @@ export function parseRecord(markdown: string): ParsedRecord | null {
     action: null,
   };
   if (!(record.kind in SPEAKER_LABELS)) return null;
-  let section: "original" | "action" | "other" = "other";
+  let section: "original" | "action" | "ai" | "other" = "other";
+  const aiText = new Map<number, RecordSceneText>();
+  let aiLast: { n: number; key: keyof RecordSceneText } | null = null;
   let target: { quotes: RecordLine[]; neighbors: RecordLine[] } | null = null;
   let bucket: "quotes" | "neighbors" = "quotes";
   let actionPart: "previous" | "current" | null = null;
@@ -94,15 +110,34 @@ export function parseRecord(markdown: string): ParsedRecord | null {
   const cur = { sentence: "", criterion: null as string | null, origin: "" };
   for (const l of lines) {
     if (l.startsWith("## ")) {
-      section = l === ORIGINAL_HEADING ? "original" : l === ACTION_HEADING ? "action" : "other";
+      section = l === ORIGINAL_HEADING ? "original" : l === ACTION_HEADING ? "action" : l === AI_WRITTEN_HEADING || l === AI_READING_HEADING ? "ai" : "other";
       target = null;
       actionPart = null;
+      aiLast = null;
+      continue;
+    }
+    if (section === "ai") {
+      const f = AI_FIELD_LINE.exec(l);
+      if (f) {
+        const n = Number(f[1]);
+        const key = AI_FIELD_KEY[f[2] ?? f[3]];
+        const t = aiText.get(n) ?? emptyAi();
+        t[key] = f[4].trim();
+        aiText.set(n, t);
+        aiLast = { n, key };
+      } else if (OTHER_LABEL_LINE.test(l)) {
+        aiLast = null;
+      } else if (aiLast && l.trim() !== "") {
+        // AI が箇条書きなどで改行した文の続き
+        const t = aiText.get(aiLast.n)!;
+        t[aiLast.key] = `${t[aiLast.key] ?? ""}\n${l}`;
+      }
       continue;
     }
     if (section === "original") {
       const sc = SCENE_HEADING.exec(l);
       if (sc) {
-        const scene: RecordSceneLines = { type: sc[1] as SceneType, quotes: [], neighbors: [] };
+        const scene: RecordSceneLines = { type: sc[1] as SceneType, quotes: [], neighbors: [], ai: emptyAi() };
         record.scenes.push(scene);
         target = scene;
         bucket = "quotes";
@@ -137,6 +172,10 @@ export function parseRecord(markdown: string): ParsedRecord | null {
     }
   }
   if (record.followUp) Object.assign(record.followUp, prev);
+  record.scenes.forEach((sc, i) => {
+    const t = aiText.get(i + 1);
+    if (t) sc.ai = t;
+  });
   if (cur.sentence !== "" && !cur.sentence.startsWith("なし")) record.action = { ...cur };
   return record;
 }
@@ -281,7 +320,46 @@ export function resolvePreviousWords(ref: string | null | undefined, records: Pa
   };
 }
 
-export type Step3Memory = { pastScenes: string; records: ParsedRecord[] };
+/**
+ * 札から、同じ形の場面を作る（画面 3「この場面、前にもありました」）。発話は記録の原文から引く（決まり 1）。
+ * 夢のまとめは、その発話を根拠に挙げた仮説の文（例外・反例に挙げた仮説は使わない）。その回の AI の文は、その発話を含む場面のもの。
+ * 会話は、その発話を含む、記録にあるひと続きの発話（番号が飛ぶ所で切る）。
+ */
+export function resolveRepeatScene(ref: string | null | undefined, title: string | null, records: ParsedRecord[], hypotheses: PastHypothesis[] = []): RepeatScene | null {
+  const p = resolvePreviousWords(ref, records);
+  if (!p) return null;
+  const record = records.find((r) => r.interviewId === p.interviewId)!;
+  const has = (part: { quotes: RecordLine[]; neighbors: RecordLine[] }) => [...part.quotes, ...part.neighbors].some((l) => l.index === p.utterance);
+  const sc = record.scenes.find(has) ?? null;
+  const part = sc ?? (record.followUp && has(record.followUp) ? record.followUp : null);
+  const byIndex = new Map<number, RecordLine>();
+  for (const l of part ? [...part.quotes, ...part.neighbors] : [p.before, p.own, p.after].filter((x): x is RecordLine => x !== null)) byIndex.set(l.index, l);
+  let from = p.utterance;
+  let to = p.utterance;
+  while (byIndex.has(from - 1)) from--;
+  while (byIndex.has(to + 1)) to++;
+  const lines: RecordLine[] = [];
+  for (let i = from; i <= to; i++) lines.push(byIndex.get(i)!);
+  const summary = hypotheses.find((h) => h.evidence.some((e) => e.interviewId === p.interviewId && e.index <= p.utterance && p.utterance <= e.lastIndex))?.statement ?? null;
+  return { ...p, kind: record.kind, title, summary, scene: sc ? { type: sc.type, ...sc.ai } : null, lines };
+}
+
+/** 夢の仮説のうち、画面 3 の「夢のまとめ」に使う所（仮説の文と根拠の札） */
+export type PastHypothesis = { statement: string; evidence: Pick<EvidenceRef, "interviewId" | "index" | "lastIndex">[] };
+
+export type Step3Memory = { pastScenes: string; records: ParsedRecord[]; hypotheses: PastHypothesis[] };
+
+/** 夢の出力から、工程 3 に渡す材料を作る。読めない、または点・判定・性質の言葉があれば null */
+export function step3MemoryFrom(recurringMarkdown: string, recordFiles: StoredFile[]): Step3Memory | null {
+  const pastScenes = pastScenesText(recurringMarkdown);
+  const records = parseRecords(recordFiles);
+  if (!pastScenes || records.length === 0) return null;
+  // pastScenesText が通った（仮説の文に点・判定・性質の言葉が無い）ときだけ、仮説の文を持つ
+  const hypotheses = parseHypotheses(recurringMarkdown)
+    .filter((h) => h.evidence.length > 0)
+    .map((h) => ({ statement: h.statement, evidence: h.evidence.map(({ interviewId, index, lastIndex }) => ({ interviewId, index, lastIndex })) }));
+  return { pastScenes, records, hypotheses };
+}
 
 /** 工程 3 に渡す材料を読む。夢の出力か記録が読めなければ null（工程 3 は今のまま） */
 export async function readStep3Memory(client: Anthropic, cfg: MemoryConfig): Promise<Step3Memory | null> {
@@ -289,10 +367,7 @@ export async function readStep3Memory(client: Anthropic, cfg: MemoryConfig): Pro
   const [dreamFiles, recordFiles] = await Promise.all([readStore(client, cfg.dreamStoreId), readStore(client, cfg.recordsStoreId)]);
   const recurring = dreamFiles.find((f) => f.path === DREAM_FILES.recurring)?.content;
   if (!recurring) return null;
-  const pastScenes = pastScenesText(recurring);
-  const records = parseRecords(recordFiles);
-  if (!pastScenes || records.length === 0) return null;
-  return { pastScenes, records };
+  return step3MemoryFrom(recurring, recordFiles);
 }
 
 /** 読み出しに時間の上限を付ける（画面 3 と記録の画面を、読み出しで長く止めない） */

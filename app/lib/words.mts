@@ -78,3 +78,18 @@ export function sayRefs(text: string): string {
     .map((p) => p.text)
     .join("");
 }
+
+/** 発話を指す所。「（発話 78〜114）」の括弧書きと、「発話 16 で」「続く発話 27 では、」など助詞まで */
+const PAREN_REF = /\s*[（(]\s*発話\s*\d+[^）)]*[）)]/gu;
+const INLINE_REF = /(?:続く|その後の|次の|直後の|直前の)?\s*発話\s*\d+(?:\s*(?:〜|~|、|・|と|から)\s*(?:発話\s*)?\d+)*\s*(?:では|でも|には|で|に|の|を|が|は|から|まで)?[、,]?\s*/gu;
+
+/**
+ * 前の面談の記録にある AI の文から、発話を指す番号を外す（画面 3「この場面、前にもありました」）。
+ * その番号は前の面談の文字起こしを指し、この画面では開けないため。「」『』の中（言った言葉）は変えない
+ */
+export function dropRefs(text: string): string {
+  return text
+    .split(/(「[^」]*」|『[^』]*』)/u)
+    .map((part, i) => (i % 2 === 1 ? part : part.replace(PAREN_REF, "").replace(INLINE_REF, "")))
+    .join("");
+}
