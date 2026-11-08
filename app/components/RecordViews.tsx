@@ -2,7 +2,7 @@
 
 // 記録（Memory）から来た発話の見せ方（画面 3 の前の言葉と「この場面、前にもありました」、記録の画面）。
 // 発話そのものは画面 2 と同じ部品（Island）で出し、新しい見せ方は作らない。発話の文は記録の原文のまま（決まり 1）。
-// AI が書いた文（夢のまとめ、その回の AI の見立てと事実）は、画面 3 の「この場面、前にもありました」でだけ、仮説・解釈の札を付けて分けて出す（11/8 に本人が決めた）。
+// AI が書いた文（過去の記憶の整理＝夢の仮説の文、その回の AI の見立てと事実）は、画面 3 の「この場面、前にもありました」でだけ、仮説・解釈の札を付けて分けて出す（11/8 に本人が決めた）。
 
 import Link from "next/link";
 import { useState } from "react";
@@ -10,68 +10,36 @@ import { useState } from "react";
 import type { RecordEntry } from "@/engine/memory-read.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import type { MeetingKind, PreviousWords, RepeatScene } from "@/engine/types.mts";
-import { formatDate, kindLabel, kindOfSpeakers, linesTranscript, mergeLines, previousLines, recordScoreCells, repeatSceneView, slashDate } from "@/app/lib/record-view.mts";
+import { formatDate, kindLabel, linesTranscript, mergeLines, recordScoreCells, repeatSceneView, slashDate } from "@/app/lib/record-view.mts";
 import type { Line } from "@/app/lib/record-view.mts";
 import { useRecords } from "@/app/lib/records";
-import { dropRefs, sceneTypeLabel } from "@/app/lib/words.mts";
-import { Chevron, KindBadge, MoreLink } from "./SceneParts";
+import { CRITERION_LABEL, dropRefs, sceneTypeLabel } from "@/app/lib/words.mts";
+import { Chevron, KindBadge, MarkedText, MoreLink } from "./SceneParts";
 import { Island } from "./UtteranceView";
 import { H2, LINK, SPARK_BOX } from "./ui";
 
 const SUB = "text-[0.86rem] font-semibold text-ink-2";
 const BOX = "space-y-2.5 rounded-md border border-line bg-surface px-3 py-3.5 text-ink sm:px-4";
 
-/** 前の面談の発話。直前 → 本人 → 直後。本人の発言を目立たせる */
-function PreviousLines({ p }: { p: PreviousWords }) {
-  const lines = previousLines(p);
-  const t = linesTranscript(
-    kindOfSpeakers(
-      p.own.speaker,
-      lines.map((l) => l.speaker),
-    ),
-    lines,
-  );
-  return (
-    <ol className={BOX}>
-      {t.utterances.map((u) => (
-        <li key={u.index}>
-          <Island t={t} u={u} compact role={u.index === p.own.index ? "focal" : "plain"} tag={p.before?.index === u.index ? "直前" : p.after?.index === u.index ? "直後" : undefined} />
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-/** 画面 3：候補に添える、前の面談での本人の言葉 */
-export function PreviousWordsBlock({ p, className = "" }: { p: PreviousWords; className?: string }) {
-  return (
-    <div className={className}>
-      <p className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
-        <span className="text-[0.86rem] font-semibold text-ink-2">
-          前の面談でのあなたの言葉
-          <span className="ml-2.5 font-normal tabular-nums text-ink-3">
-            {slashDate(p.date)}
-            {p.otherTag ? `・${p.otherTag} との面談` : ""}
-          </span>
-        </span>
-        <span className="text-xs text-ink-3">記録（Memory）から</span>
-      </p>
-      <div className="mt-2">
-        <PreviousLines p={p} />
-      </div>
-    </div>
-  );
-}
-
 /**
  * 画面 3「この場面、前にもありました」：今回の「次に試せる所」と同じ形の、前の面談の場面（11/8 に本人が決めた形）。
- * 上に夢のまとめ（仮説）を一度だけ。場面ごとのカードは、見出し（工程 3 が書いた、やりとりの形の 1 行）と、小さく日付と相手。
+ * 上に過去の記憶の整理（夢の仮説の文。要の句を蛍光ペン風に）を一度だけ。場面ごとのカードは、見出し（工程 3 が書いた、やりとりの形の 1 行）と、小さく日付と相手。
+ * 同じ形の場面の後に、案に近いことを前の面談で言っていた場面（near）をカードで並べる（11/8 に本人が決めた。案の中には出さない）。
  * 押すと、その回の AI の見立て（解釈）、「事実を確認する」（その回に AI が書いた事実）、「会話を確認する」（記録の原文）が開く。
  * 前の面談の文字起こしはこの画面に無いので、AI の文の中の発話番号は外して出す。評価の言葉は付けない。
  */
-export function RepeatScenesBlock({ items: raw, className = "" }: { items: (RepeatScene | PreviousWords)[]; className?: string }) {
+export function RepeatScenesBlock({ items: raw, near: rawNear = [], className = "" }: { items: (RepeatScene | PreviousWords)[]; near?: (RepeatScene | PreviousWords)[]; className?: string }) {
   const items = raw.map(repeatSceneView);
+  const keyOf = (p: RepeatScene) => `${p.interviewId}｜${p.utterance}`;
+  const shown = new Set(items.map(keyOf));
+  const near = rawNear.map(repeatSceneView).filter((p) => !shown.has(keyOf(p)) && (shown.add(keyOf(p)), true));
+  const all = [...items, ...near];
+  if (all.length === 0) return null;
+  // 上の「過去の記憶の整理」は、この場面と同じ形の場面のものだけ（節の話題を一つにする）。案に近い言葉の仮説は、そのカードの中に出す
   const summaries = [...new Set(items.map((p) => p.summary).filter((x): x is string => !!x))];
+  /** その文で目立たせる句。同じ文に句が二つ以上返ってきたら、最初のもの */
+  const keyFor = (s: string) => all.find((p) => p.summary === s && p.key)?.key ?? null;
+  const top = new Set(summaries);
   return (
     <section aria-labelledby="repeat-heading" className={className}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
@@ -84,21 +52,21 @@ export function RepeatScenesBlock({ items: raw, className = "" }: { items: (Repe
       {summaries.length > 0 && (
         <div className="mt-3 rounded-md border border-dashed border-line-2 px-4 py-3">
           <p className="flex items-center gap-2 text-xs font-semibold text-ink-3">
-            夢のまとめ
+            過去の記憶の整理
             <KindBadge>仮説</KindBadge>
           </p>
           {summaries.map((s) => (
-            <p key={s} className="mt-1.5 text-[0.95rem] leading-[1.8] text-pretty">
-              {dropRefs(s)}
+            <p key={s} className="mt-1.5 text-[0.95rem] leading-[1.85] text-pretty">
+              <MarkedText text={dropRefs(s)} phrase={keyFor(s)} />
             </p>
           ))}
-          <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink-3">前の面談の記録から夢が立てた仮説で、確かめられたことではありません。</p>
+          <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink-3">前の面談の記録を整理して立てた仮説で、確かめられたことではありません。</p>
         </div>
       )}
       <ul className="mt-3 space-y-2.5">
-        {items.map((p) => (
-          <li key={`${p.interviewId}｜${p.utterance}`}>
-            <RepeatCard p={p} />
+        {all.map((p, i) => (
+          <li key={keyOf(p)}>
+            <RepeatCard p={p} near={i >= items.length} summary={p.summary && !top.has(p.summary) ? p.summary : null} summaryKey={p.summary ? keyFor(p.summary) : null} />
           </li>
         ))}
       </ul>
@@ -107,7 +75,7 @@ export function RepeatScenesBlock({ items: raw, className = "" }: { items: (Repe
 }
 
 /** 同じ形の場面のカード。押すと、その回の AI の見立て・事実・会話が開く */
-function RepeatCard({ p }: { p: RepeatScene }) {
+function RepeatCard({ p, near, summary, summaryKey }: { p: RepeatScene; near: boolean; summary: string | null; summaryKey: string | null }) {
   const [open, setOpen] = useState(false);
   const [facts, setFacts] = useState(false);
   const [talk, setTalk] = useState(false);
@@ -126,15 +94,29 @@ function RepeatCard({ p }: { p: RepeatScene }) {
     <div className={`rounded-md border bg-surface transition-colors ${open ? "border-accent shadow-[0_8px_24px_-16px_rgba(29,27,24,0.25)]" : "border-line-2 hover:border-accent"}`}>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={id} className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5">
         <span className="min-w-0 flex-1">
-          <span className={`block text-[1rem] font-medium leading-[1.65] text-pretty ${open ? "text-ink" : "text-accent"}`}>{p.title ?? "同じ形のやりとり"}</span>
-          <span className="mt-0.5 block text-[0.8rem] tabular-nums text-ink-3">
-            {slashDate(p.date)}・{p.otherTag ? `${p.otherTag} との面談` : kindLabel(p.kind)}
+          <span className={`block text-[1rem] font-medium leading-[1.65] text-pretty ${open ? "text-ink" : "text-accent"}`}>{p.title ?? (near ? "前の面談で、案に近いことを言った場面" : "同じ形のやりとり")}</span>
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8rem] tabular-nums text-ink-3">
+            <span>
+              {slashDate(p.date)}・{p.otherTag ? `${p.otherTag} との面談` : kindLabel(p.kind)}
+            </span>
+            {near && <span className="rounded-[3px] bg-amber-50 px-1.5 py-px text-[0.72rem] font-semibold text-amber-900">案に近いあなたの言葉</span>}
           </span>
         </span>
         <Chevron open={open} />
       </button>
       {open && (
         <div id={id} className="border-t border-line px-4 pb-4 pt-3.5 sm:px-5">
+          {summary && (
+            <section aria-label="過去の記憶の整理" className="mb-3">
+              <h3 className="flex items-center gap-2 text-xs font-semibold text-ink-3">
+                過去の記憶の整理
+                <KindBadge>仮説</KindBadge>
+              </h3>
+              <p className="mt-1.5 text-[0.95rem] leading-[1.85] text-pretty">
+                <MarkedText text={dropRefs(summary)} phrase={summaryKey} />
+              </p>
+            </section>
+          )}
           {sc?.reading && (
             <section aria-label="その回の AI の見立て">
               <h3 className="flex items-center gap-2 text-xs font-semibold text-ink-3">
@@ -262,7 +244,7 @@ export function RecordEntryView({ r }: { r: RecordEntry }) {
         <div className={`mt-6 ${SPARK_BOX}`}>
           <p className="text-xs font-semibold text-amber-900">この回に選んだひとつ</p>
           <p className="mt-1 font-semibold leading-[1.7]">{r.action.sentence}</p>
-          {r.action.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{r.action.criterion}</p>}
+          {r.action.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">{CRITERION_LABEL}：{r.action.criterion}</p>}
           {r.action.origin && <p className="mt-1.5 text-xs text-ink-3">サンプルとして置いた</p>}
         </div>
       )}

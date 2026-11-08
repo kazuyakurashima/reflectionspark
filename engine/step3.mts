@@ -9,15 +9,15 @@ import { callStructured } from "./claude.mts";
 import { neighborsOf } from "./citations.mts";
 import { guardStep3 } from "./guard.mts";
 import { scanText } from "./forbidden-words.mts";
-import { resolvePreviousWords, resolveRepeatScene } from "./memory-read.mts";
+import { resolveRepeatScene } from "./memory-read.mts";
 import type { ParsedRecord, PastHypothesis, Step3Memory } from "./memory-read.mts";
 import { scanScoreWords } from "./memory-record.mts";
 import { STEP3_PAST_SCENES_SCHEMA, STEP3_SCHEMA, step3System, step3User } from "./prompts.mts";
 import type { Candidate, RepeatScene, Scene, Step3Result, Transcript } from "./types.mts";
 
 /** 同じ形の場面の札と、そのやりとりの形の 1 行。前の版（11/8 より前）は札だけ（repeat_refs） */
-type RawRepeat = { ref: string; title: string };
-type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string; previous_ref?: string }[]; repeat_scenes?: RawRepeat[]; repeat_refs?: string[] };
+type RawRepeat = { ref: string; title: string; key?: string };
+type Raw = { candidates: { condition: string; action: string; lines: string[]; criterion: string; basis?: string; previous_ref?: string; previous_title?: string }[]; repeat_scenes?: RawRepeat[]; repeat_refs?: string[] };
 
 /** 今回の場面と同じ形として出す、前の面談の場面の上限 */
 const MAX_REPEATS = 2;
@@ -69,6 +69,7 @@ export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "u
       criterion: (c.criterion ?? "").trim(),
       ...(basis ? { basis } : {}),
       ...(c.previous_ref?.trim() ? { previousRef: c.previous_ref.trim() } : {}),
+      ...(c.previous_ref?.trim() && c.previous_title?.trim() ? { previousTitle: c.previous_title.trim() } : {}),
     };
     if (NON_VERBAL.test(cand.action) && !VERBAL.test(cand.action)) {
       dropped.push({ candidate: cand, reason: "言葉に表れない行動（次の面談の文字起こしで確かめられない）" });
@@ -83,10 +84,13 @@ export function parseStep3(raw: Raw): Omit<Step3Result, "meta" | "withheld" | "u
   return { candidates, dropped };
 }
 
-/** 工程 3 が返した札を、記録の原文に置き換える。札が記録に無ければ添えない（決まり 1） */
-export function attachPreviousWords(candidates: Candidate[], records: ParsedRecord[]): Candidate[] {
-  return candidates.map(({ previousRef, ...c }) => {
-    const previous = resolvePreviousWords(previousRef, records);
+/**
+ * 工程 3 が返した札を、記録の原文に置き換える。札が記録に無ければ添えない（決まり 1）。
+ * 画面 3 では「この場面、前にもありました」のカードにするので、同じ形の場面と同じ形（見出し・過去の記憶の整理・その回の AI の文・会話）にする
+ */
+export function attachPreviousWords(candidates: Candidate[], records: ParsedRecord[], hypotheses: PastHypothesis[] = []): Candidate[] {
+  return candidates.map(({ previousRef, previousTitle, ...c }) => {
+    const previous = resolveRepeatScene(previousRef, repeatTitle(previousTitle), records, hypotheses);
     return previous ? { ...c, previous } : c;
   });
 }
@@ -111,8 +115,8 @@ export function resolveRepeats(items: (RawRepeat | string)[] | null | undefined,
   const seen = new Set(candidates.flatMap((c) => (c.previous ? [key(c.previous)] : [])));
   const out: RepeatScene[] = [];
   for (const item of items ?? []) {
-    const { ref, title } = typeof item === "string" ? { ref: item, title: null } : item;
-    const p = resolveRepeatScene(ref, repeatTitle(title), records, hypotheses);
+    const { ref, title, key: phrase } = typeof item === "string" ? { ref: item, title: null, key: null } : item;
+    const p = resolveRepeatScene(ref, repeatTitle(title), records, hypotheses, phrase ?? null);
     if (!p || seen.has(key(p))) continue;
     seen.add(key(p));
     out.push(p);
@@ -132,7 +136,7 @@ export async function runStep3(t: Transcript, scene: Scene, answer: string, memo
     label: "工程 3",
   });
   const guarded = guardStep3(parseStep3(r.data), t.utterances);
-  const candidates = attachPreviousWords(guarded.candidates, memory?.records ?? []);
+  const candidates = attachPreviousWords(guarded.candidates, memory?.records ?? [], memory?.hypotheses ?? []);
   const repeats = resolveRepeats(r.data.repeat_scenes ?? r.data.repeat_refs, candidates, memory?.records ?? [], memory?.hypotheses ?? []);
   return { ...guarded, candidates, ...(repeats.length > 0 ? { repeats } : {}), meta: r.meta };
 }

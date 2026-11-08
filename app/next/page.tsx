@@ -16,7 +16,7 @@ import type { FollowUpVerdict } from "@/engine/types.mts";
 import { previousQuoteOf } from "@/app/lib/previous-quote.mts";
 import { RefChip, RefText } from "@/app/components/RefText";
 import { BTN_PRIMARY, BTN_SMALL, H1, H2, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SEG, SPARK_BOX, segItem } from "@/app/components/ui";
-import { refLabel } from "@/app/lib/words.mts";
+import { CRITERION_LABEL, refLabel } from "@/app/lib/words.mts";
 import { UtteranceContext } from "@/app/components/UtteranceView";
 import { WaitPanel } from "@/app/components/WaitPanel";
 import { RecordsLink } from "@/app/components/RecordViews";
@@ -141,7 +141,7 @@ export default function Screen5() {
             前回決めた、次に試すひとつ{spark.timesFollowed > 0 ? `（${spark.timesFollowed} 回追った）` : ""}
           </p>
           <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{spark.sentence}</p>
-          {spark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{spark.criterion}</p>}
+          {spark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">{CRITERION_LABEL}：{spark.criterion}</p>}
         </div>
       </section>
 

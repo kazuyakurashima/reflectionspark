@@ -443,9 +443,10 @@ ${sceneText || "（根拠のある場面は無いとされた）"}
 function step3PastScenesRules(self: string): string {
   return `
 - 「前の面談の記録から」は、この本人の前の面談を AI が整理した仮説と、その根拠の発話。確かめられていない仮説なので、候補の材料にしてもよいし、使わなくてもよい。候補は今回の場面と本人の答えから作る。仮説の文を候補の文に持ち込まない。前の面談の相手の話題を持ち込まない。
-- 候補ごとに、その行動に近いことを本人が前の面談で実際に言っている発話が、根拠や例外の行にあれば、その札を previous_ref に写す（例の形：student-a｜発話 12）。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合う発話が無ければ空にする。引用文や評価の言葉は書かない。
+- 候補ごとに、その行動に近いことを本人が前の面談で実際に言っている発話が、根拠や例外の行にあれば、その札を previous_ref に写す（例の形：student-a｜発話 12）。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合う発話が無ければ空にする。引用文や評価の言葉は書かない。previous_title には、そのやりとりの形を repeat_scenes の title と同じ書き方で 1 行に書く（previous_ref が空なら空）。
 - 今回の「次に試せる所」と同じ形のやりとりが前の面談にもあれば、根拠や例外の行から、その本人の発話の札を repeat_scenes の ref に写す（2 つまで）。話題が違っても、やりとりの形が同じならよい。本人（${self}）の発話の札だけ。札は行にあるものをそのまま写し、作らない。合うものが無ければ空の配列にする。
-- repeat_scenes の title には、そのやりとりの形を、相手の発話と本人の行動で 1 行に書く（30 字ほど。例の形：「相手が出来事を話した直後に、${self}が相手の言葉で返した」）。前の面談の相手の名前や話題、引用文、良し悪しや評価の言葉、人を言い表す言葉は書かない。`;
+- repeat_scenes の title には、そのやりとりの形を、相手の発話と本人の行動で 1 行に書く（30 字ほど。例の形：「相手が出来事を話した直後に、${self}が相手の言葉で返した」）。前の面談の相手の名前や話題、引用文、良し悪しや評価の言葉、人を言い表す言葉は書かない。
+- repeat_scenes の key には、その発話が根拠に挙がっている仮説（「## 」の行）の文から、今回の場面と同じ形を言っている一続きの句を、一字も変えずに写す（15〜35 字ほど。言い換えない）。合う句が無ければ空にする。`;
 }
 
 export function step3System(kind: MeetingKind, withPastScenes = false): string {
@@ -503,10 +504,11 @@ export const STEP3_PAST_SCENES_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["ref", "title"],
+        required: ["ref", "title", "key"],
         properties: {
           ref: { type: "string", description: "前の面談の本人の発話の札（例の形：student-a｜発話 12）" },
           title: { type: "string", description: "そのやりとりの形を、相手の発話と本人の行動で 1 行（30 字ほど）。評価の言葉を入れない" },
+          key: { type: "string", description: "その発話が根拠に挙がっている仮説の文から、今回の場面と同じ形を言っている句を一字も変えずに写したもの。無ければ空" },
         },
       },
     },
@@ -514,10 +516,11 @@ export const STEP3_PAST_SCENES_SCHEMA = {
       type: "array",
       items: {
         ...STEP3_SCHEMA.properties.candidates.items,
-        required: [...STEP3_SCHEMA.properties.candidates.items.required, "previous_ref"],
+        required: [...STEP3_SCHEMA.properties.candidates.items.required, "previous_ref", "previous_title"],
         properties: {
           ...STEP3_SCHEMA.properties.candidates.items.properties,
           previous_ref: { type: "string", description: "前の面談の本人の発話の札（例の形：student-a｜発話 12）。合う発話が無ければ空" },
+          previous_title: { type: "string", description: "previous_ref の発話のやりとりの形を 1 行（repeat_scenes の title と同じ書き方）。previous_ref が空なら空" },
         },
       },
     },

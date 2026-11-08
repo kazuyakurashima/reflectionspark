@@ -246,8 +246,10 @@ export type RepeatScene = PreviousWords & {
   kind: MeetingKind;
   /** 工程 3 が書いた、そのやりとりの形の 1 行（場面と本人の行動）。言葉の検査で外したら null */
   title: string | null;
-  /** 夢のまとめ：その発話を根拠に挙げた、夢の仮説の文。無ければ null */
+  /** 過去の記憶の整理：その発話を根拠に挙げた、夢の仮説の文。無ければ null */
   summary: string | null;
+  /** 仮説の文のうち、今回の場面と同じ形を言っている句（工程 3 が仮説の文から写したもの。文にそのまま無ければ null）。画面で目立たせる */
+  key?: string | null;
   /** その発話を含む場面の種類と、その回に AI が書いた文。場面でなく前回の行動の欄にある発話なら null */
   scene: ({ type: SceneType } & RecordSceneText) | null;
   /** 会話を確認する：その発話を含む、記録にあるひと続きの発話（原文） */
@@ -269,8 +271,13 @@ export type Candidate = {
   basis?: string;
   /** 工程 3 が返した、前の面談の発話の札。engine/memory-read.mts で原文を引いたら消す */
   previousRef?: string;
-  /** 前の面談での本人の言葉（記録に合うものがあるときだけ。候補ごとに 0 か 1 つ） */
-  previous?: PreviousWords;
+  /** 工程 3 が返した、その発話のやりとりの形の 1 行。原文を引いたら previous の title に移す */
+  previousTitle?: string;
+  /**
+   * 前の面談での本人の言葉（記録に合うものがあるときだけ。候補ごとに 0 か 1 つ）。
+   * 画面 3 では案の中に出さず、「この場面、前にもありました」のカードにする（11/8 に本人が決めた）。11/8 より前に保存した面談は PreviousWords の形
+   */
+  previous?: RepeatScene | PreviousWords;
 };
 
 export type Step3Result = {

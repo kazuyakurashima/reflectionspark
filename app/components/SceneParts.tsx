@@ -243,3 +243,31 @@ export function SceneReading({ t, scene, textClass = "text-[1.08rem] leading-[1.
     </section>
   );
 }
+
+/** 押すと開く所。見出しの左の印で開き閉じが分かる。最初に開いておくか（defaultOpen）を選べ、いつでも開け閉めできる */
+export function Fold({ id, label, defaultOpen = false, className = "", children }: { id: string; label: string; defaultOpen?: boolean; className?: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={className}>
+      <MoreLink open={open} onToggle={() => setOpen((o) => !o)} label={label} openLabel={label} controls={id} />
+      {open && (
+        <div id={id} className="mt-1 pl-[1.15rem]">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 文の中の要の句を、蛍光ペン風に目立たせる（番号の印は付けない。前の面談の文など）。句が文にそのまま無ければ目立たせない */
+export function MarkedText({ text, phrase }: { text: string; phrase: string | null | undefined }) {
+  const i = phrase ? text.indexOf(phrase) : -1;
+  if (!phrase || i < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, i)}
+      <mark className="key-mark">{phrase}</mark>
+      {text.slice(i + phrase.length)}
+    </>
+  );
+}

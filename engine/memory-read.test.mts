@@ -248,7 +248,9 @@ describe("旗（ストアの番号の環境変数）", () => {
     assert.equal(step3System("生徒", true).includes("repeat_scenes"), true);
     assert.equal(step3System("生徒").includes("repeat_scenes"), false);
     assert.equal(STEP3_PAST_SCENES_SCHEMA.required.includes("repeat_scenes"), true);
-    assert.deepEqual(STEP3_PAST_SCENES_SCHEMA.properties.repeat_scenes.items.required, ["ref", "title"]);
+    assert.deepEqual(STEP3_PAST_SCENES_SCHEMA.properties.repeat_scenes.items.required, ["ref", "title", "key"]);
+    assert.equal(STEP3_PAST_SCENES_SCHEMA.properties.candidates.items.required.includes("previous_title"), true);
+    assert.equal("previous_title" in STEP3_SCHEMA.properties.candidates.items.properties, false);
     assert.equal("repeat_scenes" in STEP3_SCHEMA.properties, false);
     // 旗が無いときと同じく、system と user の文は、記録の決まりの文の分だけ違う
     assert.equal(step3System("生徒", true).startsWith(step3System("生徒").replace(/\n\n出力は JSON だけ。$/, "")), true);
@@ -294,6 +296,32 @@ describe("旗（ストアの番号の環境変数）", () => {
     assert.deepEqual(fu?.lines.map((l) => l.index), [3, 4, 5]);
     // 札だけの前の版の出力も読む（見出しなし）
     assert.equal(resolveRepeats(["student-b｜発話 2"], [], records)[0].title, null);
+  });
+
+  test("過去の記憶の整理で目立たせる句は、その仮説の文にそのまま入っているときだけ使う", () => {
+    const records = parseRecords([file(first)]);
+    const hypotheses = [{ statement: "相手が気持ちを口にした直後に、講師がその語で返す発話があった。", evidence: [{ interviewId: "student-b", index: 2, lastIndex: 2 }] }];
+    const at = (key: string) => resolveRepeats([{ ref: "student-b｜発話 2", title: "t", key }], [], records, hypotheses)[0].key;
+    assert.equal(at("講師がその語で返す"), "講師がその語で返す");
+    assert.equal(at("講師が相手の語で返す"), null, "言い換えた句は使わない");
+    assert.equal(at(""), null);
+    // 夢のまとめが無い発話には、句も付けない
+    assert.equal(resolveRepeatScene("student-b｜発話 6", null, records, hypotheses, "講師がその語で返す")?.key, null);
+  });
+
+  test("案に近い前の言葉も、見出し・過去の記憶の整理・会話の付いたカードの形にする", () => {
+    const records = parseRecords([file(first)]);
+    const hypotheses = [{ statement: "仮説の文。", evidence: [{ interviewId: "student-b", index: 2, lastIndex: 2 }] }];
+    const raw = { condition: "場面", action: "聞き返す", lines: ["セリフ"], criterion: "基準" };
+    const parsed = parseStep3({ candidates: [{ ...raw, previous_ref: "student-b｜発話 2", previous_title: "「相手が気持ちを話した直後に、講師がその語で返した。」" }, { ...raw, previous_ref: "", previous_title: "空の札の見出し" }] });
+    assert.equal(parsed.candidates[1].previousTitle, undefined, "札が空なら見出しも持たない");
+    const [a, b] = attachPreviousWords(parsed.candidates, records, hypotheses);
+    const p = a.previous as import("./types.mts").RepeatScene;
+    assert.equal(p.title, "相手が気持ちを話した直後に、講師がその語で返した");
+    assert.equal(p.summary, "仮説の文。");
+    assert.deepEqual(p.lines.map((l) => l.index), [1, 2, 3]);
+    assert.equal("previousTitle" in a, false);
+    assert.equal("previous" in b, false);
   });
 
   test("同じ形の場面は 2 つまでで、古い順に並べる", () => {

@@ -322,10 +322,10 @@ export function resolvePreviousWords(ref: string | null | undefined, records: Pa
 
 /**
  * 札から、同じ形の場面を作る（画面 3「この場面、前にもありました」）。発話は記録の原文から引く（決まり 1）。
- * 夢のまとめは、その発話を根拠に挙げた仮説の文（例外・反例に挙げた仮説は使わない）。その回の AI の文は、その発話を含む場面のもの。
+ * 過去の記憶の整理（画面の言葉。夢の仮説の文）は、その発話を根拠に挙げた仮説の文（例外・反例に挙げた仮説は使わない）。その回の AI の文は、その発話を含む場面のもの。
  * 会話は、その発話を含む、記録にあるひと続きの発話（番号が飛ぶ所で切る）。
  */
-export function resolveRepeatScene(ref: string | null | undefined, title: string | null, records: ParsedRecord[], hypotheses: PastHypothesis[] = []): RepeatScene | null {
+export function resolveRepeatScene(ref: string | null | undefined, title: string | null, records: ParsedRecord[], hypotheses: PastHypothesis[] = [], key: string | null = null): RepeatScene | null {
   const p = resolvePreviousWords(ref, records);
   if (!p) return null;
   const record = records.find((r) => r.interviewId === p.interviewId)!;
@@ -341,10 +341,12 @@ export function resolveRepeatScene(ref: string | null | undefined, title: string
   const lines: RecordLine[] = [];
   for (let i = from; i <= to; i++) lines.push(byIndex.get(i)!);
   const summary = hypotheses.find((h) => h.evidence.some((e) => e.interviewId === p.interviewId && e.index <= p.utterance && p.utterance <= e.lastIndex))?.statement ?? null;
-  return { ...p, kind: record.kind, title, summary, scene: sc ? { type: sc.type, ...sc.ai } : null, lines };
+  // 目立たせる句は、夢のまとめの文にそのまま入っているときだけ使う
+  const k = (key ?? "").trim();
+  return { ...p, kind: record.kind, title, summary, key: summary && k !== "" && summary.includes(k) ? k : null, scene: sc ? { type: sc.type, ...sc.ai } : null, lines };
 }
 
-/** 夢の仮説のうち、画面 3 の「夢のまとめ」に使う所（仮説の文と根拠の札） */
+/** 夢の仮説のうち、画面 3 の「過去の記憶の整理」に使う所（仮説の文と根拠の札） */
 export type PastHypothesis = { statement: string; evidence: Pick<EvidenceRef, "interviewId" | "index" | "lastIndex">[] };
 
 export type Step3Memory = { pastScenes: string; records: ParsedRecord[]; hypotheses: PastHypothesis[] };

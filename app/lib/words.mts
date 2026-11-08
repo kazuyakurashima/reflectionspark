@@ -93,3 +93,8 @@ export function dropRefs(text: string): string {
     .map((part, i) => (i % 2 === 1 ? part : part.replace(PAREN_REF, "").replace(INLINE_REF, "")))
     .join("");
 }
+
+/** 画面 3 の「セリフの例」の呼び名（11/8 に本人が決めた） */
+export const LINES_LABEL = "問いかけの例";
+/** 「できたかの基準」の画面の呼び名（11/8 に本人が、分かりにくいので変えると決めた）。中のデータの名前（criterion）は変えない */
+export const CRITERION_LABEL = "次の面談で確かめること";

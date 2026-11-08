@@ -25,6 +25,7 @@ import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.m
 import { afterFormatHref, backToPrevMeeting, dropPrev, sampleEntry, withOtherName } from "@/app/lib/next-meeting.mts";
 import { fetchStep0c, loadSession, newSession, saveSession, updateSession, useSession } from "@/app/lib/session";
 import type { SessionData } from "@/app/lib/session";
+import { CRITERION_LABEL } from "@/app/lib/words.mts";
 
 const KINDS: { value: MeetingKind; label: string }[] = [
   { value: "生徒", label: "生徒面談" },
@@ -176,7 +177,7 @@ export default function Screen1() {
                   前回決めた、次に試すひとつ{prevSpark.timesFollowed > 0 ? `（${prevSpark.timesFollowed} 回追った）` : ""}
                 </p>
                 <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{prevSpark.sentence}</p>
-                {prevSpark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{prevSpark.criterion}</p>}
+                {prevSpark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">{CRITERION_LABEL}：{prevSpark.criterion}</p>}
                 <p className="mt-2 text-[0.86rem] text-ink-2">話者を分けたあと、読む前に、このひとつが今回の面談でどう現れたかを確かめます。</p>
               </div>
             ) : (

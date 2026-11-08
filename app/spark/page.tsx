@@ -3,7 +3,8 @@
 // 画面 3：次に試すひとつ（Your Spark）。AI の案（候補 2〜3）から選ぶ・直す・見送る。
 // 上から、課題が見えた場面（AI の見立てと「会話を確認する」。画面 2 と同じ部品）→（記録があれば）この場面、前にもありました
 // → 次の一手の案（AI の提案・仮）。案は最初の一つ（本人の答えにいちばん沿うもの）を大きく見せ、ほかは「ほかの案を見る」で開く（11/8 に本人が決めた）。
-// 案は「もし（場面）なら、（行動）する」の一文が見え、押すとセリフの例とできたかの基準が開く。画面の言葉は「候補」でなく「案」にする。
+// 案は「もし（場面）なら、（行動）する」の一文と、問いかけの例（最初から開いていて、閉じられる）。次の面談で確かめること（できたかの基準）は押すと開く。
+// 案に近い前の面談での本人の言葉は、案の中に出さず、「この場面、前にもありました」のカードにする（11/8 に本人が決めた）。画面の言葉は「候補」でなく「案」にする。
 // 選ぶ・直す・見送るのは本人（決まり 7）。選んだ一つだけを目立つ下地に置く。持ち帰るものは一つ。
 // 前の面談から持ち越したひとつがあれば、候補の下に「前回のひとつを続ける」を置く（続けるか変えるかも本人が決める）。
 // 終わりの「今日はここまでにする」で、決めたひとつを持ち越して「1 入力」に戻る（app/lib/next-meeting.mts）。面談はまだ始めない。
@@ -15,15 +16,14 @@ import { useEffect, useRef, useState } from "react";
 
 import type { CandidatesResponse } from "@/engine/server.mts";
 import type { Candidate } from "@/engine/types.mts";
-import { Collapsible } from "@/app/components/Collapsible";
 import { RefText } from "@/app/components/RefText";
-import { ConversationLink, MoreLink, SceneReading, pointedOf } from "@/app/components/SceneParts";
+import { ConversationLink, Fold, MoreLink, SceneReading, pointedOf } from "@/app/components/SceneParts";
 import { WaitPanel } from "@/app/components/WaitPanel";
-import { PreviousWordsBlock, RepeatScenesBlock } from "@/app/components/RecordViews";
+import { RepeatScenesBlock } from "@/app/components/RecordViews";
 import { candidatesBody } from "@/app/lib/demo-flag.mts";
 import { BTN_PRIMARY, BTN_SMALL, BTN_SMALL_PRIMARY, FIELD, H1, H2, INSET, LABEL, LEAD, LINK, NOTE, PAGE, QUIET_LINK, SPARK_BOX } from "@/app/components/ui";
 import { sceneSpan } from "@/app/lib/scene-view.mts";
-import { sceneTypeLabel } from "@/app/lib/words.mts";
+import { CRITERION_LABEL, LINES_LABEL, sceneTypeLabel } from "@/app/lib/words.mts";
 import { keptSpark, startNextMeeting } from "@/app/lib/next-meeting.mts";
 import { answerText, loadSession, makeSparkId, newSession, updateSession, useSession } from "@/app/lib/session";
 import { sameTranscript } from "@/app/lib/input-guard.mts";
@@ -141,6 +141,7 @@ export default function Screen4() {
   const answer = answerText(session);
   const chosenIndex = spark && !keptChosen && !spark.edited ? cands.findIndex((c) => c.sentence === spark.sentence) : -1;
   const showMore = more ?? (chosenIndex > 0 || (editing !== null && editing > 0));
+  const nearPrevious = cands[chosenIndex >= 0 ? chosenIndex : 0]?.previous ?? null;
 
   /** 案のカード。最初の案（first）は大きく見せる */
   const card = (c: Candidate, i: number, first: boolean) => {
@@ -159,17 +160,17 @@ export default function Screen4() {
             <RefText t={transcript} text={basisView(c.basis)} />
           </p>
         )}
-        {c.previous && <PreviousWordsBlock p={c.previous} className="mt-4" />}
-        <Collapsible label="セリフの例と、できたかの基準を開く" className={c.previous ? "mt-3" : "mt-2"}>
-          <p className="text-xs font-semibold text-ink-3">セリフの例</p>
-          <ul className="mt-1 space-y-0.5 text-[0.95rem]">
+        <Fold id={`lines-${i}`} label={LINES_LABEL} defaultOpen className="mt-3">
+          <ul className="space-y-1 text-[0.95rem] leading-[1.7]">
             {c.lines.map((l, j) => (
               <li key={j}>「{l}」</li>
             ))}
           </ul>
-          <p className="mt-3 text-xs font-semibold text-ink-3">できたかの基準（次の面談で何が言葉に表れたら「できた」か）</p>
-          <p className="mt-1 text-[0.95rem]">{c.criterion}</p>
-        </Collapsible>
+        </Fold>
+        <Fold id={`criterion-${i}`} label={CRITERION_LABEL} className="mt-1">
+          <p className="text-[0.95rem] leading-[1.7]">{c.criterion}</p>
+          <p className="mt-1 text-[0.8rem] leading-relaxed text-ink-3">次の面談の文字起こしで、これが言葉に表れていたら「できた」とします。</p>
+        </Fold>
         {editing === i ? (
           <div className="mt-4 space-y-3">
             <label className="block">
@@ -177,7 +178,7 @@ export default function Screen4() {
               <textarea value={draftSentence} onChange={(e) => setDraftSentence(e.target.value)} rows={2} className={`mt-1.5 block w-full ${FIELD}`} />
             </label>
             <label className="block">
-              <span className={LABEL}>できたかの基準</span>
+              <span className={LABEL}>{CRITERION_LABEL}</span>
               <textarea value={draftCriterion} onChange={(e) => setDraftCriterion(e.target.value)} rows={2} className={`mt-1.5 block w-full ${FIELD}`} />
             </label>
             <div className="flex flex-wrap gap-2">
@@ -236,13 +237,18 @@ export default function Screen4() {
           </section>
         )}
 
-        {repeats.length > 0 && <RepeatScenesBlock items={repeats} className="mt-10" />}
+        {/* 案に近い前の言葉は、見えている案（選んだ案、選ぶ前は最初の案）の分だけ。開いていない案の言葉は並べない */}
+        <RepeatScenesBlock items={repeats} near={nearPrevious ? [nearPrevious] : []} className="mt-10" />
 
         {spark && !keptChosen && (spark.edited || !cands.some((c) => c.sentence === spark.sentence)) && (
           <div className={`mt-6 ${SPARK_BOX}`}>
             <p className="text-xs font-semibold text-amber-900">持ち帰るひとつ{spark.edited ? "（直して使う）" : ""}</p>
             <p className="mt-1 text-[1.08rem] font-semibold leading-[1.7]">{spark.sentence}</p>
-            {spark.criterion && <p className="mt-1.5 text-[0.92rem] text-ink-2">できたかの基準：{spark.criterion}</p>}
+            {spark.criterion && (
+              <p className="mt-1.5 text-[0.92rem] text-ink-2">
+                {CRITERION_LABEL}：{spark.criterion}
+              </p>
+            )}
           </div>
         )}
         {session.sparkSkipped && !spark && <p className={`mt-6 ${NOTE}`}>今回は見送りました。次の面談では追跡しません。</p>}
@@ -289,7 +295,11 @@ export default function Screen4() {
           <div className={`mt-4 rounded-md border px-5 py-4 ${keptChosen ? "border-amber-300 bg-amber-50" : "border-line-2"}`}>
             <p className={`text-xs font-semibold ${keptChosen ? "text-amber-900" : "text-ink-3"}`}>{keptChosen ? "持ち帰るひとつ（前回のひとつを続ける）" : "前回のひとつを続ける"}</p>
             <p className="mt-1 text-[1.02rem] font-semibold leading-[1.7]">{prevSpark.sentence}</p>
-            {prevSpark.criterion && <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">できたかの基準：{prevSpark.criterion}</p>}
+            {prevSpark.criterion && (
+              <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">
+                {CRITERION_LABEL}：{prevSpark.criterion}
+              </p>
+            )}
             {/* AI の判定は、本人が自分の判定を付けた後にだけ出す */}
             {check?.result && check.selfVerdict && (
               <p className="mt-1.5 text-[0.86rem] leading-[1.7] text-ink-2">
