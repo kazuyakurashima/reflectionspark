@@ -1,7 +1,7 @@
 // 画面 2 の場面と地図のための小さな計算。AI を呼ばない。
 // - 場面に並べる発話の範囲：引用した発話（照合済み）のうち、最初の引用とつながっているひと続き。
 //   その直前と直後の発話はアプリが発話番号から足す（AI には書かせない。決まり 1）。
-// - 地図の区切り：工程 1 の「面談の流れ」の文の末尾にある発話番号の範囲を読む。読めなければ区切りを出さない。
+// - 地図の区切り：工程 1 の「面談の流れ」の各行にある発話番号の範囲を読む（行の頭・括弧の中・末尾）。読めなければ区切りを出さない。
 // - 話題ごとの話した量：区切りごとに、本人と相手が話した文字数を数える。点には入れず、良し悪しも付けない。
 
 import type { Quote, Utterance } from "../../engine/types.mts";
@@ -57,21 +57,38 @@ export function wideWindow(span: Pick<SceneSpan, "from" | "to">, refs: number[],
 export type Chapter = { from: number; to: number; text: string };
 
 /**
- * 「面談の流れ」の各文の末尾の「（発話 a〜b）」を読んで、地図の区切りにする。
+ * 「面談の流れ」の 1 行を、発話の範囲を書いた所と中身に分ける。範囲の書き方は AI が回ごとに変えるので、次の 3 つを読む。
+ * - 行の頭：「発話 0〜11：部活の話」
+ * - 括弧の中：「部活の話（発話 0〜11）」「部活の話（発話 0〜11）：続き」
+ * - 前からの形：末尾の括弧（中に「発話」と書いていなくても、番号が読めれば使う）
+ */
+function splitFlowLine(line: string): { refs: string; text: string } | null {
+  const s = line.trim();
+  let m = /^(発話\s*\d+(?:\s*[〜~～\-–]\s*\d+)?)\s*[：:]\s*([\s\S]+)$/u.exec(s);
+  if (m) return { refs: m[1], text: m[2].trim() };
+  m = /^([\s\S]*?)[（(]\s*(発話[^（）()]*)[）)]\s*[：:]?\s*([\s\S]*)$/u.exec(s);
+  if (m) return { refs: m[2], text: [m[1].trim(), m[3].trim().replace(/^[。、．，.,]+/u, "").trim()].filter((x) => x !== "").join("：") };
+  m = /^([\s\S]*?)[（(]([^（）()]*)[）)]\s*$/u.exec(s);
+  if (m) return { refs: m[2], text: m[1].trim() };
+  return null;
+}
+
+/**
+ * 「面談の流れ」の各行に書かれた発話の範囲を読んで、地図の区切りにする（書き方は splitFlowLine）。
  * 一つでも読めない・範囲の外・順番が前後するものがあれば、区切りは出さない（空を返す）。推し量って線を引かない。
  */
 export function chaptersOf(flow: string[], count: number): Chapter[] {
   const out: Chapter[] = [];
   for (const line of flow) {
-    const m = /^([\s\S]*?)[（(]([^（）()]*)[）)]\s*$/u.exec(line.trim());
+    const m = splitFlowLine(line);
     if (!m) return [];
-    const refs = findUtteranceRefs(m[2]);
+    const refs = findUtteranceRefs(m.refs);
     if (refs.length === 0) return [];
     const from = Math.min(...refs);
     const to = Math.max(...refs);
     const prev = out[out.length - 1];
     if (from < 0 || to >= count || (prev && from <= prev.to)) return [];
-    out.push({ from, to, text: m[1].trim() });
+    out.push({ from, to, text: m.text });
   }
   return out;
 }
