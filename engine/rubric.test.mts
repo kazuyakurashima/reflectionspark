@@ -34,6 +34,14 @@ describe("採点表（初版・仮）", () => {
     }
   });
 
+  test("工程 1 のプロンプトは、問いを次に試せる所だけに書かせ、よく表れた所には良かった所を書かせる（決まり 6）", () => {
+    const s = step1System("生徒");
+    assert.match(s, /よく表れた所には問いを書かない/);
+    assert.match(s, /読み（よく表れた所）：どこが良かったか/);
+    const strength = s.slice(s.indexOf('<scene type="よく表れた所">'), s.indexOf('<scene type="次に試せる所">'));
+    assert.doesNotMatch(strength, /<question>/);
+  });
+
   test("工程 1 のプロンプトは、場面を 5 項目に縛らず、点を書かせない（決まり 4・8）", () => {
     const s = step1System("生徒");
     assert.match(s, /5 項目に縛りません/);

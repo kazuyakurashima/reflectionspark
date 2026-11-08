@@ -137,6 +137,12 @@ describe("工程 1 の本文の読み取りと、引用の場面への当て方"
     assert.equal(r.noScene, null);
   });
 
+  test("決まり 6：問いは次に試せる所だけ。よく表れた所に問いが書かれていても使わない", () => {
+    const r = parseStep1(text, segments, utterances);
+    assert.equal(r.scenes[0].question, "");
+    assert.equal(r.scenes[1].question, "次に同じ場面が来たら、何を試しますか。");
+  });
+
   test("根拠のある場面が無いときは no_scene を読む", () => {
     const r = parseStep1("<no_scene>本人の関わりが読める発話が無い。</no_scene><summary>s</summary><flow>a</flow>", [], utterances);
     assert.equal(r.scenes.length, 0);

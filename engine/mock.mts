@@ -108,7 +108,7 @@ function pickSelf(utterances: Utterance[], self: string, prefer: RegExp, fallbac
   return selfs[Math.min(selfs.length - 1, Math.floor(selfs.length * fallbackRatio))] ?? utterances[0];
 }
 
-/** 仮の工程 1：本文に実際にある発話を引用し（照合も通す）、読みと問いは仮の文にする。 */
+/** 仮の工程 1：本文に実際にある発話を引用し（照合も通す）、読みと問いは仮の文にする。問いは次に試せる所だけ。 */
 export function mockStep1(t: Transcript): Step1Result {
   const { self } = SPEAKER_LABELS[t.kind];
   const good = pickSelf(t.utterances, self, /そっか|そうなんだ|なるほど/, 0.2);
@@ -123,10 +123,13 @@ export function mockStep1(t: Transcript): Step1Result {
     quotedTextInBody: u.text ?? "",
     observation: `${MOCK_NOTE}本人が何をしたかの事実だけを、本物の出力はここに書きます。`,
     reaction: `${MOCK_NOTE}直後の相手の発話がどう続いたかを、本物の出力はここに書きます。`,
-    reading: `${MOCK_NOTE}ここで何が起きたかの読みを、本物の出力は「〜と読める」の形でここに書きます。二文目以降は押すと開きます。`,
+    reading:
+      type === "よく表れた所"
+        ? `${MOCK_NOTE}本人のどの言葉が、相手の話をどう引き出したかを、本物の出力はここに具体的に書きます。`
+        : `${MOCK_NOTE}ここで何が起きたかの読みを、本物の出力は「〜と読める」の形でここに書きます。`,
     asChoice: type === "次に試せる所" ? `${MOCK_NOTE}本人にその選び方の理由があった可能性を、決めつけずにここに書きます。` : null,
-    question:
-      type === "よく表れた所" ? `${MOCK_NOTE}この場面で、相手の言葉をどう受け取っていましたか。` : `${MOCK_NOTE}次に同じ場面が来たら、何を試しますか。`,
+    // 問いは次に試せる所だけ（決まり 6）
+    question: type === "次に試せる所" ? `${MOCK_NOTE}次に同じ場面が来たら、何を試しますか。` : "",
     record: { whyChosen: `${MOCK_NOTE}選んだ理由（画面に出さない）`, runnerUp: [] },
   });
   return {

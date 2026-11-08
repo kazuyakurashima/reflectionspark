@@ -1,7 +1,7 @@
 // 工程 1：場面・読み・問い（画面 2）。Messages API、citations、streaming。
 // 受け取る：1 発話 1 ブロックの document、場面の種類、採点表 5 項目の考え方。
 // 渡さない：本人の自己採点と一言、覚えている記録、工程 0c の推測（決まり 10）。
-// 返す：場面 2 つ（引用は照合済みのものだけ）、サマリー、流れ、事情を尋ねる問い。選んだ理由と次点は記録だけ。
+// 返す：場面 2 つ（引用は照合済みのものだけ。問いは次に試せる所だけ）、サマリー、流れ、事情を尋ねる問い。選んだ理由と次点は記録だけ。
 
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -47,7 +47,8 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
       reaction: get("reaction"),
       reading: get("reading"),
       asChoice: type === "次に試せる所" ? get("as_choice") || null : null,
-      question: get("question"),
+      // よく表れた所には問いを置かない（決まり 6）。書かれていても使わない
+      question: type === "次に試せる所" ? get("question") : "",
       record: { whyChosen: get("why_chosen"), runnerUp: toUtteranceIndices(parseNumbers(get("runner_up")), utterances.length) },
     });
   }
