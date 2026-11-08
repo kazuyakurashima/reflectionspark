@@ -5,7 +5,7 @@ import { describe, test } from "node:test";
 
 import { blockText, blockTexts, verifyCitation } from "./citations.mts";
 import { step1System, step4System, step4UserText } from "./prompts.mts";
-import { parseStep1 } from "./step1.mts";
+import { keyIn, parseStep1 } from "./step1.mts";
 import { parseStep4 } from "./step4.mts";
 import { splitUtterance } from "./transcript-edit.mts";
 import type { Transcript, Utterance } from "./types.mts";
@@ -245,5 +245,57 @@ describe("工程 1：番号を文から分けた欄（11/8）", () => {
     assert.doesNotMatch(s, /<extra_question>/);
     // 面談の流れの行の頭は、発話の範囲（地図の区切りに使う）
     assert.match(s, /発話 0〜11：/);
+  });
+});
+
+describe("工程 1：見立ての要の一句（11/8）", () => {
+  test("要の一句は、読みの文にそのまま入っているときだけ受け取る", () => {
+    const reading = "気持ちを尋ねたことが、志望を口にすることにつながったと読める。";
+    assert.equal(keyIn(reading, " 志望を口にすることにつながった "), "志望を口にすることにつながった");
+    assert.equal(keyIn(reading, "志望を自分から口にした"), null); // 読みに無い言葉
+    assert.equal(keyIn(reading, ""), null);
+    assert.equal(keyIn(reading, reading), null); // 文の全体は要ではない
+  });
+
+  test("出力の欄から読み、読みに無い句は捨てる", () => {
+    const text = `<scene type="よく表れた所">
+<items></items>
+<context>c</context>
+<quote>q</quote>
+<observation>o</observation>
+<reaction>r</reaction>
+<reading>気持ちを尋ねたことが、志望を口にすることにつながったと読める。</reading>
+<reading_key>志望を口にすることにつながった</reading_key>
+<reading_refs>発話 2</reading_refs>
+<why_chosen>w</why_chosen>
+<runner_up></runner_up>
+</scene>
+<scene type="次に試せる所">
+<items></items>
+<context>c</context>
+<quote>q</quote>
+<observation>o</observation>
+<reaction>r</reaction>
+<reading>説明に移ったと読める。</reading>
+<reading_key>説明が長かった</reading_key>
+<reading_refs></reading_refs>
+<as_choice>a</as_choice>
+<question>次に同じ場面が来たら、何を試しますか。</question>
+<why_chosen>w</why_chosen>
+<runner_up></runner_up>
+</scene>
+<summary>s</summary>
+<flow>
+発話 0〜5：模試
+</flow>`;
+    const r = parseStep1(text, [], utterances);
+    assert.equal(r.scenes[0].readingKey, "志望を口にすることにつながった");
+    assert.equal(r.scenes[1].readingKey, null);
+  });
+
+  test("工程 1 のプロンプトは、両方の場面に要の一句の欄を置き、読みから写させる", () => {
+    const s = step1System("生徒");
+    assert.equal(s.split("</reading_key>").length - 1, 2);
+    assert.match(s, /読みの文から一字も変えずに写した/);
   });
 });

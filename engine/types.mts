@@ -154,6 +154,11 @@ export type Scene = {
   observation: string;
   reaction: string;
   reading: string;
+  /**
+   * 読みの要の一句（画面で目立たせる。11/8）。読みの文にそのまま入っているときだけ持つ（入っていなければ null）。
+   * 前の作りの出力には無い
+   */
+  readingKey?: string | null;
   /** 次に試せる所だけ */
   asChoice: string | null;
   question: string;

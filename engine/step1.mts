@@ -47,6 +47,8 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
       observation: get("observation"),
       reaction: get("reaction"),
       reading: get("reading"),
+      // 要の一句は、読みの文にそのまま入っているときだけ受け取る（目立たせる所を、AI が読みに無い言葉で作らないように）
+      readingKey: keyIn(get("reading"), get("reading_key")),
       asChoice: type === "次に試せる所" ? get("as_choice") || null : null,
       // よく表れた所には問いを置かない（決まり 6）。書かれていても使わない
       question: type === "次に試せる所" ? get("question") : "",
@@ -82,6 +84,12 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
     },
     rawText: text,
   };
+}
+
+/** 要の一句が、読みの文にそのまま入っていれば返す。空・読みの全体と同じ・入っていないときは null */
+export function keyIn(reading: string, key: string): string | null {
+  const k = key.trim();
+  return k !== "" && k !== reading.trim() && reading.includes(k) ? k : null;
 }
 
 /** 工程 1 を呼ぶ。 */

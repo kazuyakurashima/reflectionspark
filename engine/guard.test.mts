@@ -62,6 +62,18 @@ describe("本番の出力の検査（決まり 1・3）", () => {
     assert.deepEqual(r.withheld[0], { field: "scenes[0].reading", words: ["傾向"], original: "講師は話しすぎる傾向があると読める。" });
   });
 
+  test("工程 1：読みの要の一句は、守った後の読みにそのまま残るときだけ持つ（決まり 3）", () => {
+    const base = { noScene: null, summary: "", flow: [], extraQuestion: null, quoteStats: { generated: 0, discarded: 0, scenesWithoutQuote: 1 }, rawText: "" };
+    const kept = guardStep1({ ...base, scenes: [scene({ reading: "気持ちを尋ねたことが、志望を口にすることにつながったと読める。", readingKey: "志望を口にすることにつながった" })] }, utterances);
+    assert.equal(kept.scenes[0].readingKey, "志望を口にすることにつながった");
+    // 読みを控えたときは、句も目立たせない
+    const withheld = guardStep1({ ...base, scenes: [scene({ reading: "話しすぎる傾向があると読める。", readingKey: "話しすぎる" })] }, utterances);
+    assert.equal(withheld.scenes[0].readingKey, null);
+    // 前の作りの出力（欄が無い）は、欄を足さない
+    const old = guardStep1({ ...base, scenes: [scene({ reading: "読める。" })] }, utterances);
+    assert.equal("readingKey" in old.scenes[0], false);
+  });
+
   test("原文と一致した「」の中の言葉は検査しない。一致しない「」は外してから検査する", () => {
     const r = guardStep1(
       {

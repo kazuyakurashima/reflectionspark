@@ -140,7 +140,7 @@ export default function Screen2() {
         {guideOpen && analysis && !analysis.step1.noScene && !error && (
           <div id="reading-guide" className="mt-5 rounded-md bg-accent-soft px-5 py-4">
             <ul className="list-disc space-y-1.5 pl-5 text-[0.92rem] leading-[1.75] text-ink-2">
-              <li>AI の見立ては解釈で、合っているとは限りません。確かめられるのは原文の会話で、「会話を確認する」を押すと、見立てに関わる会話が開きます。</li>
+              <li>AI の見立ては解釈で、合っているとは限りません。色を付けた所は、AI が見立ての中でいちばん伝えたい所です。確かめられるのは原文の会話で、「会話を確認する」を押すと、見立てに関わる会話が開きます。</li>
               <li>うまくいった場面は、AI が「どこが良かったか」を書いています。</li>
               <li>課題が見えた場面は、AI の見立てを読み、問いに自分の考えを書きます（書かなくても進めます）。見立てと違う考えも、そのまま書いてください。答えから、次に試す行動の候補を作ります。</li>
             </ul>
@@ -453,7 +453,11 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
             </button>
           </div>
         ) : (
-          <>
+          <div id="ai-scores">
+            {/* 開いた AI の点数は、本人が閉じられる（閉じても自分の点数は変えない。また「AI の点数を見る」で開ける） */}
+            <div className="mt-1">
+              <MoreLink open onToggle={() => setScoresShown(false)} label="AI の点数を開く" openLabel="AI の点数を閉じる" controls="ai-scores" />
+            </div>
             <ScoreTable items={step2.items} total={step2.total} t={t} selfScore={session.selfScore} />
             <label className="mt-5 block text-[0.86rem] text-ink-2">
               自分の点数への一言（書かなくてもかまいません。AI に渡しません）
@@ -466,7 +470,7 @@ function Feedback({ t, a, session }: { t: Transcript; a: { step1: AnalyzeRespons
                 className="mt-1 block w-full border-0 border-b border-line-2 bg-transparent py-1.5 text-base text-ink placeholder:text-ink-3 focus:border-accent focus:outline-none"
               />
             </label>
-          </>
+          </div>
         )}
       </section>
 
@@ -812,6 +816,24 @@ function Facts({ t, scene, span, id }: { t: Transcript; scene: Scene; span: Scen
   );
 }
 
+/**
+ * AI の見立ての文。要の一句（AI が見立ての文から写して返したもの）を、蛍光ペン風に目立たせる（11/8 に本人が決めた）。
+ * 句が文にそのまま無いとき（前の作りの出力も）は、目立たせずにそのまま出す。
+ */
+function ReadingText({ t, text, keyPhrase }: { t: Transcript; text: string; keyPhrase: string | null }) {
+  const i = keyPhrase ? text.indexOf(keyPhrase) : -1;
+  if (!keyPhrase || i < 0) return <RefText t={t} text={text} />;
+  return (
+    <>
+      <RefText t={t} text={text.slice(0, i)} />
+      <mark className="key-mark">
+        <RefText t={t} text={keyPhrase} />
+      </mark>
+      <RefText t={t} text={text.slice(i + keyPhrase.length)} />
+    </>
+  );
+}
+
 const MATCH_NOTE = "「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。";
 
 /**
@@ -834,7 +856,7 @@ function SceneBody({ t, scene, answered }: { t: Transcript; scene: Scene; answer
           AI の見立て
           <span className="rounded-[3px] border border-line-2 px-1.5 py-px text-[0.7rem] leading-tight">解釈</span>
         </h3>
-        <p className="mt-1.5 whitespace-pre-line text-[1.08rem] leading-[1.85] text-pretty">{scene.reading ? <RefText t={t} text={scene.reading} /> : "（書かれていません）"}</p>
+        <p className="mt-1.5 whitespace-pre-line text-[1.08rem] leading-[1.85] text-pretty">{scene.reading ? <ReadingText t={t} text={scene.reading} keyPhrase={scene.readingKey ?? null} /> : "（書かれていません）"}</p>
       </section>
 
       <div className="mt-3">

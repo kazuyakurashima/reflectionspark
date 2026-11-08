@@ -37,6 +37,14 @@
   }
 }
 
+/* AI の見立ての要の一句（蛍光ペン風。文字の下半分に薄い青緑）。行が折り返しても、行ごとに同じ形で引く */
+.key-mark {
+  color: inherit;
+  background: linear-gradient(transparent 58%, #bcd6d9 58%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
   font-feature-settings: "palt" 1;

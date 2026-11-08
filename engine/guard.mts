@@ -65,12 +65,15 @@ export function guardText(text: string, field: string, utterances: Utterance[], 
 
 function guardScene(sc: Scene, i: number, utterances: Utterance[], log: GuardLog): Scene {
   const f = (name: string) => `scenes[${i}].${name}`;
+  const reading = guardText(sc.reading, f("reading"), utterances, log);
   return {
     ...sc,
     context: guardText(sc.context, f("context"), utterances, log),
     observation: guardText(sc.observation, f("observation"), utterances, log),
     reaction: guardText(sc.reaction, f("reaction"), utterances, log),
-    reading: guardText(sc.reading, f("reading"), utterances, log),
+    reading,
+    // 要の一句は、守った後の読みにそのまま残っているときだけ目立たせる（読みを控えた・「」を外したときは目立たせない）
+    ...(sc.readingKey !== undefined ? { readingKey: sc.readingKey && reading.includes(sc.readingKey) ? sc.readingKey : null } : {}),
     asChoice: sc.asChoice === null ? null : guardText(sc.asChoice, f("asChoice"), utterances, log),
     question: guardText(sc.question, f("question"), utterances, log),
     record: { ...sc.record, whyChosen: guardText(sc.record.whyChosen, f("record.whyChosen"), utterances, log) },
