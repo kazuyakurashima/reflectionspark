@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
+import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { CHECK_EDITED_BY_USER } from "@/app/lib/view";
 import { GAP_NOTICE, guessViews, isGap } from "@/app/lib/check-groups.mts";
 import { correctionsOf } from "./UtteranceView";
@@ -59,7 +60,7 @@ export function CheckUtterance({
   };
   const before = showContext ? t.utterances.slice(Math.max(0, u.index - CONTEXT), u.index) : [];
   const after = showContext ? t.utterances.slice(u.index + 1, u.index + 1 + CONTEXT) : [];
-  const text = u.text ?? `（発話 ${u.index} の本文は出せません）`;
+  const text = u.text ?? `（${utteranceLabel(u.index)} の本文は出せません）`;
   const commitText = () => {
     setEditing(false);
     if (draft === (u.text ?? "")) return;
@@ -89,7 +90,7 @@ export function CheckUtterance({
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
         className="w-full rounded border border-stone-300 bg-white p-2 text-sm"
-        aria-label={`発話 ${u.index} の本文`}
+        aria-label={`${utteranceLabel(u.index)} の本文`}
       />
       <div className="mt-1 flex flex-wrap gap-2 text-sm">
         <button type="button" onClick={commitText} className="rounded bg-stone-800 px-3 py-1 text-white">
@@ -183,8 +184,8 @@ export function CheckUtterance({
           {ask === "speaker"
             ? corrected
               ? `「${u.speaker}が『${corrections.map((c) => c.after).join("…")}』と言った」で合っていますか。話者が違えば上の［${self}｜${other}］で入れ替え、言葉が違えば「元の文に戻す」か「本文を直す」。合っていれば何もしなくてかまいません。`
-              : `発話 ${u.index} を言ったのは「${u.speaker}」で合っていますか。違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
-            : `発話 ${u.index} に二人の言葉が混ざっていないか。混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。`}
+              : `${utteranceLabel(u.index)} を言ったのは「${u.speaker}」で合っていますか。違えば、上の［${self}｜${other}］で入れ替えてください。合っていれば何もしなくてかまいません。`
+            : `${utteranceLabel(u.index)} に二人の言葉が混ざっていないか。混ざっていれば「本文を直す」を押し、分けたい所にカーソルを置いて「カーソルの位置で分ける」。`}
           {ask === "speaker" && u.confidenceReason && <span className="text-xs text-sky-800">（Claude が迷った理由：{u.confidenceReason}）</span>}
         </p>
       )}
@@ -201,7 +202,7 @@ export function CheckUtterance({
                   <Line key={n.index} n={n} text={n.original} marks={nb(n).map((c) => c.before)} markClass={MARK_BEFORE} />
                 ))}
               </Block>
-              <Block title="直した後（Claude の直し）" hint={`色の付いた所が、Claude が直した所です（前後の発話も。発話 ${u.index} は${[...new Set(corrections.map((c) => c.kind))].join("、")}）。違っていたら「元の文に戻す」か「本文を直す」。`}>
+              <Block title="直した後（Claude の直し）" hint={`色の付いた所が、Claude が直した所です（前後の発話も。${utteranceLabel(u.index)} は${[...new Set(corrections.map((c) => c.kind))].join("、")}）。違っていたら「元の文に戻す」か「本文を直す」。`}>
                 {before.map((n) => (
                   <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
                 ))}

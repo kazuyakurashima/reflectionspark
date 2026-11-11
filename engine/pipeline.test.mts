@@ -49,7 +49,7 @@ describe("工程 0 → 1 → 2 の配線（偽のクライアント）", () => {
     const text0b = JSON.stringify({ corrections: [{ index: 1, kind: "同音の取り違え", before: "古文", after: "顧問" }] });
     const text0c = JSON.stringify({ summary: "進路の面談。", places: [{ index: 1, kind: "崩れ", fragment: "古文の先生", guess: "顧問の先生", clue: "部活の話" }] });
     // 工程 1 の返事：引用のブロックに citation が付く
-    const quoteBlock = "講師：そっか、吹奏楽来月が最後のコンクールだっけ。";
+    const quoteBlock = "〔発話 2〕講師：そっか、吹奏楽来月が最後のコンクールだっけ。";
     const step1Content = [
       { type: "text", text: '<scene type="よく表れた所">\n<items>1</items>\n<context>部活の話。</context>\n<quote>', citations: null },
       {
@@ -109,6 +109,14 @@ describe("工程 0 → 1 → 2 の配線（偽のクライアント）", () => {
     assert.equal(doc.source?.type, "content");
     assert.equal(doc.source?.content.length, 4);
     assert.equal(doc.source?.content[2].text, blockText(fixedT.utterances[2]));
+    // 各ブロックの先頭に発話番号の札がある（AI に発話を数えさせない）。札の番号は並びの位置
+    assert.deepEqual(
+      doc.source?.content.map((b) => b.text.slice(0, 6)),
+      ["〔発話 0〕", "〔発話 1〕", "〔発話 2〕", "〔発話 3〕"],
+    );
+    const p1sys = (calls[0].params as { system: { text: string }[] }).system[0].text;
+    assert.match(p1sys, /札の番号/);
+    assert.match(p1sys, /自分で数え直しません/);
     assert.deepEqual(doc.citations, { enabled: true });
     assert.equal(r1.scenes.length, 1);
     assert.equal(r1.scenes[0].quotes.length, 1);

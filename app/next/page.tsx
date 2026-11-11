@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FollowUpResponse, Step0Response } from "@/engine/server.mts";
 import { splitUtterance } from "@/engine/transcript-edit.mts";
 import type { FollowUpVerdict, Utterance } from "@/engine/types.mts";
+import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { CheckGroups } from "@/app/components/CheckGroups";
 import { CheckUtterance } from "@/app/components/CheckUtterance";
 import { countChecks, countToCheck, groupChecks } from "@/app/lib/check-groups.mts";
@@ -244,7 +245,7 @@ export default function Screen5() {
                         <p className="mt-1 text-xs text-stone-500">
                           {transcript.utterances[q.index]?.speaker}・
                           <button type="button" onClick={() => setOpenQuote(openQuote === q.index ? null : q.index)} className="text-sky-800 hover:underline">
-                            発話 {q.index}
+                            {utteranceLabel(q.index)}
                           </button>
                           <span className="ml-2 rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">引用は原文と一致</span>
                         </p>

@@ -3,6 +3,7 @@
 // 画面 1・5：確かめる所を種類ごとに出す。区切り・話者・相手の数は一つずつ、聞き違いの直しは同じ直しを 1 行にまとめ、一つずつは畳む。
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
+import { utteranceListLabel } from "@/engine/utterance-no.mts";
 import type { CheckGroups as Groups } from "@/app/lib/check-groups.mts";
 import { CheckUtterance } from "./CheckUtterance";
 import { Collapsible } from "./Collapsible";
@@ -29,7 +30,7 @@ export function CheckGroups({ t, groups, onChange, onSplit, className = "" }: { 
               <li key={`${c.before}→${c.after}`}>
                 「<span className="text-stone-500 line-through">{c.before}</span>」→「<span className="font-semibold">{c.after}</span>」
                 <span className="ml-2 text-xs text-stone-500">
-                  {c.indices.length} か所（発話 {c.indices.join("、")}）・{c.kind}
+                  {c.indices.length} か所（{utteranceListLabel(c.indices)}）・{c.kind}
                 </span>
               </li>
             ))}

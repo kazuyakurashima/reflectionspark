@@ -11,6 +11,7 @@ import { step4System, step4UserText } from "./prompts.mts";
 import { computeTotal } from "./rubric.mts";
 import { findTags, parseNumbers, tagText } from "./tagged.mts";
 import type { FollowUpVerdict, ItemNumber, ItemScore, Quote, Spark, Step4Result, Transcript, Utterance } from "./types.mts";
+import { checkUtteranceRefs, toUtteranceIndices } from "./utterance-no.mts";
 
 const VERDICTS: FollowUpVerdict[] = ["できた", "一部", "まだ", "場面がなかった"];
 
@@ -31,17 +32,21 @@ export function parseStep4(text: string, segments: TextSegment[], utterances: Ut
       item: n,
       score,
       reason: tag.inner.trim(),
-      utterances: parseNumbers(tag.attrs.utterances ?? "").filter((u) => u >= 0 && u < utterances.length),
+      utterances: toUtteranceIndices(parseNumbers(tag.attrs.utterances ?? ""), utterances.length),
     };
   });
+  const why = tagText(text, "why");
+  const otherPersonLine = tagText(text, "other_line") || null;
   return {
     verdict,
     quotes,
     discardedQuotes,
-    why: tagText(text, "why"),
+    why,
     items,
     total: computeTotal(items),
-    otherPersonLine: tagText(text, "other_line") || null,
+    otherPersonLine,
+    // 文の中の「発話 n」が、発話の並びの範囲にあるか（番号のずれの見張り）
+    utteranceRefs: checkUtteranceRefs([why, ...items.map((i) => i.reason), otherPersonLine], utterances.length),
     quoteStats: { generated: all.length, discarded: discardedQuotes.length },
     rawText: text,
   };

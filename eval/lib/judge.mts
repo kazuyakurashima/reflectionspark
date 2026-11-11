@@ -5,6 +5,7 @@
 
 import { callStructured, JUDGE_MODEL } from "../../engine/claude.mts";
 import type { CallMeta, Candidate, Scene, Transcript } from "../../engine/types.mts";
+import { blockLabel, utteranceLabel } from "../../engine/utterance-no.mts";
 
 export type Judgement = { score: number; reason: string };
 
@@ -29,11 +30,11 @@ async function judge(label: string, user: string): Promise<Judgement & { meta: C
 }
 
 function sceneText(sc: Scene, t: Transcript): string {
-  const quotes = sc.quotes.map((q) => `〔発話 ${q.index}〕${q.text}`).join("\n");
+  const quotes = sc.quotes.map((q) => `${blockLabel(q.index)}${q.text}`).join("\n");
   const around = sc.quotes
     .flatMap((q) => [q.index - 1, q.index + 1])
     .filter((i) => i >= 0 && i < t.utterances.length)
-    .map((i) => `〔発話 ${i}・${t.utterances[i].speaker}〕${t.utterances[i].text ?? "（本文なし）"}`)
+    .map((i) => `〔${utteranceLabel(i)}・${t.utterances[i].speaker}〕${t.utterances[i].text ?? "（本文なし）"}`)
     .join("\n");
   return `場面の種類：${sc.type}
 文脈の一行：${sc.context}
