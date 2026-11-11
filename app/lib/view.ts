@@ -46,8 +46,8 @@ export function around(t: Transcript, index: number, width = 2): Utterance[] {
   return t.utterances.slice(Math.max(0, index - width), Math.min(t.utterances.length, index + width + 1));
 }
 
-/** 本人が画面 1 で直した印 */
-export const CHECK_EDITED_BY_USER = "本人が直した";
+/** 本人が画面 1 で直した印（文字列の正本は check-groups.mts） */
+export { MARK_EDITED as CHECK_EDITED_BY_USER } from "./check-groups.mts";
 
 /** 倫理チェックの記号（色だけに頼らない） */
 export function ethicsMark(level: string): string {

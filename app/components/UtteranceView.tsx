@@ -5,6 +5,7 @@
 // 工程 0b で直した所がある発話は、元の文字起こしも添える。
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
+import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { around } from "@/app/lib/view";
 
 export function guessesOf(t: Transcript, index: number) {
@@ -15,16 +16,17 @@ export function correctionsOf(t: Transcript, index: number) {
   return t.step0b.applied.filter((c) => c.index === index);
 }
 
-export function UtteranceLine({ t, u, highlight = false }: { t: Transcript; u: Utterance; highlight?: boolean }) {
+export function UtteranceLine({ t, u, highlight = false, tag }: { t: Transcript; u: Utterance; highlight?: boolean; /** 行の役目の札（直前・引用・直後など）。色だけに頼らないため */ tag?: string }) {
   const guesses = guessesOf(t, u.index);
   const corrections = correctionsOf(t, u.index);
   const corrected = corrections.length > 0 && u.text !== u.original;
   return (
     <div className={`rounded px-3 py-2 text-sm ${highlight ? "border-l-4 border-amber-500 bg-amber-50" : "border-l-4 border-transparent"}`}>
       <div className="flex gap-2">
+        {tag && <span className={`w-8 shrink-0 text-xs ${highlight ? "font-semibold text-amber-900" : "text-stone-500"}`}>{tag}</span>}
         <span className="shrink-0 font-mono text-xs text-stone-500">{u.index}</span>
         <span className="shrink-0 font-semibold text-stone-700">{u.speaker}</span>
-        <span className="whitespace-pre-wrap">{u.text ?? `（発話 ${u.index} の本文は出せません）`}</span>
+        <span className="whitespace-pre-wrap">{u.text ?? `（${utteranceLabel(u.index)} の本文は出せません）`}</span>
       </div>
       {guesses.map((g, i) => (
         <div key={i} className="mt-1 ml-6 rounded bg-stone-100 px-2 py-1 text-xs text-stone-700">

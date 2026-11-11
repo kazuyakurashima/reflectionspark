@@ -12,6 +12,7 @@ import { guardStep1 } from "./guard.mts";
 import { step1System, step1UserText } from "./prompts.mts";
 import { findTags, parseNumbers, tagText } from "./tagged.mts";
 import type { Quote, Scene, SceneType, Step1Result, Transcript, Utterance } from "./types.mts";
+import { checkUtteranceRefs, toUtteranceIndices } from "./utterance-no.mts";
 
 export type Step1Options = {
   onText?: (delta: string) => void;
@@ -47,7 +48,7 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
       reading: get("reading"),
       asChoice: type === "次に試せる所" ? get("as_choice") || null : null,
       question: get("question"),
-      record: { whyChosen: get("why_chosen"), runnerUp: parseNumbers(get("runner_up")) },
+      record: { whyChosen: get("why_chosen"), runnerUp: toUtteranceIndices(parseNumbers(get("runner_up")), utterances.length) },
     });
   }
   const noScene = tagText(text, "no_scene") || null;
@@ -55,12 +56,20 @@ export function parseStep1(text: string, segments: TextSegment[], utterances: Ut
     .split(/\r?\n/)
     .map((l) => l.replace(/^[-・\d.．、)]+\s*/, "").trim())
     .filter((l) => l !== "");
+  const summary = tagText(text, "summary");
+  const extraQuestion = tagText(text, "extra_question") || null;
+  // 文の中の「発話 n」が、発話の並びの範囲にあるか（番号のずれの見張り）
+  const utteranceRefs = checkUtteranceRefs(
+    [...scenes.flatMap((s) => [s.context, s.observation, s.reaction, s.reading, s.asChoice, s.question, s.record.whyChosen]), noScene, summary, ...flow, extraQuestion],
+    utterances.length,
+  );
   return {
     scenes,
     noScene,
-    summary: tagText(text, "summary"),
+    summary,
     flow,
-    extraQuestion: tagText(text, "extra_question") || null,
+    extraQuestion,
+    utteranceRefs,
     quoteStats: {
       generated: all.length,
       discarded: all.filter((x) => !x.quote.verified).length,

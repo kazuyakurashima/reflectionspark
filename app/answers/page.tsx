@@ -31,6 +31,7 @@ export default function Screen3() {
     <main className="mx-auto max-w-3xl px-4 py-6">
       <h1 className="text-xl font-bold">3. 自分の言葉で</h1>
       <p className="mt-1 text-sm text-stone-600">問いに、自分の言葉で答えを書きます。ここでは AI を呼びません。答えは次の画面で、行動の候補を作る材料になります。全部に答えなくてもかまいません。</p>
+      <p className="mt-1 text-sm text-stone-600">AI の読みと違うと思う所は、そのまま書いてください。違う考えも、振り返りの大事な材料です。</p>
 
       <div className="mt-5 space-y-4">
         {questions.map((q, i) => (

@@ -3,6 +3,7 @@
 // 画面 2：フィードバックを読む。先に自分の点と一言を付ける（AI に渡さない）。そのあと、
 // ひと目で → サマリー → 面談の流れ → よく表れた所 → 次に試せる所 → 問い → 項目ごとの点と合計 → 気づきの持ち主 → 数えた記録 → 倫理チェック
 // の順に置く（docs/設計書.md「画面 2 の出力の形と見せ方」）。要点だけを先に見せ、詳しい所は押すと開く。
+// 場面は、確かめられること（原文の 3 行、観察、直後の相手の反応）を先に、AI の読みを後に置く。AI の読みは最初は閉じ、開くのに入力は求めない。
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -10,11 +11,12 @@ import { useEffect, useRef, useState } from "react";
 import type { AnalyzeResponse } from "@/engine/server.mts";
 import type { Scene, Transcript } from "@/engine/types.mts";
 import { RUBRIC_ITEMS } from "@/engine/rubric.mts";
-import { Collapsible, ReadMore } from "@/app/components/Collapsible";
+import { utteranceListLabel, utteranceRangeLabel, utterancesAround } from "@/engine/utterance-no.mts";
+import { Collapsible } from "@/app/components/Collapsible";
 import { ScoreTable } from "@/app/components/Scores";
-import { UtteranceContext } from "@/app/components/UtteranceView";
+import { UtteranceLine } from "@/app/components/UtteranceView";
 import { updateSession, useSession } from "@/app/lib/session";
-import { countTranscript, ethicsMark, splitFirstSentence } from "@/app/lib/view";
+import { countTranscript, ethicsMark } from "@/app/lib/view";
 
 export default function Screen2() {
   const session = useSession();
@@ -192,6 +194,12 @@ function Feedback({
         )}
       </section>
 
+      {(good || next) && (
+        <p className="rounded border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-600">
+          場面の読み方：上から「原文のやりとり」（文字起こしのまま）、「文字起こしから確かめられること」（AI が書いた、事実の説明）、「AI の読み」（解釈。最初は閉じています）、「問い」（あなたが考える所）の順に並べています。「引用は原文と一致」は、引用が文字起こしのとおりであることの印で、AI の読みが合っていることの印ではありません。
+        </p>
+      )}
+
       {good && <SceneCard id="good" n={4} scene={good} t={t} />}
       {next && <SceneCard id="next" n={5} scene={next} t={t} />}
 
@@ -227,7 +235,7 @@ function Feedback({
             </li>
             {counts.longestRun && (
               <li>
-                いちばん長く続けて話した：{counts.longestRun.speaker}、{counts.longestRun.chars} 字（発話 {counts.longestRun.from}〜{counts.longestRun.to}）
+                いちばん長く続けて話した：{counts.longestRun.speaker}、{counts.longestRun.chars} 字（{utteranceRangeLabel(counts.longestRun.from, counts.longestRun.to)}）
               </li>
             )}
           </ul>
@@ -243,7 +251,7 @@ function Feedback({
               <p className="text-sm">
                 {step2.ethics.text}
                 {step2.ethics.viewpoint && `（観点：${step2.ethics.viewpoint}）`}
-                {step2.ethics.utterances.length > 0 && `（発話 ${step2.ethics.utterances.join("、")}）`}
+                {step2.ethics.utterances.length > 0 && `（${utteranceListLabel(step2.ethics.utterances)}）`}
               </p>
             </Collapsible>
           )}
@@ -262,9 +270,18 @@ function Feedback({
 }
 
 function SceneCard({ id, n, scene, t }: { id: string; n: number; scene: Scene; t: Transcript }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const reading = splitFirstSentence(scene.reading);
+  const [wide, setWide] = useState(false);
   const quote = scene.quotes[0];
+  // 引用した発話と、直前・直後の発話。アプリが発話番号から取る（AI には書かせない。決まり 1）
+  const lines = quote ? utterancesAround(t.utterances, quote.index, quote.endIndex, wide ? 3 : 1) : [];
+  const quoted = (i: number) => quote !== undefined && i >= quote.index && i < Math.max(quote.endIndex, quote.index + 1);
+  const tagOf = (i: number) => {
+    if (!quote) return undefined;
+    if (quoted(i)) return "引用";
+    if (i === quote.index - 1) return "直前";
+    if (i === Math.max(quote.endIndex, quote.index + 1)) return "直後";
+    return undefined;
+  };
   return (
     <section id={id} className="rounded border border-stone-200 bg-white p-4">
       <h2 className="font-bold">
@@ -274,40 +291,56 @@ function SceneCard({ id, n, scene, t }: { id: string; n: number; scene: Scene; t
       {scene.items.length > 0 && (
         <p className="mt-1 text-xs text-stone-500">関わる項目：{scene.items.map((i) => `${i} ${RUBRIC_ITEMS.find((r) => r.n === i)?.name ?? ""}`).join("、")}</p>
       )}
-      {quote ? (
-        <blockquote className="mt-3 border-l-4 border-stone-400 pl-3">
-          <p className="text-sm">「{quote.text}」</p>
-          <p className="mt-1 text-xs text-stone-500">
-            {t.utterances[quote.index]?.speaker}・
-            <button type="button" onClick={() => setOpenIndex(openIndex === quote.index ? null : quote.index)} className="text-sky-800 hover:underline">
-              発話 {quote.index}
-            </button>
-            <span className="ml-2 rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">引用は原文と一致</span>
-          </p>
-          {openIndex !== null && <UtteranceContext t={t} index={openIndex} />}
-        </blockquote>
-      ) : (
-        <p className="mt-3 text-sm text-stone-600">この場面には、原文と一致した引用がありません。</p>
-      )}
-      <div className="mt-3 text-sm">
-        <p className="font-semibold">何が起きたか</p>
-        <ReadMore first={reading.first} rest={reading.rest} />
-        <Collapsible label="観察と直後の相手の反応を開く" className="mt-1">
-          <dl className="space-y-1 text-sm">
-            <dt className="font-semibold">観察</dt>
-            <dd>{scene.observation}</dd>
-            <dt className="font-semibold">直後の相手の反応</dt>
-            <dd>{scene.reaction}</dd>
+
+      <div className="mt-3">
+        <h3 className="text-xs font-semibold text-stone-500">原文のやりとり（直前・引用した発話・直後）</h3>
+        {quote ? (
+          <>
+            <div className="mt-1 divide-y divide-stone-100 rounded border border-stone-200">
+              {lines.map((u) => (
+                <UtteranceLine key={u.index} t={t} u={u} highlight={quoted(u.index)} tag={tagOf(u.index) ?? "　"} />
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-stone-500">
+              <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-800">引用は原文と一致</span>
+              <span className="ml-2">「引用」の行（{utteranceRangeLabel(quote.index, Math.max(quote.endIndex, quote.index + 1) - 1)}）が、AI が引用した発話です。</span>
+              <button type="button" onClick={() => setWide((w) => !w)} aria-expanded={wide} className="ml-2 text-sky-800 underline-offset-2 hover:underline">
+                {wide ? "直前・直後だけに戻す" : "前後をもう少し読む"}
+              </button>
+            </p>
+          </>
+        ) : (
+          <p className="mt-1 text-sm text-stone-600">この場面には、原文と一致した引用がありません。</p>
+        )}
+      </div>
+
+      <div className="mt-4 text-sm">
+        <h3 className="text-xs font-semibold text-stone-500">文字起こしから確かめられること（AI が書いた、事実の説明）</h3>
+        <dl className="mt-1 space-y-1 border-l-2 border-stone-400 pl-3">
+          <dt className="font-semibold">観察</dt>
+          <dd>{scene.observation || "（書かれていません）"}</dd>
+          <dt className="font-semibold">直後の相手の反応</dt>
+          <dd>{scene.reaction || "（書かれていません）"}</dd>
+        </dl>
+      </div>
+
+      <div className="mt-4 text-sm">
+        <h3 className="text-xs font-semibold text-stone-500">AI の読み（解釈）</h3>
+        <p className="mt-1 text-xs text-stone-500">開く前に、自分ならこの場面をどう読むかを考えてみてください。何も書かなくても開けます。AI の読みと自分の考えが違っていてかまいません。</p>
+        <Collapsible label="AI の読みを開く" openLabel="AI の読みを閉じる" className="mt-1">
+          <div className="space-y-2 border-l-2 border-dashed border-stone-400 pl-3">
+            <p>{scene.reading || "（書かれていません）"}</p>
             {scene.asChoice && (
-              <>
-                <dt className="font-semibold">意図した選択として見ると</dt>
-                <dd>{scene.asChoice}</dd>
-              </>
+              <div>
+                <p className="font-semibold">意図した選択として見ると</p>
+                <p>{scene.asChoice}</p>
+              </div>
             )}
-          </dl>
+          </div>
         </Collapsible>
       </div>
-      <p className="mt-3 rounded bg-stone-50 px-3 py-2 text-sm">
+
+      <p className="mt-4 rounded bg-stone-50 px-3 py-2 text-sm">
         <span className="font-semibold">問い</span>　{scene.question}
       </p>
     </section>
