@@ -1,5 +1,6 @@
 // 評価の軸（docs/設計書.md「評価で見ること」の軸 1〜12）をプログラムで計算する部品。
 // 軸は 1 つの点にまとめず、別々に返す。LLM 判定（軸 3・4・10、12 の推測の意味）は judge.mts。
+// 軸 12 の 0c：「抜け」（言葉が抜けていて推測できないと答えた所）は推測とは別に数え、LLM 判定に回さない（needsMeaningJudge）。
 // 「主な数字は作り手が確かめた所だけで出す」：正解の範囲は source（作り手／決め／案）で分けて持ち、
 // 〔案〕の結果は別の欄に出す。
 
@@ -416,8 +417,14 @@ export type Axis12 = {
   mismatchTouched: number;
   missed: { line: number; memoText: string }[];
   guesses: GuessJudgement[];
+  /** 推測（「崩れ」「話者の取り違え」）の数。「抜け」は入れない */
   guessStats: { total: number; reallyBroken: number; guessMatchesScript: number; changedCorrect: number; unaligned: number };
+  /** 「抜け」と答えた所。reallyMissing は、その所の前後で台本の文字が文字起こしに GAP_MIN_CHARS 字以上続けて無い数。unaligned は台本との対応が取れなかった数 */
+  gapStats: { total: number; reallyMissing: number; unaligned: number };
 };
+
+/** 「抜け」を「台本で言葉が落ちていた」と数える、続けて無い台本の文字数の下限（1 字は助詞の揺れや対応付けのずれで出るので数えない） */
+export const GAP_MIN_CHARS = 2;
 
 export type GuessJudgement = {
   index: number;
@@ -429,7 +436,40 @@ export type GuessJudgement = {
   /** 正しい発話に推測を付けて意味を変えた（断片は台本と合っていたのに推測が違う） */
   changedCorrect: boolean;
   scriptWindow: string | null;
+  /** 「抜け」だけ：抜けと見た所の前後で、台本の文字が文字起こしに続けて無い数（いちばん大きい飛び。文字起こしに無い行の文字も数える）。対応が取れなければ null */
+  gapChars: number | null;
 };
+
+/** 軸 12 の推測の意味の判定（LLM）に回すか。「崩れ」で台本の対応がある所だけ。「抜け」と「話者の取り違え」は回さない */
+export function needsMeaningJudge(g: Pick<GuessJudgement, "kind" | "scriptWindow">): boolean {
+  return g.kind === "崩れ" && g.scriptWindow !== null;
+}
+
+/**
+ * ボイスメモの範囲 [start, end)（元の文字列の位置）の前後 1 字を含めて、対応した台本の文字の添字を順に並べ、
+ * 隣どうしの飛び（間にある、文字起こしに無い台本の文字の数）のいちばん大きいものを返す。
+ * 文字起こしに無い行の文字は対応なしなので、行ごと落ちた所もこの飛びに入る。対応した文字が無ければ null。
+ */
+export function missingScriptCharsAround(a: Alignment, start: number, end: number): number | null {
+  const idx = a.memo.index;
+  let k0 = 0;
+  while (k0 < idx.length && idx[k0] < start) k0++;
+  let k1 = k0;
+  while (k1 < idx.length && idx[k1] < end) k1++;
+  const from = Math.max(0, k0 - 1);
+  const to = Math.min(idx.length, k1 + 1);
+  let prev = -1;
+  let found = false;
+  let max = 0;
+  for (let k = from; k < to; k++) {
+    const si = a.memoCharScript[k];
+    if (si < 0) continue;
+    if (prev >= 0 && si > prev) max = Math.max(max, si - prev - 1);
+    prev = si;
+    found = true;
+  }
+  return found ? max : null;
+}
 
 /** 発話の中の断片の、元の文字起こしでの範囲 [start, end) を返す */
 function spanOfFragment(u: Utterance, fragment: string): [number, number] | null {
@@ -491,7 +531,9 @@ export function axis12(t: Transcript, a: Alignment): Axis12 {
     const u = t.utterances[g.index];
     const span = u ? spanOfFragment(u, g.fragment) : null;
     const win = span ? scriptWindowForMemoSpan(a, span[0], span[1], 0) : null;
-    const reallyBroken = span ? spotsIn(spots, span[0], span[1]) > 0 : null;
+    const gap = g.kind === "抜け";
+    // 「抜け」は推測ではないので、崩れていたか・推測が合うかは見ず、その所で台本の言葉が落ちているかだけを見る
+    const reallyBroken = gap || !span ? null : spotsIn(spots, span[0], span[1]) > 0;
     const fragmentInScript = sameAsScript(win?.chars ?? null, g.fragment);
     const guessMatchesScript = g.kind === "崩れ" ? sameAsScript(win?.chars ?? null, g.guess) : null;
     guesses.push({
@@ -503,8 +545,11 @@ export function axis12(t: Transcript, a: Alignment): Axis12 {
       guessMatchesScript,
       changedCorrect: g.kind === "崩れ" && fragmentInScript === true && guessMatchesScript === false,
       scriptWindow: win ? win.chars.join("") : null,
+      gapChars: gap && span ? missingScriptCharsAround(a, span[0], span[1]) : null,
     });
   }
+  const judged = guesses.filter((g) => g.kind !== "抜け");
+  const gaps = guesses.filter((g) => g.kind === "抜け");
   const missed = spots.filter((_, i) => !touched.has(i)).map((s) => ({ line: s.line, memoText: s.memoText }));
   return {
     corrections,
@@ -520,11 +565,16 @@ export function axis12(t: Transcript, a: Alignment): Axis12 {
     missed,
     guesses,
     guessStats: {
-      total: guesses.length,
-      reallyBroken: guesses.filter((g) => g.reallyBroken === true).length,
-      guessMatchesScript: guesses.filter((g) => g.guessMatchesScript === true).length,
-      changedCorrect: guesses.filter((g) => g.changedCorrect).length,
-      unaligned: guesses.filter((g) => g.reallyBroken === null).length,
+      total: judged.length,
+      reallyBroken: judged.filter((g) => g.reallyBroken === true).length,
+      guessMatchesScript: judged.filter((g) => g.guessMatchesScript === true).length,
+      changedCorrect: judged.filter((g) => g.changedCorrect).length,
+      unaligned: judged.filter((g) => g.reallyBroken === null).length,
+    },
+    gapStats: {
+      total: gaps.length,
+      reallyMissing: gaps.filter((g) => g.gapChars !== null && g.gapChars >= GAP_MIN_CHARS).length,
+      unaligned: gaps.filter((g) => g.gapChars === null).length,
     },
   };
 }

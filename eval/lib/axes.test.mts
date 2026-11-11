@@ -3,7 +3,7 @@ import { describe, test } from "node:test";
 
 import type { Step1Result, Step2Result, Transcript } from "../../engine/types.mts";
 import { alignScriptToMemo, parseScript } from "./align.mts";
-import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, judgementWordsIn, quoteIndices, step0Variance, truthLines } from "./axes.mts";
+import { axis1, axis11, axis12, axis2, axis5, axis6, axis8, axis9, GAP_MIN_CHARS, judgementWordsIn, missingScriptCharsAround, needsMeaningJudge, quoteIndices, step0Variance, truthLines } from "./axes.mts";
 import type { Truth } from "./truth.mts";
 
 const script = parseScript(
@@ -251,6 +251,45 @@ describe("軸の計算", () => {
     assert.equal(r.guesses[0].reallyBroken, true);
     assert.equal(r.guesses[0].guessMatchesScript, true);
     assert.equal(r.guesses[0].changedCorrect, false);
+  });
+
+  test("軸 12：「抜け」（設計書 工程 0c）は推測とは別に数え、意味の判定に回さない。抜けと見た所の前後で台本の言葉が落ちているかを数える", () => {
+    const t: Transcript = {
+      ...transcript,
+      step0c: {
+        summary: "進路の面談。",
+        guesses: [
+          { index: 1, kind: "崩れ", fragment: "古文の先生", guess: "顧問の先生", clue: "部活の話" },
+          // 発話 3「会場はどこ」の直前で、台本の 4 行目（はい。それで引退です。）がまるごと落ちている
+          { index: 3, kind: "抜け", fragment: "会場はどこ", guess: "", clue: "問いの前に、相手の返事が無い" },
+          // 何も落ちていない所に付けた「抜け」
+          { index: 1, kind: "抜け", fragment: "早めに終わりました", guess: "", clue: "" },
+          { index: 3, kind: "話者の取り違え", fragment: "会場はどこ", guess: "講師", clue: "問いの形" },
+        ],
+      },
+    };
+    const r = axis12(t, a);
+    // 推測（崩れ・話者の取り違え）の数に抜けは入れない
+    assert.equal(r.guessStats.total, 2);
+    assert.equal(r.guessStats.reallyBroken, 1);
+    assert.equal(r.guessStats.unaligned, 0);
+    assert.deepEqual(r.gapStats, { total: 2, reallyMissing: 1, unaligned: 0 });
+    const gaps = r.guesses.filter((g) => g.kind === "抜け");
+    assert.ok((gaps[0].gapChars ?? 0) >= GAP_MIN_CHARS);
+    assert.equal(gaps[1].gapChars, 0);
+    assert.equal(gaps[0].reallyBroken, null); // 抜けは「崩れていたか」を見ない
+    assert.equal(gaps[0].guessMatchesScript, null);
+    assert.equal(gaps[0].changedCorrect, false);
+    assert.equal(r.guesses.find((g) => g.kind === "崩れ")?.gapChars, null);
+    // LLM 判定（推測の意味）に回すのは、台本の対応がある「崩れ」だけ
+    assert.deepEqual(r.guesses.map(needsMeaningJudge), [true, false, false, false]);
+    assert.equal(needsMeaningJudge({ kind: "崩れ", scriptWindow: null }), false);
+    // 対応が取れない所（memoSpan が無い発話）の抜けは unaligned
+    const t2: Transcript = { ...t, utterances: t.utterances.map((u, i) => (i === 3 ? { ...u, memoSpan: null } : u)) };
+    assert.deepEqual(axis12(t2, a).gapStats, { total: 2, reallyMissing: 0, unaligned: 1 });
+    // 飛びの数そのもの：落ちた 4 行目の正規化後の文字数
+    assert.equal(missingScriptCharsAround(a, ...spanOf("会場はどこ")), 9);
+    assert.equal(missingScriptCharsAround(a, ...spanOf("古文の先生")), 0);
   });
 
   test("整形の揺れ：話者の食い違いと直しの数", () => {

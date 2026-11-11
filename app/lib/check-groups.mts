@@ -40,8 +40,19 @@ export type CheckGroups = {
 
 const has = (u: Utterance, mark: string) => u.check.some((c) => c.startsWith(mark));
 
-/** 推測を今の本文に当てた形。target は本文の中で置き換える所（見つからなければ null）、applied は置き換えた後の本文 */
+/**
+ * 推測を今の本文に当てた形。target は本文の中で置き換える所（見つからなければ null）、applied は置き換えた後の本文。
+ * 「抜け」（言葉が抜けていて推測できない所）は推測の文が無いので、applied はいつも null（「この推測で直す」を出さない）。
+ */
 export type GuessView = Guess & { target: string | null; applied: string | null };
+
+/** 「抜け」か（言葉が抜けていて推測できない所。設計書「0c 意味が通らない箇所」） */
+export function isGap(g: Pick<Guess, "kind">): boolean {
+  return g.kind === "抜け";
+}
+
+/** 「抜け」に添える文。推測を出さず、本人が覚えていれば直し、覚えていなければそのままでよい（設計書「0c 意味が通らない箇所」） */
+export const GAP_NOTICE = "言葉が抜けていて推測できません。覚えていれば「本文を直す」で打ち込み、二人の言葉が混ざっていれば「カーソルの位置で分ける」で分けてください。覚えていなければ、そのままでかまいません。";
 
 const bare = (s: string) => s.replace(/[\s、。,.・]/g, "");
 
@@ -49,6 +60,7 @@ const bare = (s: string) => s.replace(/[\s、。,.・]/g, "");
  * 発話に付いた推測（0c）のうち、まだ本文に入っていないもの。
  * 0c は元の文で読むので、0b の直しで既に同じ言葉になっていれば出さない（句読点と空白は見ない）。
  * 置き換える所は、推測の元の言葉そのもの、なければ 0b の直しを当てた形で本文から探す。
+ * 「抜け」は推測の文が無いのでいつも出し、置き換えた本文は作らない。
  */
 export function guessViews(t: Transcript, u: Utterance): GuessView[] {
   const text = u.text ?? "";
@@ -56,14 +68,15 @@ export function guessViews(t: Transcript, u: Utterance): GuessView[] {
   const out: GuessView[] = [];
   for (const g of t.step0c?.guesses ?? []) {
     if (g.index !== u.index) continue;
-    if (bare(text).includes(bare(g.guess))) continue;
+    const gap = isGap(g);
+    if (!gap && bare(text).includes(bare(g.guess))) continue;
     let target: string | null = null;
     if (g.fragment !== "" && text.includes(g.fragment)) target = g.fragment;
     else {
       const fixed = cs.reduce((s, c) => s.split(c.before).join(c.after), g.fragment);
       if (fixed !== "" && text.includes(fixed)) target = fixed;
     }
-    out.push({ ...g, target, applied: target === null ? null : replaceFirst(text, target, g.guess) });
+    out.push({ ...g, target, applied: gap || target === null ? null : replaceFirst(text, target, g.guess) });
   }
   return out;
 }

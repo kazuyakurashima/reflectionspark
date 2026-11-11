@@ -10,7 +10,7 @@ import type { Transcript, Utterance } from "@/engine/types.mts";
 import { SPEAKER_LABELS } from "@/engine/types.mts";
 import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { CHECK_EDITED_BY_USER } from "@/app/lib/view";
-import { guessViews } from "@/app/lib/check-groups.mts";
+import { GAP_NOTICE, guessViews, isGap } from "@/app/lib/check-groups.mts";
 import { correctionsOf } from "./UtteranceView";
 
 export function CheckUtterance({
@@ -43,8 +43,9 @@ export function CheckUtterance({
     setEditing(false);
     onSplit(u, pos);
   };
-  /** まだ本文に入っていない推測だけ（0b の直しで同じ言葉になったものは出さない） */
+  /** まだ本文に入っていない推測だけ（0b の直しで同じ言葉になったものは出さない）。「抜け」（言葉が抜けていて推測できない所）も含む */
   const guesses = guessViews(t, u);
+  const hasGuessText = guesses.some((g) => !isGap(g));
   const corrections = correctionsOf(t, u.index);
   const corrected = corrections.length > 0 && u.text !== u.original;
   const flags = u.check.filter((c) => !c.startsWith("話者の確からしさが中"));
@@ -122,11 +123,21 @@ export function CheckUtterance({
     <div className="mt-1 space-y-2 rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-2 text-sm">
       {guesses.map((g, i) => (
         <div key={i}>
-          <div>
-            <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.target ?? g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
-            <span className="ml-1 text-xs text-stone-600">（手がかり：{g.clue}）</span>
-          </div>
-          {g.applied !== null ? (
+          {isGap(g) ? (
+            <>
+              <div>
+                <span className="font-bold">抜け：</span>「<mark className={MARK_BEFORE}>{g.target ?? g.fragment}</mark>」の所で、言葉が抜けていると Claude が見ました
+                <span className="ml-1 text-xs text-stone-600">（なぜ抜けと見たか：{g.clue}）</span>
+              </div>
+              <div className="mt-1 text-xs text-stone-600">{GAP_NOTICE}</div>
+            </>
+          ) : (
+            <div>
+              <span className="font-bold">推測：</span>「<mark className={MARK_BEFORE}>{g.target ?? g.fragment}</mark>」は「<mark className={MARK_AFTER}>{g.guess}</mark>」かもしれない
+              <span className="ml-1 text-xs text-stone-600">（手がかり：{g.clue}）</span>
+            </div>
+          )}
+          {isGap(g) ? null : g.applied !== null ? (
             <div className="mt-1 flex items-start gap-2">
               <span className="shrink-0 text-xs text-stone-600">推測で直すと：</span>
               <span className="grow">{marked(g.applied, [g.guess], MARK_AFTER)}</span>
@@ -139,7 +150,7 @@ export function CheckUtterance({
           )}
         </div>
       ))}
-      <div className="text-xs text-stone-600">推測は、「この推測で直す」を押したときだけ本文に入り、分析に使います。押さなければ今の本文のままです。</div>
+      {hasGuessText && <div className="text-xs text-stone-600">推測は、「この推測で直す」を押したときだけ本文に入り、分析に使います。押さなければ今の本文のままです。</div>}
     </div>
   );
   return (
@@ -202,7 +213,7 @@ export function CheckUtterance({
               </Block>
             </>
           ) : (
-            <Block title="会話" hint={guesses.length > 0 ? "色の付いた所が、意味が通らないと Claude が見た所です。" : ""}>
+            <Block title="会話" hint={guesses.length > 0 ? (hasGuessText ? "色の付いた所が、意味が通らないと Claude が見た所です。" : "色の付いた所が、言葉が抜けていると Claude が見た所です。") : ""}>
               {before.map((n) => (
                 <Line key={n.index} n={n} text={n.text ?? n.original} marks={nb(n).map((c) => c.after)} markClass={MARK_AFTER} />
               ))}

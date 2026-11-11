@@ -1,6 +1,7 @@
 // LLM 判定（軸 3 問いの質、軸 4 行動の具体性、軸 10 引用が読みを支えるか、軸 12 推測の意味の一致）。
 // 観点と 1〜5 の基準を明記し、判定に理由を一行付けさせる（docs/設計書.md「読み方と決まり」）。
 // 人の抜き取りで確かめるときは、人が先に判定を書いてから AI の判定を見る。
+// 軸 12 の推測の意味は「崩れ」だけに回す。「抜け」（言葉が抜けていて推測できないと答えた所）と「話者の取り違え」は回さない（axes.mts の needsMeaningJudge）。
 
 import { callStructured, JUDGE_MODEL } from "../../engine/claude.mts";
 import type { CallMeta, Candidate, Scene, Transcript } from "../../engine/types.mts";
@@ -126,7 +127,7 @@ ${sceneText(sc, t)}`,
   );
 }
 
-/** 軸 12：0c の推測の意味が台本と合うか */
+/** 軸 12：0c の推測の意味が台本と合うか（「崩れ」の推測だけ。「抜け」は推測の文が無いので回さない） */
 export async function judgeGuessMeaning(fragment: string, guess: string, scriptText: string): Promise<Judgement & { meta: CallMeta }> {
   return judge(
     "軸 12 推測の意味",

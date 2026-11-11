@@ -4,7 +4,7 @@
 
 import { rubricBackground, rubricFull } from "./rubric.mts";
 import type { MeetingKind, Scene, Spark, Utterance } from "./types.mts";
-import { SPEAKER_LABELS } from "./types.mts";
+import { GUESS_KINDS, SPEAKER_LABELS } from "./types.mts";
 import { blockLabel, markPreviousUtteranceRefs, utteranceLabel } from "./utterance-no.mts";
 
 /** すべての工程に共通の前置き。 */
@@ -212,7 +212,7 @@ export function step0cSystem(kind: MeetingKind): string {
   const { self, other } = labels(kind);
   return `${COMMON}
 
-あなたの仕事は、発話に区切った文字起こしの中で、意味が通らない所（聞き違いで直しきれない所）と、話者の取り違えらしい所を挙げることです。
+あなたの仕事は、発話に区切った文字起こしの中で、意味が通らない所（聞き違いで直しきれない所）と、話者の取り違えらしい所と、言葉が抜けていて推測できない所を挙げることです。
 面談の種類は「${kind}」。話者は「${self}」と「${other}」。
 挙げた推測は分析には渡しません。本人が根拠の発話を開いたときに、「推測」と明記して元の文と並べて見せるだけです。
 
@@ -220,9 +220,10 @@ export function step0cSystem(kind: MeetingKind): string {
 1. 先に、会話全体の要旨を 2〜3 文で書く。
 2. その要旨に照らして、意味が通らない断片を挙げる。断片は、その発話の本文にそのまま含まれる文字列で、短く切る。
 3. 推測は、音の近い語があればそれを先に選び、音で決まらなければ意味の合う語を選ぶ。説明の語を足したり、文ごと書き換えたりしない。
-4. 手がかり（なぜそう推測したか）を一言で添える。
-5. 話者の取り違えらしい所（文の意味からして、もう一方の話者の言葉と読める所）は、種類を「話者の取り違え」にし、推測の欄にはどちらの話者と読めるかを書く。
-6. 見落としより拾いすぎを許す。ただし、正しい発話に推測を付けて意味を変えないよう、意味が通っている所は挙げない。
+4. 文字起こしに無い言葉を足して文を作らない。言葉が落ちている、二人の言葉がつながっていると見たら、種類を「抜け」にする。ボイスメモの文字起こしでは、聞き違いではなく言葉そのものが落ちて、二人の発話が一つにつながることがある。そこに推測を作ると、言われていない言葉を足した文になる。「抜け」では推測の欄を空にし、手がかりに「なぜ抜けと見たか」を一行で書く（例：相手への問いの直後に、返事が無いまま本人の次の話が続いている）。
+5. 手がかり（なぜそう推測したか）を一言で添える。
+6. 話者の取り違えらしい所（文の意味からして、もう一方の話者の言葉と読める所）は、種類を「話者の取り違え」にし、推測の欄にはどちらの話者と読めるかを書く。
+7. 見落としより拾いすぎを許す。ただし、正しい発話に推測を付けて意味を変えないよう、意味が通っている所は挙げない。
 
 出力は JSON だけ。`;
 }
@@ -241,7 +242,7 @@ export const STEP0C_SCHEMA = {
         required: ["index", "kind", "fragment", "guess", "clue"],
         properties: {
           index: { type: "integer", minimum: 0 },
-          kind: { type: "string", enum: ["崩れ", "話者の取り違え"] },
+          kind: { type: "string", enum: [...GUESS_KINDS] },
           fragment: { type: "string" },
           guess: { type: "string" },
           clue: { type: "string" },
@@ -252,7 +253,7 @@ export const STEP0C_SCHEMA = {
 };
 
 export function step0cUser(utterances: Utterance[]): string {
-  return `次の発話の並びで、意味が通らない所と、話者の取り違えらしい所を挙げてください。発話番号は行頭の数字です。
+  return `次の発話の並びで、意味が通らない所と、話者の取り違えらしい所と、言葉が抜けていて推測できない所を挙げてください。発話番号は行頭の数字です。
 
 <utterances>
 ${numberedTranscript(utterances)}

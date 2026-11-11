@@ -2,11 +2,13 @@
 
 // 発話の見せ方。画面 2 で根拠の発話番号を押したときに、その発話と前後 2 発話をその場で開く。
 // 工程 0c の推測がある発話は、推測を先に、元の文字起こしを小さく添え、「分析には使っていない」と書く。
+// 「抜け」（言葉が抜けていて推測できない所）は推測の文が無いので、抜けと見た所と手がかりだけを出す。
 // 工程 0b で直した所がある発話は、元の文字起こしも添える。
 
 import type { Transcript, Utterance } from "@/engine/types.mts";
 import { utteranceLabel } from "@/engine/utterance-no.mts";
 import { around } from "@/app/lib/view";
+import { isGap } from "@/app/lib/check-groups.mts";
 
 export function guessesOf(t: Transcript, index: number) {
   return (t.step0c?.guesses ?? []).filter((g) => g.index === index);
@@ -30,10 +32,16 @@ export function UtteranceLine({ t, u, highlight = false, tag }: { t: Transcript;
       </div>
       {guesses.map((g, i) => (
         <div key={i} className="mt-1 ml-6 rounded bg-stone-100 px-2 py-1 text-xs text-stone-700">
-          <div>
-            <span className="font-semibold">推測</span>：「{g.fragment}」→「{g.guess}」（{g.clue}）
-          </div>
-          <div className="text-stone-500">元の文字起こし：{u.original}。この推測は分析には使っていません。</div>
+          {isGap(g) ? (
+            <div>
+              <span className="font-semibold">抜け</span>：「{g.fragment}」の所で言葉が抜けていると見た（{g.clue}）。推測は付けていません。
+            </div>
+          ) : (
+            <div>
+              <span className="font-semibold">推測</span>：「{g.fragment}」→「{g.guess}」（{g.clue}）
+            </div>
+          )}
+          <div className="text-stone-500">元の文字起こし：{u.original}。{isGap(g) ? "この印" : "この推測"}は分析には使っていません。</div>
         </div>
       ))}
       {guesses.length === 0 && u.text !== u.original && (

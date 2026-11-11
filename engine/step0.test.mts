@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { anchorUtterances, applyCorrections, attachStep0c, CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_UNANCHORED, waitShort } from "./step0.mts";
+import { setClientForTests } from "./claude.mts";
+import { STEP0C_SCHEMA, step0cSystem, step0cUser } from "./prompts.mts";
+import { anchorUtterances, applyCorrections, attachStep0c, CHECK_CORRECTED, CHECK_LOW_CONFIDENCE, CHECK_UNANCHORED, step0c, waitShort } from "./step0.mts";
+import { GUESS_KINDS } from "./types.mts";
 import type { Step0aRaw, Utterance } from "./types.mts";
 
 const raw = "じゃあ始めようか。今日部活は。今日は早めに終わりました。顧問の先生が出張で。そっか、吹奏楽来月が最後のコンクールだっけ。はいあ、ごめん会場はどこ市民会館です。";
@@ -153,5 +156,34 @@ describe("工程 0c は別に回す（失敗の扱い）", () => {
     const changed = attachStep0c(t, r, 2);
     assert.equal(changed.step0c?.guesses.length, 0);
     assert.match(changed.step0c?.failed ?? "", /並びが変わった/);
+  });
+
+  test("工程 0c の「抜け」の出口（設計書 工程 0c）：種類に「抜け」があり、プロンプトは文字起こしに無い言葉を足して文を作らないと言い、「抜け」の推測の文は空にして返す", async () => {
+    assert.ok(GUESS_KINDS.includes("抜け"));
+    assert.deepEqual(STEP0C_SCHEMA.properties.places.items.properties.kind.enum, [...GUESS_KINDS]);
+    const sys = step0cSystem("生徒");
+    assert.match(sys, /文字起こしに無い言葉を足して文を作らない/);
+    assert.match(sys, /二人の言葉がつながっていると見たら、種類を「抜け」にする/);
+    assert.match(sys, /なぜ抜けと見たか/);
+    assert.match(step0cUser([]), /言葉が抜けていて推測できない所/);
+    // 偽のクライアント：モデルが「抜け」に文を作っていても、推測の文は空にする（手がかりは残す）
+    const utterances: Utterance[] = [{ index: 0, speaker: "講師", text: "会場はどこ市民会館です", original: "会場はどこ市民会館です", confidence: "低", check: [], memoSpan: null }];
+    const reply = JSON.stringify({
+      summary: "面談の要旨。",
+      places: [
+        { index: 0, kind: "抜け", fragment: "会場はどこ市民会館", guess: "会場はどこ？市民会館です", clue: "問いの直後に返事が無く、相手の言葉が続いている" },
+        { index: 0, kind: "崩れ", fragment: "会館", guess: "会場", clue: "音が近い" },
+        { index: 9, kind: "抜け", fragment: "x", guess: "", clue: "範囲の外" },
+      ],
+    });
+    setClientForTests({ messages: { stream: () => ({ finalMessage: async () => ({ content: [{ type: "text", text: reply }], stop_reason: "end_turn", stop_details: null, usage: { input_tokens: 1, output_tokens: 1 } }) }) } });
+    const r = await step0c(utterances, "生徒");
+    assert.deepEqual(
+      r.result.guesses.map((g) => [g.kind, g.guess, g.clue]),
+      [
+        ["抜け", "", "問いの直後に返事が無く、相手の言葉が続いている"],
+        ["崩れ", "会場", "音が近い"],
+      ],
+    );
   });
 });

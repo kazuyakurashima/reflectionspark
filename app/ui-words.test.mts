@@ -10,12 +10,12 @@ function walk(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
     const p = path.join(dir, d.name);
     if (d.isDirectory()) return walk(p);
-    return /\.(tsx|ts)$/.test(d.name) && !/\.test\./.test(d.name) ? [p] : [];
+    return /\.(tsx|ts|mts)$/.test(d.name) && !/\.test\./.test(d.name) ? [p] : [];
   });
 }
 
 describe("画面の文言（決まり 3）", () => {
-  test("app/ の文言に性質の言葉が無い", () => {
+  test("app/ の文言に性質の言葉が無い（.tsx・.ts・.mts。画面の定型文も含む）", () => {
     const hits = walk(path.resolve("app")).flatMap((f) => scanText(fs.readFileSync(f, "utf8"), path.relative(process.cwd(), f)));
     assert.deepEqual(
       hits.map((h) => `${h.field}: ${h.word} …${h.context}…`),
